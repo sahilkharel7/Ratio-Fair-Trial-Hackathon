@@ -6,5 +6,6 @@
     "note": "No passage directly responds to the argument about the evidence's extraction.",
     "responding": []
   },
-  "schema": "ArgumentReply"
+  "schema": "ArgumentReply",
+  "synthetic": true
 }

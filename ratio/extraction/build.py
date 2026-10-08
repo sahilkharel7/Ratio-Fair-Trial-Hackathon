@@ -38,6 +38,7 @@ def _passage(doc: Document, index: int, segment: Segment) -> Passage:
         doc_id=doc.id,
         index=index,
         section=segment.section,
+        chapter=segment.chapter,
         kind=segment.kind,
         span=_span(doc, segment.start, segment.end),
     )

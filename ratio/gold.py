@@ -164,24 +164,21 @@ def build_expected(annotations: Annotations) -> ExpectedFlags:
 
 
 def build_gold_timeline(annotations: Annotations) -> GoldTimeline:
-    """One gold event per (type, date): the first annotation of that event is its anchor."""
-    seen: set[tuple[str, dt.date]] = set()
-    events = []
+    """One gold event per (type, date), anchored at every annotated mention of it."""
+    groups: dict[tuple[str, dt.date], list[GoldEventEntry]] = {}
     for entry in annotations.events:
-        key = (entry.type, entry.date)
-        if key in seen:
-            continue
-        seen.add(key)
-        events.append(
-            GoldEvent(
-                id=entry.id,
-                type=entry.type,
-                date=entry.date,
-                precision=entry.precision,
-                anchor=Anchor(doc=entry.doc, quote=entry.quote),
-            )
+        groups.setdefault((entry.type, entry.date), []).append(entry)
+    events = tuple(
+        GoldEvent(
+            id=entries[0].id,
+            type=entries[0].type,
+            date=entries[0].date,
+            precision=entries[0].precision,
+            anchors=tuple(Anchor(doc=entry.doc, quote=entry.quote) for entry in entries),
         )
-    return GoldTimeline(case_id=annotations.case_id, synthetic=annotations.synthetic, events=tuple(events))
+        for entries in groups.values()
+    )
+    return GoldTimeline(case_id=annotations.case_id, synthetic=annotations.synthetic, events=events)
 
 
 def _dump(model: Frozen) -> str:

@@ -285,3 +285,165 @@ def test_long_reasoning_is_narrowed_to_the_most_similar_passages():
     assert all(len(re.findall(r"^P\d+: ", call.user, re.MULTILINE)) == 3 for call in llm.calls)
     retroactivity = next(call.user for call in llm.calls if "amendment" in call.user.split("\n")[0])
     assert "the Court notes that the amendment entered into force" in retroactivity
+
+
+# --- review fixes: union containment, block quotes, the charge's wording, recall, all indictments ---
+
+FACTS = (
+    "The articles were shared more than 40,000 times within three days and caused public alarm in the northern districts. "
+    "The accused knew that the allegations were false, because the Ministry had published the audited accounts on 2 February 2025."
+)
+CHARGE = "VI. CHARGE\n\nThe accused is charged with disseminating false information likely to cause public alarm, an offence under Article 214(2) of the Penal Code.\n"
+
+
+def test_a_sentence_stitched_from_two_indictment_sentences_is_one_copy_of_both():
+    stitched = FACTS.replace(" northern districts. The accused", " northern districts; the accused")
+    result, _ = run(small_case(f"V. ASSESSMENT\n\n{stitched}\n", FACTS + "\n"))
+    (flag,) = result.flags
+    assert flag.status == "verbatim_reuse" and [e.role for e in flag.evidence] == ["judgment", "indictment", "indictment"]
+    containment = result.pairs[0].passage_containment
+    assert containment > 0.85  # only the 5-grams across the joint are not in the indictment
+    assert f"({round(100 * containment)}% of its 5-word sequences" in flag.message
+    assert max(pair.containment for pair in result.pairs) < 0.6  # neither sentence alone would have counted
+
+
+def test_a_provision_quoted_as_a_block_on_both_sides_is_not_reuse():
+    law = "IV. THE APPLICABLE LAW\n\nArticle 214(2) of the Penal Code reads as follows:\n\nWhoever disseminates information that he knows to be false shall be punished by imprisonment of two to six years.\n\n"
+    result, _ = run(small_case(law + "V. ASSESSMENT\n\nThe witness gave a consistent account of the meeting.\n", law))
+    assert result.pairs == () and result.flags == ()
+
+
+def test_restating_the_charge_is_shown_apart_and_not_scored():
+    finding = "The Court therefore finds that the accused disseminated false information likely to cause public alarm, an offence under Article 214(2) of the Penal Code."
+    result, _ = run(small_case(f"V. ASSESSMENT\n\n{finding} {INDEPENDENT}\n", CHARGE))
+    (flag,) = result.flags
+    assert flag.status == "charge_wording" and "not counted in the score" in flag.message
+    assert result.charge_wording_chars > 0 and result.verbatim_chars == 0 and result.score == 0.0
+
+
+def test_a_short_excerpt_of_a_long_indictment_sentence_is_found():
+    result, _ = run(small_case("V. ASSESSMENT\n\nIndeed, the Ministry had published the audited accounts on 2 February 2025.\n", FACTS + "\n"))
+    assert [flag.status for flag in result.flags] == ["verbatim_reuse"]
+
+
+def test_lsh_proposes_every_near_copy_in_a_larger_random_set():
+    import random
+
+    rng = random.Random(7)
+    vocabulary = [f"word{i}" for i in range(400)]
+    sentences = [" ".join(rng.choice(vocabulary) for _ in range(rng.randint(8, 30))).capitalize() + "." for _ in range(60)]
+    copies = []
+    for sentence in sentences[:40]:  # copies with a few words changed
+        words = sentence[:-1].split()
+        for _ in range(rng.randint(0, 3)):
+            words[rng.randrange(1, len(words))] = rng.choice(vocabulary)
+        copies.append(" ".join(words) + ".")
+    record = small_case("V. ASSESSMENT\n\n" + " ".join(copies) + "\n", " ".join(sentences) + "\n")
+    reasoning = [p for p in record.passages if p.doc_id.endswith("judgment.txt") and p.kind == "body"]
+    sources = [p for p in record.passages if p.doc_id.endswith("indictment.txt") and p.kind == "body"]
+    items = [reuse.shingle(p, SETTINGS.shingle_size) for p in reasoning]
+    targets = [reuse.shingle(p, SETTINGS.shingle_size) for p in sources]
+    proposed = reuse.lsh_candidates(items, targets, SETTINGS)
+    near_copies = [
+        (item, target)
+        for item in items
+        for target in targets
+        if item.shingles and len(item.shingles.keys() & target.shingles.keys()) / len(item.shingles.keys() | target.shingles.keys()) >= SETTINGS.verbatim_jaccard
+    ]
+    assert len(near_copies) >= 20
+    assert all(target.passage.id in proposed[item.passage.id] for item, target in near_copies)
+
+
+def test_composed_and_decomposed_accents_match():
+    import unicodedata
+
+    sentence = "On 4 May 2024 Mr Jürgen Müller transferred the proceeds to Société Générale in Genève the same evening."
+    result, _ = run(small_case(f"V. ASSESSMENT\n\n{sentence}\n", unicodedata.normalize("NFD", sentence) + "\n"))
+    assert [flag.status for flag in result.flags] == ["verbatim_reuse"]
+
+
+def test_no_comparable_indictment_text_means_no_score_rather_than_zero():
+    result, _ = run(small_case(f"V. ASSESSMENT\n\n{INDEPENDENT}\n", "Page 1 of 3\n"))
+    assert result.score is None and result.score_note == "the indictment has no comparable text"
+
+
+def test_every_indictment_is_compared():
+    record = make_record(
+        [
+            ("judgment.txt", "judgment", JUDGMENT + f"V. ASSESSMENT\n\n{COPIED}\n"),
+            ("indictment.txt", "indictment", INDICTMENT + "The accused stole a car from a parking lot in Basel.\n"),
+            ("amended.txt", "indictment", INDICTMENT + COPIED + "\n"),
+        ]
+    )
+    result, _ = run(record)
+    assert [pair.indictment.doc_id for pair in result.pairs] == ["test-case/amended.txt"]
+    assert result.indictment_doc_ids == ("test-case/indictment.txt", "test-case/amended.txt")
+
+
+# --- review fixes: the court's answer, judgments without reasoning, readable replies, budgets -------
+
+NOTE = "Hearing date: 2 May 2024\n\nDefence counsel argued that the telephone was seized without a judicial warrant.\n"
+
+
+def with_note(judgment_body: str) -> CaseRecord:
+    record = make_record([("judgment.txt", "judgment", JUDGMENT + judgment_body), ("note.txt", "monitoring_note", NOTE)])
+    return with_argument(record, "note.txt", "seized without a judicial warrant")
+
+
+def answering(passage_text: str):
+    def respond(system, user, schema, purpose):
+        ids = [pid for pid, text in re.findall(r"^(P\d+): (.*)$", user, re.MULTILINE) if passage_text in text]
+        return {"note": "", "responding": ids}
+
+    return respond
+
+
+def test_the_courts_answer_right_after_the_restated_argument_is_shown_to_the_model():
+    record = with_note(
+        "V. ASSESSMENT OF THE COURT\n\nThe defence submits that the telephone was seized without a judicial warrant. "
+        "That objection cannot succeed: the telephone was found on the accused during a lawful arrest.\n"
+    )
+    result, llm = run(record, responder=answering("That objection cannot succeed"))
+    assert "That objection cannot succeed" in llm.calls[0].user
+    assert [check.addressed for check in result.arguments] == [True]
+
+
+def test_a_judgment_without_reasoning_leaves_every_defence_argument_unanswered():
+    record = with_note(CHARGE.replace("VI.", "I.") + "\nII. DISPOSITION\n\nFor these reasons, the Court finds the accused guilty.\n")
+    result, llm = run(record)
+    assert llm.calls == ()
+    (flag,) = [flag for flag in result.flags if flag.status == "unaddressed_argument"]
+    assert "contains no passages of the court's own reasoning" in flag.message
+
+
+@pytest.mark.parametrize(
+    "reply, addressed, checked",
+    [
+        (["As to the defence argument that the first article predates the amendment to Article 214"], False, False),
+        (["P1 and P2"], True, True),
+        (["none"], False, True),
+        (["P99"], False, False),
+    ],
+)
+def test_only_passage_ids_count_as_an_answer(reply, addressed, checked):
+    record = with_note("V. ASSESSMENT\n\nThe warrant was issued on 1 May 2024. The search was therefore lawful.\n")
+    result, _ = run(record, responder=lambda *_: {"note": "", "responding": reply})
+    (check,) = result.arguments
+    assert (check.addressed, check.checked) == (addressed, checked)
+    assert any(f.status == "unaddressed_argument" for f in result.flags) == (checked and not addressed)
+
+
+def test_the_message_says_how_many_of_the_passages_were_checked():
+    narrow = CONFIG.model_copy(
+        update={"settings": CONFIG.settings.model_copy(update={"reuse": SETTINGS.model_copy(update={"argument_max_passages": 3})})}
+    )
+    result, _ = run(responder=lambda *_: {"note": "", "responding": []}, config=narrow)
+    assert all("3 of 10 passages checked" in flag.message for flag in result.flags if flag.status == "unaddressed_argument")
+
+
+def test_long_passages_are_chosen_to_fit_the_prompt():
+    long_sentences = " ".join(f"Point {n} of the reasoning is that " + "the evidence was weighed with care " * 80 + "." for n in range(10))
+    result, llm = run(with_note(f"V. ASSESSMENT\n\n{long_sentences}\n"), responder=lambda *_: {"note": "", "responding": []})
+    (check,) = result.arguments
+    assert 0 < check.passages_checked < 10 and check.passages_total == 10
+    assert len(llm.calls[0].user) // 3 + CONFIG.settings.llm.num_predict.argument_check < CONFIG.settings.llm.num_ctx

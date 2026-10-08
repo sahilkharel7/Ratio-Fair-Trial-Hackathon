@@ -23,13 +23,28 @@ from urllib.parse import urlsplit
 from pydantic import BaseModel, ValidationError
 
 from ratio.config import LLMSettings
+from ratio.context import estimated_tokens, system_with_schema
 from ratio.netguard import is_loopback_host
 
 T = TypeVar("T", bound=BaseModel)
 Transport = Callable[[str, dict | None, float], dict]
 
-_CHARS_PER_TOKEN = 3  # conservative estimate, so prompts are refused before Ollama would truncate them
-_PROXYLESS = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+_MIN_TOKENS_PER_SECOND = 10  # the read timeout grows with the reply budget (slow laptops, long label replies)
+_PROMPT_FIX = {
+    "extraction": "lower extraction.chunk_chars in ratio/config/settings.yaml",
+    "labels": "lower absence.max_shortlist or absence.per_hearing_top_k in ratio/config/settings.yaml",
+    "argument_check": "lower reuse.argument_max_passages in ratio/config/settings.yaml",
+}
+
+
+class _NoRedirect(urllib.request.HTTPRedirectHandler):
+    """A redirect could point anywhere; the local Ollama server never sends one."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):  # noqa: ANN001, ANN201 - urllib signature
+        raise urllib.error.HTTPError(req.full_url, code, f"redirect to {newurl} refused", headers, fp)
+
+
+_PROXYLESS = urllib.request.build_opener(urllib.request.ProxyHandler({}), _NoRedirect())
 
 
 class LLMError(RuntimeError):
@@ -52,6 +67,14 @@ class CacheMiss(LLMError):
     """Replay-only mode found no cached reply for this request."""
 
 
+class CacheDamaged(LLMError):
+    """A cache file exists but cannot be read."""
+
+
+class PromptTooLong(LLMError):
+    """The prompt and the reply budget would not fit in the model's context window."""
+
+
 @dataclass(frozen=True)
 class HttpError(Exception):
     status: int
@@ -60,6 +83,14 @@ class HttpError(Exception):
 
 def model_from_env(settings: LLMSettings) -> str:
     return os.environ.get("RATIO_MODEL") or settings.default_model
+
+
+def read_timeout(settings: LLMSettings, num_predict: int) -> float:
+    """Seconds to wait for a whole (non-streamed) reply; RATIO_OLLAMA_TIMEOUT overrides it."""
+    override = os.environ.get("RATIO_OLLAMA_TIMEOUT")
+    if override:
+        return float(override)
+    return settings.timeout_seconds + num_predict / _MIN_TOKENS_PER_SECOND
 
 
 def request_options(settings: LLMSettings, purpose: str) -> dict:
@@ -126,21 +157,26 @@ class OllamaClient:
         self._model = model or model_from_env(settings)
         self._host = (host or os.environ.get("RATIO_OLLAMA_HOST") or settings.host).rstrip("/")
         _require_loopback(self._host)
-        _refuse_cloud_model(self._model)
+        _refuse_cloud_model(self._model)  # fast check on the name; check_model() asks the server
         self._transport = transport or urllib_transport
+        self._verified_local = False
 
     @property
     def model(self) -> str:
         return self._model
 
-    def _post(self, path: str, body: dict | None) -> dict:
+    def _post(self, path: str, body: dict | None, timeout: float | None = None) -> dict:
+        url = f"{self._host}{path}"
         try:
-            return self._transport(f"{self._host}{path}", body, self._settings.timeout_seconds)
+            return self._transport(url, body, timeout or self._settings.timeout_seconds)
         except HttpError as exc:
-            if exc.status == 404:
+            missing_model = "model" in exc.message.lower() and "not found" in exc.message.lower()  # Ollama's wording
+            if exc.status == 404 and path in ("/api/chat", "/api/show") and missing_model:
                 raise ModelNotAvailable(
                     f"Model {self._model!r} is not available. Run `ollama pull {self._model}` once while online."
                 ) from exc
+            if exc.status == 404:
+                raise LLMError(f"unexpected 404 from {url}; RATIO_OLLAMA_HOST should look like http://127.0.0.1:11434") from exc
             raise LLMError(f"Ollama returned HTTP {exc.status}: {exc.message}") from exc
 
     def version(self) -> str:
@@ -151,18 +187,21 @@ class OllamaClient:
         info = self._post("/api/show", {"model": self._model})
         if info.get("remote_host") or info.get("remote_model"):
             raise LLMError(f"model {self._model!r} is served by an Ollama cloud host; only local models are allowed")
+        self._verified_local = True
         return info
 
-    def _check_prompt_size(self, messages: Sequence[dict], num_predict: int) -> None:
-        estimate = sum(len(m["content"]) for m in messages) // _CHARS_PER_TOKEN
+    def _check_prompt_size(self, messages: Sequence[dict], num_predict: int, purpose: str) -> None:
+        estimate = estimated_tokens(*(m["content"] for m in messages))
         if estimate + num_predict > self._settings.num_ctx:
-            raise LLMError(
-                f"prompt too long for the {self._settings.num_ctx}-token context window (about {estimate} tokens); "
-                "reduce the chunk size"
+            raise PromptTooLong(
+                f"{purpose} prompt too long for the {self._settings.num_ctx}-token context window "
+                f"(about {estimate} tokens); {_PROMPT_FIX.get(purpose, 'shorten the input')}"
             )
 
-    def _chat(self, messages: list[dict], schema_json: dict, options: dict) -> str:
-        self._check_prompt_size(messages, options["num_predict"])
+    def _chat(self, messages: list[dict], schema_json: dict, options: dict, purpose: str) -> str:
+        self._check_prompt_size(messages, options["num_predict"], purpose)
+        if not self._verified_local:
+            self.check_model()  # a local alias can still be backed by an Ollama cloud model
         body = {
             "model": self._model,
             "messages": messages,
@@ -171,7 +210,7 @@ class OllamaClient:
             "options": options,
             "keep_alive": self._settings.keep_alive,
         }
-        response = self._post("/api/chat", body)
+        response = self._post("/api/chat", body, read_timeout(self._settings, options["num_predict"]))
         if response.get("error"):
             raise LLMError(f"Ollama error: {response['error']}")
         if response.get("done_reason") != "stop":
@@ -184,9 +223,9 @@ class OllamaClient:
     def complete_json(self, *, system: str, user: str, schema: type[T], purpose: str) -> T:
         options = request_options(self._settings, purpose)
         schema_json = schema.model_json_schema()
-        system_text = f"{system}\n\nReply with JSON only, matching this JSON schema:\n{json.dumps(schema_json)}"
+        system_text = system_with_schema(system, schema)
         messages = [{"role": "system", "content": system_text}, {"role": "user", "content": user}]
-        reply = self._chat(messages, schema_json, options)
+        reply = self._chat(messages, schema_json, options, purpose)
         try:
             return schema.model_validate_json(reply)
         except ValidationError as first_error:
@@ -195,7 +234,7 @@ class OllamaClient:
                 "Reply again with valid JSON only."
             )
             retry = messages + [{"role": "assistant", "content": reply}, {"role": "user", "content": correction}]
-            reply = self._chat(retry, schema_json, options)
+            reply = self._chat(retry, schema_json, options, purpose)
             try:
                 return schema.model_validate_json(reply)
             except ValidationError as second_error:
@@ -224,14 +263,26 @@ class ResponseCache:
         for directory in self._dirs:
             path = directory / f"{key}.json"
             if path.is_file():
-                return json.loads(path.read_text(encoding="utf-8"))
+                try:
+                    record = json.loads(path.read_text(encoding="utf-8"))
+                except (OSError, ValueError) as exc:
+                    raise CacheDamaged(f"damaged cache file {path}; delete it") from exc
+                if not isinstance(record, dict) or "response" not in record:
+                    raise CacheDamaged(f"damaged cache file {path}; delete it")
+                return record
         return None
 
     def put(self, key: str, record: dict) -> None:
         self._write_dir.mkdir(parents=True, exist_ok=True)
         text = json.dumps(record, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
         with tempfile.NamedTemporaryFile("w", encoding="utf-8", dir=self._write_dir, delete=False, suffix=".tmp") as tmp:
-            tmp.write(text)
+            try:
+                tmp.write(text)
+                tmp.flush()
+                os.fsync(tmp.fileno())
+            except OSError:
+                Path(tmp.name).unlink(missing_ok=True)
+                raise
         Path(tmp.name).replace(self._write_dir / f"{key}.json")
 
 
@@ -279,16 +330,26 @@ class CachedLLM:
     def stats(self) -> CacheStats:
         return CacheStats(hits=self._hits, misses=self._misses)
 
+    def _cached(self, key: str, schema: type[T]) -> T | None:
+        """The cached reply; a damaged entry is an error when replaying and a miss when live."""
+        try:
+            record = self._cache.get(key)
+            return None if record is None else schema.model_validate(record["response"])
+        except (CacheDamaged, ValidationError) as exc:
+            if self._client is None:
+                raise CacheDamaged(f"cannot replay cache entry {key}: {exc}") from exc
+            return None
+
     def complete_json(self, *, system: str, user: str, schema: type[T], purpose: str) -> T:
         options = request_options(self._settings, purpose)
         key = ResponseCache.key(
             model=self._model, purpose=purpose, system=system, user=user, schema_json=schema.model_json_schema(), options=options
         )
         self._used.add(key)
-        cached = self._cache.get(key)
+        cached = self._cached(key, schema)
         if cached is not None:
             self._hits += 1
-            return schema.model_validate(cached["response"])
+            return cached
         self._misses += 1
         if self._client is None:
             raise CacheMiss(f"no cached {purpose} reply for this request (replay-only mode, model {self._model})")

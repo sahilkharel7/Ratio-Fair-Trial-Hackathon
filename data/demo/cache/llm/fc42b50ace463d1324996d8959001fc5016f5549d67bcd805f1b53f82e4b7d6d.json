@@ -57,5 +57,6 @@
       }
     ]
   },
-  "schema": "ChunkExtraction"
+  "schema": "ChunkExtraction",
+  "synthetic": true
 }

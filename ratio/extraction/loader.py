@@ -11,6 +11,7 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import io
+import unicodedata
 from collections.abc import Mapping
 from pathlib import Path, PurePosixPath
 
@@ -71,6 +72,8 @@ class CaseManifest(Frozen):
         paths = [doc.path for doc in self.documents]
         if len(paths) != len(set(paths)):
             raise ValueError("duplicate document paths")
+        if sum(doc.type == "judgment" for doc in self.documents) > 1:
+            raise ValueError("list one judgment per case; upload an appeal judgment as a separate case")
         if self.rulings is not None:
             _check_relative(self.rulings)
         return self
@@ -124,6 +127,7 @@ def decode_document(name: str, data: bytes) -> str:
         except UnicodeDecodeError as exc:
             raise LoaderError(f"{name}: not valid UTF-8 text") from exc
     text = text.encode("utf-8", errors="replace").decode("utf-8")  # lone surrogates from PDFs
+    text = unicodedata.normalize("NFC", text)  # one form for accents, so copies match character for character
     return text.replace("\r\n", "\n").replace("\r", "\n")
 
 
@@ -139,7 +143,15 @@ def _pdf_text(name: str, data: bytes) -> str:
         raise LoaderError(f"{name}: unreadable PDF ({type(exc).__name__})") from exc
     if encrypted:
         raise LoaderError(f"{name}: encrypted PDFs are not supported")
-    return "\n\n".join(pages)
+    return join_pdf_pages(pages)
+
+
+def join_pdf_pages(pages: list[str]) -> str:
+    """A page that ends mid-sentence continues on the next one; otherwise a new paragraph starts."""
+    text = ""
+    for page in (page for page in pages if page):
+        text += ("" if not text else "\n\n" if text[-1] in ".!?:" else "\n") + page
+    return text
 
 
 def strip_synthetic_marker(text: str) -> tuple[str, bool]:

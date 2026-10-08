@@ -13,7 +13,7 @@ from dataclasses import dataclass
 
 from ratio.schema import SourceSpan
 
-MARK_PRIORITY = {"span": 0, "verbatim": 1, "paraphrase": 2, "excluded": 3}
+MARK_PRIORITY = {"span": 0, "verbatim": 1, "paraphrase": 2, "charge": 3, "excluded": 4}
 # Markdown, LaTeX ($) and Streamlit directives (:red[...], :shortcode:) all start with one of these.
 _MARKDOWN_SPECIAL = re.compile(r"([\\`*_{}\[\]()#+\-.!|<>~$:=])")
 

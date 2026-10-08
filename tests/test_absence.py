@@ -16,7 +16,7 @@ from ratio.modules import absence
 from ratio.modules.absence_prompts import LabelReply
 from ratio.paths import GOLD_DIR, MINILM_DIR
 from ratio.schema import CaseRecord
-from ratio.testing import FakeEmbedder, FakeLLM
+from ratio.testing import FakeEmbedder, FakeLLM, make_record
 
 CONFIG = load_config()
 # The status-rule tests label every note (a wide shortlist), so they do not depend on how a test
@@ -24,7 +24,7 @@ CONFIG = load_config()
 WIDE = CONFIG.model_copy(
     update={
         "settings": CONFIG.settings.model_copy(
-            update={"absence": CONFIG.settings.absence.model_copy(update={"shortlist_top_k": 100, "per_hearing_top_k": 100, "shortlist_min_similarity": -1.0})}
+            update={"absence": CONFIG.settings.absence.model_copy(update={"shortlist_top_k": 100, "per_hearing_top_k": 100, "shortlist_min_similarity": -1.0, "max_shortlist": 1000})}
         )
     }
 )
@@ -85,7 +85,10 @@ def assessment(result, rubric_id):
 def test_demo_statuses_follow_the_rules():
     result, llm = run()
     assert statuses(result) == EXPECTED
-    assert len(llm.calls) <= 7
+    for item in CONFIG.rubric.items:  # the wide shortlist puts every note in front of the model, 30 at a time
+        prompts = [call.user for call in llm.calls if f", {item.name}" in call.user.splitlines()[0]]
+        shown = [len(observations_in(prompt)) for prompt in prompts]
+        assert sum(shown) == len(MOCK.observations) and max(shown) <= 30, item.id
 
 
 def test_violation_and_compliance_are_flags_and_no_evidence_is_a_follow_up():
@@ -204,3 +207,111 @@ def test_charge_follow_up_shows_the_language_fact_not_a_merely_similar_note():
     assert [e.span.text for e in a.context] == [
         next(o.text for o in MOCK.observations if "first language is Ostric" in o.text)
     ]  # "the court would rule on the request later" scores higher with MiniLM but mentions no language
+
+
+# --- review fixes: undated notes, the shortlist cap, context facts, skipped notes, grounding ---------
+
+
+def undated(record: CaseRecord) -> CaseRecord:
+    """The demo record with the hearing dates of its notes removed (as with a note lacking the header)."""
+    observations = tuple(obs.model_copy(update={"hearing_date": None}) for obs in record.observations)
+    return record.model_copy(update={"observations": observations})
+
+
+def test_undated_notes_are_each_their_own_hearing_for_per_hearing_parts():
+    only_first = [(r"Mr\. Venn was present in the courtroom throughout", "supports", "d_defendant_present"),
+                  (r"Lena Brask, whom Mr\. Venn had retained", "supports", "d_counsel_present")]  # fmt: skip
+    result, _ = run(record=undated(MOCK), responder=careful_reader(only_first))
+    d = assessment(result, "iccpr_14_3_d")
+    assert d.status == "no_evidence"  # one note's evidence does not cover the other three notes
+    presence = next(p for p in d.parts if p.part_id == "d_presence")
+    assert len(presence.notes_missing) == 3 and presence.hearings_missing == ()
+    assert any("(no hearing date)" in line for line in d.follow_up.uncovered)
+
+
+def test_the_shortlist_cap_keeps_every_hearings_keyword_note():
+    hearings = 12
+    documents = [
+        (f"note_{n}.txt", "monitoring_note",
+         f"Hearing date: {n} March 2025\n\nThe hearing began at 10:{n:02d}. Mr. Venn sat in the dock for the whole session. "
+         "Two witnesses testified. Counsel asked questions. The hearing ended at 14:00.")
+        for n in range(1, hearings + 1)
+    ]  # fmt: skip
+    record = make_record(documents)
+    capped = CONFIG.model_copy(
+        update={"settings": CONFIG.settings.model_copy(update={"absence": CONFIG.settings.absence.model_copy(update={"max_shortlist": 20})})}
+    )
+    rules = [(r"sat in the dock for the whole session", "supports", "d_defendant_present")]
+    _, llm = run(record=record, responder=careful_reader(rules), config=capped)
+    d_prompts = [call.user for call in llm.calls if "14(3)(d)" in call.user.splitlines()[0]]
+    dock_notes = sum("sat in the dock" in text for prompt in d_prompts for text in observations_in(prompt).values())
+    assert dock_notes == hearings
+
+
+def test_a_contradiction_after_a_support_for_the_same_note_wins():
+    def both(system, user, schema, purpose):
+        labels = []
+        for obs_id, text in observations_in(user).items():
+            if "present in the dock when the hearing opened" in text and "d_defendant_absent:" in user:
+                labels.append({"observation": obs_id, "label": "supports", "indicator_id": "d_defendant_present", "note": ""})
+                labels.append({"observation": obs_id, "label": "contradicts", "indicator_id": "d_defendant_absent", "note": ""})
+            else:
+                labels.append({"observation": obs_id, "label": "unrelated", "indicator_id": "", "note": ""})
+        return {"labels": labels}
+
+    result, _ = run(responder=both)
+    assert assessment(result, "iccpr_14_3_d").status == "evidence_of_violation"
+
+
+def test_notes_the_model_skips_are_asked_about_again():
+    asked = []
+
+    def forgetful_once(system, user, schema, purpose):
+        asked.append(user)
+        reply = careful_reader()(system, user, schema, purpose)
+        first_time = sum(user.splitlines()[0] == earlier.splitlines()[0] for earlier in asked) == 1
+        return {"labels": reply["labels"][::2]} if first_time else reply  # the first reply skips every other note
+
+    result, _ = run(responder=forgetful_once)
+    assert statuses(result) == EXPECTED
+    assert all(a.unlabelled_notes == 0 for a in result.assessments)
+
+
+def test_a_guarantee_is_not_compliant_while_notes_stay_unlabelled():
+    def never_finishes(system, user, schema, purpose):
+        reply = careful_reader()(system, user, schema, purpose)
+        return {"labels": [label for label in reply["labels"] if label["label"] != "unrelated"]}
+
+    result, _ = run(responder=never_finishes)
+    g = assessment(result, "iccpr_14_3_g")
+    assert g.status == "no_evidence" and g.unlabelled_notes > 0
+    assert any("not labelled by the model" in line for line in g.follow_up.uncovered)
+    assert assessment(result, "iccpr_14_3_e").status == "evidence_of_violation"  # a contradiction still counts
+
+
+def test_a_label_is_not_grounded_by_a_sentence_from_another_paragraph():
+    # The note before "read out the charge" (another paragraph) says the first language is Ostric.
+    rules = [(r"read out the charge", "supports", "a_charge_in_understood_language")]
+    result, _ = run(responder=careful_reader(rules))
+    a = assessment(result, "iccpr_14_3_a")
+    assert not any(label.indicator_id == "a_charge_in_understood_language" for label in a.supporting)
+
+
+@pytest.mark.embed
+@needs_model
+def test_a_context_fact_is_never_counted_as_evidence():
+    rules = [(r"first language is Ostric", "supports", "f_understands_court_language")]
+    result, _ = run(responder=careful_reader(rules), embedder=MiniLMEmbedder(), config=CONFIG)
+    f = assessment(result, "iccpr_14_3_f")
+    assert f.status == "no_evidence" and f.supporting == ()
+
+
+def test_a_rubric_item_needs_a_required_part():
+    from pydantic import ValidationError
+
+    from ratio.config import RubricItem
+
+    item = CONFIG.rubric_item("iccpr_14_3_g").model_dump()
+    item["parts"] = [{**part, "required": False} for part in item["parts"]]
+    with pytest.raises(ValidationError, match="required"):
+        RubricItem.model_validate(item)

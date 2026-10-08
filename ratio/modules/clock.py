@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import datetime as dt
 from collections import defaultdict
+from dataclasses import dataclass
 
 from ratio.config import Benchmark
 from ratio.context import AnalysisContext
@@ -86,44 +87,74 @@ def timeline_ids(events: tuple[Event, ...]) -> dict[str, str]:
     return {event.id: _timeline_id(mentions) for mentions in _groups(events).values() for event in mentions}
 
 
-def _candidates(events: tuple[Event, ...], event_type: str) -> tuple[list[Event], bool]:
-    """Day-level mentions of a type, preferring those needing no review. Second value: review needed."""
+def _usable_of(events: tuple[Event, ...], event_type: str) -> tuple[list[Event], list[Event]]:
+    """Day-level mentions of a type: (those needing no review, all of them)."""
     usable = [e for e in events if e.type == event_type and _usable(e)]
-    clean = [e for e in usable if not e.needs_review]
-    return (clean, False) if clean else (usable, bool(usable))
+    return [e for e in usable if not e.needs_review], usable
 
 
 def _hours(delta: dt.timedelta) -> float:
     return round(delta.total_seconds() / 3600, 2)
 
 
-def _measure(benchmark: Benchmark, record: CaseRecord) -> tuple[float | None, float | None, list[Event], list[Event], bool, str]:
-    starts, start_review = _candidates(record.events, benchmark.from_event)
-    ends, end_review = _candidates(record.events, benchmark.to_event)
-    if starts and ends:
-        earliest_start = min(_bounds(e)[0] for e in starts)
-        ends = [e for e in ends if _bounds(e)[1] >= earliest_start]  # an end before the start is impossible
-    if not starts or not ends:
+def _first_after(starts: list[Event], ends: list[Event]) -> tuple[float, float] | None:
+    """Bounds in hours when each start reading is paired with the first end reading that can follow it."""
+    lows, highs = [], []
+    for start in starts:
+        later = [end for end in ends if _bounds(end)[1] >= _bounds(start)[0]]  # an end before the start is impossible
+        if later:
+            first = min(later, key=lambda end: _bounds(end)[0])
+            lows.append(_bounds(first)[0] - _bounds(start)[1])
+            highs.append(_bounds(first)[1] - _bounds(start)[0])
+    return (max(_hours(min(lows)), 0.0), _hours(max(highs))) if lows else None
+
+
+@dataclass(frozen=True)
+class _Measure:
+    low: float | None
+    high: float | None
+    all_low: float | None  # lowest reading over every usable mention, including those marked for review
+    starts: list[Event]
+    ends: list[Event]
+    review: bool
+    note: str
+
+
+def _conflict_note(benchmark: Benchmark, all_starts: list[Event], all_ends: list[Event]) -> str:
+    conflicts = [
+        f"{event_type.replace('_', ' ')} ({', '.join(sorted({e.parsed_date.date().isoformat() for e in group}))})"
+        for event_type, group in ((benchmark.from_event, all_starts), (benchmark.to_event, all_ends))
+        if len({e.parsed_date.date() for e in group}) > 1
+    ]
+    return f"Dates conflict in the record for {'; '.join(conflicts)}." if conflicts else ""
+
+
+def _measure(benchmark: Benchmark, record: CaseRecord) -> _Measure:
+    clean_starts, all_starts = _usable_of(record.events, benchmark.from_event)
+    clean_ends, all_ends = _usable_of(record.events, benchmark.to_event)
+    starts, ends = clean_starts or all_starts, clean_ends or all_ends
+    review = (not clean_starts and bool(all_starts)) or (not clean_ends and bool(all_ends))
+    bounds = _first_after(starts, ends) if starts and ends else None
+    if bounds is None:
         missing = benchmark.from_event if not starts else benchmark.to_event
-        return None, None, starts, ends, False, f"No usable date for {missing.replace('_', ' ')}."
-    low = min(_bounds(end)[0] - _bounds(start)[1] for start in starts for end in ends)
-    high = max(_bounds(end)[1] - _bounds(start)[0] for start in starts for end in ends)
-    conflicts = [t for t, group in ((benchmark.from_event, starts), (benchmark.to_event, ends))
-                 if len({e.parsed_date.date() for e in group}) > 1]  # fmt: skip
-    note = f"Dates conflict in the record for {', '.join(conflicts)}; the interval covers every reading." if conflicts else ""
-    return max(_hours(low), 0.0), _hours(high), starts, ends, start_review or end_review, note
+        return _Measure(None, None, None, starts, ends, False, f"No usable date for {missing.replace('_', ' ')}.")
+    every = _first_after(all_starts, all_ends)
+    ends = [end for end in ends if any(_bounds(end)[1] >= _bounds(start)[0] for start in starts)]
+    return _Measure(bounds[0], bounds[1], every[0] if every else bounds[0], starts, ends, review, _conflict_note(benchmark, all_starts, all_ends))
 
 
-def _status(benchmark: Benchmark, low: float | None, high: float | None, review: bool) -> IntervalStatus:
-    threshold = benchmark.threshold_hours
+def _status(benchmark: Benchmark, measure: _Measure) -> IntervalStatus:
+    threshold, low, high = benchmark.threshold_hours, measure.low, measure.high
     if low is None or high is None:
         return "cannot_compute"
     if threshold is None:
         return "measured"
+    if benchmark.review_status != "confirmed" or measure.review:
+        return "needs_review"
     if high <= threshold:
         return "within_benchmark"
-    if benchmark.review_status != "confirmed" or review:
-        return "needs_review"
+    if low > threshold and measure.all_low is not None and measure.all_low <= threshold:
+        return "needs_review"  # a reading marked for review would put the interval within the benchmark
     return "exceeds_benchmark" if low > threshold else "may_exceed"
 
 
@@ -154,8 +185,9 @@ def _flag(record: CaseRecord, benchmark: Benchmark, interval: Interval, ctx: Ana
 
 
 def _interval(benchmark: Benchmark, record: CaseRecord, merged: dict[str, str]) -> Interval:
-    low, high, starts, ends, review, note = _measure(benchmark, record)
-    status = _status(benchmark, low, high, review)
+    measure = _measure(benchmark, record)
+    low, high, starts, ends, note = measure.low, measure.high, measure.starts, measure.ends, measure.note
+    status = _status(benchmark, measure)
     flagged = status in {"exceeds_benchmark", "may_exceed", "needs_review"}
     return Interval(
         id=stable_id(record.case_id, "clock", benchmark.id),

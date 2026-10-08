@@ -1299,6 +1299,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 0,
       "section": null,
+      "chapter": null,
       "kind": "header",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1312,6 +1313,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 1,
       "section": null,
+      "chapter": null,
       "kind": "header",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1325,6 +1327,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 2,
       "section": null,
+      "chapter": null,
       "kind": "header",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1338,6 +1341,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 3,
       "section": null,
+      "chapter": null,
       "kind": "header",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1351,6 +1355,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 4,
       "section": null,
+      "chapter": null,
       "kind": "header",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1364,6 +1369,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 5,
       "section": "I. THE ACCUSED",
+      "chapter": "I. THE ACCUSED",
       "kind": "heading",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1377,6 +1383,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 6,
       "section": "I. THE ACCUSED",
+      "chapter": "I. THE ACCUSED",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1390,6 +1397,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 7,
       "section": "II. PROCEDURAL HISTORY",
+      "chapter": "II. PROCEDURAL HISTORY",
       "kind": "heading",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1403,6 +1411,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 8,
       "section": "II. PROCEDURAL HISTORY",
+      "chapter": "II. PROCEDURAL HISTORY",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1416,6 +1425,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 9,
       "section": "II. PROCEDURAL HISTORY",
+      "chapter": "II. PROCEDURAL HISTORY",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1429,6 +1439,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 10,
       "section": "II. PROCEDURAL HISTORY",
+      "chapter": "II. PROCEDURAL HISTORY",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1442,6 +1453,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 11,
       "section": "II. PROCEDURAL HISTORY",
+      "chapter": "II. PROCEDURAL HISTORY",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1455,6 +1467,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 12,
       "section": "III. STATEMENT OF FACTS",
+      "chapter": "III. STATEMENT OF FACTS",
       "kind": "heading",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1468,6 +1481,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 13,
       "section": "III. STATEMENT OF FACTS",
+      "chapter": "III. STATEMENT OF FACTS",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1481,6 +1495,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 14,
       "section": "III. STATEMENT OF FACTS",
+      "chapter": "III. STATEMENT OF FACTS",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1494,6 +1509,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 15,
       "section": "III. STATEMENT OF FACTS",
+      "chapter": "III. STATEMENT OF FACTS",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1507,6 +1523,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 16,
       "section": "III. STATEMENT OF FACTS",
+      "chapter": "III. STATEMENT OF FACTS",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1520,6 +1537,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 17,
       "section": "III. STATEMENT OF FACTS",
+      "chapter": "III. STATEMENT OF FACTS",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1533,6 +1551,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 18,
       "section": "IV. EVIDENCE",
+      "chapter": "IV. EVIDENCE",
       "kind": "heading",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1546,6 +1565,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 19,
       "section": "IV. EVIDENCE",
+      "chapter": "IV. EVIDENCE",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1559,6 +1579,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 20,
       "section": "V. LEGAL QUALIFICATION",
+      "chapter": "V. LEGAL QUALIFICATION",
       "kind": "heading",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1572,6 +1593,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 21,
       "section": "V. LEGAL QUALIFICATION",
+      "chapter": "V. LEGAL QUALIFICATION",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1585,6 +1607,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 22,
       "section": "VI. CHARGE",
+      "chapter": "VI. CHARGE",
       "kind": "heading",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1598,6 +1621,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 23,
       "section": "VI. CHARGE",
+      "chapter": "VI. CHARGE",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1611,6 +1635,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 24,
       "section": "VI. CHARGE",
+      "chapter": "VI. CHARGE",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1624,6 +1649,7 @@
       "doc_id": "venn-2025/indictment.txt",
       "index": 25,
       "section": "VI. CHARGE",
+      "chapter": "VI. CHARGE",
       "kind": "signature",
       "span": {
         "doc_id": "venn-2025/indictment.txt",
@@ -1637,6 +1663,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 0,
       "section": null,
+      "chapter": null,
       "kind": "header",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1650,6 +1677,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 1,
       "section": null,
+      "chapter": null,
       "kind": "header",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1663,6 +1691,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 2,
       "section": null,
+      "chapter": null,
       "kind": "header",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1676,6 +1705,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 3,
       "section": null,
+      "chapter": null,
       "kind": "header",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1689,6 +1719,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 4,
       "section": null,
+      "chapter": null,
       "kind": "header",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1702,6 +1733,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 5,
       "section": null,
+      "chapter": null,
       "kind": "header",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1715,6 +1747,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 6,
       "section": null,
+      "chapter": null,
       "kind": "header",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1728,6 +1761,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 7,
       "section": "I. PROCEDURAL HISTORY",
+      "chapter": "I. PROCEDURAL HISTORY",
       "kind": "heading",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1741,6 +1775,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 8,
       "section": "I. PROCEDURAL HISTORY",
+      "chapter": "I. PROCEDURAL HISTORY",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1754,6 +1789,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 9,
       "section": "I. PROCEDURAL HISTORY",
+      "chapter": "I. PROCEDURAL HISTORY",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1767,6 +1803,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 10,
       "section": "I. PROCEDURAL HISTORY",
+      "chapter": "I. PROCEDURAL HISTORY",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1780,6 +1817,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 11,
       "section": "I. PROCEDURAL HISTORY",
+      "chapter": "I. PROCEDURAL HISTORY",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1793,6 +1831,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 12,
       "section": "II. THE CHARGE",
+      "chapter": "II. THE CHARGE",
       "kind": "heading",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1806,6 +1845,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 13,
       "section": "II. THE CHARGE",
+      "chapter": "II. THE CHARGE",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1819,6 +1859,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 14,
       "section": "III. SUBMISSIONS OF THE PARTIES",
+      "chapter": "III. SUBMISSIONS OF THE PARTIES",
       "kind": "heading",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1832,6 +1873,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 15,
       "section": "III. SUBMISSIONS OF THE PARTIES",
+      "chapter": "III. SUBMISSIONS OF THE PARTIES",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1845,6 +1887,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 16,
       "section": "III. SUBMISSIONS OF THE PARTIES",
+      "chapter": "III. SUBMISSIONS OF THE PARTIES",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1858,6 +1901,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 17,
       "section": "III. SUBMISSIONS OF THE PARTIES",
+      "chapter": "III. SUBMISSIONS OF THE PARTIES",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1871,6 +1915,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 18,
       "section": "IV. THE APPLICABLE LAW",
+      "chapter": "IV. THE APPLICABLE LAW",
       "kind": "heading",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1884,6 +1929,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 19,
       "section": "IV. THE APPLICABLE LAW",
+      "chapter": "IV. THE APPLICABLE LAW",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1897,6 +1943,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 20,
       "section": "V. ASSESSMENT OF THE COURT",
+      "chapter": "V. ASSESSMENT OF THE COURT",
       "kind": "heading",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1910,6 +1957,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 21,
       "section": "V. ASSESSMENT OF THE COURT",
+      "chapter": "V. ASSESSMENT OF THE COURT",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1923,6 +1971,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 22,
       "section": "V. ASSESSMENT OF THE COURT",
+      "chapter": "V. ASSESSMENT OF THE COURT",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1936,6 +1985,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 23,
       "section": "V. ASSESSMENT OF THE COURT",
+      "chapter": "V. ASSESSMENT OF THE COURT",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1949,6 +1999,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 24,
       "section": "V. ASSESSMENT OF THE COURT",
+      "chapter": "V. ASSESSMENT OF THE COURT",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1962,6 +2013,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 25,
       "section": "V. ASSESSMENT OF THE COURT",
+      "chapter": "V. ASSESSMENT OF THE COURT",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1975,6 +2027,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 26,
       "section": "V. ASSESSMENT OF THE COURT",
+      "chapter": "V. ASSESSMENT OF THE COURT",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -1988,6 +2041,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 27,
       "section": "V. ASSESSMENT OF THE COURT",
+      "chapter": "V. ASSESSMENT OF THE COURT",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -2001,6 +2055,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 28,
       "section": "V. ASSESSMENT OF THE COURT",
+      "chapter": "V. ASSESSMENT OF THE COURT",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -2014,6 +2069,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 29,
       "section": "V. ASSESSMENT OF THE COURT",
+      "chapter": "V. ASSESSMENT OF THE COURT",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -2027,6 +2083,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 30,
       "section": "V. ASSESSMENT OF THE COURT",
+      "chapter": "V. ASSESSMENT OF THE COURT",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -2040,6 +2097,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 31,
       "section": "VI. DISPOSITION",
+      "chapter": "VI. DISPOSITION",
       "kind": "heading",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -2053,6 +2111,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 32,
       "section": "VI. DISPOSITION",
+      "chapter": "VI. DISPOSITION",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -2066,6 +2125,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 33,
       "section": "VI. DISPOSITION",
+      "chapter": "VI. DISPOSITION",
       "kind": "body",
       "span": {
         "doc_id": "venn-2025/judgment.txt",
@@ -2079,6 +2139,7 @@
       "doc_id": "venn-2025/judgment.txt",
       "index": 34,
       "section": "VI. DISPOSITION",
+      "chapter": "VI. DISPOSITION",
       "kind": "signature",
       "span": {
         "doc_id": "venn-2025/judgment.txt",

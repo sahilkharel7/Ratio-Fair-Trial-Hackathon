@@ -30,11 +30,17 @@ def _parts(assessment: GuaranteeAssessment) -> None:
             "Part": part.label,
             "Status": widgets.label(part.status),
             "Required": "yes" if part.required else "no",
-            "Hearings without evidence": ", ".join(h.isoformat() for h in part.hearings_missing),
+            "Hearings without evidence": ", ".join([h.isoformat() for h in part.hearings_missing] + list(part.notes_missing)),
         }
         for part in assessment.parts
     ]
     st.dataframe(rows, hide_index=True)
+
+
+def _uncovered(record, part) -> str:
+    gaps = [f"hearing of {h.isoformat()}" for h in part.hearings_missing]
+    gaps += [f"{record.document(doc_id).title} (no hearing date)" for doc_id in part.notes_missing]
+    return f"{part.label} ({'; '.join(gaps)})" if gaps else part.label
 
 
 def _details(loaded: LoadedCase, assessment: GuaranteeAssessment) -> None:
@@ -54,11 +60,9 @@ def _details(loaded: LoadedCase, assessment: GuaranteeAssessment) -> None:
         follow_up = assessment.follow_up
         text = render(messages, "absence_follow_up", provision=assessment.provision, name=assessment.name, question=follow_up.question)
         st.info(md_escape(text))
-        uncovered = [
-            part.label + (f" (hearings of {', '.join(h.isoformat() for h in part.hearings_missing)})" if part.hearings_missing else "")
-            for part in assessment.parts
-            if part.required and part.status == "no_evidence"
-        ]
+        uncovered = [_uncovered(loaded.record, part) for part in assessment.parts if part.required and part.status == "no_evidence"]
+        if assessment.unlabelled_notes:
+            uncovered.append(f"{assessment.unlabelled_notes} shortlisted notes were not labelled by the model")
         if uncovered:
             st.markdown("Not covered by the notes:\n" + "\n".join(f"- {md_escape(item)}" for item in uncovered))
         if follow_up.context:

@@ -114,3 +114,41 @@ def test_flag_on_legitimate_quotation_or_an_answered_argument_is_a_violation():
     )  # fmt: skip
     recall = flag_recall(MOCK, analysis_with(statute, answered), EXPECTED)
     assert set(recall.violations) == {"no_reuse_statute_quote", "no_unaddressed_retroactivity"}
+
+
+def test_a_pure_miss_lowers_recall_but_not_date_accuracy():
+    metrics = extraction_metrics(with_events(e for e in MOCK.events if e.type != "counsel_access"), GOLD)
+    assert metrics.event_recall < 1.0 and metrics.date_accuracy == 1.0
+
+
+def test_a_misdated_mention_that_is_not_the_first_annotation_is_a_wrong_date_not_a_miss():
+    judgment_arrest = next(e for e in MOCK.events if e.type == "arrest" and e.span.doc_id.endswith("judgment.txt"))
+    others = [e for e in MOCK.events if e.type != "arrest"]
+    misdated = judgment_arrest.model_copy(update={"parsed_date": dt.datetime(2025, 2, 13)})
+    metrics = extraction_metrics(with_events([*others, misdated]), GOLD)
+    assert not any("arrest" in item for item in metrics.missed)
+    assert any(item.startswith("arrest on 2025-02-14") for item in metrics.wrong_dates)
+
+
+def test_a_must_not_flag_item_is_violated_by_a_flag_on_any_of_its_anchors():
+    from ratio.expected import ExpectedItem
+
+    two_anchors = ExpectedItem(
+        id="no_reuse_quotation", module="reuse", standard_id="reasoning_reuse", kind="flag", status="any",
+        anchors=(Anchor(doc="judgment.txt", quote="The accused is charged with disseminating false information"),
+                 Anchor(doc="judgment.txt", quote="Whoever disseminates information that he knows to be false")),
+    )  # fmt: skip
+    expected = EXPECTED.model_copy(update={"must_not_flag": (two_anchors,)})
+    statute = flag_on("reuse", "reasoning_reuse", "verbatim_reuse", ("judgment.txt", "Whoever disseminates information that he knows to be false"))
+    assert flag_recall(MOCK, analysis_with(statute), expected).violations == ("no_reuse_quotation",)
+
+
+def test_an_anchor_that_does_not_resolve_is_an_eval_error_not_a_pass():
+    import pytest
+
+    from ratio.expected import ExpectedItem
+    from ratio.gold import GoldError
+
+    ambiguous = ExpectedItem(id="x", module="reuse", standard_id="reasoning_reuse", kind="flag", status="any", anchors=(Anchor(doc="judgment.txt", quote="The accused"),))
+    with pytest.raises(GoldError, match="exactly once"):
+        flag_recall(MOCK, analysis_with(), EXPECTED.model_copy(update={"must_not_flag": (ambiguous,)}))

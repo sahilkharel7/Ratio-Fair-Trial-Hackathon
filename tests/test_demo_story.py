@@ -10,10 +10,14 @@ from ratio.config import load_config
 from ratio.evaluation import flag_recall
 from ratio.expected import ExpectedFlags
 from ratio.extraction.build import load_case
-from ratio.paths import DEMO_CASE_DIR, GOLD_DIR
+from ratio.paths import DEMO_CASE_DIR, GOLD_DIR, MINILM_DIR
 from ratio.pipeline import analysis_context, analyze, demo_llm, ingest
 
 EXPECTED = ExpectedFlags.model_validate(json.loads((GOLD_DIR / "expected_flags.json").read_text(encoding="utf-8")))
+pytestmark = [
+    pytest.mark.embed,
+    pytest.mark.skipif(not (MINILM_DIR / "modules.json").exists(), reason="run scripts/fetch_models.py once"),
+]
 
 
 @pytest.fixture(scope="module")
@@ -84,3 +88,10 @@ def test_every_expected_output_is_found_and_nothing_forbidden_is_flagged(replaye
     recall = flag_recall(record, analysis, EXPECTED)
     assert recall.missed == ()
     assert recall.violations == ()
+
+
+def test_both_detention_extensions_are_on_the_timeline(replayed):
+    # The real model joined them in one answer ("19 March 2025, 14 May 2025"); each becomes an event.
+    _, analysis, _ = replayed
+    extensions = sorted(e.date.date().isoformat() for e in analysis.clock.timeline if e.type == "detention_extension")
+    assert extensions == ["2025-03-19", "2025-05-14"]

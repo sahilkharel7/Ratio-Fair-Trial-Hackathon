@@ -1,0 +1,47 @@
+{
+  "key": "f8e44aa3dec744e747fa401fcfb3b8d6386792b3c94a1f37ca12230cf7b89a5e",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "labels",
+  "response": {
+    "labels": [
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "Arrest and questioning are not related to the examination of witnesses.",
+        "observation": "O1 (2025-06-02): Ms. Brask reminded the court that Mr. Venn had been arrested at his home before dawn on 14 February 2025 and was questioned by police for two days."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The seizure of the phone and the exclusion request are not related to the examination of witnesses.",
+        "observation": "O2 (2025-06-16): Defence counsel argued that the messages presented by the prosecution had been extracted from Mr. Venn's mobile telephone, which police seized at his home on 14 February 2025 without a judicial warrant, and asked the court to exclude them as evidence."
+      },
+      {
+        "indicator_id": "e_defence_witnesses_heard",
+        "label": "supports",
+        "note": "The presence of the defence counsel indicates that the defence was present to hear witnesses.",
+        "observation": "O3 (2025-06-30): Defence counsel Lena Brask was present."
+      },
+      {
+        "indicator_id": "e_examination_prevented",
+        "label": "contradicts",
+        "note": "The exclusion of the public and journalists may have prevented the defence from questioning the witness.",
+        "observation": "O4 (2025-06-30): At the prosecution's request, the presiding judge ordered the public and journalists to leave the courtroom during the testimony of a police investigator, citing national security."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The testimony about the telephone analysis is not related to the examination of witnesses.",
+        "observation": "O5 (2025-06-30): When the public was readmitted, a second police investigator testified about the analysis of the telephone."
+      },
+      {
+        "indicator_id": "e_defence_witnesses_heard",
+        "label": "supports",
+        "note": "The questioning by the defence counsel indicates that the defence was able to question witnesses.",
+        "observation": "O6 (2025-06-30): Ms. Brask questioned him about how the messages had been extracted."
+      }
+    ]
+  },
+  "schema": "LabelReply",
+  "synthetic": true
+}

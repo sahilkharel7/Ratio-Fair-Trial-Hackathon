@@ -1,13 +1,18 @@
 """Module 3: Reasoning Reuse Detector.
 
-1. Split the judgment into the court's own reasoning and legitimate quotation (reuse_exclusions).
-2. Verbatim reuse: word 5-gram shingles. MinHash LSH (Jaccard) and LSH Ensemble (containment)
-   propose indictment passages for each reasoning passage; exact Jaccard or containment confirms.
+1. Split the judgment into the court's own reasoning and legitimate quotation (reuse_exclusions);
+   the indictments' quoted provisions are left out of the comparison as well.
+2. Verbatim reuse, on word 5-gram shingles: a reasoning passage is a copy when most of its 5-grams
+   appear in the indictment (exact containment over every indictment passage, so a sentence stitched
+   from two indictment sentences or excerpted from a long one counts), or when MinHash LSH proposes
+   an indictment passage and exact Jaccard similarity confirms a near-copy.
 3. Paraphrase: a reasoning passage with no verbatim match whose embedding cosine with an
    indictment passage reaches the threshold, and that shares content words with it.
-4. Score: share of the reasoning's characters traceable to the indictment (the matched 5-gram
-   text of verbatim pairs, the whole passage for paraphrases).
-5. Unaddressed defence arguments: for each defence argument in the notes, the model lists the
+4. Restated charge: a passage whose matches come only from the indictment's recital of the charge
+   is shown as such and left out of the score; a court states the charge it rules on.
+5. Score: share of the reasoning's characters traceable to the indictment (the matched 5-gram text
+   of verbatim copies, the whole passage for paraphrases).
+6. Unaddressed defence arguments: for each defence argument in the notes, the model lists the
    reasoning passages that respond to it; restating the argument is not a response.
 """
 
@@ -18,14 +23,14 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
 import numpy as np
-from datasketch import MinHash, MinHashLSH, MinHashLSHEnsemble
+from datasketch import MinHash, MinHashLSH
 from unidecode import unidecode
 
 from ratio.config import RatioConfig, ReuseSettings, StandardRef
-from ratio.context import AnalysisContext
+from ratio.context import AnalysisContext, estimated_tokens, system_with_schema
 from ratio.embeddings import cosine_matrix
 from ratio.messages import filter_model_note, render
-from ratio.modules.reuse_exclusions import PassageRules, classify, compile_rules, is_statute_quote
+from ratio.modules.reuse_exclusions import PassageRules, classify, compile_rules
 from ratio.modules.reuse_prompts import ARGUMENT_SYSTEM, ArgumentReply, argument_user_prompt
 from ratio.results import ArgumentCheck, CharRange, ExcludedPassage, ReusePair, ReuseResult
 from ratio.schema import Argument, CaseRecord, Document, Evidence, Flag, Passage, stable_id
@@ -34,7 +39,9 @@ REUSE_STANDARD = "reasoning_reuse"
 ARGUMENT_STANDARD = "unaddressed_defense_argument"
 MIN_CONTENT_WORD_CHARS = 3
 _WORD = re.compile(r"\w+")
-_NUMBER = re.compile(r"\d+")
+_PASSAGE_ID = re.compile(r"\s*P?(\d+)\s*")
+_ID_PREFIX = re.compile(r"\s*P(\d+)\s*:")
+_NO_PASSAGE = frozenset({"", "none", "no", "nothing", "n/a", "null", "-", "no passage", "no passages"})
 _STOPWORDS = frozenset(
     """about above after again against all also and any are because been before being below between
     both but can could did does doing down during each either for from further had has have having her
@@ -52,6 +59,14 @@ class _Shingled:
     passage: Passage
     words: int
     shingles: dict[Shingle, tuple[tuple[int, int], ...]]  # 5-gram -> absolute offsets of each occurrence
+
+
+@dataclass(frozen=True)
+class Source:
+    """An indictment passage to compare with; ``charge`` marks the recital of the charge."""
+
+    passage: Passage
+    charge: bool
 
 
 def _tokens(passage: Passage) -> list[tuple[str, int, int]]:
@@ -94,62 +109,73 @@ def _minhash(item: _Shingled, settings: ReuseSettings) -> MinHash:
 
 
 def lsh_candidates(reasoning: Sequence[_Shingled], sources: Sequence[_Shingled], settings: ReuseSettings) -> dict[str, set[str]]:
-    """Reasoning passage id -> ids of the indictment passages MinHash LSH proposes for it."""
+    """Reasoning passage id -> ids of the indictment passages MinHash LSH proposes as near-copies."""
     indexed = [source for source in sources if source.shingles]
     if not indexed:
         return {}
-    hashes = {source.passage.id: _minhash(source, settings) for source in indexed}
-    jaccard_index = MinHashLSH(threshold=settings.lsh_threshold, num_perm=settings.minhash_num_perm)
-    for passage_id, minhash in hashes.items():
-        jaccard_index.insert(passage_id, minhash)
-    containment_index = MinHashLSHEnsemble(threshold=settings.lsh_containment_threshold, num_perm=settings.minhash_num_perm)
-    containment_index.index([(s.passage.id, hashes[s.passage.id], len(s.shingles)) for s in indexed])
-    proposed: dict[str, set[str]] = {}
-    for item in reasoning:
-        if item.shingles:
-            query = _minhash(item, settings)
-            proposed[item.passage.id] = set(jaccard_index.query(query)) | set(containment_index.query(query, len(item.shingles)))
-    return proposed
+    index = MinHashLSH(threshold=settings.lsh_threshold, num_perm=settings.minhash_num_perm, weights=settings.lsh_weights)
+    for source in indexed:
+        index.insert(source.passage.id, _minhash(source, settings))
+    return {item.passage.id: set(index.query(_minhash(item, settings))) for item in reasoning if item.shingles}
 
 
-def _pair_ids(record: CaseRecord, kind: str, judgment: Passage, indictment: Passage) -> dict[str, str]:
-    pair_id = stable_id(record.case_id, "reuse", kind, judgment.id, indictment.id)
-    return {"id": pair_id, "flag_id": stable_id(pair_id, "flag")}
+def _pair_ids(record: CaseRecord, kind: str, judgment: Passage, indictment: Passage, flag_id: str) -> dict[str, str]:
+    return {"id": stable_id(record.case_id, "reuse", kind, judgment.id, indictment.id), "flag_id": flag_id}
 
 
-def _verbatim(record: CaseRecord, item: _Shingled, source: _Shingled, rules: PassageRules, settings: ReuseSettings) -> ReusePair | None:
-    shared = item.shingles.keys() & source.shingles.keys()
-    if not shared:
-        return None
-    jaccard = len(shared) / len(item.shingles.keys() | source.shingles.keys())
-    containment = len(shared) / len(item.shingles)
-    if jaccard < settings.verbatim_jaccard and containment < settings.verbatim_containment:
-        return None
-    return ReusePair(
-        **_pair_ids(record, "verbatim", item.passage, source.passage),
-        kind="verbatim",
-        judgment=item.passage.span,
-        indictment=source.passage.span,
-        jaccard=round(jaccard, 4),
-        containment=round(containment, 4),
-        judgment_ranges=merge_ranges(r for key in shared for r in item.shingles[key]),
-        indictment_ranges=merge_ranges(r for key in shared for r in source.shingles[key]),
-        matches_charge_particulars=bool(rules.recital.search(source.passage.span.text)),
-    )
+def _flag_id(record: CaseRecord, judgment: Passage) -> str:
+    return stable_id(record.case_id, "reuse", judgment.id, "flag")
 
 
-def _paraphrases(
-    record: CaseRecord, items: Sequence[_Shingled], sources: Sequence[_Shingled], rules: PassageRules, ctx: AnalysisContext
-) -> list[ReusePair]:
+def _verbatim(record: CaseRecord, item: _Shingled, targets: list[tuple[_Shingled, bool]], index, proposed, settings) -> list[ReusePair]:
+    """The pairs of one reasoning passage that copies the indictment, or [] when it does not."""
+    shared: dict[int, set[Shingle]] = {}
+    for key in item.shingles:
+        for position in index.get(key, ()):
+            shared.setdefault(position, set()).add(key)
+    near_copies = {
+        position
+        for position, keys in shared.items()
+        if targets[position][0].passage.id in proposed.get(item.passage.id, ())
+        and len(keys) / len(item.shingles.keys() | targets[position][0].shingles.keys()) >= settings.verbatim_jaccard
+    }
+    floor = max(2, settings.min_source_share * len(item.shingles))
+    sources = sorted(position for position, keys in shared.items() if len(keys) >= floor or position in near_copies)
+    covered = set().union(*(shared[position] for position in sources)) if sources else set()
+    containment = len(covered) / len(item.shingles) if item.shingles else 0.0
+    if not sources or (containment < settings.verbatim_containment and not near_copies):
+        return []
+    pairs = []
+    for position in sources:
+        source, charge = targets[position]
+        keys = shared[position]
+        pairs.append(
+            ReusePair(
+                **_pair_ids(record, "verbatim", item.passage, source.passage, _flag_id(record, item.passage)),
+                kind="verbatim",
+                judgment=item.passage.span,
+                indictment=source.passage.span,
+                jaccard=round(len(keys) / len(item.shingles.keys() | source.shingles.keys()), 4),
+                containment=round(len(keys) / len(item.shingles), 4),
+                passage_containment=round(containment, 4),
+                judgment_ranges=merge_ranges(r for key in keys for r in item.shingles[key]),
+                indictment_ranges=merge_ranges(r for key in keys for r in source.shingles[key]),
+                matches_charge_particulars=charge,
+            )
+        )
+    return pairs
+
+
+def _paraphrases(record: CaseRecord, items: Sequence[_Shingled], targets: list[tuple[_Shingled, bool]], ctx: AnalysisContext) -> list[ReusePair]:
     """For each passage, the most similar indictment passage above the cosine threshold that also shares content words."""
     settings = ctx.config.settings.reuse
-    if not items or not sources:
+    if not items or not targets:
         return []
     similarity = cosine_matrix(
         ctx.embedder.encode([item.passage.span.text for item in items]),
-        ctx.embedder.encode([source.passage.span.text for source in sources]),
+        ctx.embedder.encode([source.passage.span.text for source, _ in targets]),
     )
-    source_words = [content_words(source.passage) for source in sources]
+    source_words = [content_words(source.passage) for source, _ in targets]
     pairs = []
     for row, item in enumerate(items):
         words = content_words(item.passage)
@@ -158,136 +184,215 @@ def _paraphrases(
             if cosine < settings.paraphrase_cosine:
                 break
             if len(words & source_words[col]) >= settings.paraphrase_min_shared_words:
-                source = sources[col].passage
+                source, charge = targets[col]
                 pairs.append(
                     ReusePair(
-                        **_pair_ids(record, "paraphrase", item.passage, source),
+                        **_pair_ids(record, "paraphrase", item.passage, source.passage, _flag_id(record, item.passage)),
                         kind="paraphrase",
                         judgment=item.passage.span,
-                        indictment=source.span,
+                        indictment=source.passage.span,
                         cosine=round(cosine, 4),
-                        matches_charge_particulars=bool(rules.recital.search(source.span.text)),
+                        matches_charge_particulars=charge,
                     )
                 )
                 break
     return pairs
 
 
-def find_pairs(
-    record: CaseRecord, reasoning: Sequence[Passage], sources: Sequence[Passage], rules: PassageRules, ctx: AnalysisContext
-) -> tuple[ReusePair, ...]:
+def find_pairs(record: CaseRecord, reasoning: Sequence[Passage], sources: Sequence[Source], ctx: AnalysisContext) -> tuple[ReusePair, ...]:
     settings = ctx.config.settings.reuse
     eligible = [s for s in (shingle(p, settings.shingle_size) for p in reasoning) if s.words >= settings.min_passage_words]
-    targets = [s for s in (shingle(p, settings.shingle_size) for p in sources) if s.words >= settings.min_passage_words]
-    proposed = lsh_candidates(eligible, targets, settings)
-    verbatim = []
-    for item in eligible:
-        for source in targets:  # document order keeps the output deterministic
-            if source.passage.id in proposed.get(item.passage.id, ()):
-                pair = _verbatim(record, item, source, rules, settings)
-                verbatim.extend([pair] if pair else [])
-    matched = {pair.judgment for pair in verbatim}
-    paraphrased = _paraphrases(record, [item for item in eligible if item.passage.span not in matched], targets, rules, ctx)
+    targets = [(item, source.charge) for source in sources if (item := shingle(source.passage, settings.shingle_size)).words >= settings.min_passage_words]
+    index: dict[Shingle, list[int]] = {}
+    for position, (target, _) in enumerate(targets):
+        for key in target.shingles:
+            index.setdefault(key, []).append(position)
+    proposed = lsh_candidates(eligible, [target for target, _ in targets], settings)
+    verbatim = [pair for item in eligible for pair in _verbatim(record, item, targets, index, proposed, settings)]
+    copied = {pair.judgment for pair in verbatim}
+    paraphrased = _paraphrases(record, [item for item in eligible if item.passage.span not in copied], targets, ctx)
     return tuple(sorted(verbatim + paraphrased, key=lambda pair: (pair.judgment.start, pair.indictment.start)))
 
 
-def score(pairs: Sequence[ReusePair], reasoning: Sequence[Passage]) -> tuple[float | None, int, int, int]:
-    """(score, verbatim chars, paraphrase chars, reasoning chars)."""
-    reasoning_chars = sum(len(passage.span.text) for passage in reasoning)
-    verbatim = merge_ranges((r.start, r.end) for pair in pairs if pair.kind == "verbatim" for r in pair.judgment_ranges)
-    verbatim_chars = sum(r.end - r.start for r in verbatim)
-    paraphrase_chars = sum(len(pair.judgment.text) for pair in pairs if pair.kind == "paraphrase")
-    if not reasoning_chars:
-        return None, verbatim_chars, paraphrase_chars, 0
-    return min(1.0, (verbatim_chars + paraphrase_chars) / reasoning_chars), verbatim_chars, paraphrase_chars, reasoning_chars
+def flag_status(pairs: Sequence[ReusePair]) -> str:
+    """The status of one judgment passage's matches: only the charge's wording, a copy, or a paraphrase."""
+    if all(pair.matches_charge_particulars for pair in pairs):
+        return "charge_wording"
+    return "verbatim_reuse" if pairs[0].kind == "verbatim" else "paraphrase_reuse"
 
 
-def _pair_flag(record: CaseRecord, pair: ReusePair, standard: StandardRef, config: RatioConfig) -> Flag:
-    if pair.kind == "verbatim":
-        status = "verbatim_reuse"
-        message = render(config.messages, "reuse_verbatim", percent=round(100 * (pair.containment or 0)), n=config.settings.reuse.shingle_size)
+def by_passage(pairs: Sequence[ReusePair]) -> dict[str, list[ReusePair]]:
+    """Flag id -> the pairs of that judgment passage, in document order."""
+    grouped: dict[str, list[ReusePair]] = {}
+    for pair in pairs:
+        grouped.setdefault(pair.flag_id or pair.id, []).append(pair)
+    return grouped
+
+
+def rescore(result: ReuseResult) -> ReuseResult:
+    """Character counts and score from the pairs the result holds (also after some were dropped)."""
+    verbatim, charge, paraphrase = [], [], 0
+    for pairs in by_passage(result.pairs).values():
+        status = flag_status(pairs)
+        ranges = [(r.start, r.end) for pair in pairs for r in pair.judgment_ranges] or [(pairs[0].judgment.start, pairs[0].judgment.end)]
+        if status == "charge_wording":
+            charge += ranges
+        elif status == "verbatim_reuse":
+            verbatim += ranges
+        else:
+            paraphrase += len(pairs[0].judgment.text)
+    verbatim_chars = sum(r.end - r.start for r in merge_ranges(verbatim))
+    charge_chars = sum(r.end - r.start for r in merge_ranges(charge))
+    score = None
+    if result.score_note is None and result.reasoning_chars:
+        score = min(1.0, (verbatim_chars + paraphrase) / result.reasoning_chars)
+    return result.model_copy(
+        update={"verbatim_chars": verbatim_chars, "paraphrase_chars": paraphrase, "charge_wording_chars": charge_chars, "score": score}
+    )
+
+
+def _passage_flag(record: CaseRecord, pairs: list[ReusePair], standard: StandardRef, config: RatioConfig) -> Flag:
+    status = flag_status(pairs)
+    percent = round(100 * (pairs[0].passage_containment or 0))
+    if status == "paraphrase_reuse":
+        message = render(config.messages, "reuse_paraphrase", similarity=f"{pairs[0].cosine:.2f}")
+    elif status == "charge_wording":
+        message = render(config.messages, "reuse_charge_wording", percent=percent, n=config.settings.reuse.shingle_size)
     else:
-        status = "paraphrase_reuse"
-        message = render(config.messages, "reuse_paraphrase", similarity=f"{pair.cosine:.2f}")
+        message = render(config.messages, "reuse_verbatim", percent=percent, n=config.settings.reuse.shingle_size)
+    evidence = (Evidence(role="judgment", span=pairs[0].judgment),) + tuple(Evidence(role="indictment", span=pair.indictment) for pair in pairs)
     return Flag(
-        id=pair.flag_id or stable_id(pair.id, "flag"),
+        id=pairs[0].flag_id or stable_id(pairs[0].id, "flag"),
         case_id=record.case_id,
         module="reuse",
         standard_id=REUSE_STANDARD,
         standard_label=standard.label,
         status=status,
         message=message,
-        evidence=(Evidence(role="judgment", span=pair.judgment), Evidence(role="indictment", span=pair.indictment)),
+        evidence=evidence,
         citation=standard.citation,
         review_status=standard.review_status,
     )
 
 
-def _passages_to_check(argument: Argument, reasoning: Sequence[Passage], ctx: AnalysisContext) -> list[Passage]:
-    """Every reasoning passage, or the most similar ones when the reasoning is too long for one prompt."""
-    limit = ctx.config.settings.reuse.argument_max_passages
-    if len(reasoning) <= limit:
-        return list(reasoning)
+def _ranked(argument: Argument, reasoning: Sequence[Passage], ctx: AnalysisContext) -> list[int]:
+    """Reasoning passage indices, most similar to the argument first, each followed by the next passage."""
     vectors = ctx.embedder.encode([passage.span.text for passage in reasoning])
     similarity = cosine_matrix(vectors, ctx.embedder.encode([argument.text]))[:, 0]
-    top = sorted(range(len(reasoning)), key=lambda i: (-float(similarity[i]), i))[:limit]
-    return [reasoning[i] for i in sorted(top)]
+    order: list[int] = []
+    for i in sorted(range(len(reasoning)), key=lambda i: (-float(similarity[i]), i)):
+        for j in (i, i + 1):  # a court's answer usually follows the sentence that names the argument
+            if j < len(reasoning) and j not in order:
+                order.append(j)
+    return order
+
+
+def _passages_to_check(argument: Argument, reasoning: Sequence[Passage], ctx: AnalysisContext) -> list[Passage]:
+    """Every reasoning passage, or as many of the most relevant ones as fit one prompt and the limit."""
+    settings = ctx.config.settings
+    system = system_with_schema(ARGUMENT_SYSTEM, ArgumentReply)
+
+    def fits(chosen: list[Passage]) -> bool:
+        prompt = argument_user_prompt(argument, [(f"P{n}", p) for n, p in enumerate(chosen, start=1)])
+        return estimated_tokens(system, prompt) + settings.llm.num_predict.argument_check <= settings.llm.num_ctx
+
+    everything = list(reasoning)
+    if len(everything) <= settings.reuse.argument_max_passages and fits(everything):
+        return everything
+    chosen: list[int] = []
+    for i in _ranked(argument, reasoning, ctx):
+        if len(chosen) == settings.reuse.argument_max_passages:
+            break
+        if fits([reasoning[j] for j in sorted([*chosen, i])]):
+            chosen.append(i)
+    return [reasoning[j] for j in sorted(chosen)]
+
+
+def _responding(raw_items: list[str], count: int) -> tuple[set[int], bool]:
+    """Passage numbers the model named, and whether any item was unreadable (quoted text, not an id)."""
+    numbers: set[int] = set()
+    unreadable = False
+    for raw in raw_items:
+        prefix = _ID_PREFIX.match(raw)
+        tokens = [prefix.group(1)] if prefix else re.split(r",|\band\b", raw)
+        for token in tokens:
+            found = _PASSAGE_ID.fullmatch(token) if not prefix else re.match(r"(\d+)", token)
+            if found and 1 <= int(found.group(1)) <= count:
+                numbers.add(int(found.group(1)))
+            elif token.strip().lower().strip(".") not in _NO_PASSAGE:
+                unreadable = True
+    return numbers, unreadable
+
+
+def _unaddressed_flag(record: CaseRecord, argument: Argument, standard: StandardRef, message: str, note: str | None) -> Flag:
+    return Flag(
+        id=stable_id(record.case_id, "reuse", "unaddressed", argument.id),
+        case_id=record.case_id,
+        module="reuse",
+        standard_id=ARGUMENT_STANDARD,
+        standard_label=standard.label,
+        status="unaddressed_argument",
+        message=message,
+        evidence=(Evidence(role="argument", span=argument.span),),
+        citation=standard.citation,
+        review_status=standard.review_status,
+        model_note=note,
+    )
 
 
 def check_argument(
     record: CaseRecord, argument: Argument, reasoning: Sequence[Passage], standard: StandardRef, ctx: AnalysisContext
 ) -> tuple[ArgumentCheck, Flag | None]:
+    messages = ctx.config.messages
+    base = {"argument_id": argument.id, "argument": argument.span, "passages_total": len(reasoning)}
+    if not reasoning:  # nothing in the judgment could answer it
+        flag = _unaddressed_flag(record, argument, standard, render(messages, "reuse_unaddressed_no_reasoning"), None)
+        return ArgumentCheck(**base, addressed=False, passages_checked=0, flag_id=flag.id), flag
     shown = _passages_to_check(argument, reasoning, ctx)
     numbered = [(f"P{n}", passage) for n, passage in enumerate(shown, start=1)]
     reply = ctx.llm.complete_json(
         system=ARGUMENT_SYSTEM, user=argument_user_prompt(argument, numbered), schema=ArgumentReply, purpose="argument_check"
     )
-    by_number = dict(enumerate(shown, start=1))
-    responding: dict[str, Passage] = {}
-    for raw in reply.responding:
-        found = _NUMBER.search(raw)  # "P7", "7" and "P7: As to ..." all name passage 7
-        passage = by_number.get(int(found.group(0))) if found else None
-        if passage is not None:
-            responding[passage.id] = passage
-    spans = tuple(passage.span for passage in sorted(responding.values(), key=lambda p: p.span.start))
-    note = filter_model_note(reply.note, ctx.config.messages.block_list)
+    note = filter_model_note(reply.note, messages.block_list)
+    numbers, unreadable = _responding(reply.responding, len(shown))
+    spans = tuple(shown[n - 1].span for n in sorted(numbers))
+    if not spans and unreadable:  # an answer that names no passage is not evidence that none responds
+        return ArgumentCheck(**base, addressed=False, checked=False, passages_checked=len(shown), model_note=note), None
     flag = None
     if not spans:
-        flag = Flag(
-            id=stable_id(record.case_id, "reuse", "unaddressed", argument.id),
-            case_id=record.case_id,
-            module="reuse",
-            standard_id=ARGUMENT_STANDARD,
-            standard_label=standard.label,
-            status="unaddressed_argument",
-            message=render(ctx.config.messages, "reuse_unaddressed", count=len(shown)),
-            evidence=(Evidence(role="argument", span=argument.span),),
-            citation=standard.citation,
-            review_status=standard.review_status,
-            model_note=note,
-        )
+        message = render(messages, "reuse_unaddressed", count=len(shown), total=len(reasoning))
+        flag = _unaddressed_flag(record, argument, standard, message, note)
     check = ArgumentCheck(
-        argument_id=argument.id,
-        argument=argument.span,
-        addressed=bool(spans),
-        responding=spans,
-        passages_checked=len(shown),
-        model_note=note,
-        flag_id=flag.id if flag else None,
+        **base, addressed=bool(spans), responding=spans, passages_checked=len(shown), model_note=note, flag_id=flag.id if flag else None
     )
     return check, flag
 
 
-def _first(record: CaseRecord, doc_type: str) -> Document | None:
-    documents = record.documents_of_type(doc_type)
-    return documents[0] if documents else None
+def _documents(record: CaseRecord, doc_type: str) -> tuple[Document, ...]:
+    return record.documents_of_type(doc_type)
+
+
+def _sources(record: CaseRecord, indictments: Sequence[Document], rules: PassageRules) -> list[Source]:
+    """Every indictment's body text except its quoted provisions; the recital of the charge is marked."""
+    sources = []
+    for document in indictments:
+        passages = record.passages_of(document.id)
+        reasons = classify(passages, document.text, record.citations, rules)
+        sources += [
+            Source(passage, charge=reasons.get(passage.id) == "charge_recital")
+            for passage in passages
+            if passage.kind == "body" and reasons.get(passage.id) not in ("statute_quote", "header_or_signature")
+        ]
+    return sources
 
 
 def run(record: CaseRecord, ctx: AnalysisContext) -> ReuseResult:
-    judgment, indictment = _first(record, "judgment"), _first(record, "indictment")
-    indictment_id = indictment.id if indictment else None
-    if judgment is None:
-        return ReuseResult(judgment_doc_id=None, indictment_doc_id=indictment_id)
+    judgments, indictments = _documents(record, "judgment"), _documents(record, "indictment")
+    indictment_ids = tuple(doc.id for doc in indictments)
+    first_indictment = indictment_ids[0] if indictment_ids else None
+    if not judgments:
+        return ReuseResult(judgment_doc_id=None, indictment_doc_id=first_indictment, indictment_doc_ids=indictment_ids, score_note="no judgment")
+    judgment = judgments[0]  # the loader allows one judgment per case
     config = ctx.config
     rules = compile_rules(config.settings.reuse)
     passages = record.passages_of(judgment.id)
@@ -296,32 +401,30 @@ def run(record: CaseRecord, ctx: AnalysisContext) -> ReuseResult:
     excluded = tuple(
         ExcludedPassage(passage_id=p.id, span=p.span, reason=reason) for p in passages if (reason := reasons.get(p.id)) is not None
     )
-    pairs: tuple[ReusePair, ...] = ()
-    if indictment is not None:
-        sources = [
-            p for p in record.passages_of(indictment.id) if p.kind == "body" and not is_statute_quote(p, record.citations, rules)
-        ]
-        pairs = find_pairs(record, reasoning, sources, rules, ctx)
+    sources = _sources(record, indictments, rules)
+    comparable = [s for s in sources if len(_WORD.findall(s.passage.span.text)) >= config.settings.reuse.min_passage_words]
+    pairs = find_pairs(record, reasoning, sources, ctx) if comparable else ()
     reuse_standard = config.standard(REUSE_STANDARD)
-    flags = [_pair_flag(record, pair, reuse_standard, config) for pair in pairs]
+    flags = [_passage_flag(record, group, reuse_standard, config) for group in by_passage(pairs).values()]
     checks = []
-    if reasoning:
-        argument_standard = config.standard(ARGUMENT_STANDARD)
-        for argument in (a for a in record.arguments if a.party == "defense"):
-            check, flag = check_argument(record, argument, reasoning, argument_standard, ctx)
-            checks.append(check)
-            flags.extend([flag] if flag else [])
-    value, verbatim_chars, paraphrase_chars, reasoning_chars = score(pairs, reasoning)
-    return ReuseResult(
+    argument_standard = config.standard(ARGUMENT_STANDARD)
+    for argument in (a for a in record.arguments if a.party == "defense"):
+        check, flag = check_argument(record, argument, reasoning, argument_standard, ctx)
+        checks.append(check)
+        flags.extend([flag] if flag else [])
+    note = None if indictments and comparable else ("no indictment to compare with" if not indictments else "the indictment has no comparable text")
+    if note is None and not reasoning:
+        note = "the judgment has no passages of the court's own reasoning"
+    result = ReuseResult(
         judgment_doc_id=judgment.id,
-        indictment_doc_id=indictment_id,
-        score=value if indictment is not None else None,
-        verbatim_chars=verbatim_chars,
-        paraphrase_chars=paraphrase_chars,
-        reasoning_chars=reasoning_chars,
+        indictment_doc_id=first_indictment,
+        indictment_doc_ids=indictment_ids,
+        score_note=note,
+        reasoning_chars=sum(len(p.span.text) for p in reasoning),
         reasoning_passage_ids=tuple(p.id for p in reasoning),
         pairs=pairs,
         excluded=excluded,
         arguments=tuple(checks),
         flags=tuple(flags),
     )
+    return rescore(result)

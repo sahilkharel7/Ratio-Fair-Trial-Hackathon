@@ -1,6 +1,8 @@
 """Deterministic segmentation: sentences with exact offsets, sections, header and signature blocks."""
 
-from ratio.extraction.segment import find_citations, header_value, segment_document, sentence_spans
+import pytest
+
+from ratio.extraction.segment import find_citations, header_value, segment_document, sentence_spans, split_sentences
 
 JUDGMENT = """MIREVO DISTRICT COURT, CRIMINAL CHAMBER
 JUDGMENT
@@ -78,3 +80,63 @@ def test_plain_note_paragraphs_split_into_sentences():
     note = "HEADER LINE\nHearing date: 2 June 2025\n\nMr. Venn was present. Counsel was present.\nThe hearing ended at 13:40."
     body = [note[s.start : s.end] for s in segment_document(note) if s.kind == "body"]
     assert body == ["Mr. Venn was present.", "Counsel was present.", "The hearing ended at 13:40."]
+
+
+# --- structure of real-world text: PDF extraction, sub-headings, heading styles, quotations ---------
+
+
+def kinds(text: str) -> list[tuple[str, str, str | None]]:
+    return [(seg.kind, text[seg.start : seg.end], seg.chapter) for seg in segment_document(text)]
+
+
+def test_pdf_text_without_blank_lines_keeps_its_caption_headings_and_sentences():
+    text = (
+        "MIREVO DISTRICT COURT\nJUDGMENT\nPresiding Judge: Ilena Varda\n"
+        "I. PROCEDURAL HISTORY\nThe accused was arrested on 14 February 2025. He was brought before the\n"
+        "court on 19 February 2025.\nV. ASSESSMENT OF THE COURT\nThe accused knew that the allegations were false."
+    )
+    segments = kinds(text)
+    assert [k for k, _, _ in segments] == ["header", "header", "header", "heading", "body", "body", "heading", "body"]
+    assert segments[5][1] == "He was brought before the\ncourt on 19 February 2025."
+    assert segments[-1][2] == "V. ASSESSMENT OF THE COURT"
+    assert header_value(text, "Presiding Judge") is not None
+
+
+def test_a_sub_heading_stays_inside_its_chapter():
+    text = (
+        "JUDGMENT\nCase no. T-1\n\nIII. SUBMISSIONS OF THE PARTIES\n\nA. The prosecution\n\n"
+        "The prosecution argues that the accused knew.\n\nB. The defence\n\nThe defence contends otherwise.\n\n"
+        "C. The third party\n\nNo third party appeared.\n\nV. ASSESSMENT OF THE COURT\n\nThe witness was credible.\n"
+    )
+    chapters = {body: chapter for kind, body, chapter in kinds(text) if kind == "body"}
+    assert set(list(chapters.values())[:3]) == {"III. SUBMISSIONS OF THE PARTIES"}  # "C." is a letter here
+    assert chapters["The witness was credible."] == "V. ASSESSMENT OF THE COURT"
+
+
+@pytest.mark.parametrize("heading", ["V. ASSESSMENT OF THE COURT.", "4.1 Assessment of the evidence", "Submissions of the Parties"])
+def test_heading_styles_are_recognised(heading):
+    text = f"JUDGMENT\nCase no. T-1\n\n{heading}\n\nThe witness was credible.\n"
+    assert ("heading", heading, heading) in kinds(text)
+
+
+def test_a_numbered_paragraph_is_body_text_not_a_heading():
+    text = "JUDGMENT\nCase no. T-1\n\n12. The Court notes that the accused was absent.\n"
+    assert [k for k, _, _ in kinds(text)] == ["header", "header", "body"]
+
+
+def test_a_stray_quote_mark_does_not_merge_the_rest_of_the_paragraph():
+    text = 'The officer described a 6" folder of printouts. The defence argues that they were never seized. The accused knew.'
+    assert len(split_sentences(text, 0, len(text))) == 3
+
+
+def test_a_quotation_in_guillemets_stays_one_passage():
+    text = "Article 5 provides: «No one shall be tried twice. No exception applies.» The court applied it."
+    assert len(split_sentences(text, 0, len(text))) == 2
+
+
+def test_pdf_pages_join_mid_sentence_and_break_after_a_full_stop():
+    from ratio.extraction.loader import join_pdf_pages
+
+    assert join_pdf_pages(["He was brought before the", "court on 19 February.", "", "Next page."]) == (
+        "He was brought before the\ncourt on 19 February.\n\nNext page."
+    )

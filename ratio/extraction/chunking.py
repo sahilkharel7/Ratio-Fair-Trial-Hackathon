@@ -33,5 +33,7 @@ def chunk_spans(text: str, *, max_chars: int, overlap_chars: int) -> tuple[Chunk
         nxt = last + 1
         while nxt - 1 > first and sentences[last][1] - sentences[nxt - 1][0] <= overlap_chars:
             nxt -= 1
+        if sentences[last + 1][1] - sentences[nxt][0] > max_chars:
+            nxt = last + 1  # the next sentence cannot share a chunk with the overlap, so no overlap
         first = nxt
     return tuple(chunks)

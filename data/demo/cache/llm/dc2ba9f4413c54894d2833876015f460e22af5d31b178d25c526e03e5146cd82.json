@@ -9,5 +9,6 @@
       "P8"
     ]
   },
-  "schema": "ArgumentReply"
+  "schema": "ArgumentReply",
+  "synthetic": true
 }

@@ -42,5 +42,6 @@
       }
     ]
   },
-  "schema": "LabelReply"
+  "schema": "LabelReply",
+  "synthetic": true
 }

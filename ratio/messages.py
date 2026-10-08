@@ -11,6 +11,8 @@ import re
 import unicodedata
 from collections.abc import Iterable
 
+from unidecode import unidecode
+
 from ratio.config import Messages
 
 REMOVED = "[removed: characterisation of a person]"
@@ -37,11 +39,17 @@ def _normalise(text: str) -> str:
 
 
 def contains_blocked_term(text: str, block_list: Iterable[str]) -> bool:
-    return bool(_block_pattern(tuple(block_list)).search(_normalise(text)))
+    pattern = _block_pattern(tuple(block_list))
+    normalised = _normalise(text)
+    return bool(pattern.search(normalised) or pattern.search(unidecode(normalised)))
 
 
 def filter_model_note(text: str | None, block_list: Iterable[str]) -> str | None:
     """Return the note with blocked terms replaced, or None when there is nothing to show."""
     if text is None or not text.strip():
         return None
-    return _block_pattern(tuple(block_list)).sub(REMOVED, _normalise(text).strip())
+    pattern = _block_pattern(tuple(block_list))
+    normalised = _normalise(text).strip()
+    if not pattern.search(normalised) and pattern.search(unidecode(normalised)):
+        return REMOVED  # a look-alike letter (e.g. Cyrillic) hides a blocked word: drop the whole note
+    return pattern.sub(REMOVED, normalised)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Protocol, TypeVar
@@ -13,6 +14,16 @@ if TYPE_CHECKING:
     from ratio.config import RatioConfig
 
 T = TypeVar("T", bound=BaseModel)
+CHARS_PER_TOKEN = 3  # conservative estimate, so prompts are refused before Ollama would truncate them
+
+
+def system_with_schema(system: str, schema: type[BaseModel]) -> str:
+    """The system prompt as sent: the reply's JSON schema is given in the prompt as well as in ``format``."""
+    return f"{system}\n\nReply with JSON only, matching this JSON schema:\n{json.dumps(schema.model_json_schema())}"
+
+
+def estimated_tokens(*texts: str) -> int:
+    return sum(len(text) for text in texts) // CHARS_PER_TOKEN
 
 
 class LLMClient(Protocol):

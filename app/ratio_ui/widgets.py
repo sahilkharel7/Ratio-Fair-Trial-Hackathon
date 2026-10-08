@@ -26,8 +26,10 @@ BADGE_COLORS = {
     "cannot_compute": "gray",
     "verbatim_reuse": "orange",
     "paraphrase_reuse": "blue",
+    "charge_wording": "gray",
     "unaddressed_argument": "orange",
     "addressed_argument": "green",
+    "unchecked_argument": "gray",
     "confirmed": "blue",
     "needs_legal_review": "violet",
 }

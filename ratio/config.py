@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import functools
+import re
 from pathlib import Path
 from typing import Literal
 
@@ -66,6 +67,12 @@ class RubricItem(Frozen):
     context: tuple[RubricIndicator, ...] = ()
     follow_up: str = Field(min_length=1)
 
+    @model_validator(mode="after")
+    def _has_a_required_part(self) -> RubricItem:
+        if not any(part.required for part in self.parts):
+            raise ValueError(f"{self.id}: at least one part must be required, or no status can be reached")
+        return self
+
 
 class Rubric(Frozen):
     version: int
@@ -112,6 +119,8 @@ class Benchmark(Frozen):
                 raise ValueError(f"benchmark {self.id!r} is not confirmed by the team; mark it needs_legal_review")
             if self.threshold_hours is None:
                 raise ValueError(f"confirmed benchmark {self.id!r} needs threshold_hours")
+        elif self.threshold_hours is not None:
+            raise ValueError(f"benchmark {self.id!r} is not confirmed, so it may not carry a threshold (hard rule 5)")
         return self
 
 
@@ -220,27 +229,47 @@ class ReuseSettings(Frozen):
     minhash_num_perm: int = Field(gt=0)
     minhash_seed: int
     lsh_threshold: float = Field(gt=0, lt=1)
-    lsh_containment_threshold: float = Field(gt=0, lt=1)
+    lsh_weights: tuple[float, float] = (0.1, 0.9)
     verbatim_jaccard: float = Field(gt=0, le=1)
     verbatim_containment: float = Field(gt=0, le=1)
+    min_source_share: float = Field(default=0.1, gt=0, le=1)
     paraphrase_cosine: float = Field(gt=0, le=1)
     paraphrase_min_shared_words: int = Field(ge=0)
     min_passage_words: int = Field(gt=0)
     argument_max_passages: int = Field(gt=0)
     non_reasoning_headings: tuple[str, ...]
+    reasoning_heading_words: tuple[str, ...] = ()
     recital_markers: tuple[str, ...] = Field(min_length=1)
     statute_markers: tuple[str, ...] = Field(min_length=1)
     party_terms: tuple[str, ...] = Field(min_length=1)
+    not_a_party_after: tuple[str, ...] = ()
+    sentence_openers: tuple[str, ...] = ()
     attribution_prefixes: tuple[str, ...] = ()
     attribution_verbs: tuple[str, ...] = Field(min_length=1)
+    attribution_possessives: tuple[str, ...] = ()
     endorsement_words: tuple[str, ...] = Field(min_length=1)
     court_voice_markers: tuple[str, ...] = Field(min_length=1)
 
     @model_validator(mode="after")
     def _candidates_below_confirmation(self) -> ReuseSettings:
         # LSH only proposes pairs; it must propose everything the exact check could confirm.
-        if self.lsh_threshold > self.verbatim_jaccard or self.lsh_containment_threshold > self.verbatim_containment:
-            raise ValueError("LSH thresholds must not exceed the verbatim thresholds they propose candidates for")
+        if self.lsh_threshold > self.verbatim_jaccard:
+            raise ValueError("the LSH threshold must not exceed the Jaccard threshold it proposes candidates for")
+        if abs(sum(self.lsh_weights) - 1.0) > 1e-9:
+            raise ValueError("lsh_weights must add up to 1")
+        return self
+
+    @model_validator(mode="after")
+    def _patterns_compile(self) -> ReuseSettings:
+        lists = ("non_reasoning_headings", "reasoning_heading_words", "recital_markers", "statute_markers", "party_terms",
+                 "not_a_party_after", "sentence_openers", "attribution_prefixes", "attribution_verbs",
+                 "attribution_possessives", "endorsement_words", "court_voice_markers")  # fmt: skip
+        for name in lists:
+            for pattern in getattr(self, name):
+                try:
+                    re.compile(pattern)
+                except re.error as exc:
+                    raise ValueError(f"reuse.{name}: {pattern!r} is not a valid pattern ({exc})") from exc
         return self
 
 

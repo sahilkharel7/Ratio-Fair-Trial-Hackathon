@@ -1,7 +1,7 @@
 """Ratio command line. Everything runs locally; the only network peer is the local Ollama server.
 
     python -m ratio ingest [CASE_DIR] [--live]   build a case record and save it to the store
-    python -m ratio build-demo-cache             re-run the demo's model calls with Ollama
+    python -m ratio build-demo-cache [--fresh]   record the demo's model calls with Ollama
     python -m ratio check-ollama                 check the local Ollama server and model
 """
 
@@ -50,9 +50,9 @@ def _cmd_ingest(args: argparse.Namespace) -> int:
     return 0
 
 
-def _cmd_build_demo_cache(_: argparse.Namespace) -> int:
-    print("Running every model call for the demo case with the local Ollama model...")
-    manifest = build_demo_cache(default_config(), progress=_progress)
+def _cmd_build_demo_cache(args: argparse.Namespace) -> int:
+    print("Running the demo case's model calls with the local Ollama model (cached replies are reused unless --fresh)...")
+    manifest = build_demo_cache(default_config(), fresh=args.fresh, progress=_progress)
     print(f"Demo cache: {manifest.entries} replies from {manifest.model} (Ollama {manifest.ollama_version})")
     return 0
 
@@ -71,7 +71,8 @@ def main(argv: list[str] | None = None) -> int:
     ingest_parser = commands.add_parser("ingest", help="build a case record and save it to the store")
     ingest_parser.add_argument("case_dir", nargs="?", default=str(DEMO_CASE_DIR))
     ingest_parser.add_argument("--live", action="store_true", help="call the local Ollama model on cache misses")
-    commands.add_parser("build-demo-cache", help="re-run the demo's model calls with the local model")
+    rebuild = commands.add_parser("build-demo-cache", help="record the demo's model calls with the local model")
+    rebuild.add_argument("--fresh", action="store_true", help="ask every call again instead of reusing recorded replies")
     commands.add_parser("check-ollama", help="check the local Ollama server and model")
     args = parser.parse_args(argv)
 

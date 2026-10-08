@@ -11,7 +11,8 @@ import ipaddress
 import socket
 from typing import Any
 
-_LOOPBACK_NAMES = frozenset({"localhost", "localhost.localdomain", "ip6-localhost", "ip6-loopback"})
+# Only "localhost" is guaranteed to resolve on this machine; other names could need a DNS lookup.
+_LOOPBACK_NAMES = frozenset({"localhost"})
 _originals: dict[str, Any] = {}
 
 

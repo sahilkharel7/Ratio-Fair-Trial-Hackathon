@@ -127,3 +127,36 @@ def test_interval_endpoints_are_the_merged_timeline_events():
     gc35 = interval(result, "gc35_48h")
     assert timeline[gc35.from_event_id].type == "arrest"
     assert timeline[gc35.to_event_id].type == "first_appearance"
+
+
+def test_a_reading_marked_for_review_that_would_fit_the_benchmark_turns_red_into_review():
+    # A note says "arrested on 17 February" with no year: marked for review, and only 2-3 days before 19 Feb.
+    late = stray("arrest", dt.date(2025, 2, 17), needs_review=True, review_reasons=("the year was inferred, not written",))
+    gc35 = interval(run(replace_events([*MOCK.events, late])), "gc35_48h")
+    assert gc35.status == "needs_review"
+    assert "2025-02-14" in gc35.note and "2025-02-17" in gc35.note
+
+
+def test_dates_that_need_review_are_never_reported_as_within_the_benchmark():
+    events = [e for e in MOCK.events if e.type not in ("arrest", "first_appearance")]
+    arrest = stray("arrest", dt.date(2025, 2, 14), needs_review=True, review_reasons=("quote matched only approximately",))
+    appearance = stray("first_appearance", dt.date(2025, 2, 15))
+    gc35 = interval(run(replace_events([*events, arrest, appearance])), "gc35_48h")
+    assert gc35.status == "needs_review"
+
+
+def test_each_start_is_paired_with_the_first_end_after_it():
+    later = stray("first_appearance", dt.date(2025, 3, 2))  # a later hearing mistyped as the first appearance
+    gc35 = interval(run(replace_events([*MOCK.events, later])), "gc35_48h")
+    assert (gc35.min_hours, gc35.max_hours) == (96, 144)  # 19 Feb is the first appearance after the arrest
+    assert "2025-03-02" in gc35.note  # the other reading is named, not hidden
+
+
+def test_an_unconfirmed_benchmark_cannot_carry_a_threshold():
+    from pydantic import ValidationError
+
+    from ratio.config import Benchmark
+
+    unconfirmed = CONFIG.benchmark("counsel_access").model_dump()
+    with pytest.raises(ValidationError, match="hard rule 5"):
+        Benchmark.model_validate({**unconfirmed, "threshold_hours": 48})

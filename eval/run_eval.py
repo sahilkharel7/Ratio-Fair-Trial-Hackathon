@@ -5,7 +5,7 @@
 
 Reports extraction quality against the hand-checked timeline, the expected outputs found and
 missed (expected_flags.json), must-not-flag violations, and provenance before and after
-enforcement. Exits 1 if any flag shown lacks an exact source span (hard rule 2).
+enforcement. Exits 1 if any flag lacked an exact source span, shown or dropped (hard rule 2).
 
 Results are in-sample: one synthetic case written by the team, so they show the pipeline
 works end to end, not how it generalises. Writes eval/out/report.json.
@@ -80,10 +80,12 @@ def main(argv: list[str] | None = None) -> int:
     prov = provenance(record, analysis)
 
     print("Ratio evaluation: SYNTHETIC demo case (in-sample, one team-written case)")
-    print(f"Model {llm.model} ({'replayed from cache' if llm.replay_only else 'live'}); cache misses {llm.stats.misses}")
+    replayed = llm.stats.misses == 0
+    source = "replayed from cache" if llm.replay_only else f"live, {llm.stats.hits} answers from cache, {llm.stats.misses} new"
+    print(f"Model {llm.model} ({source})")
     print(f"Extraction: {report.events_kept} events, {report.arguments_kept} arguments, {len(report.dropped)} dropped")
     print(f"  event recall   {metrics.matched}/{metrics.gold_events} = {metrics.event_recall:.0%}")
-    print(f"  date accuracy  {metrics.correct_dates}/{metrics.gold_events} = {metrics.date_accuracy:.0%}")
+    print(f"  date accuracy  {metrics.correct_dates}/{metrics.matched} of the events found = {metrics.date_accuracy:.0%}")
     for item in metrics.missed:
         print(f"  missed: {item}")
     for item in metrics.wrong_dates:
@@ -99,7 +101,9 @@ def main(argv: list[str] | None = None) -> int:
         "synthetic": True,
         "in_sample": True,
         "model": llm.model,
-        "replayed": llm.replay_only,
+        "replayed": replayed,
+        "cache_hits": llm.stats.hits,
+        "cache_misses": llm.stats.misses,
         "extraction": {**asdict(metrics), "event_recall": metrics.event_recall, "date_accuracy": metrics.date_accuracy},
         "dropped": list(report.dropped),
         "event_violations": list(violations),
@@ -107,7 +111,7 @@ def main(argv: list[str] | None = None) -> int:
         "provenance": prov,
     }
     (OUT_DIR / "report.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
-    return 0 if prov["shown_with_exact_spans"] == 1.0 else 1
+    return 0 if prov["shown_with_exact_spans"] == 1.0 and prov["flags_dropped"] == 0 else 1
 
 
 if __name__ == "__main__":

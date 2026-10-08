@@ -23,12 +23,16 @@ MAX_DATE_TEXT = 64
 _SENTINEL_BASE = dt.datetime(2000, 1, 1)
 _MONTH = r"(?:January|February|March|April|May|June|July|August|September|October|November|December|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)\.?"
 _WRITTEN_DATE = re.compile(
-    rf"\b\d{{1,2}}(?:st|nd|rd|th)?\s+{_MONTH}\s+\d{{4}}\b"  # 14 February 2025
+    rf"\b\d{{1,2}}(?:st|nd|rd|th)?(?:\s+day)?(?:\s+of)?\s+{_MONTH},?\s+\d{{4}}\b"  # 14 February 2025, 14th day of February, 2025
     rf"|\b{_MONTH}\s+\d{{1,2}}(?:st|nd|rd|th)?,?\s+\d{{4}}\b"  # February 14, 2025
-    r"|\b\d{1,2}[./]\d{1,2}[./]\d{4}\b"  # 14/02/2025
-    r"|\b\d{4}-\d{2}-\d{2}\b",  # 2025-02-14
+    r"|\b\d{1,2}[./-]\d{1,2}[./-]\d{4}\b"  # 14/02/2025, 14.02.2025, 14-02-2025
+    r"|\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b",  # 2025-02-14, 2025/02/14
     re.IGNORECASE,
 )
+_NUMERIC_DATE = re.compile(r"^\d{1,2}[./-]\d{1,2}[./-]\d{4}$")
+_ORDINAL_OF = re.compile(r"^(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)?\s+(?:day\s+)?of\s+", re.IGNORECASE)
+_DAY_AND_MONTH = re.compile(rf"{_MONTH}|\b\d{{1,2}}[./-]\d{{1,2}}\b", re.IGNORECASE)
+_ALNUM_EDGE = "0-9A-Za-z"
 _PERIOD_PRECISION: dict[str, DatePrecision] = {
     "time": "datetime",
     "day": "date",
@@ -66,19 +70,22 @@ def parse_date_text(text: str | None, *, base: dt.datetime | None = None) -> Par
     """Parse one date expression copied from the source.
 
     Returns None for placeholders, non-dates, ranges ("9-12 February 2025"), numeric month/year
-    forms ("02/2025"), and text without a written year when no base date is known (so no
-    sentinel year can leak into a record). ISO-style dates are read year first.
+    forms ("02/2025"), text without a written year when no base date is known (so no sentinel
+    year can leak into a record), and year-less text that names no day and month (a time, a
+    duration or a weekday). ISO-style dates are read year first; ordinals like "the 14th day
+    of February, 2025" are accepted.
     """
     if text is None:
         return None
-    cleaned = text.strip()
+    cleaned = _ORDINAL_OF.sub(r"\1 ", " ".join(text.split()))  # "the 14th day of February" -> "14 February"
     if cleaned.lower() in _PLACEHOLDERS or len(cleaned) > MAX_DATE_TEXT:
         return None
     year_first = bool(_YEAR_FIRST.match(cleaned))
-    if not year_first and (_RANGE.search(cleaned) or _MONTH_YEAR_NUMERIC.match(cleaned)):
+    numeric = bool(_NUMERIC_DATE.match(cleaned))
+    if not (year_first or numeric) and (_RANGE.search(cleaned) or _MONTH_YEAR_NUMERIC.match(cleaned)):
         return None
-    if base is None and not has_explicit_year(cleaned):
-        return None
+    if not has_explicit_year(cleaned) and (base is None or not _DAY_AND_MONTH.search(cleaned)):
+        return None  # no year and nothing to anchor a day: a time ("10:10"), a duration or a weekday
     order = "YMD" if year_first else "DMY"
     data = _parser(base or _SENTINEL_BASE, order).get_date_data(cleaned)
     if data is None or data.date_obj is None:
@@ -90,6 +97,18 @@ def parse_date_text(text: str | None, *, base: dt.datetime | None = None) -> Par
 def find_written_dates(text: str, start: int = 0, end: int | None = None) -> tuple[tuple[int, int], ...]:
     """Spans of full written dates (day, month and year) in text[start:end]."""
     return tuple((m.start(), m.end()) for m in _WRITTEN_DATE.finditer(text, start, len(text) if end is None else end))
+
+
+def locate_date_text(text: str, start: int, end: int, candidate: str) -> tuple[int, int] | None:
+    """Offsets of ``candidate`` in text[start:end] as a whole expression (never inside a longer
+    word or number), allowing any whitespace between its words (line breaks, non-breaking spaces)."""
+    words = candidate.split()
+    if not words:
+        return None
+    body = r"\s+".join(re.escape(word) for word in words)
+    pattern = re.compile(rf"(?<![{_ALNUM_EDGE}]){body}(?![{_ALNUM_EDGE}])", re.IGNORECASE)
+    match = pattern.search(text, start, end)
+    return (match.start(), match.end()) if match else None
 
 
 def has_explicit_year(text: str | None) -> bool:

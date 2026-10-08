@@ -33,7 +33,8 @@ class ExtractionMetrics:
 
     @property
     def date_accuracy(self) -> float:
-        return self.correct_dates / self.gold_events if self.gold_events else 1.0
+        """Share of the events found whose date is right (a missed event counts against recall only)."""
+        return self.correct_dates / self.matched if self.matched else 1.0
 
 
 def _anchor_span(record: CaseRecord, anchor) -> SourceSpan | None:
@@ -50,11 +51,11 @@ def extraction_metrics(record: CaseRecord, gold: GoldTimeline) -> ExtractionMetr
     missed: list[str] = []
     wrong: list[str] = []
     for gold_event in gold.events:
-        anchor = _anchor_span(record, gold_event.anchor)
+        anchors = [span for span in (_anchor_span(record, a) for a in gold_event.anchors) if span is not None]
         same_date = [
             e for e in extracted if e.type == gold_event.type and e.parsed_date and e.parsed_date.date() == gold_event.date
         ]
-        overlapping = [e for e in extracted if e.type == gold_event.type and anchor is not None and e.span.overlaps(anchor)]
+        overlapping = [e for e in extracted if e.type == gold_event.type and any(e.span.overlaps(a) for a in anchors)]
         candidates = same_date if gold_event.type in REPEATING_EVENTS else same_date + overlapping
         label = f"{gold_event.type} on {gold_event.date.isoformat()}"
         if not candidates:
@@ -105,7 +106,7 @@ def _shown(item: ExpectedItem, record: CaseRecord, analysis: CaseAnalysis) -> bo
     """Whether the analysis shows this output: same module, standard and status, over its anchors."""
     anchors = [_anchor_span(record, anchor) for anchor in item.anchors]
     if any(anchor is None for anchor in anchors):
-        return False
+        raise GoldError(f"{item.id}: an anchor does not occur exactly once in the case documents")
     absence = analysis.absence
     if item.kind == "flag":
         return any(
@@ -130,7 +131,8 @@ def _shown(item: ExpectedItem, record: CaseRecord, analysis: CaseAnalysis) -> bo
 def flag_recall(record: CaseRecord, analysis: CaseAnalysis, expected: ExpectedFlags) -> FlagRecall:
     found = tuple(item.id for item in expected.expected if _shown(item, record, analysis))
     missed = tuple(item.id for item in expected.expected if item.id not in found)
-    violations = tuple(item.id for item in expected.must_not_flag if item.kind != "event" and _shown(item, record, analysis))
+    forbidden = (item.model_copy(update={"match": "any"}) for item in expected.must_not_flag if item.kind != "event")
+    violations = tuple(item.id for item in forbidden if _shown(item, record, analysis))  # any anchor flagged is a violation
     return FlagRecall(found=found, missed=missed, violations=violations)
 
 

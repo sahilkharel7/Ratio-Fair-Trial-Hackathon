@@ -84,3 +84,30 @@ def test_a_reuse_pair_whose_flag_fails_provenance_is_dropped_with_it(monkeypatch
     analysis = analyze(record, ctx)
     assert analysis.reuse.flags == () and analysis.reuse.pairs == ()
     assert analysis.dropped_flags == 1 and analysis.dropped_reasons[0].startswith("reuse/reasoning_reuse")
+
+
+def test_a_finding_whose_source_fails_the_check_loses_its_colour_and_status():
+    from ratio.context import AnalysisContext
+    from ratio.paths import GOLD_DIR
+    from ratio.pipeline import analyze
+    from ratio.schema import CaseRecord
+    from ratio.testing import FakeEmbedder, FakeLLM
+
+    record = CaseRecord.model_validate_json((GOLD_DIR / "mock_record.json").read_text(encoding="utf-8"))
+    forged_events = []
+    for event in record.events:  # every arrest mention now quotes text that is not in its document
+        if event.type == "arrest":
+            text = "X" + event.span.text[1:]
+            event = event.model_copy(update={"span": event.span.model_copy(update={"text": text})})
+        forged_events.append(event)
+    forged = record.model_copy(update={"events": tuple(forged_events)})
+
+    def no_labels(system, user, schema, purpose):
+        return {"labels": []} if purpose == "labels" else {"note": "", "responding": []}
+
+    analysis = analyze(forged, AnalysisContext(llm=FakeLLM(no_labels), embedder=FakeEmbedder(), config=CONFIG))
+    gc35 = next(i for i in analysis.clock.intervals if i.benchmark_id == "gc35_48h")
+    assert gc35.status == "cannot_compute" and gc35.flag_id is None
+    assert all(e.span.text[0] != "X" for e in gc35.evidence)
+    assert not any(t.type == "arrest" for t in analysis.clock.timeline)
+    assert analysis.dropped_flags >= 1 and any("gc35_48h" in reason for reason in analysis.dropped_reasons)

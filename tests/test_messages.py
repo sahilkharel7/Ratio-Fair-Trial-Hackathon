@@ -82,3 +82,23 @@ def test_word_forms_and_hidden_characters_are_caught(messages, text):
 @pytest.mark.parametrize("text", ["unbiased", "unfairness of the trial", "partial closure of the hearing", "the court applies"])
 def test_ordinary_wording_is_not_caught(messages, text):
     assert not contains_blocked_term(text, messages.block_list)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "The judge was not impartial.",
+        "The judge was partial to the prosecution.",
+        "The judge had prejudged the case.",
+        "The judge was hostile and vindictive.",
+        "The judge acted unfairly and arbitrarily.",
+        "Judge was bіased",  # Cyrillic і
+    ],
+)
+def test_synonyms_and_look_alike_letters_are_caught(messages, text):
+    assert contains_blocked_term(text, messages.block_list)
+    assert REMOVED in filter_model_note(text, messages.block_list)
+
+
+def test_word_parts_of_the_new_terms_are_kept(messages):
+    assert filter_model_note("The notes are partially illegible.", messages.block_list) == "The notes are partially illegible."

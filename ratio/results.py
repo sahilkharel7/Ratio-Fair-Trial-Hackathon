@@ -57,6 +57,7 @@ class PartAssessment(Frozen):
     required: bool
     status: GuaranteeStatus
     hearings_missing: tuple[dt.date, ...] = ()
+    notes_missing: tuple[str, ...] = ()  # ids of notes with no hearing date that hold no evidence for this part
 
 
 class GuaranteeAssessment(Frozen):
@@ -72,6 +73,7 @@ class GuaranteeAssessment(Frozen):
     context: tuple[Evidence, ...] = ()
     follow_up: FollowUp | None = None
     flag_id: str | None = None
+    unlabelled_notes: int = Field(default=0, ge=0)  # shortlisted notes the model never labelled
 
 
 class AbsenceResult(Frozen):
@@ -153,6 +155,7 @@ class ReusePair(Frozen):
     cosine: float | None = None
     judgment_ranges: tuple[CharRange, ...] = ()
     indictment_ranges: tuple[CharRange, ...] = ()
+    passage_containment: float | None = None  # share of the judgment passage's 5-grams found in the whole indictment
     matches_charge_particulars: bool = False
     flag_id: str | None = None
 
@@ -163,8 +166,10 @@ class ArgumentCheck(Frozen):
     argument_id: str
     argument: SourceSpan
     addressed: bool
+    checked: bool = True  # False when the model's answer could not be used; never flagged then
     responding: tuple[SourceSpan, ...] = ()
-    passages_checked: int = Field(ge=1)
+    passages_checked: int = Field(ge=0)
+    passages_total: int = Field(default=0, ge=0)
     model_note: str | None = None
     flag_id: str | None = None
 
@@ -175,9 +180,12 @@ class ReuseResult(Frozen):
 
     judgment_doc_id: str | None
     indictment_doc_id: str | None
+    indictment_doc_ids: tuple[str, ...] = ()
     score: float | None = Field(default=None, ge=0.0, le=1.0)
+    score_note: str | None = None  # why there is no score
     verbatim_chars: int = Field(default=0, ge=0)
     paraphrase_chars: int = Field(default=0, ge=0)
+    charge_wording_chars: int = Field(default=0, ge=0)  # restated charge: shown, not scored
     reasoning_chars: int = Field(default=0, ge=0)
     reasoning_passage_ids: tuple[str, ...] = ()
     pairs: tuple[ReusePair, ...] = ()

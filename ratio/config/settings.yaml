@@ -44,10 +44,12 @@ embeddings:
 absence:
   # Shortlists are built per rubric part: the top notes overall for case-level parts, and the
   # top notes of every monitored hearing for per-hearing parts (so no hearing is skipped).
-  # Notes containing one of a part's keywords (rubric.yaml) are always included, up to max_shortlist.
+  # Notes containing one of a part's keywords (rubric.yaml) are always included. Above
+  # max_shortlist, keyword notes and each hearing's best note are kept first; the model labels
+  # the shortlist in batches that fit its context window.
   shortlist_top_k: 6
   per_hearing_top_k: 4
-  max_shortlist: 30
+  max_shortlist: 60
   shortlist_min_similarity: 0.15
   # The note most similar to a rubric context indicator (e.g. the defendant's language) is shown
   # next to a follow-up question as possibly relevant; it never counts as evidence.
@@ -57,81 +59,168 @@ reuse:
   shingle_size: 5  # word 5-grams
   minhash_num_perm: 128
   minhash_seed: 1
-  # MinHash LSH proposes candidate pairs below the confirmation thresholds, so the exact check
-  # (Jaccard or containment) decides; LSH Ensemble catches a short judgment sentence copied out of
-  # a long indictment sentence, which has a high containment but a low Jaccard.
+  # MinHash LSH (tuned for recall) proposes near-copies of indictment passages, confirmed by exact
+  # Jaccard; an exact 5-gram index measures containment against the whole indictment, so a
+  # sentence stitched from two indictment sentences, or excerpted from a long one, is caught too.
   lsh_threshold: 0.3
-  lsh_containment_threshold: 0.4
+  lsh_weights: [0.1, 0.9]  # (false positive, false negative) weights: missing a copy costs more
   verbatim_jaccard: 0.5
-  verbatim_containment: 0.6  # share of the judgment passage's 5-grams found in the indictment passage
+  verbatim_containment: 0.6  # share of the judgment passage's 5-grams found in the indictment
+  min_source_share: 0.1  # an indictment passage counts as a source when it supplies this share of the 5-grams
   paraphrase_cosine: 0.7  # planted paraphrase measures 0.756 with MiniLM; best reasoning hard negative 0.523
   paraphrase_min_shared_words: 3
   min_passage_words: 6  # shorter passages count as reasoning but are never matched
   # Defence arguments are checked against every reasoning passage, or the most similar ones when
   # the reasoning is longer than this (the prompt must fit the model's context window).
   argument_max_passages: 40
-  # Judgment sections that are not the court's own reasoning (matched against the heading text).
+  # What counts as the court's own reasoning. All patterns are regular expressions matched
+  # case-insensitively on the sentence with its whitespace collapsed (line breaks never hide a
+  # match). They are engineering heuristics for English-language judgments.
+  #
+  # Chapters that are not reasoning: a chapter title counts when it starts with one of these
+  # (after "the"); a title that goes on to name the court's assessment, findings or reasons
+  # stays reasoning ("Submissions of the parties and assessment of the court").
   non_reasoning_headings:
     - "procedural history"
-    - "the charge"
-    - "charges"
+    - "charges?"
+    - "indictment"
     - "submissions"
     - "arguments of the parties"
+    - "parties' (?:arguments|positions|submissions)"
+    - "positions of the parties"
+    - "case for the (?:prosecution|defen[cs]e)"
+    - "(?:prosecution|defen[cs]e) case"
     - "disposition"
-    - "operative part"
+    - "operative (?:part|provisions)"
     - "for these reasons"
+    - "on these grounds"
+    - "verdict"
+    - "decision"
+  reasoning_heading_words:
+    - "assessment"
+    - "findings?"
+    - "analysis"
+    - "merits"
+    - "reasons"
+    - "reasoning"
+    - "considerations"
+    - "court's"
+    - "deliberations?"
   recital_markers:
-    - "is charged with"
-    - "stands charged"
-    - "the indictment alleges"
-    - "the indictment states"
-    - "count \\d+"
+    - "(?:is|was|were|are|has been|had been|stands|stood) charged with"
+    - "(?:is|was|stands) accused of"
+    - "according to the indictment"
+    - "the indictment (?:of [^,.]{0,40} )?(?:alleges|charges|states|accuses|reads)"
+    - "charged (?:\\w+ ){0,4}(?:under|in|on) count \\d+"
+    - "count \\d+ of the indictment"
+  # A statute quotation needs one of these markers plus a quotation mark or a citation. When the
+  # marker sentence ends with ":" or "as follows", the next paragraph is the quoted text.
   statute_markers:
     - "provides:"
     - "provides that"
     - "reads:"
     - "reads as follows"
+    - "is worded as follows"
+    - "states:"
     - "stipulates"
+    - "prescribes"
+    - "lays down that"
   party_terms:
     - "the prosecution"
-    - "the prosecutor"
-    - "the public prosecutor"
+    - "the (?:public |state |district |chief )?prosecutor(?:'s office)?"
+    - "prosecution counsel"
+    - "the crown"
     - "the defen[cs]e"
     - "defen[cs]e counsel"
-    - "counsel for the (accused|defen[cs]e)"
-  # "<party> <up to two words> <verb>" ("The defence further argues") or "<prefix> <party>"
-  # ("According to the prosecution"); the position is carried to the following sentences of the
-  # same paragraph until the court speaks in its own voice.
+    - "counsel for the (?:accused|defen[cs]e|prosecution)"
+  # "<party> <verb>" only counts when the party opens the sentence (after a connective such as
+  # "However,"); "Contrary to what the defence argues, ..." is the court speaking. A party term
+  # followed by one of these nouns is someone else ("the defence witness claimed").
+  not_a_party_after:
+    - "witness(?:es)?"
+    - "experts?"
+    - "investigators?"
+    - "officers?"
+    - "exhibits?"
+    - "evidence"
+  sentence_openers:
+    - "however"
+    - "further(?:more)?"
+    - "moreover"
+    - "in addition"
+    - "additionally"
+    - "finally"
+    - "also"
+    - "first(?:ly)?"
+    - "second(?:ly)?"
+    - "third(?:ly)?"
+    - "lastly"
+    - "in particular"
+    - "similarly"
+    - "likewise"
+    - "in reply"
+    - "in response"
+  attribution_verbs:  # explicit forms: the bare nouns "claim" and "request" are not reporting verbs
+    - "argues"
+    - "argued"
+    - "submits"
+    - "submitted"
+    - "contends"
+    - "contended"
+    - "alleges"
+    - "alleged"
+    - "claims that"
+    - "claimed"
+    - "maintains"
+    - "maintained"
+    - "asserts"
+    - "asserted"
+    - "requests that"
+    - "requested"
+    - "states"
+    - "stated"
+    - "points out"
+    - "pointed out"
+    - "relies on"
+    - "relied on"
+    - "objects"
+    - "objected"
+    - "insists"
+    - "insisted"
+    - "complains"
+    - "complained"
+    - "disputes"
+    - "disputed"
+    - "suggests"
+    - "suggested"
+    - "accepts that"
+    - "accepted that"
+    - "concedes"
+    - "conceded"
+    - "acknowledges"
+    - "acknowledged"
   attribution_prefixes:
     - "according to"
     - "in the view of"
     - "in the submission of"
-  attribution_verbs:
-    - "argues?"
-    - "argued"
-    - "submits?"
-    - "submitted"
-    - "contends?"
-    - "contended"
-    - "alleges?"
-    - "alleged"
-    - "claims?"
-    - "claimed"
-    - "maintains?"
-    - "maintained"
-    - "asserts?"
-    - "asserted"
-    - "requests?"
-    - "requested"
-  endorsement_words:
+    - "in the opinion of"
+  attribution_possessives:  # "The prosecution's case is that ..."
+    - "view"
+    - "case"
+    - "position"
+    - "submissions?"
+    - "arguments?"
+    - "contention"
+  endorsement_words:  # "The defence rightly argues ..." is the court adopting the argument
     - "rightly"
     - "correctly"
-    - "agrees"
-    - "accepts"
-    - "adopts"
-    - "shares the view"
+    - "justifiably"
+    - "convincingly"
   court_voice_markers:
-    - "(?:the|this) (?:court|chamber|tribunal) (?:finds|found|considers|notes|holds|is satisfied|has examined|has considered|accepts|rejects|agrees)"
+    - "(?:the|this) (?:(?:trial|appeals?|district|high|supreme) )?(?:court|chamber|tribunal|panel|bench)(?: ?,[^,]{1,80},)? (?:(?:therefore|thus|also|further|accordingly|nevertheless|however|consequently|hence|equally|firmly) )?(?:finds|found|considers|considered|notes|noted|observes|observed|holds|held|concludes|concluded|accepts|accepted|rejects|rejected|agrees|agreed|dismisses|dismissed|shares the view|adopts|(?:is|was) (?:not )?(?:satisfied|persuaded|convinced)|(?:is|was) of the view|has (?:examined|considered|reviewed|assessed|taken)|does not (?:accept|agree|find|consider)|cannot (?:accept|agree)|sees no)"
+    - "\\b(?:we|i) (?:find|hold|consider|conclude|accept|reject|agree)\\b"
+    - "(?:this|that|the|such an?) (?:argument|objection|submission|contention|request|claim|complaint|plea) (?:is|was|must be|cannot|can not|fails?|failed|has no|lacks?|does not)"
+    - "in the (?:court|chamber|tribunal)'s (?:view|opinion|assessment)"
 
 judges:
   min_case_count: 5  # an indicator is hidden if the judge or the baseline has fewer cases

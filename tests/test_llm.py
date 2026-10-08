@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from ratio.config import load_config
 from ratio.llm import (
+    CacheDamaged,
     CachedLLM,
     CacheMiss,
     HttpError,
@@ -27,13 +28,21 @@ class Label(BaseModel):
 
 
 class FakeTransport:
-    """Records each request and returns scripted replies (a dict, or an exception to raise)."""
+    """Records each request and returns scripted replies (a dict, or an exception to raise).
+    /api/show (the "is this model local?" check) is answered by ``show`` and recorded apart."""
 
-    def __init__(self, replies):
+    def __init__(self, replies, show=None):
         self.replies = list(replies)
         self.requests = []
+        self.shows = []
+        self.show = {"details": {}} if show is None else show
 
     def __call__(self, url, body, timeout):
+        if url.endswith("/api/show"):
+            self.shows.append(body)
+            if isinstance(self.show, Exception):
+                raise self.show
+            return self.show
         self.requests.append((url, body, timeout))
         reply = self.replies.pop(0)
         if isinstance(reply, Exception):
@@ -45,8 +54,8 @@ def chat_reply(content: str, done_reason: str = "stop") -> dict:
     return {"message": {"role": "assistant", "content": content}, "done": True, "done_reason": done_reason}
 
 
-def client_with(*replies, model="qwen2.5:7b-instruct"):
-    transport = FakeTransport(replies)
+def client_with(*replies, model="qwen2.5:7b-instruct", show=None):
+    transport = FakeTransport(replies, show=show)
     return OllamaClient(SETTINGS, model=model, transport=transport), transport
 
 
@@ -60,7 +69,8 @@ def test_request_is_deterministic_structured_and_not_streamed():
     assert body["options"] == {"temperature": 0, "seed": 42, "num_ctx": 8192, "num_predict": SETTINGS.num_predict.labels}
     assert body["keep_alive"] == "30m"
     assert '"label"' in body["messages"][0]["content"]  # the schema is also given in the prompt
-    assert timeout == 90
+    assert timeout == 90 + SETTINGS.num_predict.labels / 10  # grows with the reply budget
+    assert transport.shows == [{"model": "qwen2.5:7b-instruct"}]  # asked once whether the model is local
 
 
 def test_invalid_reply_is_retried_once_with_the_error_appended():
@@ -107,9 +117,36 @@ def test_model_from_environment_variable(monkeypatch):
 
 
 def test_missing_model_gives_pull_instructions():
-    client, _ = client_with(HttpError(404, "model 'm' not found"), model="m")
+    client, _ = client_with(model="m", show=HttpError(404, "model 'm' not found"))
     with pytest.raises(ModelNotAvailable, match="ollama pull m"):
         client.complete_json(system="s", user="u", schema=Label, purpose="labels")
+
+
+def test_a_404_that_is_not_a_missing_model_names_the_host_setting():
+    client, _ = client_with(HttpError(404, "404 page not found"))
+    with pytest.raises(LLMError, match="RATIO_OLLAMA_HOST") as raised:
+        client.complete_json(system="s", user="u", schema=Label, purpose="labels")
+    assert not isinstance(raised.value, ModelNotAvailable)
+
+
+def test_a_local_alias_of_a_cloud_model_is_refused_before_any_prompt_is_sent():
+    client, transport = client_with(model="legal-helper", show={"details": {}, "remote_host": "https://ollama.com:443"})
+    with pytest.raises(LLMError, match="cloud"):
+        client.complete_json(system="s", user="CONFIDENTIAL NOTE", schema=Label, purpose="labels")
+    assert transport.requests == []
+
+
+def test_timeout_can_be_set_by_environment(monkeypatch):
+    monkeypatch.setenv("RATIO_OLLAMA_TIMEOUT", "600")
+    client, transport = client_with(chat_reply('{"label": "a", "quote": "q"}'))
+    client.complete_json(system="s", user="u", schema=Label, purpose="labels")
+    assert transport.requests[0][2] == 600
+
+
+def test_redirects_are_refused():
+    from ratio.llm import _PROXYLESS, _NoRedirect
+
+    assert any(isinstance(handler, _NoRedirect) for handler in _PROXYLESS.handlers)
 
 
 def test_server_down_is_reported_clearly():
@@ -119,7 +156,7 @@ def test_server_down_is_reported_clearly():
 
 
 def test_check_model_rejects_remote_models():
-    client, _ = client_with({"details": {}, "remote_host": "https://ollama.com:443"})
+    client, _ = client_with(show={"details": {}, "remote_host": "https://ollama.com:443"})
     with pytest.raises(LLMError, match="cloud"):
         client.check_model()
 
@@ -154,12 +191,28 @@ class TestCache:
             llm.complete_json(system="s", user="u", schema=Label, purpose="labels")
         assert list(tmp_path.glob("*.json")) == []
 
-    def test_key_depends_on_model_prompt_schema_and_purpose(self):
+    def test_key_depends_on_model_prompt_schema_purpose_and_options(self):
         base = dict(model="m", purpose="labels", system="s", user="u", schema_json={"a": 1}, options={"seed": 1})
         key = ResponseCache.key(**base)
         assert key == ResponseCache.key(**base)
-        for change in ({"model": "n"}, {"user": "v"}, {"system": "t"}, {"schema_json": {"a": 2}}, {"purpose": "extraction"}):
+        changes = (
+            {"model": "n"}, {"user": "v"}, {"system": "t"}, {"schema_json": {"a": 2}}, {"purpose": "extraction"},
+            {"options": {"seed": 2}}, {"options": {"seed": 1, "num_ctx": 4096}},
+        )  # fmt: skip
+        for change in changes:
             assert ResponseCache.key(**{**base, **change}) != key
+
+    def test_damaged_file_is_an_error_when_replaying_and_a_miss_when_live(self, tmp_path):
+        settings_key = {"system": "s", "user": "u", "schema": Label, "purpose": "labels"}
+        live, _ = client_with(chat_reply('{"label": "a", "quote": "q"}'), model="m")
+        CachedLLM(live, ResponseCache(tmp_path), settings=SETTINGS).complete_json(**settings_key)
+        (path,) = tmp_path.glob("*.json")
+        path.write_text("{ not json", encoding="utf-8")
+        with pytest.raises(CacheDamaged, match="cache"):
+            CachedLLM(None, ResponseCache(tmp_path), settings=SETTINGS, model="m").complete_json(**settings_key)
+        again, transport = client_with(chat_reply('{"label": "b", "quote": "q"}'), model="m")
+        assert CachedLLM(again, ResponseCache(tmp_path), settings=SETTINGS).complete_json(**settings_key).label == "b"
+        assert len(transport.requests) == 1
 
     def test_cache_files_hold_the_response_but_not_the_prompt(self, tmp_path):
         client, _ = client_with(chat_reply('{"label": "a", "quote": "q"}'))
@@ -170,3 +223,40 @@ class TestCache:
         stored = path.read_text(encoding="utf-8")
         assert "CONFIDENTIAL NOTE TEXT" not in stored and "SYSTEM PROMPT TEXT" not in stored
         assert json.loads(stored)["response"] == {"label": "a", "quote": "q"}
+
+
+def test_the_real_transport_reports_a_stopped_server_clearly():
+    import socket
+
+    from ratio.llm import urllib_transport
+
+    with socket.socket() as probe:  # a loopback port with nothing listening
+        probe.bind(("127.0.0.1", 0))
+        port = probe.getsockname()[1]
+    with pytest.raises(OllamaUnavailable, match="ollama serve"):
+        urllib_transport(f"http://127.0.0.1:{port}/api/version", None, 2)
+
+
+def test_the_real_transport_ignores_proxy_settings_and_maps_a_missing_model(monkeypatch):
+    import http.server
+    import threading
+
+    class NotFound(http.server.BaseHTTPRequestHandler):
+        def do_POST(self):  # noqa: N802 - http.server API
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b'{"error": "model \'m\' not found"}')
+
+        def log_message(self, *args):
+            pass
+
+    server = http.server.HTTPServer(("127.0.0.1", 0), NotFound)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    monkeypatch.setenv("HTTP_PROXY", "http://10.255.255.1:9")  # would hang if a proxy were used
+    monkeypatch.setenv("http_proxy", "http://10.255.255.1:9")
+    try:
+        client = OllamaClient(SETTINGS, model="m", host=f"http://127.0.0.1:{server.server_port}")
+        with pytest.raises(ModelNotAvailable, match="ollama pull m"):
+            client.check_model()
+    finally:
+        server.shutdown()

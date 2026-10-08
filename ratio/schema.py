@@ -50,7 +50,7 @@ EvidenceRole = Literal[
 FLAG_STATUSES: dict[str, frozenset[str]] = {
     "absence": frozenset({"evidence_of_compliance", "evidence_of_violation"}),
     "clock": frozenset({"exceeds_benchmark", "needs_review"}),
-    "reuse": frozenset({"verbatim_reuse", "paraphrase_reuse", "unaddressed_argument"}),
+    "reuse": frozenset({"verbatim_reuse", "paraphrase_reuse", "charge_wording", "unaddressed_argument"}),
     "judges": frozenset({"pattern_warrants_review"}),
 }
 
@@ -185,6 +185,7 @@ class Passage(Frozen):
     doc_id: str
     index: int = Field(ge=0)
     section: str | None = None
+    chapter: str | None = None  # the top-level heading the section belongs to
     kind: PassageKind = "body"
     span: SourceSpan
 

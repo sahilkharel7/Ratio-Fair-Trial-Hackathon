@@ -37,9 +37,11 @@ def test_every_yaml_and_json_file_is_flagged_synthetic():
     for path in sorted(DEMO_DIR.rglob("*.yaml")):
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
         assert data.get("synthetic") is True, path
-    for path in sorted(GOLD_DIR.glob("*.json")):
-        text = path.read_text(encoding="utf-8")
-        assert '"synthetic": true' in text, path
+    json_files = sorted(DEMO_DIR.rglob("*.json"))  # gold files, the recorded model replies and their manifest
+    assert len(json_files) > 10
+    for path in json_files:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        assert True in (data.get("synthetic"), data.get("meta", {}).get("synthetic")), path  # a case record keeps it in meta
 
 
 def test_demo_case_shape(record):

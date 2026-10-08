@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import bisect
 import re
+import unicodedata
 from collections.abc import Collection
 from dataclasses import dataclass
 
@@ -70,19 +71,23 @@ def _pick(
 
 
 def _canonical(text: str) -> tuple[str, list[int]]:
-    """Collapse whitespace runs and straighten quotes/dashes, keeping a map to original offsets."""
+    """Collapse whitespace runs, straighten quotes/dashes and fold Unicode (ligatures, accents,
+    soft hyphens), keeping a map from each canonical character to its original offset."""
     chars: list[str] = []
     origin: list[int] = []
     previous_space = False
-    for index, char in enumerate(text.translate(_CANONICAL)):
-        if char.isspace():
-            if previous_space:
+    for index, original in enumerate(text.translate(_CANONICAL)):
+        for char in unicodedata.normalize("NFKD", original):
+            if unicodedata.combining(char) or char == "\u00ad":
                 continue
-            char, previous_space = " ", True
-        else:
-            previous_space = False
-        chars.append(char)
-        origin.append(index)
+            if char.isspace():
+                if previous_space:
+                    continue
+                char, previous_space = " ", True
+            else:
+                previous_space = False
+            chars.append(char)
+            origin.append(index)
     return "".join(chars), origin
 
 
@@ -136,16 +141,18 @@ def locate_quote(
     canonical_window = None
     if window is not None:
         canonical_window = (bisect.bisect_left(origin, window[0]), bisect.bisect_left(origin, window[1]))
-    found = _pick(find_all(canonical_text, canonical_quote), len(canonical_quote), canonical_window, ())
+    occurrences = find_all(canonical_text, canonical_quote)
+    found = _pick(occurrences, len(canonical_quote), canonical_window, ())
     if found is not None:
         start, end = origin[found], origin[found + len(canonical_quote) - 1] + 1
         return Located(start, end, "normalized", 100.0)
+    if len(occurrences) > 1:
+        return None  # the quote occurs several times: never guess which one is meant
 
-    if len(cleaned) >= fuzzy_min_chars:
-        for region in ([window] if window is not None else []) + [None]:
-            located = _fuzzy(text, cleaned, region, fuzzy_threshold)
-            if located is not None and (located.start, located.end) not in used:
-                return located
+    if len(cleaned) >= fuzzy_min_chars:  # only inside the window: the model saw nothing else
+        located = _fuzzy(text, cleaned, window, fuzzy_threshold)
+        if located is not None and (located.start, located.end) not in used:
+            return located
     return None
 
 
@@ -157,8 +164,12 @@ def sentence_bounds(text: str, start: int, end: int) -> tuple[int, int]:
     return min(s for s, _ in overlapping), max(e for _, e in overlapping)
 
 
+_NUMBER_ABBREVIATION = re.compile(r"\bno\.(?=\s+\S)|\bno\s+(?=\d)", re.IGNORECASE)  # "Decision No. 45", "Law No 12"
+
+
 def _negation_words(text: str) -> set[str]:
-    words = {word.lower() for word in _WORD.findall(text.translate(_CANONICAL))}
+    text = _NUMBER_ABBREVIATION.sub(" ", text.translate(_CANONICAL))
+    words = {word.lower() for word in _WORD.findall(text)}
     return {word for word in words if word in _NEGATIONS or word.endswith("n't")}
 
 

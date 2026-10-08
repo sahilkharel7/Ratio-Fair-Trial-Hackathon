@@ -12,6 +12,7 @@ CSS = """
 mark.ratio-span { background: rgba(255, 193, 7, 0.5); box-shadow: 0 0 0 2px rgba(230, 150, 0, 0.9); }
 mark.ratio-verbatim { background: rgba(255, 193, 7, 0.42); }
 mark.ratio-paraphrase { background: rgba(66, 133, 244, 0.28); }
+mark.ratio-charge { background: rgba(140, 140, 140, 0.25); text-decoration: underline dotted; }
 .ratio-excluded { opacity: 0.45; }
 .ratio-tag { font-family: system-ui, sans-serif; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.04em;
   border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; margin: 0 4px; opacity: 0.75; white-space: nowrap; }

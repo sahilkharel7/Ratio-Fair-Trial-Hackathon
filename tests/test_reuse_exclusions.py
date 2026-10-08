@@ -122,3 +122,137 @@ def test_a_judgment_without_headings_is_all_reasoning_except_caption_and_signatu
         "The accused was present.": None,
         "(signed) A. Judge": "header_or_signature",
     }
+
+
+# --- review fixes: real-world wording of court voice, party positions, recitals and headings --------
+
+ASSESSMENT = "V. ASSESSMENT OF THE COURT\n\n"
+
+
+@pytest.mark.parametrize(
+    "rebuttal",
+    [
+        "That argument is rejected: the amendment entered into force on 1 January 2025.",
+        "This objection cannot succeed.",
+        "The Court does not accept this.",
+        "The Court therefore finds that the amendment applied.",
+        "The Trial Chamber finds that the amendment applied.",
+        "The Court, having examined the file, finds that the amendment applied.",
+        "We find that the amendment applied.",
+        "However, the amendment entered into force on 1 January 2025.",
+    ],
+)
+def test_the_courts_answer_after_a_party_position_is_reasoning(rebuttal):
+    reasons = judgment(ASSESSMENT + f"The defence argues that the first article predates the amendment. {rebuttal}\n")
+    assert reasons["The defence argues that the first article predates the amendment."] == "party_position"
+    assert reasons[rebuttal] is None
+
+
+def test_a_report_continues_across_sentences_and_paragraphs_until_the_court_speaks():
+    reasons = judgment(
+        ASSESSMENT + "The prosecution argues that the accused acted alone.\n\n"
+        "It further submits that the messages were sent abroad. In its view, the timing was planned.\n\n"
+        "The messages were sent from the accused's telephone.\n"
+    )
+    assert list(reasons.values())[2:] == ["party_position", "party_position", "party_position", None]
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "Contrary to what the defence argues, the accused knew that the allegations were false.",
+        "Although the defence argues that the search was unlawful, the warrant is in the file.",
+        "The defence claim that the warrant was never issued is unfounded.",
+        "The defence request to exclude the messages is rejected.",
+        "As to the defence claim that the search was unlawful, the warrant is in the file.",
+        "The defence witness claimed that he saw nothing.",
+        "The witnesses correctly identified the accused.",
+    ],
+)
+def test_the_court_mentioning_a_party_is_not_a_party_position(sentence):
+    assert judgment(ASSESSMENT + sentence + "\n")[sentence] is None
+
+
+@pytest.mark.parametrize(
+    "sentence",
+    [
+        "The prosecution, in its closing speech, argued that the accused knew the allegations were false.",
+        "It was argued by the prosecution that the accused knew the allegations were false.",
+        "In the prosecution's view, the accused knew the allegations were false.",
+        "The prosecution's case is that the accused knew the allegations were false.",
+        "The prosecution states that the accused knew the allegations were false.",
+        "The Public Prosecutor maintained that the accused knew the allegations were false.",
+        "The Court notes that the prosecution argues that the accused knew the allegations were false.",
+        "The prosecution submits that the investigators correctly seized the telephone.",
+        "The prosecution accepts that the telephone was seized without a warrant.",
+    ],
+)
+def test_ways_of_reporting_a_partys_case_are_party_positions(sentence):
+    assert judgment(ASSESSMENT + sentence + "\n")[sentence] == "party_position"
+
+
+@pytest.mark.parametrize(
+    "heading",
+    [
+        "V. FINDINGS ON THE CHARGES",
+        "V. ASSESSMENT OF THE CHARGE",
+        "V. THE COURT'S ASSESSMENT OF THE PARTIES' SUBMISSIONS",
+        "V. ASSESSMENT OF THE ARGUMENTS OF THE PARTIES",
+        "V. SUBMISSIONS OF THE PARTIES AND ASSESSMENT OF THE COURT",
+    ],
+)
+def test_reasoning_chapters_named_after_the_charge_or_the_submissions_stay_reasoning(heading):
+    sentence = "The accused knew that the allegations were false."
+    assert judgment(f"{heading}\n\n{sentence}\n")[sentence] is None
+
+
+@pytest.mark.parametrize("heading", ["VI. VERDICT", "VI. DECISION", "ON THESE GROUNDS", "FOR THESE REASONS, THE COURT, UNANIMOUSLY,", "III. THE PARTIES' ARGUMENTS"])
+def test_operative_and_submission_chapters_are_not_reasoning(heading):
+    sentence = "Finds the accused guilty of publishing the articles."
+    assert judgment(f"{heading}\n\n{sentence}\n")[sentence] == "non_reasoning_section"
+
+
+def test_a_sub_heading_inside_the_submissions_chapter_is_still_submissions():
+    reasons = judgment(
+        "III. SUBMISSIONS OF THE PARTIES\n\nA. The prosecution\n\nMessages recovered from the telephone show the plan.\n\n"
+        "V. ASSESSMENT OF THE COURT\n\nA. The charge of disseminating false information\n\nThe witness was credible.\n"
+    )
+    assert reasons["Messages recovered from the telephone show the plan."] == "non_reasoning_section"
+    assert reasons["The witness was credible."] is None
+
+
+@pytest.mark.parametrize(
+    "sentence, reason",
+    [
+        ("As to count 1, the accused knew that the allegations were false.", None),
+        ("On Count 2, the messages show that he coordinated the timing.", None),
+        ("The Court finds that the accused, who is charged with fraud, knew the allegations were false.", None),
+        ("By indictment of 3 March 2025, the accused was charged with disseminating false information.", "charge_recital"),
+        ("According to the indictment, the accused published a series of articles.", "charge_recital"),
+    ],
+)
+def test_charge_recitals_and_count_by_count_reasoning(sentence, reason):
+    assert judgment(ASSESSMENT + sentence + "\n")[sentence] == reason
+
+
+def test_a_provision_quoted_as_a_block_after_its_marker_is_excluded_with_it():
+    reasons = judgment(
+        "IV. THE APPLICABLE LAW\n\nArticle 214(2) of the Penal Code provides:\n\n"
+        "Whoever disseminates information that he knows to be false shall be punished. "
+        "The same penalty applies where the dissemination causes public alarm.\n\n"
+        "The accused published the articles knowing them to be false.\n"
+    )
+    assert list(reasons.values())[2:] == ["statute_quote", "statute_quote", "statute_quote", None]
+
+
+@pytest.mark.parametrize("opening, closing", [("‘", "’"), ("«", "»"), ('"', '"')])
+def test_a_multi_sentence_provision_in_any_quotation_style_is_one_statute_quote(opening, closing):
+    provision = f"Rule 11 provides: {opening}An accused shall be informed. No exception applies.{closing}"
+    assert judgment(f"IV. THE APPLICABLE LAW\n\n{provision}\n")[provision] == "statute_quote"
+
+
+def test_line_breaks_inside_markers_change_nothing():
+    reasons = judgment(ASSESSMENT + "The defence contends that the allegations were true. The Court\nfinds that the accused knew they were false.\n")
+    assert reasons["The Court\nfinds that the accused knew they were false."] is None
+    recital = "The accused is\ncharged with disseminating false information."
+    assert judgment(ASSESSMENT + recital + "\n")[recital] == "charge_recital"

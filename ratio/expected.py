@@ -44,11 +44,13 @@ class ExpectedFlags(Frozen):
 
 
 class GoldEvent(Frozen):
+    """One real event, with every annotated mention of it as an anchor."""
+
     id: str
     type: EventType
     date: dt.date
     precision: DatePrecision
-    anchor: Anchor
+    anchors: tuple[Anchor, ...] = Field(min_length=1)
 
 
 class GoldTimeline(Frozen):

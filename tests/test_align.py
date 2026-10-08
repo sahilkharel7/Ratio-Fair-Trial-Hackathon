@@ -97,3 +97,26 @@ def test_trailing_punctuation_does_not_matter(quote):
 
 def test_typographic_apostrophes_still_count_as_negation():
     assert negation_mismatch("The defendant didn\u2019t have an interpreter.", "The defendant have an interpreter")
+
+
+def test_number_abbreviations_are_not_negations():
+    sentence = "On 19 February 2025 the accused was brought before the investigating judge under Decision No. 45/2025."
+    assert not negation_mismatch(sentence, "On 19 February 2025 the accused was brought before the investigating judge")
+    assert not negation_mismatch("Under Law No 12 he was detained.", "he was detained")
+    assert negation_mismatch("He was not brought before a judge.", "He was brought before a judge")
+
+
+def test_fuzzy_matching_stays_inside_the_window_the_model_saw():
+    clause = "the accused was brought before the investigating judge, who ordered his detention"
+    text = f"On 3 March 2025 {clause}. Later, on 9 April 2025 {clause}."
+    quote = clause.replace(",", "")  # not exact, so only a fuzzy match can find it
+    second = text.rindex(clause)
+    located = locate_quote(text, quote, window=(second, len(text)), fuzzy_min_chars=30)
+    assert located is not None and located.match == "fuzzy" and located.start >= second
+
+
+def test_ligatures_decomposed_accents_and_soft_hyphens_still_match():
+    text = "The ofﬁcer said that Iléna Várda adjour­ned the hearing."  # ﬁ ligature, NFD accents
+    located = locate_quote(text, "The officer said that Iléna Várda adjourned the hearing", min_chars=12)
+    assert located is not None and located.match == "normalized"
+    assert text[located.start : located.end].startswith("The ofﬁcer")

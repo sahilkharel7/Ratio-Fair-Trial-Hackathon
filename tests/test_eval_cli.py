@@ -31,3 +31,23 @@ def test_a_shown_flag_without_its_exact_source_fails_provenance():
     )  # fmt: skip
     analysis = CaseAnalysis(case_id=MOCK.case_id, reuse=ReuseResult(judgment_doc_id=judgment.id, indictment_doc_id=None, flags=(flag,)))
     assert run_eval.provenance(MOCK, analysis)["shown_with_exact_spans"] == 0.0
+
+
+def test_the_eval_fails_when_any_flag_had_to_be_dropped(tmp_path, monkeypatch):
+    from ratio.modules import reuse
+
+    real_run = reuse.run
+
+    def forging_run(record, ctx):
+        result = real_run(record, ctx)
+        judgment = record.documents_of_type("judgment")[0]
+        forged = SourceSpan(doc_id=judgment.id, start=0, end=5, text="FORGE")
+        flag = Flag(
+            id="forged", case_id=record.case_id, module="reuse", standard_id="reasoning_reuse", standard_label="x",
+            status="verbatim_reuse", message="m", evidence=(Evidence(role="judgment", span=forged),),
+        )  # fmt: skip
+        return result.model_copy(update={"flags": (*result.flags, flag)})
+
+    monkeypatch.setattr(reuse, "run", forging_run)
+    monkeypatch.setattr(run_eval, "OUT_DIR", tmp_path)
+    assert run_eval.main([]) == 1

@@ -24,9 +24,9 @@ from ratio.extraction.extract import ExtractionReport, extract_record
 from ratio.llm import CachedLLM, OllamaClient, ResponseCache, model_from_env
 from ratio.modules import absence, clock, reuse
 from ratio.paths import DEMO_CACHE_DIR, DEMO_CASE_DIR, RUNTIME_CACHE_DIR
-from ratio.provenance import DocResolver, enforce, filter_follow_up, resolver_for
-from ratio.results import CaseAnalysis, ReuseResult
-from ratio.schema import Argument, CaseRecord, Event, Flag, Frozen
+from ratio.provenance import check_absence, check_clock, check_reuse, resolver_for
+from ratio.results import CaseAnalysis
+from ratio.schema import Argument, CaseRecord, Event, Frozen
 
 LLMMode = Literal["live", "replay"]
 ProgressCallback = Callable[[str, int, int], None]
@@ -83,39 +83,13 @@ def analysis_context(config: RatioConfig, llm: CachedLLM, embedder: Embedder | N
     return AnalysisContext(llm=llm, embedder=embedder or MiniLMEmbedder(), config=config)
 
 
-def _keep_valid(flags: tuple[Flag, ...], resolve: DocResolver, dropped: list[str]) -> tuple[Flag, ...]:
-    outcome = enforce(flags, resolve)
-    dropped.extend(f"{flag.module}/{flag.standard_id}: {reason}" for flag, reason in outcome.dropped)
-    return outcome.kept
-
-
-def _reuse_with_valid_flags(result: ReuseResult, resolve: DocResolver, dropped: list[str]) -> ReuseResult:
-    """Keep only flags whose spans resolve, and only the pairs and argument checks those flags back."""
-    flags = _keep_valid(result.flags, resolve, dropped)
-    kept = {flag.id for flag in flags}
-    return result.model_copy(
-        update={
-            "flags": flags,
-            "pairs": tuple(pair for pair in result.pairs if pair.flag_id in kept),
-            "arguments": tuple(check for check in result.arguments if check.flag_id is None or check.flag_id in kept),
-        }
-    )
-
-
 def analyze(record: CaseRecord, ctx: AnalysisContext) -> CaseAnalysis:
     """Run the modules on one case and enforce provenance on every flag (hard rule 2)."""
     resolve = resolver_for([record])
     dropped: list[str] = []
-    absence_result = absence.run(record, ctx)
-    absence_result = absence_result.model_copy(
-        update={
-            "flags": _keep_valid(absence_result.flags, resolve, dropped),
-            "follow_ups": tuple(filter_follow_up(f, resolve) for f in absence_result.follow_ups),
-        }
-    )
-    clock_result = clock.run(record, ctx)
-    clock_result = clock_result.model_copy(update={"flags": _keep_valid(clock_result.flags, resolve, dropped)})
-    reuse_result = _reuse_with_valid_flags(reuse.run(record, ctx), resolve, dropped)
+    absence_result = check_absence(absence.run(record, ctx), resolve, dropped)
+    clock_result = check_clock(clock.run(record, ctx), resolve, dropped)
+    reuse_result = reuse.rescore(check_reuse(reuse.run(record, ctx), resolve, dropped))  # dropped pairs leave the score
     replay_only = getattr(ctx.llm, "replay_only", None)
     return CaseAnalysis(
         case_id=record.case_id,
@@ -180,19 +154,41 @@ def run_note_live(record: CaseRecord, doc_id: str, config: RatioConfig, *, model
     )
 
 
-def build_demo_cache(config: RatioConfig, *, progress: ProgressCallback | None = None) -> DemoCacheManifest:
-    """Run every model call of the demo case live and keep exactly those replies in the demo cache."""
+def _mark_synthetic(path: Path) -> None:
+    """The demo replies quote the synthetic case, so each file carries the SYNTHETIC flag itself."""
+    record = json.loads(path.read_text(encoding="utf-8"))
+    if record.get("synthetic") is not True:
+        record["synthetic"] = True
+        path.write_text(json.dumps(record, indent=2, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8")
+
+
+def build_demo_cache(config: RatioConfig, *, fresh: bool = False, progress: ProgressCallback | None = None) -> DemoCacheManifest:
+    """Run every model call of the demo case and keep exactly those replies in the demo cache.
+
+    By default replies already in the cache are reused and only new calls reach the model; with
+    ``fresh`` every call is asked again (into an empty folder that then replaces the cache).
+    """
     settings = config.settings.llm
     client = OllamaClient(settings)
     client.check_model()
     version = client.version()
-    llm = CachedLLM(client, ResponseCache(DEMO_LLM_CACHE), settings=settings)
-    base = load_case(DEMO_CASE_DIR)
-    record, _ = ingest(base, llm, config, progress=progress)
-    analyze(record, analysis_context(config, llm))
+    with tempfile.TemporaryDirectory(prefix="ratio-demo-cache-") as scratch:
+        target = Path(scratch) if fresh else DEMO_LLM_CACHE
+        llm = CachedLLM(client, ResponseCache(target), settings=settings)
+        base = load_case(DEMO_CASE_DIR)
+        record, _ = ingest(base, llm, config, progress=progress)
+        analyze(record, analysis_context(config, llm))
+        if fresh:
+            for path in DEMO_LLM_CACHE.glob("*.json"):
+                path.unlink()
+            DEMO_LLM_CACHE.mkdir(parents=True, exist_ok=True)
+            for path in target.glob("*.json"):
+                path.replace(DEMO_LLM_CACHE / path.name)
     for path in DEMO_LLM_CACHE.glob("*.json"):
         if path.stem not in llm.used_keys:
             path.unlink()
+        else:
+            _mark_synthetic(path)
     manifest = DemoCacheManifest(
         synthetic=True,
         model=client.model,
