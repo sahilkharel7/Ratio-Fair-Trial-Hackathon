@@ -59,3 +59,30 @@ def test_durations_and_percentages():
     assert duration_text(96, 144) == "between 4 and 6 days (96 to 144 hours; dates are day-level)"
     assert duration_text(30, 30) == "30 hours"
     assert (percent(0.6001), percent(None)) == ("60%", "n/a")
+
+
+def test_reuse_marks_stay_on_the_document_each_pair_belongs_to():
+    from ratio.display import reuse_marks
+    from ratio.results import CharRange, ExcludedPassage, ReusePair, ReuseResult
+
+    judgment = "The court finds the accused stole the car. Article 5 reads: theft is a crime."
+    first, amended = "Count 1: the accused stole the car.", "Particular 12: the date of count 1 is amended."
+    pair = ReusePair(
+        id="p1", kind="verbatim", flag_id="f1",
+        judgment=span_of("the accused stole the car", judgment, "c/judgment.txt"),
+        indictment=span_of("the accused stole the car", first, "c/indictment.txt"),
+        indictment_ranges=(CharRange(start=9, end=34),),
+    )  # fmt: skip
+    statute = span_of("Article 5 reads: theft is a crime.", judgment, "c/judgment.txt")
+    reuse = ReuseResult(
+        judgment_doc_id="c/judgment.txt", indictment_doc_id="c/indictment.txt",
+        indictment_doc_ids=("c/indictment.txt", "c/amended.txt"), pairs=(pair,),
+        excluded=(ExcludedPassage(passage_id="x", span=statute, reason="statute_quote"),),
+    )  # fmt: skip
+    numbers = {"f1": "1"}
+    assert reuse_marks(reuse, numbers, "c/amended.txt", str.upper) == []
+    assert reuse_marks(reuse, numbers, "c/indictment.txt", str.upper) == [Mark(9, 34, "verbatim", "1")]
+    on_judgment = reuse_marks(reuse, numbers, "c/judgment.txt", str.upper)
+    assert Mark(statute.start, statute.end, "excluded", "STATUTE_QUOTE") in on_judgment
+    assert Mark(pair.judgment.start, pair.judgment.end, "verbatim", "1") in on_judgment
+    assert amended  # the amended indictment exists but has no match: nothing may be painted on it

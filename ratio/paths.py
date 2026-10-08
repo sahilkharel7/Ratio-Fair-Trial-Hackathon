@@ -15,6 +15,8 @@ DEMO_DIR = DATA_DIR / "demo"
 DEMO_CASE_DIR = DEMO_DIR / "case"
 GOLD_DIR = DEMO_DIR / "gold"
 HISTORY_DIR = DEMO_DIR / "history"
+ALIAS_DECISIONS = HISTORY_DIR / "alias_decisions.yaml"  # decisions on the synthetic demo history
+PUBLIC_ALIAS_DECISIONS = DATA_DIR / "alias_decisions.yaml"  # decisions on public cases, never in a SYNTHETIC file
 DEMO_CACHE_DIR = DEMO_DIR / "cache"
 RUNTIME_CACHE_DIR = DATA_DIR / "cache" / "llm"
 

@@ -1,0 +1,10 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+#
+# Decisions on the judge registry's manual confirmation list, written by a person (Ratio never
+# writes here). A name on the list counts nowhere, neither in a judge's rates nor in any
+# baseline, until it is decided here. One entry per name, exactly as written in that case's rulings:
+#   - {case_id: hist-initials-01, name: "I. Varda", same_as: "Ilena Varda"}  # the same judge as Ilena Varda of that court
+#   - {case_id: hist-initials-01, name: "I. Varda", same_as: null}           # a different judge
+# The demo leaves hist-initials-01 undecided, so it stays on the list and out of every rate.
+synthetic: true
+decisions: []

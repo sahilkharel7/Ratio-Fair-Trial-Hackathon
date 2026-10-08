@@ -4,6 +4,7 @@ through the live local model."""
 from __future__ import annotations
 
 import streamlit as st
+from pydantic import ValidationError
 
 from ratio.display import md_escape, percent
 from ratio.embeddings import EmbeddingModelMissing
@@ -15,22 +16,13 @@ from ratio_ui import session, style, widgets
 from ratio_ui.session import LoadedCase
 
 LIVE_KEY = "ratio_live_note"
-FAILURES = (LoaderError, LLMError, EmbeddingModelMissing)
-
-
-def _progress_bar():
-    bar = st.progress(0.0, text="Starting")
-
-    def update(label: str, done: int, total: int) -> None:
-        bar.progress(done / total, text=f"Reading {label} ({done} of {total})")
-
-    return update
+FAILURES = (LoaderError, LLMError, EmbeddingModelMissing, ValidationError)  # shown as a message, never a traceback
 
 
 def _run(title: str, action) -> None:
     with st.status(title, expanded=True) as status:
         try:
-            action(_progress_bar())
+            action(widgets.progress_bar())
         except FAILURES as exc:
             status.update(label="Stopped", state="error")
             st.error(md_escape(str(exc)))
@@ -103,6 +95,22 @@ def _findings(loaded: LoadedCase) -> None:
         label=f"Reasoning reuse: {percent(reuse.score if reuse else None)} of the reasoning traceable to the indictment; "
         f"{len(unanswered)} defence argument without a response",
     )
+    _judge_link(loaded)
+
+
+def _judge_link(loaded: LoadedCase) -> None:
+    """The judge of this case, if the stored cases hold coded rulings for them (the demo brings a history)."""
+    try:
+        report = session.judge_report()
+    except LoaderError:
+        return  # the judge page explains the problem
+    profile = next((p for p in report.profiles if loaded.record.case_id in p.case_ids), None)
+    if profile is not None:
+        patterns = len(profile.flags)
+        found = "1 pattern that warrants review" if patterns == 1 else f"{patterns} patterns that warrant review"
+        cases = "1 case" if len(profile.case_ids) == 1 else f"{len(profile.case_ids)} cases"
+        compared = "1 indicator" if profile.k_compared == 1 else f"{profile.k_compared} indicators"
+        st.page_link("views/judges.py", label=f"Judge profile: {md_escape(profile.display_name)}, {found} ({cases}, {compared} compared)")
 
 
 def _summary(loaded: LoadedCase) -> None:

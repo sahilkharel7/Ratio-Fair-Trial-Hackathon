@@ -12,8 +12,10 @@ profile (9 cases) against the other judges of the same court and charge type (10
 - Contested evidence admitted: 3 cases: hidden (fewer than 5)
 - Every defence motion denied: 4 cases: hidden (fewer than 5)
 
-`hist-initials-01` names the judge only as "I. Varda" and goes to the manual confirmation list.
+`hist-initials-01` names the judge only as "I. Varda" and goes to the manual confirmation list; it counts
+nowhere until a person records a decision in `alias_decisions.yaml` (written by hand, not generated).
 `hist-port-elsin-01` is a judge with the same name at another court and is never merged.
+The pattern test splits alpha across the 3 indicators shown (Newcombe interval at 98.3%).
 
 | Case | Judge (as written) | Court | Detention at first appearance | Hearings | Contested evidence | Defence motion | Verdict |
 |---|---|---|---|---|---|---|---|

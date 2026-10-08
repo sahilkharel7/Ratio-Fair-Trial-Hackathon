@@ -9,6 +9,7 @@ Truncated or invalid replies raise errors and are never cached.
 from __future__ import annotations
 
 import hashlib
+import http.client
 import json
 import os
 import tempfile
@@ -126,7 +127,10 @@ def urllib_transport(url: str, body: dict | None, timeout: float) -> dict:
         with _PROXYLESS.open(request, timeout=timeout) as response:
             return json.loads(response.read().decode("utf-8"))
     except urllib.error.HTTPError as exc:
-        detail = exc.read().decode("utf-8", errors="replace")
+        try:
+            detail = exc.read().decode("utf-8", errors="replace")
+        except (OSError, http.client.HTTPException):  # reset or cut short: the status still says what went wrong
+            detail = str(exc.reason or "")
         try:
             detail = json.loads(detail).get("error", detail)
         except (ValueError, AttributeError):

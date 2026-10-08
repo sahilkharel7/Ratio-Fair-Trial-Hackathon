@@ -279,6 +279,13 @@ class JudgeSettings(Frozen):
     name_match_threshold: float = Field(gt=0, le=100)
     ambiguous_floor: float = Field(gt=0, le=100)
     date_tolerance_days: int = Field(gt=0)
+    title_words: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _floor_below_threshold(self) -> JudgeSettings:
+        if self.ambiguous_floor >= self.name_match_threshold:
+            raise ValueError("judges.ambiguous_floor must be below name_match_threshold")
+        return self
 
 
 class UISettings(Frozen):

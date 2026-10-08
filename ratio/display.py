@@ -8,9 +8,10 @@ from __future__ import annotations
 
 import html
 import re
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 
+from ratio.results import ReuseResult
 from ratio.schema import SourceSpan
 
 MARK_PRIORITY = {"span": 0, "verbatim": 1, "paraphrase": 2, "charge": 3, "excluded": 4}
@@ -125,3 +126,22 @@ def percent(value: float | None) -> str:
 def md_escape(text: str) -> str:
     """Text from a document or a model, made safe to pass to st.markdown: shown literally."""
     return _MARKDOWN_SPECIAL.sub(r"\\\1", text).replace("\n", "  \n")
+
+
+def reuse_marks(reuse: ReuseResult, numbers: Mapping[str, str], doc_id: str, exclusion_label: Callable[[str], str]) -> list[Mark]:
+    """Highlights for one document of the side-by-side reuse view: the judgment or one indictment.
+    A pair marks only the documents its own spans are in, so a case with several indictments never
+    shows one indictment's match on another's text."""
+    statuses = {flag.id: flag.status for flag in reuse.flags}
+    marks = [
+        Mark(e.span.start, e.span.end, "excluded", "" if e.reason == "header_or_signature" else exclusion_label(e.reason))
+        for e in reuse.excluded
+        if e.span.doc_id == doc_id
+    ]
+    for pair in reuse.pairs:
+        number = numbers.get(pair.flag_id or "", "")
+        kind = "charge" if statuses.get(pair.flag_id or "") == "charge_wording" else pair.kind
+        for span, ranges in ((pair.judgment, pair.judgment_ranges), (pair.indictment, pair.indictment_ranges)):
+            if span.doc_id == doc_id:
+                marks += [Mark(r.start, r.end, kind, number) for r in ranges] or [Mark(span.start, span.end, kind, number)]
+    return marks

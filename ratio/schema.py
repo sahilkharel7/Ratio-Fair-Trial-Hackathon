@@ -202,6 +202,15 @@ class Ruling(Frozen):
     span: SourceSpan
 
 
+class AliasDecision(Frozen):
+    """A person's decision on a name from the manual confirmation list (alias_decisions.yaml)."""
+
+    case_id: str = Field(min_length=1)
+    name: str = Field(min_length=1)  # exactly as written in that case's rulings
+    same_as: str | None = None  # the registered judge at the same court it belongs to; None: a different judge
+    synthetic: bool | None = None  # the kind of data of the file it was recorded in (set by the loader)
+
+
 class CaseMeta(Frozen):
     case_id: str
     title: str

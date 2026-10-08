@@ -5,9 +5,9 @@ from __future__ import annotations
 
 import streamlit as st
 
-from ratio.display import Mark, marked_html, md_escape, percent
+from ratio.display import Mark, marked_html, md_escape, percent, reuse_marks
 from ratio.modules.reuse import by_passage
-from ratio.results import ArgumentCheck, ReusePair, ReuseResult
+from ratio.results import ArgumentCheck, ReuseResult
 from ratio.schema import CaseRecord, Evidence, Flag, SourceSpan
 from ratio_ui import widgets
 
@@ -20,27 +20,6 @@ LEGEND = (
     "is quotation or not reasoning, with the reason · the same number marks both sides of a match</div>"
 )
 VIEWS = ("Court's reasoning", "Whole documents")
-
-
-def _kind(pair: ReusePair, flags: dict[str, Flag]) -> str:
-    flag = flags.get(pair.flag_id or "")
-    return "charge" if flag is not None and flag.status == "charge_wording" else pair.kind
-
-
-def _marks(reuse: ReuseResult, numbers: dict[str, str], side: str) -> list[Mark]:
-    flags = {flag.id: flag for flag in reuse.flags}
-    marks: list[Mark] = []
-    if side == "judgment":
-        marks += [
-            Mark(e.span.start, e.span.end, "excluded", "" if e.reason == "header_or_signature" else widgets.label(e.reason))
-            for e in reuse.excluded
-        ]
-    for pair in reuse.pairs:
-        number, kind = numbers.get(pair.flag_id or "", ""), _kind(pair, flags)
-        ranges = pair.judgment_ranges if side == "judgment" else pair.indictment_ranges
-        span = pair.judgment if side == "judgment" else pair.indictment
-        marks += [Mark(r.start, r.end, kind, number) for r in ranges] or [Mark(span.start, span.end, kind, number)]
-    return marks
 
 
 def _metrics(reuse: ReuseResult) -> None:
@@ -89,7 +68,7 @@ def _side_by_side(record: CaseRecord, reuse: ReuseResult, numbers: dict[str, str
     left, right = st.columns(2, gap="medium")
     with left:
         spans = [p.span for p in record.passages if p.id in reasoning] + [pair.judgment for pair in reuse.pairs]
-        _panel(record, reuse.judgment_doc_id, _marks(reuse, numbers, "judgment"), spans, whole)
+        _panel(record, reuse.judgment_doc_id, reuse_marks(reuse, numbers, reuse.judgment_doc_id, widgets.label), spans, whole)
     with right:
         if not reuse.indictment_doc_ids:
             st.info("This case has no indictment to compare with.")
@@ -99,7 +78,7 @@ def _side_by_side(record: CaseRecord, reuse: ReuseResult, numbers: dict[str, str
             titles = {i: record.document(i).title for i in reuse.indictment_doc_ids}
             doc_id = st.selectbox("Indictment", list(titles), format_func=titles.get, key="reuse_indictment")
         pairs = [pair.indictment for pair in reuse.pairs if pair.indictment.doc_id == doc_id]
-        _panel(record, doc_id, _marks(reuse, numbers, "indictment"), pairs, whole)
+        _panel(record, doc_id, reuse_marks(reuse, numbers, doc_id, widgets.label), pairs, whole)
 
 
 def _match(record: CaseRecord, flag: Flag, number: str) -> None:

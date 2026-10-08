@@ -198,26 +198,80 @@ class ReuseResult(Frozen):
 
 
 class RateEstimate(Frozen):
+    """k of n cases, with a Wilson interval at ``confidence``."""
+
     k: int = Field(ge=0)
-    n: int = Field(ge=0)
-    rate: float | None = None
-    ci_low: float | None = None
-    ci_high: float | None = None
+    n: int = Field(gt=0)
+    rate: float = Field(ge=0, le=1)
+    ci_low: float = Field(ge=0, le=1)
+    ci_high: float = Field(ge=0, le=1)
+    confidence: float = Field(gt=0, lt=1)
+
+    @model_validator(mode="after")
+    def _consistent(self) -> RateEstimate:
+        if self.k > self.n or not self.ci_low <= self.rate <= self.ci_high:
+            raise ValueError("a rate needs k <= n and an interval that contains it")
+        return self
+
+
+class CaseOutcome(Frozen):
+    """One case counted in a judge's rate, and the coded ruling that decided its outcome."""
+
+    case_id: str
+    title: str
+    counted: bool  # in the numerator
+    ruling: Evidence
 
 
 class Indicator(Frozen):
+    """One rate for one judge and charge type. Below the minimum case count it carries no rate at all,
+    so nothing can display one; ``pattern`` needs a difference interval that excludes zero."""
+
     rate_id: str
     label: str
     charge_type: str
-    judge: RateEstimate
-    baseline: RateEstimate
+    judge_cases: int = Field(ge=0)
+    baseline_cases: int = Field(ge=0)
+    baseline_judges: int = Field(ge=0)
     shown: bool
-    hidden_reason: str | None = None
-    pattern: bool = False
+    message: str
+    judge: RateEstimate | None = None
+    baseline: RateEstimate | None = None
     difference_ci: tuple[float, float] | None = None
-    k_compared: int = Field(default=0, ge=0)
-    evidence: tuple[Evidence, ...] = ()
+    difference_confidence: float | None = Field(default=None, gt=0, lt=1)
+    pattern: bool = False
+    outcomes: tuple[CaseOutcome, ...] = ()
     flag_id: str | None = None
+
+    @model_validator(mode="after")
+    def _hidden_means_no_numbers(self) -> Indicator:
+        numbers = (self.judge, self.baseline, self.difference_ci, self.difference_confidence)
+        if self.shown and any(value is None for value in numbers):
+            raise ValueError("a shown indicator needs both rates and the difference interval")
+        if not self.shown and (any(value is not None for value in numbers) or self.outcomes or self.pattern):
+            raise ValueError("a hidden indicator must not carry rates, cases or a pattern (minimum case count)")
+        if self.pattern and (self.flag_id is None or self.difference_ci[0] <= 0 <= self.difference_ci[1]):
+            raise ValueError("a pattern needs a flag and a difference interval that excludes zero")
+        return self
+
+
+class Descriptive(Frozen):
+    """Coded values shown as plain numbers and never compared with a baseline (sentence lengths)."""
+
+    code: str
+    label: str
+    charge_type: str
+    cases: int = Field(ge=0)
+    shown: bool
+    message: str
+    values: tuple[float, ...] = ()
+    evidence: tuple[Evidence, ...] = ()
+
+    @model_validator(mode="after")
+    def _hidden_means_no_values(self) -> Descriptive:
+        if not self.shown and (self.values or self.evidence):
+            raise ValueError("hidden values must not be carried")
+        return self
 
 
 class CaseSignal(Frozen):
@@ -226,33 +280,60 @@ class CaseSignal(Frozen):
     case_id: str
     title: str
     reuse_score: float | None = None
-    flag_ids: tuple[str, ...] = ()
+    flags: int = Field(default=0, ge=0)
 
 
 class AliasCandidate(Frozen):
-    raw_name: str
+    """A name that may belong to a registered judge. Its rulings count nowhere, neither in that judge's
+    rates nor in any baseline, until a person decides in alias_decisions.yaml."""
+
     case_id: str
+    raw_name: str
     court: str
+    synthetic: bool
     candidate_judge_id: str | None
-    score: float
+    candidate_name: str | None
+    score: float = Field(ge=0, le=100)
     reason: str
+
+
+class DataNote(Frozen):
+    """A coded ruling, a decision or a case that could not be used, and why. ``synthetic`` is the kind of
+    data it concerns, so the judge page never shows one kind under the other's label; None only for a
+    note that names no case content."""
+
+    text: str
+    synthetic: bool | None = None
 
 
 class JudgeProfile(Frozen):
     judge_id: str
     display_name: str
     court: str
+    synthetic: bool
     charge_types: tuple[str, ...]
     case_ids: tuple[str, ...]
     name_variants: tuple[str, ...]
+    k_compared: int = Field(default=0, ge=0)  # indicators shown, over which alpha is split
     indicators: tuple[Indicator, ...] = ()
+    descriptive: tuple[Descriptive, ...] = ()
     case_signals: tuple[CaseSignal, ...] = ()
+    pending: tuple[AliasCandidate, ...] = ()  # names that may be this judge's, awaiting a decision
     flags: tuple[Flag, ...] = ()
 
 
 class JudgeReport(Frozen):
     profiles: tuple[JudgeProfile, ...] = ()
     manual_confirmations: tuple[AliasCandidate, ...] = ()
+    notes: tuple[DataNote, ...] = ()
+    dropped_flags: int = Field(default=0, ge=0)
+    dropped_reasons: tuple[str, ...] = ()
+
+    def profile(self, judge_id: str) -> JudgeProfile:
+        for profile in self.profiles:
+            if profile.judge_id == judge_id:
+                return profile
+        raise KeyError(judge_id)
 
 
 # --- One analysed case ----------------------------------------------------------------------

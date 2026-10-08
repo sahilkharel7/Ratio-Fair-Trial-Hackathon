@@ -170,3 +170,48 @@ def test_flat_upload_with_case_yaml_at_the_top():
 def test_bad_uploads_are_refused_with_a_clear_message(change, message):
     with pytest.raises(LoaderError, match=message):
         read_uploaded_files(change(demo_upload()))
+
+
+# --- malformed but plausible input is refused with a message, never a crash ----------------------
+
+
+@pytest.mark.parametrize(
+    "rulings",
+    [
+        RULINGS.replace("date: 2025-07-14", "date: 2025-02-30"),  # a typo in a hand-coded date
+        RULINGS.replace("date: 2025-07-14", "date: 2025-13-01"),
+    ],
+)
+def test_an_impossible_ruling_date_is_a_loader_error(tmp_path, rulings):
+    with pytest.raises(LoaderError, match="rulings.yaml"):
+        load_case(write_case(tmp_path / "case", rulings=rulings))
+
+
+def test_a_date_shaped_title_stays_text(tmp_path):
+    record = load_case(write_case(tmp_path / "case", manifest=MANIFEST.replace('"Republic v. Test"', "2024-02-30")))
+    assert record.meta.title == "2024-02-30"
+
+
+def test_deeply_nested_yaml_is_a_loader_error(tmp_path):
+    with pytest.raises(LoaderError, match="case.yaml"):
+        load_case(write_case(tmp_path / "case", manifest="[" * 2000))
+
+
+def test_public_material_without_a_source_note_is_refused_at_the_manifest(tmp_path):
+    manifest = MANIFEST.replace("synthetic: true", "synthetic: false").replace("data_provenance: synthetic", "data_provenance: public")
+    with pytest.raises(LoaderError, match="source_note"):
+        read_uploaded_files({"case/case.yaml": manifest.encode("utf-8")})
+
+
+@pytest.mark.parametrize("value", ["-36", ".nan", ".inf", "true", "yes", '"36"'])
+def test_a_ruling_value_must_be_a_finite_non_negative_number(tmp_path, value):
+    rulings = RULINGS.replace("date: 2025-07-14}", f"date: 2025-07-14, value: {value}}}")
+    with pytest.raises(LoaderError, match="rulings.yaml"):
+        load_case(write_case(tmp_path / "case", rulings=rulings))
+
+
+@pytest.mark.parametrize(("value", "expected"), [("36", 36.0), ("36.5", 36.5), ("0", 0.0)])
+def test_a_numeric_ruling_value_is_read_as_a_number(tmp_path, value, expected):
+    rulings = RULINGS.replace("date: 2025-07-14}", f"date: 2025-07-14, value: {value}}}")
+    [ruling] = load_case(write_case(tmp_path / "case", rulings=rulings)).rulings
+    assert ruling.value == expected

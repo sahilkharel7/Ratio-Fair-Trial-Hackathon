@@ -9,6 +9,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 
 import numpy as np
+import yaml
 from pydantic import BaseModel
 from unidecode import unidecode
 
@@ -31,6 +32,48 @@ def make_record(documents: Sequence[tuple[str, DocType, str]], case_id: str = "t
         documents=tuple(ManifestDocument(path=path, type=doc_type, title=path) for path, doc_type, _ in documents),
     )
     files = {path: f"{TEST_MARKER}\n{text}".encode("utf-8") for path, _, text in documents}
+    return build_base_record(manifest, files)
+
+
+@dataclass(frozen=True)
+class CodedRuling:
+    code: str
+    judge: str
+    date: str | None = None  # ISO date
+    value: float | None = None
+
+
+def make_history_case(
+    case_id: str,
+    rulings: Sequence[CodedRuling],
+    *,
+    court: str = "Test District Court",
+    charge_type: str = "Test charge",
+    public: bool = False,
+) -> CaseRecord:
+    """A one-document case whose coded rulings each rest on their own sentence, built by the real loader.
+    ``public`` stands in for published material (the text is still invented) to test that the two never mix."""
+    sentences = [f"Ruling {number}: {ruling.code.replace('_', ' ')} by {ruling.judge}." for number, ruling in enumerate(rulings, 1)]
+    entries = [
+        {"code": r.code, "doc": "summary.txt", "quote": s, "judge": r.judge, "date": r.date, "value": r.value}
+        for r, s in zip(rulings, sentences, strict=True)
+    ]
+    manifest = CaseManifest(
+        case_id=case_id,
+        title=f"Republic of Testland v. {case_id}",
+        court=court,
+        charge_type=charge_type,
+        data_provenance="public" if public else "synthetic",
+        synthetic=not public,
+        source_note="Test fixture standing in for a published case (invented text)" if public else None,
+        documents=(ManifestDocument(path="summary.txt", type="monitoring_note", title="Monitoring summary"),),
+        rulings="rulings.yaml",
+    )
+    text = "\n".join(sentences)
+    files = {
+        "summary.txt": (text if public else f"{TEST_MARKER}\n{text}").encode("utf-8"),
+        "rulings.yaml": yaml.safe_dump({"synthetic": not public, "rulings": entries}, sort_keys=False).encode("utf-8"),
+    }
     return build_base_record(manifest, files)
 
 

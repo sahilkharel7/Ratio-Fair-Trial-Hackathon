@@ -36,5 +36,6 @@ pages = [
     st.Page("views/coverage.py", title="Rights coverage"),
     st.Page("views/timeline.py", title="Timeline"),
     st.Page("views/reuse.py", title="Reasoning reuse"),
+    st.Page("views/judges.py", title="Judge profile"),
 ]
 st.navigation(pages).run()

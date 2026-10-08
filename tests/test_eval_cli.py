@@ -20,6 +20,11 @@ def test_eval_replays_the_demo_with_full_provenance_and_recall(tmp_path, monkeyp
     assert report["provenance"]["before_enforcement"] == 1.0
     assert report["flags"]["missed"] == [] and report["flags"]["violations"] == []
     assert report["synthetic"] and report["in_sample"] and report["replayed"]
+    judges = report["judges"]
+    assert judges["provenance"]["shown_with_exact_spans"] == 1.0 and judges["provenance"]["flags_dropped"] == 0
+    assert len(judges["patterns"]) == 1 and judges["patterns"][0].startswith("Pattern that warrants review: ")
+    assert judges["awaiting_confirmation"] == ["hist-initials-01"] and judges["notes"] == []
+    assert "Pretrial detention ordered at the first appearance: 9/9 against 4/10 in the baseline, pattern that warrants review" in out
 
 
 def test_a_shown_flag_without_its_exact_source_fails_provenance():

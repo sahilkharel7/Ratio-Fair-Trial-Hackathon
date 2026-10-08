@@ -111,3 +111,20 @@ def test_a_finding_whose_source_fails_the_check_loses_its_colour_and_status():
     assert all(e.span.text[0] != "X" for e in gc35.evidence)
     assert not any(t.type == "arrest" for t in analysis.clock.timeline)
     assert analysis.dropped_flags >= 1 and any("gc35_48h" in reason for reason in analysis.dropped_reasons)
+
+
+@pytest.mark.embed
+def test_a_live_run_answered_entirely_from_the_cache_is_recorded_as_replayed(tmp_path, monkeypatch):
+    from ratio import pipeline
+
+    monkeypatch.delenv("RATIO_MODEL", raising=False)
+
+    def no_model(*args, **kwargs):
+        raise AssertionError("the local model must not be asked: every answer is in the cache")
+
+    monkeypatch.setattr(pipeline.OllamaClient, "complete_json", no_model, raising=False)
+    monkeypatch.setattr(pipeline.OllamaClient, "check_model", no_model, raising=False)
+    llm = make_llm(CONFIG, mode="live", write_dir=tmp_path)  # reads the demo cache first, like an upload
+    _, analysis, _ = pipeline.process(load_case(DEMO_CASE_DIR), llm, CONFIG)
+    assert not llm.replay_only and llm.stats.misses == 0
+    assert analysis.llm_mode == "replay"

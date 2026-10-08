@@ -69,6 +69,8 @@ class CaseManifest(Frozen):
     def _consistent(self) -> CaseManifest:
         if self.synthetic != (self.data_provenance == "synthetic"):
             raise ValueError("'synthetic' must match data_provenance")
+        if self.data_provenance == "public" and not (self.source_note or "").strip():
+            raise ValueError("public material needs a source_note citing where it was published")
         paths = [doc.path for doc in self.documents]
         if len(paths) != len(set(paths)):
             raise ValueError("duplicate document paths")
@@ -85,12 +87,23 @@ class _RulingEntry(Frozen):
     quote: str = Field(min_length=3)
     judge: str = Field(min_length=1)
     date: dt.date | None = None
-    value: float | None = None
+    value: float | None = Field(default=None, ge=0, allow_inf_nan=False, strict=True)  # e.g. months; strict: 'yes' is not 1
 
 
 class _RulingsFile(Frozen):
     synthetic: bool
     rulings: tuple[_RulingEntry, ...] = ()
+
+
+class _TextDatesLoader(yaml.SafeLoader):
+    """SafeLoader that leaves date-shaped values as text: pydantic parses the fields that are dates, so a
+    typo such as 2025-02-30 is a validation error with a message instead of a crash in the YAML reader."""
+
+
+_TextDatesLoader.yaml_implicit_resolvers = {
+    first: [(tag, pattern) for tag, pattern in resolvers if tag != "tag:yaml.org,2002:timestamp"]
+    for first, resolvers in yaml.SafeLoader.yaml_implicit_resolvers.items()
+}
 
 
 def safe_yaml(text: str, name: str) -> object:
@@ -99,9 +112,15 @@ def safe_yaml(text: str, name: str) -> object:
         for token in yaml.scan(text):
             if isinstance(token, (yaml.AnchorToken, yaml.AliasToken)):
                 raise LoaderError(f"{name}: YAML anchors and aliases are not allowed")
-        return yaml.safe_load(text)
+        return yaml.load(text, Loader=_TextDatesLoader)  # a SafeLoader subclass: no arbitrary objects
+    except LoaderError:
+        raise
     except yaml.YAMLError as exc:
         raise LoaderError(f"{name} is not valid YAML: {exc}") from exc
+    except RecursionError as exc:
+        raise LoaderError(f"{name} is nested too deeply") from exc
+    except ValueError as exc:
+        raise LoaderError(f"{name} has a value that cannot be read: {exc}") from exc
 
 
 def parse_manifest(text: str) -> CaseManifest:

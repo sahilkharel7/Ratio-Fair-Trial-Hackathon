@@ -32,6 +32,8 @@ BADGE_COLORS = {
     "unchecked_argument": "gray",
     "confirmed": "blue",
     "needs_legal_review": "violet",
+    "pattern_warrants_review": "blue",  # neutral: a prompt for review, never a finding about the judge
+    "hidden_indicator": "gray",
 }
 
 
@@ -86,6 +88,17 @@ def evidence(record: CaseRecord, items: Sequence[Evidence], key: str, heading: s
         text_column.html(quote_html(record, item))
         with button_column:
             source_button(item.span, record, key=f"{key}-{index}", heading=heading)
+
+
+def progress_bar():
+    """A progress bar for reading a case. Labels are document titles from the uploaded case.yaml, and
+    st.progress renders Markdown (images included), so they are escaped: a title can never fetch anything."""
+    bar = st.progress(0.0, text="Starting")
+
+    def update(label: str, done: int, total: int) -> None:
+        bar.progress(done / total, text=f"Reading {md_escape(label)} ({done} of {total})")
+
+    return update
 
 
 def model_note(text: str | None) -> None:

@@ -243,9 +243,12 @@ def test_the_real_transport_ignores_proxy_settings_and_maps_a_missing_model(monk
 
     class NotFound(http.server.BaseHTTPRequestHandler):
         def do_POST(self):  # noqa: N802 - http.server API
+            self.rfile.read(int(self.headers.get("Content-Length", 0)))  # like a real server: read the request first
+            body = b'{"error": "model \'m\' not found"}'
             self.send_response(404)
+            self.send_header("Content-Length", str(len(body)))
             self.end_headers()
-            self.wfile.write(b'{"error": "model \'m\' not found"}')
+            self.wfile.write(body)
 
         def log_message(self, *args):
             pass
@@ -260,3 +263,26 @@ def test_the_real_transport_ignores_proxy_settings_and_maps_a_missing_model(monk
             client.check_model()
     finally:
         server.shutdown()
+
+
+@pytest.mark.parametrize("failure", ["reset", "cut short"])
+def test_an_error_body_that_cannot_be_read_still_maps_the_status(monkeypatch, failure):
+    import http.client
+    import io
+    import urllib.error
+
+    from ratio import llm
+
+    class Broken(io.BytesIO):
+        def read(self, *args):
+            if failure == "reset":
+                raise ConnectionResetError(54, "Connection reset by peer")
+            raise http.client.IncompleteRead(b'{"error": "mod', 87)
+
+    def opener(request, timeout):
+        raise urllib.error.HTTPError(request.full_url, 404, "Not Found", {}, Broken())
+
+    monkeypatch.setattr(llm._PROXYLESS, "open", opener)
+    with pytest.raises(llm.HttpError) as caught:
+        llm.urllib_transport("http://127.0.0.1:1/api/show", {"model": "m"}, 2)
+    assert caught.value.status == 404

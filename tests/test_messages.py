@@ -35,7 +35,7 @@ def test_every_status_and_exclusion_has_a_reviewed_label(messages):
 
 def test_render_fills_every_placeholder(messages):
     text = render(messages, "judge_hidden", n=3, min=5)
-    assert text == "Not shown: 3 cases (fewer than 5)."
+    assert text == "Not shown: fewer than 5 cases (3)."
     assert not re.search(r"{\w+}", text)
 
 

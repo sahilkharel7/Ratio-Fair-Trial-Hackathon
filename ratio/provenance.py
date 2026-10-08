@@ -6,7 +6,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 
-from ratio.results import AbsenceResult, ClockResult, ReuseResult
+from ratio.results import AbsenceResult, ClockResult, DataNote, Descriptive, Indicator, JudgeReport, ReuseResult
 from ratio.schema import CaseRecord, Flag, FollowUp, SourceSpan
 
 DocResolver = Callable[[str], str | None]
@@ -122,3 +122,51 @@ def check_reuse(result: ReuseResult, resolve: DocResolver, dropped: list[str]) -
             "arguments": arguments,
         }
     )
+
+
+# --- the judge profiles: rates rest on coded rulings across cases -----------------------------
+
+_UNVERIFIED = "Not shown: a coded ruling it rests on was not found in its source text."
+
+
+def valid_rulings(records: Iterable[CaseRecord], resolve: DocResolver, ignored: list[DataNote]) -> tuple[CaseRecord, ...]:
+    """The records with only the coded rulings whose quote is found exactly in its document."""
+    checked = []
+    for record in records:
+        bad = [ruling for ruling in record.rulings if not span_is_valid(ruling.span, resolve)]
+        ignored.extend(
+            DataNote(text=f"case {record.case_id}: the {r.code} ruling was not found in {r.span.doc_id}, so it was not counted", synthetic=record.meta.synthetic)
+            for r in bad
+        )
+        checked.append(record.model_copy(update={"rulings": tuple(r for r in record.rulings if r not in bad)}) if bad else record)
+    return tuple(checked)
+
+
+def _checked_indicator(indicator: Indicator, kept: set[str], resolve: DocResolver) -> Indicator:
+    lost = indicator.flag_id is not None and indicator.flag_id not in kept
+    if not indicator.shown or (not lost and all(span_is_valid(o.ruling.span, resolve) for o in indicator.outcomes)):
+        return indicator
+    hidden = {"shown": False, "message": _UNVERIFIED, "judge": None, "baseline": None, "difference_ci": None,
+              "difference_confidence": None, "pattern": False, "outcomes": (), "flag_id": None}  # fmt: skip
+    return Indicator.model_validate(indicator.model_dump() | hidden)
+
+
+def _checked_descriptive(item: Descriptive, resolve: DocResolver) -> Descriptive:
+    if not item.shown or all(span_is_valid(e.span, resolve) for e in item.evidence):
+        return item
+    return Descriptive.model_validate(item.model_dump() | {"shown": False, "message": _UNVERIFIED, "values": (), "evidence": ()})
+
+
+def check_judges(report: JudgeReport, resolve: DocResolver, dropped: list[str]) -> JudgeReport:
+    """A pattern whose flag fails the check is not shown, and neither is any number resting on a ruling
+    that fails it. Rulings are checked before the rates are computed (valid_rulings): this is the backstop."""
+    profiles = []
+    for profile in report.profiles:
+        flags, kept = _kept(profile.flags, resolve, dropped)
+        update = {
+            "flags": flags,
+            "indicators": tuple(_checked_indicator(indicator, kept, resolve) for indicator in profile.indicators),
+            "descriptive": tuple(_checked_descriptive(item, resolve) for item in profile.descriptive),
+        }
+        profiles.append(profile.model_copy(update=update))
+    return report.model_copy(update={"profiles": tuple(profiles)})

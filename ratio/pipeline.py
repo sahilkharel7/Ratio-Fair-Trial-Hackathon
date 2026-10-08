@@ -11,7 +11,7 @@ import datetime as dt
 import json
 import tempfile
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
@@ -22,11 +22,11 @@ from ratio.embeddings import MiniLMEmbedder
 from ratio.extraction.build import load_case
 from ratio.extraction.extract import ExtractionReport, extract_record
 from ratio.llm import CachedLLM, OllamaClient, ResponseCache, model_from_env
-from ratio.modules import absence, clock, reuse
+from ratio.modules import absence, clock, judges, reuse
 from ratio.paths import DEMO_CACHE_DIR, DEMO_CASE_DIR, RUNTIME_CACHE_DIR
-from ratio.provenance import check_absence, check_clock, check_reuse, resolver_for
-from ratio.results import CaseAnalysis
-from ratio.schema import Argument, CaseRecord, Event, Frozen
+from ratio.provenance import check_absence, check_clock, check_judges, check_reuse, resolver_for, valid_rulings
+from ratio.results import CaseAnalysis, DataNote, JudgeReport
+from ratio.schema import AliasDecision, Argument, CaseRecord, Event, Frozen
 
 LLMMode = Literal["live", "replay"]
 ProgressCallback = Callable[[str, int, int], None]
@@ -83,6 +83,16 @@ def analysis_context(config: RatioConfig, llm: CachedLLM, embedder: Embedder | N
     return AnalysisContext(llm=llm, embedder=embedder or MiniLMEmbedder(), config=config)
 
 
+def _llm_mode(llm: object) -> str | None:
+    """'replay' when no answer came from the model now (replay-only, or a live run answered entirely from
+    the cache), so the app never claims a live run that did not happen; None for a test double."""
+    replay_only = getattr(llm, "replay_only", None)
+    if replay_only is None:
+        return None
+    stats = getattr(llm, "stats", None)
+    return "replay" if replay_only or (stats is not None and stats.misses == 0) else "live"
+
+
 def analyze(record: CaseRecord, ctx: AnalysisContext) -> CaseAnalysis:
     """Run the modules on one case and enforce provenance on every flag (hard rule 2)."""
     resolve = resolver_for([record])
@@ -90,7 +100,6 @@ def analyze(record: CaseRecord, ctx: AnalysisContext) -> CaseAnalysis:
     absence_result = check_absence(absence.run(record, ctx), resolve, dropped)
     clock_result = check_clock(clock.run(record, ctx), resolve, dropped)
     reuse_result = reuse.rescore(check_reuse(reuse.run(record, ctx), resolve, dropped))  # dropped pairs leave the score
-    replay_only = getattr(ctx.llm, "replay_only", None)
     return CaseAnalysis(
         case_id=record.case_id,
         absence=absence_result,
@@ -99,7 +108,7 @@ def analyze(record: CaseRecord, ctx: AnalysisContext) -> CaseAnalysis:
         dropped_flags=len(dropped),
         dropped_reasons=tuple(dropped),
         llm_model=ctx.llm.model,
-        llm_mode=None if replay_only is None else ("replay" if replay_only else "live"),
+        llm_mode=_llm_mode(ctx.llm),
     )
 
 
@@ -115,6 +124,18 @@ def process(
     record, report = ingest(base, llm, config, progress=progress)
     return record, analyze(record, analysis_context(config, llm, embedder)), report
 
+
+
+def analyze_judges(
+    records: Sequence[CaseRecord], analyses: Mapping[str, CaseAnalysis], decisions: Sequence[AliasDecision], config: RatioConfig
+) -> JudgeReport:
+    """Module 4 across cases. Only rulings found exactly in their documents count, and every judge flag
+    is checked against the source text before it is shown (hard rule 2)."""
+    resolve = resolver_for(records)
+    ignored: list[DataNote] = []
+    dropped: list[str] = []
+    report = check_judges(judges.run(valid_rulings(records, resolve, ignored), analyses, decisions, config), resolve, dropped)
+    return report.model_copy(update={"notes": report.notes + tuple(ignored), "dropped_flags": len(dropped), "dropped_reasons": tuple(dropped)})
 
 @dataclass(frozen=True)
 class LiveNote:
