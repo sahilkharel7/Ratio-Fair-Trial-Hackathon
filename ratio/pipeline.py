@@ -18,10 +18,10 @@ from ratio.embeddings import MiniLMEmbedder
 from ratio.extraction.build import load_case
 from ratio.extraction.extract import ExtractionReport, extract_record
 from ratio.llm import CachedLLM, OllamaClient, ResponseCache, model_from_env
-from ratio.modules import absence, clock
+from ratio.modules import absence, clock, reuse
 from ratio.paths import DEMO_CACHE_DIR, DEMO_CASE_DIR, RUNTIME_CACHE_DIR
 from ratio.provenance import DocResolver, enforce, filter_follow_up, resolver_for
-from ratio.results import CaseAnalysis
+from ratio.results import CaseAnalysis, ReuseResult
 from ratio.schema import CaseRecord, Flag, Frozen
 
 LLMMode = Literal["live", "replay"]
@@ -85,6 +85,19 @@ def _keep_valid(flags: tuple[Flag, ...], resolve: DocResolver, dropped: list[str
     return outcome.kept
 
 
+def _reuse_with_valid_flags(result: ReuseResult, resolve: DocResolver, dropped: list[str]) -> ReuseResult:
+    """Keep only flags whose spans resolve, and only the pairs and argument checks those flags back."""
+    flags = _keep_valid(result.flags, resolve, dropped)
+    kept = {flag.id for flag in flags}
+    return result.model_copy(
+        update={
+            "flags": flags,
+            "pairs": tuple(pair for pair in result.pairs if pair.flag_id in kept),
+            "arguments": tuple(check for check in result.arguments if check.flag_id is None or check.flag_id in kept),
+        }
+    )
+
+
 def analyze(record: CaseRecord, ctx: AnalysisContext) -> CaseAnalysis:
     """Run the modules on one case and enforce provenance on every flag (hard rule 2)."""
     resolve = resolver_for([record])
@@ -98,11 +111,13 @@ def analyze(record: CaseRecord, ctx: AnalysisContext) -> CaseAnalysis:
     )
     clock_result = clock.run(record, ctx)
     clock_result = clock_result.model_copy(update={"flags": _keep_valid(clock_result.flags, resolve, dropped)})
+    reuse_result = _reuse_with_valid_flags(reuse.run(record, ctx), resolve, dropped)
     replay_only = getattr(ctx.llm, "replay_only", None)
     return CaseAnalysis(
         case_id=record.case_id,
         absence=absence_result,
         clock=clock_result,
+        reuse=reuse_result,
         dropped_flags=len(dropped),
         dropped_reasons=tuple(dropped),
         llm_model=ctx.llm.model,

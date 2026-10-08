@@ -219,18 +219,28 @@ class ReuseSettings(Frozen):
     minhash_num_perm: int = Field(gt=0)
     minhash_seed: int
     lsh_threshold: float = Field(gt=0, lt=1)
+    lsh_containment_threshold: float = Field(gt=0, lt=1)
     verbatim_jaccard: float = Field(gt=0, le=1)
     verbatim_containment: float = Field(gt=0, le=1)
     paraphrase_cosine: float = Field(gt=0, le=1)
     paraphrase_min_shared_words: int = Field(ge=0)
     min_passage_words: int = Field(gt=0)
+    argument_max_passages: int = Field(gt=0)
     non_reasoning_headings: tuple[str, ...]
-    recital_markers: tuple[str, ...]
-    statute_markers: tuple[str, ...]
-    party_terms: tuple[str, ...]
-    attribution_verbs: tuple[str, ...]
-    endorsement_words: tuple[str, ...]
-    court_voice_markers: tuple[str, ...]
+    recital_markers: tuple[str, ...] = Field(min_length=1)
+    statute_markers: tuple[str, ...] = Field(min_length=1)
+    party_terms: tuple[str, ...] = Field(min_length=1)
+    attribution_prefixes: tuple[str, ...] = ()
+    attribution_verbs: tuple[str, ...] = Field(min_length=1)
+    endorsement_words: tuple[str, ...] = Field(min_length=1)
+    court_voice_markers: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _candidates_below_confirmation(self) -> ReuseSettings:
+        # LSH only proposes pairs; it must propose everything the exact check could confirm.
+        if self.lsh_threshold > self.verbatim_jaccard or self.lsh_containment_threshold > self.verbatim_containment:
+            raise ValueError("LSH thresholds must not exceed the verbatim thresholds they propose candidates for")
+        return self
 
 
 class JudgeSettings(Frozen):

@@ -57,3 +57,30 @@ def test_cli_ingest_replays_the_demo_case_into_the_store(tmp_path, monkeypatch, 
 def test_cli_reports_errors_without_a_traceback(tmp_path, capsys):
     assert main(["ingest", str(tmp_path / "missing")]) == 1
     assert "error:" in capsys.readouterr().err
+
+
+def test_a_reuse_pair_whose_flag_fails_provenance_is_dropped_with_it(monkeypatch):
+    from ratio.context import AnalysisContext
+    from ratio.modules import reuse
+    from ratio.paths import GOLD_DIR
+    from ratio.pipeline import analyze
+    from ratio.results import ReusePair, ReuseResult
+    from ratio.schema import CaseRecord, Evidence, Flag, SourceSpan
+    from ratio.testing import FakeEmbedder, FakeLLM
+
+    record = CaseRecord.model_validate_json((GOLD_DIR / "mock_record.json").read_text(encoding="utf-8"))
+    judgment = record.documents_of_type("judgment")[0]
+    forged = SourceSpan(doc_id=judgment.id, start=0, end=5, text="FORGE")  # not the document's text
+    real = record.passages_of(judgment.id)[21].span
+    pair = ReusePair(id="pair", kind="verbatim", judgment=forged, indictment=real, flag_id="flag")
+    flag = Flag(
+        id="flag", case_id=record.case_id, module="reuse", standard_id="reasoning_reuse", standard_label="x",
+        status="verbatim_reuse", message="m", evidence=(Evidence(role="judgment", span=forged),),
+    )  # fmt: skip
+    monkeypatch.setattr(
+        reuse, "run", lambda rec, ctx: ReuseResult(judgment_doc_id=judgment.id, indictment_doc_id=None, pairs=(pair,), flags=(flag,))
+    )
+    ctx = AnalysisContext(llm=FakeLLM(lambda *_: {"labels": []}), embedder=FakeEmbedder(), config=CONFIG)
+    analysis = analyze(record, ctx)
+    assert analysis.reuse.flags == () and analysis.reuse.pairs == ()
+    assert analysis.dropped_flags == 1 and analysis.dropped_reasons[0].startswith("reuse/reasoning_reuse")

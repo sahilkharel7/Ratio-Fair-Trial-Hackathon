@@ -3,10 +3,12 @@ recall and provenance are measured against expected_flags.json (see eval/run_eva
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from dataclasses import dataclass
 
-from ratio.expected import ExpectedFlags, GoldTimeline
+from ratio.expected import ExpectedFlags, ExpectedItem, GoldTimeline
 from ratio.gold import GoldError, resolve_anchor
+from ratio.results import CaseAnalysis
 from ratio.schema import CaseRecord, SourceSpan
 
 # Event types that happen once per case; two different dates for one of them is a conflict.
@@ -78,6 +80,58 @@ def extraction_metrics(record: CaseRecord, gold: GoldTimeline) -> ExtractionMetr
         wrong_dates=tuple(wrong),
         conflicting_types=tuple(conflicts),
     )
+
+
+@dataclass(frozen=True)
+class FlagRecall:
+    """Expected outputs found and missed, and must_not_flag items that were flagged."""
+
+    found: tuple[str, ...]
+    missed: tuple[str, ...]
+    violations: tuple[str, ...]
+
+    @property
+    def recall(self) -> float:
+        total = len(self.found) + len(self.missed)
+        return len(self.found) / total if total else 1.0
+
+
+def _covers(spans: Sequence[SourceSpan], anchors: Sequence[SourceSpan], match: str) -> bool:
+    hits = [any(span.overlaps(anchor) for span in spans) for anchor in anchors]
+    return all(hits) if match == "all" else any(hits) or not hits
+
+
+def _shown(item: ExpectedItem, record: CaseRecord, analysis: CaseAnalysis) -> bool:
+    """Whether the analysis shows this output: same module, standard and status, over its anchors."""
+    anchors = [_anchor_span(record, anchor) for anchor in item.anchors]
+    if any(anchor is None for anchor in anchors):
+        return False
+    absence = analysis.absence
+    if item.kind == "flag":
+        return any(
+            flag.module == item.module
+            and flag.standard_id == item.standard_id
+            and item.status in ("any", flag.status)
+            and _covers(flag.spans, anchors, item.match)
+            for flag in analysis.all_flags()
+        )
+    if item.kind == "status" and absence is not None:
+        assessment = next((a for a in absence.assessments if a.rubric_id == item.standard_id), None)
+        if assessment is None or assessment.status != item.status:
+            return False
+        flag = next((f for f in absence.flags if f.id == assessment.flag_id), None)
+        return _covers(flag.spans if flag else (), anchors, item.match)
+    if item.kind == "follow_up" and absence is not None:
+        follow_up = next((u for u in absence.follow_ups if u.rubric_id == item.standard_id), None)
+        return follow_up is not None and _covers([e.span for e in follow_up.context], anchors, item.match)
+    return False  # events are checked on the record (event_violations)
+
+
+def flag_recall(record: CaseRecord, analysis: CaseAnalysis, expected: ExpectedFlags) -> FlagRecall:
+    found = tuple(item.id for item in expected.expected if _shown(item, record, analysis))
+    missed = tuple(item.id for item in expected.expected if item.id not in found)
+    violations = tuple(item.id for item in expected.must_not_flag if item.kind != "event" and _shown(item, record, analysis))
+    return FlagRecall(found=found, missed=missed, violations=violations)
 
 
 def event_violations(record: CaseRecord, expected: ExpectedFlags) -> tuple[str, ...]:

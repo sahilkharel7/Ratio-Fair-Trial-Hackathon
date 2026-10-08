@@ -1,13 +1,14 @@
-"""Extraction metrics against the hand-checked timeline, and the event-level negative control."""
+"""Extraction metrics against the hand-checked timeline, expected-flag recall, and the negative controls."""
 
 import datetime as dt
 import json
 
-from ratio.evaluation import event_violations, extraction_metrics
-from ratio.expected import ExpectedFlags, GoldTimeline
+from ratio.evaluation import event_violations, extraction_metrics, flag_recall
+from ratio.expected import Anchor, ExpectedFlags, GoldTimeline
 from ratio.gold import resolve_anchor
 from ratio.paths import GOLD_DIR
-from ratio.schema import CaseRecord
+from ratio.results import CaseAnalysis, ClockResult, ReuseResult
+from ratio.schema import CaseRecord, Evidence, Flag
 
 MOCK = CaseRecord.model_validate_json((GOLD_DIR / "mock_record.json").read_text(encoding="utf-8"))
 GOLD = GoldTimeline.model_validate(json.loads((GOLD_DIR / "gold_timeline.json").read_text(encoding="utf-8")))
@@ -62,3 +63,54 @@ def test_prosecutor_appearance_typed_as_first_appearance_is_a_violation():
     wrong = template.model_copy(update={"id": "wrong", "span": span, "quote_span": span, "date_span": None})
     assert event_violations(with_events([*MOCK.events, wrong]), EXPECTED) == ("no_prosecutor_as_first_appearance",)
     assert event_violations(MOCK, EXPECTED) == ()
+
+
+# --- expected flags: recall, misses and must_not_flag violations -------------------------------
+
+
+def flag_on(module: str, standard_id: str, status: str, *quotes: tuple[str, str], review_status="needs_legal_review") -> Flag:
+    spans = [resolve_anchor(MOCK, Anchor(doc=doc, quote=quote)) for doc, quote in quotes]
+    return Flag(
+        id=f"{standard_id}-{status}",
+        case_id=MOCK.case_id,
+        module=module,
+        standard_id=standard_id,
+        standard_label=standard_id,
+        status=status,
+        message="m",
+        evidence=tuple(Evidence(role="mention", span=span) for span in spans),
+        review_status=review_status,
+    )
+
+
+def analysis_with(*flags: Flag) -> CaseAnalysis:
+    reuse_flags = tuple(f for f in flags if f.module == "reuse")
+    clock_flags = tuple(f for f in flags if f.module == "clock")
+    return CaseAnalysis(
+        case_id=MOCK.case_id,
+        clock=ClockResult(timeline=(), intervals=(), flags=clock_flags),
+        reuse=ReuseResult(judgment_doc_id=None, indictment_doc_id=None, flags=reuse_flags),
+    )
+
+
+def test_nothing_shown_means_every_expected_output_is_missed():
+    recall = flag_recall(MOCK, CaseAnalysis(case_id=MOCK.case_id), EXPECTED)
+    assert recall.found == () and recall.violations == ()
+    assert set(recall.missed) == {item.id for item in EXPECTED.expected} and recall.recall == 0.0
+
+
+def test_match_any_needs_one_anchor_and_status_must_agree():
+    red = flag_on("clock", "gc35_48h", "exceeds_benchmark", ("indictment.txt", "in the early morning of 14 February 2025"), review_status="confirmed")
+    amber = flag_on("clock", "gc35_48h", "needs_review", ("indictment.txt", "in the early morning of 14 February 2025"))
+    assert "gc35_first_appearance" in flag_recall(MOCK, analysis_with(red), EXPECTED).found
+    assert "gc35_first_appearance" in flag_recall(MOCK, analysis_with(amber), EXPECTED).missed
+
+
+def test_flag_on_legitimate_quotation_or_an_answered_argument_is_a_violation():
+    statute = flag_on("reuse", "reasoning_reuse", "verbatim_reuse", ("judgment.txt", "Whoever disseminates information that he knows to be false"))
+    answered = flag_on(
+        "reuse", "unaddressed_defense_argument", "unaddressed_argument",
+        ("notes/hearing_3.txt", "the first article was published before the amendment to Article 214 entered into force"),
+    )  # fmt: skip
+    recall = flag_recall(MOCK, analysis_with(statute, answered), EXPECTED)
+    assert set(recall.violations) == {"no_reuse_statute_quote", "no_unaddressed_retroactivity"}

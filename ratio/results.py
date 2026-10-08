@@ -158,21 +158,28 @@ class ReusePair(Frozen):
 
 
 class ArgumentCheck(Frozen):
+    """Whether the judgment's reasoning responds to one defence argument from the notes."""
+
     argument_id: str
     argument: SourceSpan
     addressed: bool
     responding: tuple[SourceSpan, ...] = ()
-    passages_checked: int = Field(default=0, ge=0)
+    passages_checked: int = Field(ge=1)
+    model_note: str | None = None
     flag_id: str | None = None
 
 
 class ReuseResult(Frozen):
+    """``score`` is the share of reasoning characters traceable to the indictment; None when the
+    case has no judgment, no indictment, or no reasoning to measure."""
+
     judgment_doc_id: str | None
     indictment_doc_id: str | None
-    score: float = Field(ge=0.0, le=1.0)
+    score: float | None = Field(default=None, ge=0.0, le=1.0)
     verbatim_chars: int = Field(default=0, ge=0)
     paraphrase_chars: int = Field(default=0, ge=0)
     reasoning_chars: int = Field(default=0, ge=0)
+    reasoning_passage_ids: tuple[str, ...] = ()
     pairs: tuple[ReusePair, ...] = ()
     excluded: tuple[ExcludedPassage, ...] = ()
     arguments: tuple[ArgumentCheck, ...] = ()

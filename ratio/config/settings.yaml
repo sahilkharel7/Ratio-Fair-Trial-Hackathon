@@ -54,15 +54,22 @@ absence:
   context_min_similarity: 0.35
 
 reuse:
-  shingle_size: 5
+  shingle_size: 5  # word 5-grams
   minhash_num_perm: 128
   minhash_seed: 1
+  # MinHash LSH proposes candidate pairs below the confirmation thresholds, so the exact check
+  # (Jaccard or containment) decides; LSH Ensemble catches a short judgment sentence copied out of
+  # a long indictment sentence, which has a high containment but a low Jaccard.
   lsh_threshold: 0.3
+  lsh_containment_threshold: 0.4
   verbatim_jaccard: 0.5
-  verbatim_containment: 0.6
-  paraphrase_cosine: 0.7  # planted paraphrase measures 0.756 with MiniLM; best hard negative 0.523
+  verbatim_containment: 0.6  # share of the judgment passage's 5-grams found in the indictment passage
+  paraphrase_cosine: 0.7  # planted paraphrase measures 0.756 with MiniLM; best reasoning hard negative 0.523
   paraphrase_min_shared_words: 3
-  min_passage_words: 6
+  min_passage_words: 6  # shorter passages count as reasoning but are never matched
+  # Defence arguments are checked against every reasoning passage, or the most similar ones when
+  # the reasoning is longer than this (the prompt must fit the model's context window).
+  argument_max_passages: 40
   # Judgment sections that are not the court's own reasoning (matched against the heading text).
   non_reasoning_headings:
     - "procedural history"
@@ -92,6 +99,13 @@ reuse:
     - "the defen[cs]e"
     - "defen[cs]e counsel"
     - "counsel for the (accused|defen[cs]e)"
+  # "<party> <up to two words> <verb>" ("The defence further argues") or "<prefix> <party>"
+  # ("According to the prosecution"); the position is carried to the following sentences of the
+  # same paragraph until the court speaks in its own voice.
+  attribution_prefixes:
+    - "according to"
+    - "in the view of"
+    - "in the submission of"
   attribution_verbs:
     - "argues?"
     - "argued"
@@ -117,13 +131,7 @@ reuse:
     - "adopts"
     - "shares the view"
   court_voice_markers:
-    - "the court finds"
-    - "the court considers"
-    - "the court notes"
-    - "the court holds"
-    - "the court is satisfied"
-    - "the court has examined"
-    - "the court has considered"
+    - "(?:the|this) (?:court|chamber|tribunal) (?:finds|found|considers|notes|holds|is satisfied|has examined|has considered|accepts|rejects|agrees)"
 
 judges:
   min_case_count: 5  # an indicator is hidden if the judge or the baseline has fewer cases

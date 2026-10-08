@@ -10,7 +10,7 @@ templates:
   clock_exceeds: "{from_label} to {to_label}: {duration}, longer than the {threshold} benchmark. {citation_note}"
   clock_needs_review: "{from_label} to {to_label}: {duration}. The dates need review before this interval is compared with the {threshold} benchmark."
   clock_measured: "{from_label} to {to_label}: {duration}. No confirmed threshold; measured and shown only."
-  reuse_verbatim: "This passage of the judgment's reasoning closely matches indictment text ({percent}% of its five-word sequences appear in the indictment)."
+  reuse_verbatim: "This passage of the judgment's reasoning closely matches indictment text ({percent}% of its {n}-word sequences appear in the indictment)."
   reuse_paraphrase: "This passage of the judgment's reasoning closely paraphrases indictment text (similarity {similarity})."
   reuse_unaddressed: "No response to this defense argument was found in the judgment's reasoning ({count} passages checked). Whether it was decisive is for the reviewing lawyer."
   judge_pattern: "Pattern that warrants review: {label} ({judge_rate}, n={judge_n} cases) differs from the baseline for the same court and charge type ({baseline_rate}, n={baseline_n} cases); {k} indicators compared."

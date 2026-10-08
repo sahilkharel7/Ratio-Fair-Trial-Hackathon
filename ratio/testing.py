@@ -1,4 +1,5 @@
-"""Deterministic test doubles for the LLM and the embedder (no Ollama, no model files needed)."""
+"""Deterministic test doubles for the LLM and the embedder (no Ollama, no model files needed),
+and small SYNTHETIC case records built by the real loader."""
 
 from __future__ import annotations
 
@@ -10,6 +11,41 @@ from dataclasses import dataclass
 import numpy as np
 from pydantic import BaseModel
 from unidecode import unidecode
+
+from ratio.extraction.build import build_base_record
+from ratio.extraction.loader import CaseManifest, ManifestDocument
+from ratio.schema import Argument, CaseRecord, DocType, Party, stable_id
+
+TEST_MARKER = "SYNTHETIC: test document; every name in it is invented."
+
+
+def make_record(documents: Sequence[tuple[str, DocType, str]], case_id: str = "test-case") -> CaseRecord:
+    """A deterministic record from (path, type, text) triples, built exactly as an upload would be."""
+    manifest = CaseManifest(
+        case_id=case_id,
+        title="Republic of Testland v. A. Example",
+        court="Test District Court",
+        charge_type="Test charge",
+        data_provenance="synthetic",
+        synthetic=True,
+        documents=tuple(ManifestDocument(path=path, type=doc_type, title=path) for path, doc_type, _ in documents),
+    )
+    files = {path: f"{TEST_MARKER}\n{text}".encode("utf-8") for path, _, text in documents}
+    return build_base_record(manifest, files)
+
+
+def with_argument(record: CaseRecord, doc_path: str, quote: str, party: Party = "defense") -> CaseRecord:
+    """The record plus the note sentence containing ``quote`` as a party argument."""
+    doc_id = f"{record.case_id}/{doc_path}"
+    sentence = next(obs for obs in record.observations if obs.span.doc_id == doc_id and quote in obs.text)
+    argument = Argument(
+        id=stable_id(sentence.id, party, "argument"),
+        party=party,
+        text=sentence.text,
+        hearing_date=sentence.hearing_date,
+        span=sentence.span,
+    )
+    return record.model_copy(update={"arguments": record.arguments + (argument,)})
 
 _TOKEN = re.compile(r"[a-z0-9]+")
 _STOPWORDS = frozenset(

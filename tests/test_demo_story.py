@@ -1,11 +1,13 @@
-"""The demo story (PDF demo steps 2 and 3), replayed from the committed cache of the real model:
-the rights coverage grid, the interpreter follow-up, and the single red interval."""
+"""The demo story, replayed from the committed cache of the real model: the rights coverage grid,
+the interpreter follow-up, the single red interval, the copied reasoning and the unanswered
+defence argument. Every expected output is found and nothing on the must-not-flag list is flagged."""
 
 import json
 
 import pytest
 
 from ratio.config import load_config
+from ratio.evaluation import flag_recall
 from ratio.expected import ExpectedFlags
 from ratio.extraction.build import load_case
 from ratio.paths import DEMO_CASE_DIR, GOLD_DIR
@@ -57,3 +59,28 @@ def test_no_flag_was_dropped_and_every_span_is_exact_source_text(replayed):
         assert flag.evidence
         for span in flag.spans:
             assert record.document(span.doc_id).text[span.start : span.end] == span.text
+
+
+def test_copied_reasoning_scores_about_sixty_percent_with_five_pairs(replayed):
+    _, analysis, _ = replayed
+    reuse = analysis.reuse
+    assert [pair.kind for pair in reuse.pairs].count("verbatim") == 4
+    assert [pair.kind for pair in reuse.pairs].count("paraphrase") == 1
+    assert 0.55 <= reuse.score <= 0.65
+
+
+def test_real_model_finds_the_unanswered_argument_and_the_answer_to_the_other(replayed):
+    _, analysis, _ = replayed
+    checks = analysis.reuse.arguments
+    warrant = next(c for c in checks if "messages presented by the prosecution" in c.argument.text)
+    retroactivity = next(c for c in checks if "first article was published" in c.argument.text)
+    assert not warrant.addressed and warrant.flag_id
+    assert retroactivity.addressed and retroactivity.flag_id is None
+    assert any(span.text.startswith("As to the defence argument") for span in retroactivity.responding)
+
+
+def test_every_expected_output_is_found_and_nothing_forbidden_is_flagged(replayed):
+    record, analysis, _ = replayed
+    recall = flag_recall(record, analysis, EXPECTED)
+    assert recall.missed == ()
+    assert recall.violations == ()
