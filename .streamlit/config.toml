@@ -1,0 +1,18 @@
+# Ratio runs fully offline on localhost. app/main.py refuses to start if these privacy settings are not in effect.
+# Launch from the repo root: streamlit run app/main.py
+
+[browser]
+gatherUsageStats = false
+
+[server]
+address = "127.0.0.1"
+port = 8501
+headless = true
+showEmailPrompt = false
+fileWatcherType = "none"
+maxUploadSize = 20
+
+[client]
+toolbarMode = "viewer"
+showErrorDetails = "stacktrace"
+showErrorLinks = false

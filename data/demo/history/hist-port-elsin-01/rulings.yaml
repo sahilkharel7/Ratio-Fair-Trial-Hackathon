@@ -1,0 +1,19 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_refused
+  doc: summary.txt
+  quote: the court refused the request for pretrial detention and released Kira Volm
+    on bail
+  judge: Ilena Varda
+  date: 2024-06-12
+- code: hearing_public
+  doc: summary.txt
+  quote: All hearings were held in public.
+  judge: Ilena Varda
+  date: null
+- code: verdict_acquittal
+  doc: summary.txt
+  quote: the court acquitted Kira Volm
+  judge: Ilena Varda
+  date: 2024-10-01

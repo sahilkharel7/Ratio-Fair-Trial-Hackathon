@@ -1,0 +1,24 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_ordered
+  doc: summary.txt
+  quote: the court ordered that Nadia Corell be detained pending trial
+  judge: Hon. Ilena Varda
+  date: 2024-11-05
+- code: hearing_closed
+  doc: summary.txt
+  quote: The court closed part of the trial to the public at the request of the prosecution.
+  judge: Hon. Ilena Varda
+  date: null
+- code: verdict_conviction
+  doc: summary.txt
+  quote: the court convicted Nadia Corell
+  judge: Hon. Ilena Varda
+  date: 2025-02-25
+- code: sentence_months
+  doc: summary.txt
+  quote: a sentence of 48 months' imprisonment
+  judge: Hon. Ilena Varda
+  date: 2025-02-25
+  value: 48.0

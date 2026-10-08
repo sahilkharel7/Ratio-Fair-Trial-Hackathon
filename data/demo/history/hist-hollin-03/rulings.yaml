@@ -1,0 +1,29 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_ordered
+  doc: summary.txt
+  quote: the court ordered that Bo Lindqvar be detained pending trial
+  judge: Petra Hollin
+  date: 2024-02-15
+- code: hearing_public
+  doc: summary.txt
+  quote: All hearings were held in public.
+  judge: Petra Hollin
+  date: null
+- code: defense_motion_denied
+  doc: summary.txt
+  quote: The court denied the defence motion to adjourn the trial.
+  judge: Petra Hollin
+  date: null
+- code: verdict_conviction
+  doc: summary.txt
+  quote: the court convicted Bo Lindqvar
+  judge: Petra Hollin
+  date: 2024-06-11
+- code: sentence_months
+  doc: summary.txt
+  quote: a sentence of 30 months' imprisonment
+  judge: Petra Hollin
+  date: 2024-06-11
+  value: 30.0

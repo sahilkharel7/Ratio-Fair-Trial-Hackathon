@@ -1,0 +1,18 @@
+# Standards engaged by the Reasoning Reuse Detector and the Judicial History Tracker (the rubric
+# and benchmarks carry their own citations). NEEDS LEGAL REVIEW: the framing below was drafted by
+# the engineering team. GC32 has no standalone paragraph on a general duty to give reasons; the
+# closest language is para 29 and para 49 (checked against CCPR/C/GC/32 on 2026-10-08).
+version: 1
+standards:
+  reasoning_reuse:
+    label: "Independent reasoning (ICCPR Art. 14(1), 14(2))"
+    citation: "ICCPR Art. 14(1): fair hearing by an independent and impartial tribunal (GC32 paras 21, 25); Art. 14(2): presumption of innocence (GC32 para 30)."
+    review_status: needs_legal_review
+  unaddressed_defense_argument:
+    label: "Response to defence arguments (ICCPR Art. 14(1))"
+    citation: "ICCPR Art. 14(1). Reasoned judgments: GC32 para 29 (the judgment, including the essential findings, evidence and legal reasoning, must be made public) and para 49 (a duly reasoned, written judgement)."
+    review_status: needs_legal_review
+  judicial_pattern:
+    label: "Pattern indicator (prompt for review)"
+    citation: "Context: ICCPR Art. 14(1), impartiality and its appearance (GC32 para 21). Indicators are prompts for review, not findings."
+    review_status: needs_legal_review

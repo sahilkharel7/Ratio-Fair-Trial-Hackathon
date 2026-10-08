@@ -1,0 +1,23 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_ordered
+  doc: summary.txt
+  quote: the court ordered that Kael Ostrin be detained pending trial
+  judge: Judge Ilena Varda
+  date: 2024-04-08
+- code: hearing_closed
+  doc: summary.txt
+  quote: The court closed part of the trial to the public at the request of the prosecution.
+  judge: Judge Ilena Varda
+  date: null
+- code: defense_motion_denied
+  doc: summary.txt
+  quote: The court denied the defence motion to adjourn the trial.
+  judge: Judge Ilena Varda
+  date: null
+- code: verdict_acquittal
+  doc: summary.txt
+  quote: the court acquitted Kael Ostrin
+  judge: Judge Ilena Varda
+  date: 2024-08-02

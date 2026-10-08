@@ -1,0 +1,24 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_ordered
+  doc: summary.txt
+  quote: the court ordered that Tomas Brevik be detained pending trial
+  judge: Ilena Varda
+  date: 2025-03-12
+- code: hearing_public
+  doc: summary.txt
+  quote: All hearings were held in public.
+  judge: Ilena Varda
+  date: null
+- code: verdict_conviction
+  doc: summary.txt
+  quote: the court convicted Tomas Brevik
+  judge: Ilena Varda
+  date: 2025-07-01
+- code: sentence_months
+  doc: summary.txt
+  quote: a sentence of 30 months' imprisonment
+  judge: Ilena Varda
+  date: 2025-07-01
+  value: 30.0

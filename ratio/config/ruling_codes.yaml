@@ -1,0 +1,53 @@
+# Ruling codes for the Judicial History Tracker.
+#
+# Each monitored case contributes hand-coded rulings (rulings.yaml in the case folder): a code
+# from this list plus the exact quote it rests on. Rates are counted per case, not per ruling,
+# because several rulings in one case are not independent: each case contributes one outcome per
+# rate, combined as stated below.
+#   first: outcome of the earliest ruling among the denominator codes
+#   last:  outcome of the latest ruling
+#   any:   numerator if any ruling in the case has a numerator code
+#   all:   numerator only if every ruling in the case has a numerator code
+version: 1
+codes:
+  - {id: detention_ordered, label: "Pretrial detention ordered or extended"}
+  - {id: detention_refused, label: "Pretrial detention refused (release, bail or another measure)"}
+  - {id: defense_motion_granted, label: "Defence motion or objection granted"}
+  - {id: defense_motion_denied, label: "Defence motion or objection denied"}
+  - {id: hearing_closed, label: "Hearing closed to the public, in whole or in part"}
+  - {id: hearing_public, label: "Hearing held in public"}
+  - {id: contested_evidence_admitted, label: "Contested evidence admitted over a defence objection"}
+  - {id: contested_evidence_excluded, label: "Contested evidence excluded"}
+  - {id: verdict_conviction, label: "Conviction at first instance"}
+  - {id: verdict_acquittal, label: "Acquittal at first instance"}
+  - {id: sentence_months, label: "Sentence of imprisonment, in months", numeric: true}
+
+rates:
+  - id: detention_at_first_appearance
+    label: "Pretrial detention ordered at the first appearance"
+    numerator: [detention_ordered]
+    denominator: [detention_ordered, detention_refused]
+    combine: first
+  - id: defense_motions_all_denied
+    label: "Cases in which every defence motion was denied"
+    numerator: [defense_motion_denied]
+    denominator: [defense_motion_granted, defense_motion_denied]
+    combine: all
+  - id: hearing_closed_any
+    label: "Cases with a hearing closed to the public"
+    numerator: [hearing_closed]
+    denominator: [hearing_closed, hearing_public]
+    combine: any
+  - id: contested_evidence_admitted_any
+    label: "Cases in which contested evidence was admitted"
+    numerator: [contested_evidence_admitted]
+    denominator: [contested_evidence_admitted, contested_evidence_excluded]
+    combine: any
+  - id: conviction
+    label: "Conviction at first instance"
+    numerator: [verdict_conviction]
+    denominator: [verdict_conviction, verdict_acquittal]
+    combine: last
+
+# Shown as plain numbers only, never compared with a baseline (sentences differ by offence).
+descriptive: [sentence_months]

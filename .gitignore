@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+build/
+dist/
+
+# Local models and runtime state (never committed)
+models/
+data/ratio.db
+data/ratio.db-*
+data/cache/
+data/uploads/
+
+# Eval output
+eval/out/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/

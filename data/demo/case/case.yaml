@@ -1,0 +1,16 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+# This folder is the demo case. Upload it (or press "Load demo case") to run Ratio on it.
+synthetic: true
+case_id: venn-2025
+title: "Republic of Calderra v. Daro Venn"
+court: "Mirevo District Court, Criminal Chamber"
+charge_type: "Dissemination of false information (Penal Code Art. 214)"
+data_provenance: synthetic
+documents:
+  - {path: notes/hearing_1.txt, type: monitoring_note, title: "Monitoring note, hearing 1 (2 June 2025)"}
+  - {path: notes/hearing_2.txt, type: monitoring_note, title: "Monitoring note, hearing 2 (16 June 2025)"}
+  - {path: notes/hearing_3.txt, type: monitoring_note, title: "Monitoring note, hearing 3 (30 June 2025)"}
+  - {path: notes/hearing_4.txt, type: monitoring_note, title: "Monitoring note, hearing 4 (14 July 2025)"}
+  - {path: indictment.txt, type: indictment, title: "Indictment (3 March 2025)"}
+  - {path: judgment.txt, type: judgment, title: "Judgment (14 July 2025)"}
+rulings: rulings.yaml

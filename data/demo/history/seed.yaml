@@ -1,0 +1,42 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+#
+# Seed matrix for the Judicial History Tracker demo. `python scripts/build_history.py` writes one
+# folder per case (summary.txt, case.yaml, rulings.yaml) plus README.md.
+#
+# Designed outcome on the profile of Judge Ilena Varda (8 cases here + the demo case = 9 cases),
+# compared with the other judges of the same court and charge type (10 cases):
+#   pretrial detention at first appearance  9/9 vs 4/10  -> "pattern that warrants review"
+#   conviction at first instance            8/9 vs 7/10  -> shown, not distinguishable
+#   hearing closed to the public            5/9 vs 2/10  -> shown, not distinguishable
+#   contested evidence admitted             3 cases      -> hidden (fewer than 5)
+#   every defence motion denied             4 cases      -> hidden (fewer than 5)
+# Registry safeguards: one case names the judge only by initials (manual confirmation list), and
+# a judge with the same name sits at another court (never merged).
+synthetic: true
+defaults:
+  court: "Mirevo District Court, Criminal Chamber"
+  charge_type: "Dissemination of false information (Penal Code Art. 214)"
+cases:
+  # Judge Ilena Varda: name variants exercise transliteration and title stripping.
+  - {id: hist-varda-01, case_no: MDC-2023-0031, judge: "Ilena Varda", defendant: "Aren Holt", first_appearance: 2023-02-10, detention: ordered, hearings: closed, evidence: admitted, motion: denied, verdict_date: 2023-06-20, verdict: conviction, sentence_months: 36}
+  - {id: hist-varda-02, case_no: MDC-2023-0077, judge: "Ilena Varda", defendant: "Mila Dravin", first_appearance: 2023-05-03, detention: ordered, hearings: public, verdict_date: 2023-09-12, verdict: conviction, sentence_months: 30}
+  - {id: hist-varda-03, case_no: MDC-2023-0142, judge: "Iléna Várda", defendant: "Jonas Petrel", first_appearance: 2023-09-14, detention: ordered, hearings: closed, motion: denied, verdict_date: 2024-01-30, verdict: conviction, sentence_months: 42}
+  - {id: hist-varda-04, case_no: MDC-2024-0009, judge: "Ilena Varda", defendant: "Sefa Morane", first_appearance: 2024-01-22, detention: ordered, hearings: public, evidence: admitted, verdict_date: 2024-05-14, verdict: conviction, sentence_months: 24}
+  - {id: hist-varda-05, case_no: MDC-2024-0058, judge: "Judge Ilena Varda", defendant: "Kael Ostrin", first_appearance: 2024-04-08, detention: ordered, hearings: closed, motion: denied, verdict_date: 2024-08-02, verdict: acquittal}
+  - {id: hist-varda-06, case_no: MDC-2024-0103, judge: "Ilena Varda", defendant: "Lio Varnet", first_appearance: 2024-08-19, detention: ordered, hearings: public, verdict_date: 2024-12-10, verdict: conviction, sentence_months: 36}
+  - {id: hist-varda-07, case_no: MDC-2024-0131, judge: "Hon. Ilena Varda", defendant: "Nadia Corell", first_appearance: 2024-11-05, detention: ordered, hearings: closed, verdict_date: 2025-02-25, verdict: conviction, sentence_months: 48}
+  - {id: hist-varda-08, case_no: MDC-2025-0040, judge: "Ilena Varda", defendant: "Tomas Brevik", first_appearance: 2025-03-12, detention: ordered, hearings: public, verdict_date: 2025-07-01, verdict: conviction, sentence_months: 30}
+  # Baseline: two other judges of the same court and charge type.
+  - {id: hist-hollin-01, case_no: MDC-2023-0050, judge: "Petra Hollin", defendant: "Ivo Saren", first_appearance: 2023-03-20, detention: ordered, hearings: public, evidence: admitted, verdict_date: 2023-07-18, verdict: conviction, sentence_months: 24}
+  - {id: hist-hollin-02, case_no: MDC-2023-0118, judge: "Petra Hollin", defendant: "Rhea Tamsin", first_appearance: 2023-07-07, detention: refused, hearings: closed, motion: granted, verdict_date: 2023-11-21, verdict: acquittal}
+  - {id: hist-hollin-03, case_no: MDC-2024-0021, judge: "Petra Hollin", defendant: "Bo Lindqvar", first_appearance: 2024-02-15, detention: ordered, hearings: public, motion: denied, verdict_date: 2024-06-11, verdict: conviction, sentence_months: 30}
+  - {id: hist-hollin-04, case_no: MDC-2024-0089, judge: "Petra Hollin", defendant: "Celia Marrow", first_appearance: 2024-06-03, detention: refused, hearings: public, evidence: excluded, verdict_date: 2024-10-08, verdict: conviction, sentence_months: 18}
+  - {id: hist-hollin-05, case_no: MDC-2025-0012, judge: "Petra Hollin", defendant: "Dov Annick", first_appearance: 2025-01-28, detention: refused, hearings: public, motion: denied, verdict_date: 2025-05-20, verdict: acquittal}
+  - {id: hist-selik-01, case_no: MDC-2023-0064, judge: "Anwar Selik", defendant: "Esme Rook", first_appearance: 2023-04-11, detention: refused, hearings: public, evidence: excluded, motion: denied, verdict_date: 2023-08-29, verdict: conviction, sentence_months: 24}
+  - {id: hist-selik-02, case_no: MDC-2023-0151, judge: "Anwar Selik", defendant: "Farid Moss", first_appearance: 2023-10-02, detention: ordered, hearings: public, motion: granted, verdict_date: 2024-02-13, verdict: conviction, sentence_months: 36}
+  - {id: hist-selik-03, case_no: MDC-2024-0044, judge: "Anwar Selik", defendant: "Gala Thorne", first_appearance: 2024-03-18, detention: refused, hearings: closed, verdict_date: 2024-07-23, verdict: acquittal}
+  - {id: hist-selik-04, case_no: MDC-2024-0112, judge: "Anwar Selik", defendant: "Hugo Pell", first_appearance: 2024-09-09, detention: refused, hearings: public, evidence: admitted, motion: denied, verdict_date: 2025-01-14, verdict: conviction, sentence_months: 30}
+  - {id: hist-selik-05, case_no: MDC-2025-0028, judge: "Anwar Selik", defendant: "Iris Calden", first_appearance: 2025-02-24, detention: ordered, hearings: public, verdict_date: 2025-06-17, verdict: conviction, sentence_months: 24}
+  # Registry safeguards.
+  - {id: hist-initials-01, case_no: MDC-2024-0075, judge: "I. Varda", defendant: "Juno Spier", first_appearance: 2024-05-27, detention: ordered, hearings: public, verdict_date: 2024-09-17, verdict: conviction, sentence_months: 30, note: "Initials only: goes to the manual confirmation list and is left out of every rate until confirmed."}
+  - {id: hist-port-elsin-01, case_no: PERC-2024-0088, judge: "Ilena Varda", court: "Port Elsin Regional Court", defendant: "Kira Volm", first_appearance: 2024-06-12, detention: refused, hearings: public, verdict_date: 2024-10-01, verdict: acquittal, note: "Same name, different court: never merged with the Mirevo judge."}

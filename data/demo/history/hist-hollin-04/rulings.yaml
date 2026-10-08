@@ -1,0 +1,30 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_refused
+  doc: summary.txt
+  quote: the court refused the request for pretrial detention and released Celia Marrow
+    on bail
+  judge: Petra Hollin
+  date: 2024-06-03
+- code: hearing_public
+  doc: summary.txt
+  quote: All hearings were held in public.
+  judge: Petra Hollin
+  date: null
+- code: contested_evidence_excluded
+  doc: summary.txt
+  quote: The court excluded the evidence that the defence had contested.
+  judge: Petra Hollin
+  date: null
+- code: verdict_conviction
+  doc: summary.txt
+  quote: the court convicted Celia Marrow
+  judge: Petra Hollin
+  date: 2024-10-08
+- code: sentence_months
+  doc: summary.txt
+  quote: a sentence of 18 months' imprisonment
+  judge: Petra Hollin
+  date: 2024-10-08
+  value: 18.0

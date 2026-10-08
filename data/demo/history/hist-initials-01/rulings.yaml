@@ -1,0 +1,24 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_ordered
+  doc: summary.txt
+  quote: the court ordered that Juno Spier be detained pending trial
+  judge: I. Varda
+  date: 2024-05-27
+- code: hearing_public
+  doc: summary.txt
+  quote: All hearings were held in public.
+  judge: I. Varda
+  date: null
+- code: verdict_conviction
+  doc: summary.txt
+  quote: the court convicted Juno Spier
+  judge: I. Varda
+  date: 2024-09-17
+- code: sentence_months
+  doc: summary.txt
+  quote: a sentence of 30 months' imprisonment
+  judge: I. Varda
+  date: 2024-09-17
+  value: 30.0

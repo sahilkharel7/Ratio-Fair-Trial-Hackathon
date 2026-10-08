@@ -1,0 +1,29 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_ordered
+  doc: summary.txt
+  quote: the court ordered that Sefa Morane be detained pending trial
+  judge: Ilena Varda
+  date: 2024-01-22
+- code: hearing_public
+  doc: summary.txt
+  quote: All hearings were held in public.
+  judge: Ilena Varda
+  date: null
+- code: contested_evidence_admitted
+  doc: summary.txt
+  quote: The court admitted the evidence that the defence had contested.
+  judge: Ilena Varda
+  date: null
+- code: verdict_conviction
+  doc: summary.txt
+  quote: the court convicted Sefa Morane
+  judge: Ilena Varda
+  date: 2024-05-14
+- code: sentence_months
+  doc: summary.txt
+  quote: a sentence of 24 months' imprisonment
+  judge: Ilena Varda
+  date: 2024-05-14
+  value: 24.0

@@ -1,0 +1,4 @@
+# Source spans are character offsets into exact text, so text files keep LF line endings on every OS.
+* text=auto eol=lf
+data/** text eol=lf
+*.pdf binary

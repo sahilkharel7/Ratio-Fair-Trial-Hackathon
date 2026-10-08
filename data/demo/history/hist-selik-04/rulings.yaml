@@ -1,0 +1,35 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_refused
+  doc: summary.txt
+  quote: the court refused the request for pretrial detention and released Hugo Pell
+    on bail
+  judge: Anwar Selik
+  date: 2024-09-09
+- code: hearing_public
+  doc: summary.txt
+  quote: All hearings were held in public.
+  judge: Anwar Selik
+  date: null
+- code: contested_evidence_admitted
+  doc: summary.txt
+  quote: The court admitted the evidence that the defence had contested.
+  judge: Anwar Selik
+  date: null
+- code: defense_motion_denied
+  doc: summary.txt
+  quote: The court denied the defence motion to adjourn the trial.
+  judge: Anwar Selik
+  date: null
+- code: verdict_conviction
+  doc: summary.txt
+  quote: the court convicted Hugo Pell
+  judge: Anwar Selik
+  date: 2025-01-14
+- code: sentence_months
+  doc: summary.txt
+  quote: a sentence of 30 months' imprisonment
+  judge: Anwar Selik
+  date: 2025-01-14
+  value: 30.0

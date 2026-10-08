@@ -1,0 +1,34 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_ordered
+  doc: summary.txt
+  quote: the court ordered that Aren Holt be detained pending trial
+  judge: Ilena Varda
+  date: 2023-02-10
+- code: hearing_closed
+  doc: summary.txt
+  quote: The court closed part of the trial to the public at the request of the prosecution.
+  judge: Ilena Varda
+  date: null
+- code: contested_evidence_admitted
+  doc: summary.txt
+  quote: The court admitted the evidence that the defence had contested.
+  judge: Ilena Varda
+  date: null
+- code: defense_motion_denied
+  doc: summary.txt
+  quote: The court denied the defence motion to adjourn the trial.
+  judge: Ilena Varda
+  date: null
+- code: verdict_conviction
+  doc: summary.txt
+  quote: the court convicted Aren Holt
+  judge: Ilena Varda
+  date: 2023-06-20
+- code: sentence_months
+  doc: summary.txt
+  quote: a sentence of 36 months' imprisonment
+  judge: Ilena Varda
+  date: 2023-06-20
+  value: 36.0

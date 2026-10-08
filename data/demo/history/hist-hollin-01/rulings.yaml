@@ -1,0 +1,29 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_ordered
+  doc: summary.txt
+  quote: the court ordered that Ivo Saren be detained pending trial
+  judge: Petra Hollin
+  date: 2023-03-20
+- code: hearing_public
+  doc: summary.txt
+  quote: All hearings were held in public.
+  judge: Petra Hollin
+  date: null
+- code: contested_evidence_admitted
+  doc: summary.txt
+  quote: The court admitted the evidence that the defence had contested.
+  judge: Petra Hollin
+  date: null
+- code: verdict_conviction
+  doc: summary.txt
+  quote: the court convicted Ivo Saren
+  judge: Petra Hollin
+  date: 2023-07-18
+- code: sentence_months
+  doc: summary.txt
+  quote: a sentence of 24 months' imprisonment
+  judge: Petra Hollin
+  date: 2023-07-18
+  value: 24.0

@@ -1,0 +1,24 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_ordered
+  doc: summary.txt
+  quote: the court ordered that Iris Calden be detained pending trial
+  judge: Anwar Selik
+  date: 2025-02-24
+- code: hearing_public
+  doc: summary.txt
+  quote: All hearings were held in public.
+  judge: Anwar Selik
+  date: null
+- code: verdict_conviction
+  doc: summary.txt
+  quote: the court convicted Iris Calden
+  judge: Anwar Selik
+  date: 2025-06-17
+- code: sentence_months
+  doc: summary.txt
+  quote: a sentence of 24 months' imprisonment
+  judge: Anwar Selik
+  date: 2025-06-17
+  value: 24.0

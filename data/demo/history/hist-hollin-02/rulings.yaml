@@ -1,0 +1,24 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_refused
+  doc: summary.txt
+  quote: the court refused the request for pretrial detention and released Rhea Tamsin
+    on bail
+  judge: Petra Hollin
+  date: 2023-07-07
+- code: hearing_closed
+  doc: summary.txt
+  quote: The court closed part of the trial to the public at the request of the prosecution.
+  judge: Petra Hollin
+  date: null
+- code: defense_motion_granted
+  doc: summary.txt
+  quote: The court granted the defence request to call an additional witness.
+  judge: Petra Hollin
+  date: null
+- code: verdict_acquittal
+  doc: summary.txt
+  quote: the court acquitted Rhea Tamsin
+  judge: Petra Hollin
+  date: 2023-11-21

@@ -1,0 +1,327 @@
+{
+  "case_id": "venn-2025",
+  "synthetic": true,
+  "expected": [
+    {
+      "id": "a_status",
+      "module": "absence",
+      "standard_id": "iccpr_14_3_a",
+      "kind": "status",
+      "status": "no_evidence",
+      "match": "all",
+      "anchors": [],
+      "note": "The charge was read out, but no note records the language it was given in."
+    },
+    {
+      "id": "b_status",
+      "module": "absence",
+      "standard_id": "iccpr_14_3_b",
+      "kind": "status",
+      "status": "evidence_of_violation",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "notes/hearing_1.txt",
+          "quote": "she had received the 900-page case file only three days before this hearing"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "c_status",
+      "module": "absence",
+      "standard_id": "iccpr_14_3_c",
+      "kind": "status",
+      "status": "no_evidence",
+      "match": "all",
+      "anchors": [],
+      "note": ""
+    },
+    {
+      "id": "d_status",
+      "module": "absence",
+      "standard_id": "iccpr_14_3_d",
+      "kind": "status",
+      "status": "evidence_of_compliance",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "notes/hearing_1.txt",
+          "quote": "Mr. Venn was present in the courtroom throughout the hearing"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "e_status",
+      "module": "absence",
+      "standard_id": "iccpr_14_3_e",
+      "kind": "status",
+      "status": "evidence_of_violation",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "notes/hearing_3.txt",
+          "quote": "The presiding judge refused to hear them, without giving reasons."
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "f_status",
+      "module": "absence",
+      "standard_id": "iccpr_14_3_f",
+      "kind": "status",
+      "status": "no_evidence",
+      "match": "all",
+      "anchors": [],
+      "note": "Planted: no note mentions an interpreter."
+    },
+    {
+      "id": "g_status",
+      "module": "absence",
+      "standard_id": "iccpr_14_3_g",
+      "kind": "status",
+      "status": "evidence_of_compliance",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "notes/hearing_1.txt",
+          "quote": "The presiding judge informed Mr. Venn that he had the right to remain silent."
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "f_follow_up",
+      "module": "absence",
+      "standard_id": "iccpr_14_3_f",
+      "kind": "follow_up",
+      "status": "no_evidence",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "notes/hearing_1.txt",
+          "quote": "Mr. Venn's first language is Ostric"
+        }
+      ],
+      "note": "Planted: the defendant's first language is a minority language; the follow-up shows it as context."
+    },
+    {
+      "id": "gc35_first_appearance",
+      "module": "clock",
+      "standard_id": "gc35_48h",
+      "kind": "flag",
+      "status": "exceeds_benchmark",
+      "match": "any",
+      "anchors": [
+        {
+          "doc": "indictment.txt",
+          "quote": "in the early morning of 14 February 2025"
+        },
+        {
+          "doc": "indictment.txt",
+          "quote": "On 19 February 2025 the accused was brought before Judge Ilena Varda"
+        }
+      ],
+      "note": "Planted: first appearance before a judge 5 days after arrest."
+    },
+    {
+      "id": "reuse_articles",
+      "module": "reuse",
+      "standard_id": "reasoning_reuse",
+      "kind": "flag",
+      "status": "verbatim_reuse",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "judgment.txt",
+          "quote": "the accused published a series of articles on the news portal Mirevo Today"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "reuse_alarm",
+      "module": "reuse",
+      "standard_id": "reasoning_reuse",
+      "kind": "flag",
+      "status": "verbatim_reuse",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "judgment.txt",
+          "quote": "The articles were shared more than 40,000 times within three days"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "reuse_knowledge",
+      "module": "reuse",
+      "standard_id": "reasoning_reuse",
+      "kind": "flag",
+      "status": "verbatim_reuse",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "judgment.txt",
+          "quote": "The accused knew that the allegations were false, because the Ministry"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "reuse_intent",
+      "module": "reuse",
+      "standard_id": "reasoning_reuse",
+      "kind": "flag",
+      "status": "verbatim_reuse",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "judgment.txt",
+          "quote": "The Court finds that the conduct of the accused was deliberate"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "reuse_paraphrase",
+      "module": "reuse",
+      "standard_id": "reasoning_reuse",
+      "kind": "flag",
+      "status": "paraphrase_reuse",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "judgment.txt",
+          "quote": "Messages retrieved from the telephone of the accused demonstrate"
+        }
+      ],
+      "note": "Planted: a light paraphrase of the indictment's statement on the messages."
+    },
+    {
+      "id": "unaddressed_warrant",
+      "module": "reuse",
+      "standard_id": "unaddressed_defense_argument",
+      "kind": "flag",
+      "status": "unaddressed_argument",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "notes/hearing_2.txt",
+          "quote": "seized at his home on 14 February 2025 without a judicial warrant"
+        }
+      ],
+      "note": "Planted: restated in the submissions section but never answered in the reasoning."
+    }
+  ],
+  "must_not_flag": [
+    {
+      "id": "no_reuse_charge_recital",
+      "module": "reuse",
+      "standard_id": "reasoning_reuse",
+      "kind": "flag",
+      "status": "any",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "judgment.txt",
+          "quote": "The accused is charged with disseminating false information"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "no_reuse_statute_quote",
+      "module": "reuse",
+      "standard_id": "reasoning_reuse",
+      "kind": "flag",
+      "status": "any",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "judgment.txt",
+          "quote": "Whoever disseminates information that he knows to be false"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "no_reuse_prosecution_position",
+      "module": "reuse",
+      "standard_id": "reasoning_reuse",
+      "kind": "flag",
+      "status": "any",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "judgment.txt",
+          "quote": "The prosecution argues that the accused knew that the allegations were false"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "no_reuse_caption",
+      "module": "reuse",
+      "standard_id": "reasoning_reuse",
+      "kind": "flag",
+      "status": "any",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "judgment.txt",
+          "quote": "The Republic of Calderra v. Daro Venn"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "no_reuse_independent_reasoning",
+      "module": "reuse",
+      "standard_id": "reasoning_reuse",
+      "kind": "flag",
+      "status": "any",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "judgment.txt",
+          "quote": "The Court has examined the testimony of the two officials"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "no_unaddressed_retroactivity",
+      "module": "reuse",
+      "standard_id": "unaddressed_defense_argument",
+      "kind": "flag",
+      "status": "unaddressed_argument",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "notes/hearing_3.txt",
+          "quote": "the first article was published before the amendment to Article 214 entered into force"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "no_prosecutor_as_first_appearance",
+      "module": "clock",
+      "standard_id": "gc35_48h",
+      "kind": "event",
+      "status": "first_appearance",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "indictment.txt",
+          "quote": "On 15 February 2025 the accused was brought before the Public Prosecutor"
+        }
+      ],
+      "note": ""
+    }
+  ]
+}

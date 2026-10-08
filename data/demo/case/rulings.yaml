@@ -1,0 +1,57 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+# Rulings coded by the monitor (codes from ratio/config/ruling_codes.yaml). Each one rests on an
+# exact quote that must occur once in its document; the Judicial History Tracker uses these, so
+# no model output ever feeds statistics about a named judge.
+synthetic: true
+rulings:
+  - code: detention_ordered
+    doc: indictment.txt
+    quote: "brought before Judge Ilena Varda of the Mirevo District Court, who ordered his detention pending trial"
+    judge: "Ilena Varda"
+    date: 2025-02-19
+  - code: detention_ordered
+    doc: judgment.txt
+    quote: "His detention was extended on 19 March 2025"
+    judge: "Ilena Varda"
+    date: 2025-03-19
+  - code: detention_ordered
+    doc: judgment.txt
+    quote: "and again on 14 May 2025"
+    judge: "Ilena Varda"
+    date: 2025-05-14
+  - code: hearing_public
+    doc: notes/hearing_1.txt
+    quote: "the courtroom doors remained open"
+    judge: "Ilena Varda"
+    date: 2025-06-02
+  - code: defense_motion_denied
+    doc: notes/hearing_1.txt
+    quote: "The presiding judge refused the request and ordered the trial to continue."
+    judge: "Ilena Varda"
+    date: 2025-06-02
+  - code: contested_evidence_admitted
+    doc: notes/hearing_3.txt
+    quote: "The presiding judge ruled that the messages taken from Mr. Venn's telephone were admissible, without giving reasons."
+    judge: "Ilena Varda"
+    date: 2025-06-30
+  - code: hearing_closed
+    doc: notes/hearing_3.txt
+    quote: "the presiding judge ordered the public and journalists to leave the courtroom during the testimony of a police investigator"
+    judge: "Ilena Varda"
+    date: 2025-06-30
+  - code: defense_motion_denied
+    doc: notes/hearing_3.txt
+    quote: "The presiding judge refused to hear them, without giving reasons."
+    judge: "Ilena Varda"
+    date: 2025-06-30
+  - code: verdict_conviction
+    doc: judgment.txt
+    quote: "the Court finds the accused Daro Venn guilty of the offence under Article 214(2) of the Penal Code"
+    judge: "Ilena Varda"
+    date: 2025-07-14
+  - code: sentence_months
+    doc: judgment.txt
+    quote: "sentences him to four years' imprisonment"
+    judge: "Ilena Varda"
+    date: 2025-07-14
+    value: 48

@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ratio"
+version = "0.1.0"
+description = "Ratio: offline fair-trial monitoring analysis (FairTrial x AI Hackathon, Track 2 prototype)"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+  { name = "Komal Neupane" },
+  { name = "Sahil Kharel" },
+  { name = "Hardik Kafle" },
+  { name = "Emeric Chang" },
+]
+# Direct dependencies, pinned. The full transitive lock is requirements-lock.txt.
+dependencies = [
+  "sentence-transformers==6.1.0",
+  "datasketch==2.0.0",
+  "dateparser==1.4.3",
+  "rapidfuzz==3.14.6",
+  "unidecode==1.4.0",
+  "pydantic==2.14.0",
+  "streamlit==1.65.0",
+  "pyyaml==6.0.3",
+  "pypdf==6.19.0",
+  "numpy==2.4.6",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest==9.1.1",
+  "pytest-cov==7.1.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["ratio*"]
+
+[tool.setuptools.package-data]
+ratio = ["config/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-m 'not live' --strict-markers"
+markers = [
+  "embed: needs the local MiniLM model in models/ (run scripts/fetch_models.py once)",
+  "live: needs a running local Ollama server with RATIO_MODEL pulled",
+]
+
+[tool.coverage.run]
+source = ["ratio"]
+omit = ["ratio/__main__.py"]

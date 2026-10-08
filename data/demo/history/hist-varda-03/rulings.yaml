@@ -1,0 +1,29 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_ordered
+  doc: summary.txt
+  quote: the court ordered that Jonas Petrel be detained pending trial
+  judge: Iléna Várda
+  date: 2023-09-14
+- code: hearing_closed
+  doc: summary.txt
+  quote: The court closed part of the trial to the public at the request of the prosecution.
+  judge: Iléna Várda
+  date: null
+- code: defense_motion_denied
+  doc: summary.txt
+  quote: The court denied the defence motion to adjourn the trial.
+  judge: Iléna Várda
+  date: null
+- code: verdict_conviction
+  doc: summary.txt
+  quote: the court convicted Jonas Petrel
+  judge: Iléna Várda
+  date: 2024-01-30
+- code: sentence_months
+  doc: summary.txt
+  quote: a sentence of 42 months' imprisonment
+  judge: Iléna Várda
+  date: 2024-01-30
+  value: 42.0

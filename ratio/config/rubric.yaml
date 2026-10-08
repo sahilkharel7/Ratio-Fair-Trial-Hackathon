@@ -1,0 +1,207 @@
+# Rights rubric for the Absence Detector: ICCPR Art. 14(3)(a)-(g).
+#
+# Each guarantee is split into parts. A part has compliance indicators (an observation that
+# supports it) and violation indicators (an observation that contradicts it). The model may only
+# label an observation by citing one of these indicator ids, so it cannot invent a basis.
+# Context indicators (e.g. the defendant's language) are shown next to a follow-up question and
+# never count as evidence either way. Keywords say what a part is about: notes containing one are
+# always shortlisted for that part (embeddings rank the rest), and a model label counts only if
+# the note or the sentence before it mentions one of them (a grounding check on the model).
+#
+# Status rules (ratio/modules/absence.py):
+#   any required or optional part contradicted        -> evidence of violation
+#   every required part supported (at every monitored
+#   hearing, for per_hearing parts)                    -> evidence of compliance
+#   otherwise                                          -> no evidence: a follow-up for the monitor
+#
+# NEEDS LEGAL REVIEW: the indicators were drafted by the engineering team from the Covenant text
+# and General Comment No. 32. Paragraph numbers were checked against CCPR/C/GC/32 on 2026-10-08.
+version: 1
+sources:
+  iccpr:
+    symbol: "999 UNTS 171"
+    title: "International Covenant on Civil and Political Rights (1966)"
+    url: "https://www.ohchr.org/sites/default/files/ccpr.pdf"
+  gc32:
+    symbol: "CCPR/C/GC/32"
+    title: "Human Rights Committee, General Comment No. 32 (2007), Article 14"
+    url: "https://documents.un.org/doc/undoc/gen/g07/437/71/pdf/g0743771.pdf"
+
+items:
+  - id: iccpr_14_3_a
+    name: "Informed promptly of the charge, in a language understood"
+    provision: "ICCPR Art. 14(3)(a)"
+    text: "To be informed promptly and in detail in a language which he understands of the nature and cause of the charge against him"
+    citation: {instrument: gc32, paras: "31"}
+    review_status: needs_legal_review
+    parts:
+      - id: a_informed
+        label: "Informed promptly and in detail of the charge"
+        required: true
+        scope: case
+        keywords: ["charge", "indictment", "accus"]
+        compliance:
+          - {id: a_charge_communicated, text: "The charge or indictment was read out to, served on, or explained to the defendant"}
+        violation:
+          - {id: a_charge_withheld, text: "The defendant learned of the charge late, only in part, or not at all"}
+      - id: a_language
+        label: "Informed in a language the defendant understands"
+        required: true
+        scope: case
+        keywords: ["language", "interpret", "translat", "understand"]
+        compliance:
+          - {id: a_charge_in_understood_language, text: "The charge was given or explained in a language the defendant understands"}
+        violation:
+          - {id: a_charge_in_foreign_language, text: "The charge was given only in a language the defendant does not understand"}
+    context:
+      - {id: a_context_language, text: "The defendant's first or preferred language differs from the language used by the court"}
+    follow_up: "In what language was the defendant informed of the charge, and did the defendant understand it?"
+
+  - id: iccpr_14_3_b
+    name: "Adequate time and facilities; communication with counsel"
+    provision: "ICCPR Art. 14(3)(b)"
+    text: "To have adequate time and facilities for the preparation of his defence and to communicate with counsel of his own choosing"
+    citation: {instrument: gc32, paras: "32-34"}
+    review_status: needs_legal_review
+    parts:
+      - id: b_time_facilities
+        label: "Adequate time and facilities to prepare the defence"
+        required: true
+        scope: case
+        keywords: ["case file", "prepar", "adjourn", "documents", "evidence"]
+        compliance:
+          - {id: b_preparation_adequate, text: "The defence had the case file and evidence in time to prepare, or was granted time to prepare"}
+        violation:
+          - {id: b_preparation_inadequate, text: "The defence received the case file or evidence too late to prepare, or a request for time to prepare was refused"}
+      - id: b_counsel_communication
+        label: "Prompt and confidential communication with counsel"
+        required: true
+        scope: case
+        keywords: ["counsel", "lawyer", "meet", "consult"]
+        compliance:
+          - {id: b_counsel_consulted, text: "The defendant could consult counsel promptly and in private"}
+        violation:
+          - {id: b_counsel_obstructed, text: "The defendant could not meet counsel, met counsel only after a long delay, or could not consult counsel in private"}
+    follow_up: "Did the defence receive the case file in time to prepare, and could the defendant consult counsel promptly and in private?"
+
+  - id: iccpr_14_3_c
+    name: "Tried without undue delay"
+    provision: "ICCPR Art. 14(3)(c)"
+    text: "To be tried without undue delay"
+    citation: {instrument: gc32, paras: "35"}
+    review_status: needs_legal_review
+    parts:
+      - id: c_no_undue_delay
+        label: "Proceedings without undue delay"
+        required: true
+        scope: case
+        keywords: ["adjourned", "postponed", "delayed", "delay", "stalled"]
+        compliance:
+          - {id: c_proceedings_timely, text: "The proceedings moved forward without long or unexplained adjournments"}
+        violation:
+          - {id: c_proceedings_stalled, text: "The proceedings were repeatedly adjourned or stalled for long periods without explanation"}
+    follow_up: "Were there long or unexplained adjournments? The Procedural Clock shows the measured intervals."
+
+  - id: iccpr_14_3_d
+    name: "Presence at trial and defence through counsel of choice"
+    provision: "ICCPR Art. 14(3)(d)"
+    text: "To be tried in his presence, and to defend himself in person or through legal assistance of his own choosing; to be informed, if he does not have legal assistance, of this right; and to have legal assistance assigned to him, in any case where the interests of justice so require, and without payment by him in any such case if he does not have sufficient means to pay for it"
+    citation: {instrument: gc32, paras: "36-38"}
+    review_status: needs_legal_review
+    parts:
+      - id: d_presence
+        label: "Defendant present at each hearing"
+        required: true
+        scope: per_hearing
+        keywords: ["present", "absent", "dock", "attend", "removed"]
+        compliance:
+          - {id: d_defendant_present, text: "The defendant was present in the courtroom during the hearing"}
+        violation:
+          - {id: d_defendant_absent, text: "The hearing went ahead without the defendant, or the defendant was removed from it"}
+      - id: d_counsel
+        label: "Defended in person or by counsel of choice at each hearing"
+        required: true
+        scope: per_hearing
+        keywords: ["counsel", "lawyer", "represent", "in person", "himself", "herself"]
+        compliance:
+          - {id: d_counsel_present, text: "Defence counsel chosen by the defendant was present and acted at the hearing"}
+          - {id: d_defends_in_person, text: "The defendant chose to conduct the defence in person"}
+        violation:
+          - {id: d_counsel_missing, text: "Counsel of the defendant's choice was refused, removed or replaced against the defendant's wishes, or the defendant wanted a lawyer and had none"}
+      - id: d_legal_aid
+        label: "Told of the right to counsel; legal aid where needed"
+        required: false
+        scope: case
+        keywords: ["legal aid", "assigned", "free of charge", "right to a lawyer"]
+        compliance:
+          - {id: d_legal_aid_given, text: "The defendant was told of the right to a lawyer, or was assigned a lawyer free of charge"}
+        violation:
+          - {id: d_legal_aid_refused, text: "A defendant without a lawyer was not told of the right to one, or was refused assigned counsel"}
+    follow_up: "Was the defendant present, and represented by counsel of choice, at every hearing?"
+
+  - id: iccpr_14_3_e
+    name: "Examine witnesses on equal terms"
+    provision: "ICCPR Art. 14(3)(e)"
+    text: "To examine, or have examined, the witnesses against him and to obtain the attendance and examination of witnesses on his behalf under the same conditions as witnesses against him"
+    citation: {instrument: gc32, paras: "39"}
+    review_status: needs_legal_review
+    parts:
+      - id: e_examine
+        label: "Examine the prosecution's witnesses"
+        required: true
+        scope: case
+        keywords: ["witness", "cross-exam", "questioned"]
+        compliance:
+          - {id: e_prosecution_witnesses_examined, text: "The defence questioned or cross-examined the prosecution witnesses"}
+        violation:
+          - {id: e_examination_prevented, text: "The defence was prevented from questioning prosecution witnesses, or their statements were used without them appearing"}
+      - id: e_defence_witnesses
+        label: "Call defence witnesses on the same terms"
+        required: false
+        scope: case
+        keywords: ["witness"]
+        compliance:
+          - {id: e_defence_witnesses_heard, text: "Witnesses requested by the defence were heard"}
+        violation:
+          - {id: e_defence_witnesses_refused, text: "The court refused to hear witnesses requested by the defence while prosecution witnesses were heard"}
+    follow_up: "Could the defence question the prosecution's witnesses and call its own witnesses?"
+
+  - id: iccpr_14_3_f
+    name: "Free assistance of an interpreter"
+    provision: "ICCPR Art. 14(3)(f)"
+    text: "To have the free assistance of an interpreter if he cannot understand or speak the language used in court"
+    citation: {instrument: gc32, paras: "40"}
+    review_status: needs_legal_review
+    parts:
+      - id: f_interpretation
+        label: "Interpreter at each hearing, or the defendant understands and speaks the court's language"
+        required: true
+        scope: per_hearing
+        keywords: ["interpret", "translat", "language", "understand", "follow the proceedings"]
+        compliance:
+          - {id: f_interpreter_present, text: "An interpreter was present and interpreted the proceedings for the defendant"}
+          - {id: f_understands_court_language, text: "The defendant understands and speaks the language used in court", covers_all_hearings: true}
+        violation:
+          - {id: f_interpreter_missing, text: "The defendant could not follow the proceedings and no interpreter was provided"}
+          - {id: f_interpreter_refused, text: "A request for an interpreter was refused"}
+    context:
+      - {id: f_context_language, text: "The defendant's first or preferred language differs from the language used in court"}
+    follow_up: "Was an interpreter present at each hearing? If not, does the defendant understand and speak the language used in court?"
+
+  - id: iccpr_14_3_g
+    name: "Not compelled to testify or confess"
+    provision: "ICCPR Art. 14(3)(g)"
+    text: "Not to be compelled to testify against himself or to confess guilt"
+    citation: {instrument: gc32, paras: "41"}
+    review_status: needs_legal_review
+    parts:
+      - id: g_no_compulsion
+        label: "No compulsion to testify or confess"
+        required: true
+        scope: case
+        keywords: ["silent", "silence", "confess", "statement", "pressure", "coerc"]
+        compliance:
+          - {id: g_silence_respected, text: "The defendant was told of the right to remain silent, or chose freely whether to testify"}
+        violation:
+          - {id: g_compelled, text: "The defendant was pressured, threatened or ill-treated to testify or confess, or a confession made under pressure was used"}
+    follow_up: "Was the defendant told of the right to remain silent, and is there any sign of pressure to confess?"

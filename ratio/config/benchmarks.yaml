@@ -1,0 +1,80 @@
+# Procedural Clock benchmarks.
+#
+# Hard rule 5: do not invent legal thresholds. The team has confirmed exactly one benchmark:
+# General Comment No. 35, para. 33 (48 hours to bring a detainee before a judge). Only ids in
+# ratio.config.CONFIRMED_BENCHMARKS may be marked "confirmed", so confirming another benchmark is
+# a deliberate, reviewed code change. Every other entry is cited, has no threshold, and is marked
+# needs_legal_review: the Clock measures it and shows it, but never colours it.
+#
+# Quotes were checked against the official CCPR/C/GC/35 and CCPR/C/GC/32 PDFs on 2026-10-08.
+version: 1
+sources:
+  gc35:
+    symbol: "CCPR/C/GC/35"
+    title: "Human Rights Committee, General Comment No. 35 (2014), Article 9"
+    url: "https://documents.un.org/doc/undoc/gen/g14/244/51/pdf/g1424451.pdf"
+  gc32:
+    symbol: "CCPR/C/GC/32"
+    title: "Human Rights Committee, General Comment No. 32 (2007), Article 14"
+    url: "https://documents.un.org/doc/undoc/gen/g07/437/71/pdf/g0743771.pdf"
+
+benchmarks:
+  - id: gc35_48h
+    name: "Brought promptly before a judge"
+    provision: "ICCPR Art. 9(3)"
+    from_event: arrest
+    to_event: first_appearance
+    pairing: first_after
+    threshold_hours: 48
+    citation:
+      instrument: gc35
+      paras: "33"
+      quote: "In the view of the Committee, 48 hours is ordinarily sufficient to transport the individual and to prepare for the judicial hearing; any delay longer than 48 hours must remain absolutely exceptional and be justified under the circumstances."
+    review_status: confirmed
+    flag_note: "GC35 para 33 treats 48 hours as ordinarily sufficient; any longer delay must remain absolutely exceptional and be justified."
+    note: >-
+      An appearance before a public prosecutor does not stop this clock: a prosecutor is not an
+      officer exercising judicial power (GC35 para 32). GC35 para 33 also suggests a stricter
+      standard, such as 24 hours, for juveniles; that standard is not encoded.
+
+  - id: counsel_access
+    name: "Access to counsel after arrest"
+    provision: "ICCPR Arts. 9(3), 14(3)(b)"
+    from_event: arrest
+    to_event: counsel_access
+    pairing: first_after
+    threshold_hours: null
+    citation:
+      instrument: gc35
+      paras: "35"
+      quote: "States parties should permit and facilitate access to counsel for detainees in criminal cases from the outset of their detention."
+    review_status: needs_legal_review
+    note: "GC35 sets no number of hours. Measured and shown only."
+
+  - id: pretrial_detention_length
+    name: "Pretrial detention (arrest to first-instance judgment)"
+    provision: "ICCPR Art. 9(3)"
+    from_event: arrest
+    to_event: verdict
+    pairing: first_after
+    threshold_hours: null
+    citation:
+      instrument: gc35
+      paras: "37-38"
+      quote: "That requirement applies specifically to periods of pretrial detention, that is, detention between the time of arrest and the time of judgment at first instance."
+    review_status: needs_legal_review
+    note: "Reasonableness is assessed case by case; no fixed limit. Measured and shown only."
+
+  - id: trial_undue_delay
+    name: "Charge to first-instance judgment"
+    provision: "ICCPR Art. 14(3)(c)"
+    from_event: charge
+    to_event: verdict
+    pairing: first_after
+    threshold_hours: null
+    citation:
+      instrument: gc32
+      paras: "35"
+      quote: "What is reasonable has to be assessed in the circumstances of each case, taking into account mainly the complexity of the case, the conduct of the accused, and the manner in which the matter was dealt with by the administrative and judicial authorities."
+    review_status: needs_legal_review
+    note: "No fixed limit. Measured and shown only."

@@ -1,0 +1,2233 @@
+{
+  "meta": {
+    "case_id": "venn-2025",
+    "title": "Republic of Calderra v. Daro Venn",
+    "court": "Mirevo District Court, Criminal Chamber",
+    "charge_type": "Dissemination of false information (Penal Code Art. 214)",
+    "presiding_judge": "Ilena Varda",
+    "presiding_judge_span": {
+      "doc_id": "venn-2025/judgment.txt",
+      "start": 153,
+      "end": 164,
+      "text": "Ilena Varda"
+    },
+    "data_provenance": "synthetic",
+    "source_note": null,
+    "synthetic": true
+  },
+  "documents": [
+    {
+      "id": "venn-2025/notes/hearing_1.txt",
+      "case_id": "venn-2025",
+      "path": "notes/hearing_1.txt",
+      "type": "monitoring_note",
+      "title": "Monitoring note, hearing 1 (2 June 2025)",
+      "text": "TRIAL MONITORING NOTE\nCase: Republic of Calderra v. Daro Venn (Mirevo District Court, Criminal Chamber, case no. MDC-2025-0147)\nHearing: 1\nHearing date: 2 June 2025\nMonitor: R.T.\n\nThe trial opened on 2 June 2025 at 10:05 before Presiding Judge Ilena Varda, sitting with two lay assessors. About twenty members of the public and three journalists attended, and the courtroom doors remained open.\n\nMr. Venn was present in the courtroom throughout the hearing, seated in a glass dock. Defence counsel Lena Brask, whom Mr. Venn had retained himself, was present and sat beside the dock.\n\nAccording to the case file and to his counsel, Mr. Venn's first language is Ostric; he grew up in the Ostric-speaking north of the country.\n\nThe presiding judge read out the charge under Article 214(2) of the Penal Code. Mr. Venn confirmed that he had received the indictment on 4 March 2025.\n\nMs. Brask told the court that she had received the 900-page case file only three days before this hearing and asked for an adjournment of two weeks to prepare the defence. The presiding judge refused the request and ordered the trial to continue.\n\nMs. Brask reminded the court that Mr. Venn had been arrested at his home before dawn on 14 February 2025 and was questioned by police for two days. She stated that she was first able to meet Mr. Venn on 21 February 2025, a week after his arrest.\n\nThe presiding judge informed Mr. Venn that he had the right to remain silent. Mr. Venn chose to make a statement, in which he denied the charge and said that his articles were based on documents given to him by employees of the Ministry of Water.\n\nThe hearing ended at 13:40.\n",
+      "synthetic": true,
+      "sha256": "7e50a64e9b83582689f42b2182d9610bfef2aab29d66c726e7633b1c079b2a6e",
+      "date": "2025-06-02",
+      "date_span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 153,
+        "end": 164,
+        "text": "2 June 2025"
+      }
+    },
+    {
+      "id": "venn-2025/notes/hearing_2.txt",
+      "case_id": "venn-2025",
+      "path": "notes/hearing_2.txt",
+      "type": "monitoring_note",
+      "title": "Monitoring note, hearing 2 (16 June 2025)",
+      "text": "TRIAL MONITORING NOTE\nCase: Republic of Calderra v. Daro Venn (Mirevo District Court, Criminal Chamber, case no. MDC-2025-0147)\nHearing: 2\nHearing date: 16 June 2025\nMonitor: R.T.\n\nThe hearing began at 10:10 before Presiding Judge Ilena Varda. The courtroom was open to the public.\n\nMr. Venn was present in the dock for the whole hearing. Defence counsel Lena Brask was present and represented him.\n\nTwo officials of the Ministry of Water testified for the prosecution. Both said that the figures in Mr. Venn's articles did not match the audited project accounts. Ms. Brask cross-examined both witnesses about who had prepared the audit.\n\nDefence counsel argued that the messages presented by the prosecution had been extracted from Mr. Venn's mobile telephone, which police seized at his home on 14 February 2025 without a judicial warrant, and asked the court to exclude them as evidence. The prosecutor replied that the seizure was lawful because the telephone was found during the arrest. The presiding judge said that the court would rule on the request later.\n\nThe hearing ended at 12:55.\n",
+      "synthetic": true,
+      "sha256": "9c3c59839da9f6545a668b1acd2be0cac240b21a5038d47e4a1184db8b545d5d",
+      "date": "2025-06-16",
+      "date_span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 153,
+        "end": 165,
+        "text": "16 June 2025"
+      }
+    },
+    {
+      "id": "venn-2025/notes/hearing_3.txt",
+      "case_id": "venn-2025",
+      "path": "notes/hearing_3.txt",
+      "type": "monitoring_note",
+      "title": "Monitoring note, hearing 3 (30 June 2025)",
+      "text": "TRIAL MONITORING NOTE\nCase: Republic of Calderra v. Daro Venn (Mirevo District Court, Criminal Chamber, case no. MDC-2025-0147)\nHearing: 3\nHearing date: 30 June 2025\nMonitor: R.T.\n\nThe hearing began at 10:00 before Presiding Judge Ilena Varda.\n\nMr. Venn was present in the dock when the hearing opened. Defence counsel Lena Brask was present.\n\nThe presiding judge ruled that the messages taken from Mr. Venn's telephone were admissible, without giving reasons. Ms. Brask's objection was recorded.\n\nAt the prosecution's request, the presiding judge ordered the public and journalists to leave the courtroom during the testimony of a police investigator, citing national security. The monitor was also asked to leave and could not observe that part of the hearing.\n\nWhen the public was readmitted, a second police investigator testified about the analysis of the telephone. Ms. Brask questioned him about how the messages had been extracted.\n\nDefence counsel asked the court to hear two witnesses, both editors at Mirevo Today, who had attended the editorial meeting at which the articles were approved. The presiding judge refused to hear them, without giving reasons.\n\nDefence counsel argued that the first article was published before the amendment to Article 214 entered into force, so that Mr. Venn could not be punished for conduct that was lawful at the time.\n\nThe hearing ended at 14:20.\n",
+      "synthetic": true,
+      "sha256": "7196d1391125b5dae5a807950095c6c1e7d5e59725164a4ef7b0cfb4fd2c15e6",
+      "date": "2025-06-30",
+      "date_span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 153,
+        "end": 165,
+        "text": "30 June 2025"
+      }
+    },
+    {
+      "id": "venn-2025/notes/hearing_4.txt",
+      "case_id": "venn-2025",
+      "path": "notes/hearing_4.txt",
+      "type": "monitoring_note",
+      "title": "Monitoring note, hearing 4 (14 July 2025)",
+      "text": "TRIAL MONITORING NOTE\nCase: Republic of Calderra v. Daro Venn (Mirevo District Court, Criminal Chamber, case no. MDC-2025-0147)\nHearing: 4\nHearing date: 14 July 2025\nMonitor: R.T.\n\nThe hearing began at 09:30 before Presiding Judge Ilena Varda. The courtroom was open to the public.\n\nMr. Venn was present in the dock. Defence counsel Lena Brask was present and made the closing statement for the defence.\n\nThe prosecutor asked for a sentence of five years' imprisonment.\n\nThe presiding judge delivered the verdict on 14 July 2025, finding Mr. Venn guilty under Article 214(2) of the Penal Code and sentencing him to four years' imprisonment. Reading the judgment took about forty minutes.\n\nMs. Brask announced that the defence would appeal.\n",
+      "synthetic": true,
+      "sha256": "a9d0e0e2a6417a53755b9fc55c21ac36980089094fb459a0405e2d4827aecacc",
+      "date": "2025-07-14",
+      "date_span": {
+        "doc_id": "venn-2025/notes/hearing_4.txt",
+        "start": 153,
+        "end": 165,
+        "text": "14 July 2025"
+      }
+    },
+    {
+      "id": "venn-2025/indictment.txt",
+      "case_id": "venn-2025",
+      "path": "indictment.txt",
+      "type": "indictment",
+      "title": "Indictment (3 March 2025)",
+      "text": "OFFICE OF THE PUBLIC PROSECUTOR OF MIREVO\nINDICTMENT\nCase no. MDC-2025-0147\nThe Republic of Calderra v. Daro Venn\nMirevo, 3 March 2025\n\nI. THE ACCUSED\n\nDaro Venn, born on 11 May 1987 in Halvar, journalist, residing in Mirevo.\n\nII. PROCEDURAL HISTORY\n\nThe accused was arrested at his home in Mirevo in the early morning of 14 February 2025. On 15 February 2025 the accused was brought before the Public Prosecutor, who ordered that he remain in police custody. On 19 February 2025 the accused was brought before Judge Ilena Varda of the Mirevo District Court, who ordered his detention pending trial. On 3 March 2025 the Public Prosecutor filed this indictment with the Mirevo District Court.\n\nIII. STATEMENT OF FACTS\n\nBetween 9 February and 12 February 2025, the accused published a series of articles on the news portal Mirevo Today alleging that officials of the Ministry of Water had diverted public funds intended for the northern irrigation project. The articles were shared more than 40,000 times within three days and caused public alarm in the northern districts, where residents gathered outside the regional water office on 13 February 2025. The accused knew that the allegations were false, because the Ministry had published the audited project accounts on 2 February 2025, a week before the first article appeared. Messages recovered from the accused's mobile telephone show that he coordinated the timing of the publications with persons abroad in order to maximise their impact. The conduct of the accused was deliberate and was intended to undermine public confidence in the institutions of the State.\n\nIV. EVIDENCE\n\nThe prosecution relies on the articles published on Mirevo Today, the audited accounts of the northern irrigation project, the testimony of two officials of the Ministry of Water and of two police investigators, and the messages recovered from the accused's mobile telephone.\n\nV. LEGAL QUALIFICATION\n\nArticle 214(2) of the Penal Code provides: \"Whoever disseminates information that he knows to be false, where such dissemination is likely to cause public alarm, shall be punished by imprisonment of two to six years.\"\n\nVI. CHARGE\n\nThe accused is charged with disseminating false information likely to cause public alarm, an offence under Article 214(2) of the Penal Code.\n\nThe Public Prosecutor requests that the accused be found guilty and sentenced to imprisonment.\n\n(signed) Malik Ferrow, Public Prosecutor of Mirevo\n",
+      "synthetic": true,
+      "sha256": "641a339290819a271b87d960fa83180f14c3bf38a4bbfc80841ae5a6f6f6879b",
+      "date": null,
+      "date_span": null
+    },
+    {
+      "id": "venn-2025/judgment.txt",
+      "case_id": "venn-2025",
+      "path": "judgment.txt",
+      "type": "judgment",
+      "title": "Judgment (14 July 2025)",
+      "text": "MIREVO DISTRICT COURT, CRIMINAL CHAMBER\nJUDGMENT\nCase no. MDC-2025-0147\nThe Republic of Calderra v. Daro Venn\nDelivered on 14 July 2025\nPresiding Judge: Ilena Varda\nLay assessors: Oren Valk and Teja Morrow\n\nI. PROCEDURAL HISTORY\n\nThe accused was arrested on 14 February 2025 and was brought before this Court on 19 February 2025, which ordered his detention pending trial. His detention was extended on 19 March 2025 and again on 14 May 2025. The indictment was filed on 3 March 2025. The trial opened on 2 June 2025, and the Court held four hearings.\n\nII. THE CHARGE\n\nThe accused is charged with disseminating false information likely to cause public alarm, an offence under Article 214(2) of the Penal Code.\n\nIII. SUBMISSIONS OF THE PARTIES\n\nThe prosecution argues that the accused knew that the allegations were false and that his conduct was intended to undermine public confidence in the institutions of the State. The defence contends that the messages relied on by the prosecution were extracted from a telephone seized without a judicial warrant and must be excluded. The defence further argues that the first article was published before the amendment to Article 214 entered into force.\n\nIV. THE APPLICABLE LAW\n\nArticle 214(2) of the Penal Code provides: \"Whoever disseminates information that he knows to be false, where such dissemination is likely to cause public alarm, shall be punished by imprisonment of two to six years.\"\n\nV. ASSESSMENT OF THE COURT\n\nBetween 9 February and 12 February 2025, the accused published a series of articles on the news portal Mirevo Today alleging that officials of the Ministry of Water had diverted public funds intended for the northern irrigation project. The articles were shared more than 40,000 times within three days and caused public alarm in the northern districts, where residents gathered outside the regional water office on 13 February 2025. The accused knew that the allegations were false, because the Ministry had published the audited project accounts on 2 February 2025, a week before the first article appeared.\n\nMessages retrieved from the telephone of the accused demonstrate that he arranged when the articles would appear together with individuals outside the country, so as to increase their effect.\n\nThe Court has examined the testimony of the two officials of the Ministry of Water, each of whom confirmed that the published figures did not match the audited accounts. The Court considers their testimony credible and consistent.\n\nAs to the defence argument that the first article predates the amendment to Article 214, the Court notes that the amendment entered into force on 1 January 2025, while the first article appeared on 9 February 2025. That argument is therefore rejected.\n\nThe Court finds that the conduct of the accused was deliberate and was intended to undermine public confidence in the institutions of the State.\n\nIn determining the sentence, the Court has taken into account that the accused has no previous convictions.\n\nVI. DISPOSITION\n\nFor these reasons, the Court finds the accused Daro Venn guilty of the offence under Article 214(2) of the Penal Code and sentences him to four years' imprisonment. The time spent in pretrial detention since 19 February 2025 shall be deducted from the sentence.\n\n(signed) Ilena Varda, Presiding Judge\n",
+      "synthetic": true,
+      "sha256": "36011ea01db4e2fdc24a59b4337eac46471de94df67822c844a333c4c556986e",
+      "date": null,
+      "date_span": null
+    }
+  ],
+  "events": [
+    {
+      "id": "fec1b49be8ade7ce",
+      "type": "hearing",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 139,
+        "end": 164,
+        "text": "Hearing date: 2 June 2025"
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 139,
+        "end": 164,
+        "text": "Hearing date: 2 June 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 153,
+        "end": 164,
+        "text": "2 June 2025"
+      },
+      "date_text": "2 June 2025",
+      "model_date": null,
+      "parsed_date": "2025-06-02T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "1d7892ae6efc7e40",
+      "type": "hearing",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 139,
+        "end": 165,
+        "text": "Hearing date: 16 June 2025"
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 139,
+        "end": 165,
+        "text": "Hearing date: 16 June 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 153,
+        "end": 165,
+        "text": "16 June 2025"
+      },
+      "date_text": "16 June 2025",
+      "model_date": null,
+      "parsed_date": "2025-06-16T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "b2248f8cb71f2501",
+      "type": "hearing",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 139,
+        "end": 165,
+        "text": "Hearing date: 30 June 2025"
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 139,
+        "end": 165,
+        "text": "Hearing date: 30 June 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 153,
+        "end": 165,
+        "text": "30 June 2025"
+      },
+      "date_text": "30 June 2025",
+      "model_date": null,
+      "parsed_date": "2025-06-30T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "3c7e7a5062eb6050",
+      "type": "hearing",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_4.txt",
+        "start": 139,
+        "end": 165,
+        "text": "Hearing date: 14 July 2025"
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/notes/hearing_4.txt",
+        "start": 139,
+        "end": 165,
+        "text": "Hearing date: 14 July 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/notes/hearing_4.txt",
+        "start": 153,
+        "end": 165,
+        "text": "14 July 2025"
+      },
+      "date_text": "14 July 2025",
+      "model_date": null,
+      "parsed_date": "2025-07-14T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "a2ff2648bf20aa70",
+      "type": "arrest",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 251,
+        "end": 339,
+        "text": "The accused was arrested at his home in Mirevo in the early morning of 14 February 2025."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 251,
+        "end": 338,
+        "text": "The accused was arrested at his home in Mirevo in the early morning of 14 February 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 322,
+        "end": 338,
+        "text": "14 February 2025"
+      },
+      "date_text": "14 February 2025",
+      "model_date": "2025-02-14",
+      "parsed_date": "2025-02-14T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "90ca80c07d64764a",
+      "type": "arrest",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 230,
+        "end": 372,
+        "text": "The accused was arrested on 14 February 2025 and was brought before this Court on 19 February 2025, which ordered his detention pending trial."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 230,
+        "end": 274,
+        "text": "The accused was arrested on 14 February 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 258,
+        "end": 274,
+        "text": "14 February 2025"
+      },
+      "date_text": "14 February 2025",
+      "model_date": "2025-02-14",
+      "parsed_date": "2025-02-14T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "46653515c6871940",
+      "type": "arrest",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 1126,
+        "end": 1273,
+        "text": "Ms. Brask reminded the court that Mr. Venn had been arrested at his home before dawn on 14 February 2025 and was questioned by police for two days."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 1160,
+        "end": 1230,
+        "text": "Mr. Venn had been arrested at his home before dawn on 14 February 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 1214,
+        "end": 1230,
+        "text": "14 February 2025"
+      },
+      "date_text": "14 February 2025",
+      "model_date": "2025-02-14",
+      "parsed_date": "2025-02-14T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "10ec3ffc7af8bc0c",
+      "type": "first_appearance",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 460,
+        "end": 599,
+        "text": "On 19 February 2025 the accused was brought before Judge Ilena Varda of the Mirevo District Court, who ordered his detention pending trial."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 460,
+        "end": 557,
+        "text": "On 19 February 2025 the accused was brought before Judge Ilena Varda of the Mirevo District Court"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 463,
+        "end": 479,
+        "text": "19 February 2025"
+      },
+      "date_text": "19 February 2025",
+      "model_date": "2025-02-19",
+      "parsed_date": "2025-02-19T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "c5c672a502f885ac",
+      "type": "first_appearance",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 230,
+        "end": 372,
+        "text": "The accused was arrested on 14 February 2025 and was brought before this Court on 19 February 2025, which ordered his detention pending trial."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 279,
+        "end": 328,
+        "text": "was brought before this Court on 19 February 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 312,
+        "end": 328,
+        "text": "19 February 2025"
+      },
+      "date_text": "19 February 2025",
+      "model_date": "2025-02-19",
+      "parsed_date": "2025-02-19T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "b84a8450081dde82",
+      "type": "counsel_access",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 1274,
+        "end": 1371,
+        "text": "She stated that she was first able to meet Mr. Venn on 21 February 2025, a week after his arrest."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 1290,
+        "end": 1345,
+        "text": "she was first able to meet Mr. Venn on 21 February 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 1329,
+        "end": 1345,
+        "text": "21 February 2025"
+      },
+      "date_text": "21 February 2025",
+      "model_date": "2025-02-21",
+      "parsed_date": "2025-02-21T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "ddf07b1255e5d79f",
+      "type": "charge",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 600,
+        "end": 691,
+        "text": "On 3 March 2025 the Public Prosecutor filed this indictment with the Mirevo District Court."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 600,
+        "end": 659,
+        "text": "On 3 March 2025 the Public Prosecutor filed this indictment"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 603,
+        "end": 615,
+        "text": "3 March 2025"
+      },
+      "date_text": "3 March 2025",
+      "model_date": "2025-03-03",
+      "parsed_date": "2025-03-03T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "5d89ce53b4408447",
+      "type": "charge",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 443,
+        "end": 484,
+        "text": "The indictment was filed on 3 March 2025."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 443,
+        "end": 483,
+        "text": "The indictment was filed on 3 March 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 471,
+        "end": 483,
+        "text": "3 March 2025"
+      },
+      "date_text": "3 March 2025",
+      "model_date": "2025-03-03",
+      "parsed_date": "2025-03-03T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "492b912e19f9a284",
+      "type": "detention_extension",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 373,
+        "end": 442,
+        "text": "His detention was extended on 19 March 2025 and again on 14 May 2025."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 373,
+        "end": 416,
+        "text": "His detention was extended on 19 March 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 403,
+        "end": 416,
+        "text": "19 March 2025"
+      },
+      "date_text": "19 March 2025",
+      "model_date": "2025-03-19",
+      "parsed_date": "2025-03-19T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "58c6d12f4baf5eb3",
+      "type": "detention_extension",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 373,
+        "end": 442,
+        "text": "His detention was extended on 19 March 2025 and again on 14 May 2025."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 417,
+        "end": 441,
+        "text": "and again on 14 May 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 430,
+        "end": 441,
+        "text": "14 May 2025"
+      },
+      "date_text": "14 May 2025",
+      "model_date": "2025-05-14",
+      "parsed_date": "2025-05-14T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "d81db9d7df61a1e7",
+      "type": "trial_start",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 180,
+        "end": 288,
+        "text": "The trial opened on 2 June 2025 at 10:05 before Presiding Judge Ilena Varda, sitting with two lay assessors."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 180,
+        "end": 220,
+        "text": "The trial opened on 2 June 2025 at 10:05"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 200,
+        "end": 220,
+        "text": "2 June 2025 at 10:05"
+      },
+      "date_text": "2 June 2025 at 10:05",
+      "model_date": "2025-06-02",
+      "parsed_date": "2025-06-02T10:05:00",
+      "precision": "datetime",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "e03166efed106e76",
+      "type": "trial_start",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 485,
+        "end": 551,
+        "text": "The trial opened on 2 June 2025, and the Court held four hearings."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 485,
+        "end": 516,
+        "text": "The trial opened on 2 June 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 505,
+        "end": 516,
+        "text": "2 June 2025"
+      },
+      "date_text": "2 June 2025",
+      "model_date": "2025-06-02",
+      "parsed_date": "2025-06-02T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "9663c9434ad7e16c",
+      "type": "verdict",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_4.txt",
+        "start": 471,
+        "end": 640,
+        "text": "The presiding judge delivered the verdict on 14 July 2025, finding Mr. Venn guilty under Article 214(2) of the Penal Code and sentencing him to four years' imprisonment."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/notes/hearing_4.txt",
+        "start": 471,
+        "end": 528,
+        "text": "The presiding judge delivered the verdict on 14 July 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/notes/hearing_4.txt",
+        "start": 516,
+        "end": 528,
+        "text": "14 July 2025"
+      },
+      "date_text": "14 July 2025",
+      "model_date": "2025-07-14",
+      "parsed_date": "2025-07-14T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "3bae6aa2dc291265",
+      "type": "verdict",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 110,
+        "end": 135,
+        "text": "Delivered on 14 July 2025"
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 110,
+        "end": 135,
+        "text": "Delivered on 14 July 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 123,
+        "end": 135,
+        "text": "14 July 2025"
+      },
+      "date_text": "14 July 2025",
+      "model_date": "2025-07-14",
+      "parsed_date": "2025-07-14T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    }
+  ],
+  "observations": [
+    {
+      "id": "caaf105d5161dc53",
+      "text": "The trial opened on 2 June 2025 at 10:05 before Presiding Judge Ilena Varda, sitting with two lay assessors.",
+      "hearing_date": "2025-06-02",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 180,
+        "end": 288,
+        "text": "The trial opened on 2 June 2025 at 10:05 before Presiding Judge Ilena Varda, sitting with two lay assessors."
+      }
+    },
+    {
+      "id": "1984a39ffe9c518a",
+      "text": "About twenty members of the public and three journalists attended, and the courtroom doors remained open.",
+      "hearing_date": "2025-06-02",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 289,
+        "end": 394,
+        "text": "About twenty members of the public and three journalists attended, and the courtroom doors remained open."
+      }
+    },
+    {
+      "id": "df0080d8a97e2181",
+      "text": "Mr. Venn was present in the courtroom throughout the hearing, seated in a glass dock.",
+      "hearing_date": "2025-06-02",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 396,
+        "end": 481,
+        "text": "Mr. Venn was present in the courtroom throughout the hearing, seated in a glass dock."
+      }
+    },
+    {
+      "id": "d7cf5efd0d01475c",
+      "text": "Defence counsel Lena Brask, whom Mr. Venn had retained himself, was present and sat beside the dock.",
+      "hearing_date": "2025-06-02",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 482,
+        "end": 582,
+        "text": "Defence counsel Lena Brask, whom Mr. Venn had retained himself, was present and sat beside the dock."
+      }
+    },
+    {
+      "id": "136471bb074bc4c7",
+      "text": "According to the case file and to his counsel, Mr. Venn's first language is Ostric; he grew up in the Ostric-speaking north of the country.",
+      "hearing_date": "2025-06-02",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 584,
+        "end": 723,
+        "text": "According to the case file and to his counsel, Mr. Venn's first language is Ostric; he grew up in the Ostric-speaking north of the country."
+      }
+    },
+    {
+      "id": "e912149600ef6149",
+      "text": "The presiding judge read out the charge under Article 214(2) of the Penal Code.",
+      "hearing_date": "2025-06-02",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 725,
+        "end": 804,
+        "text": "The presiding judge read out the charge under Article 214(2) of the Penal Code."
+      }
+    },
+    {
+      "id": "45b846cdc5762f16",
+      "text": "Mr. Venn confirmed that he had received the indictment on 4 March 2025.",
+      "hearing_date": "2025-06-02",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 805,
+        "end": 876,
+        "text": "Mr. Venn confirmed that he had received the indictment on 4 March 2025."
+      }
+    },
+    {
+      "id": "bceaa756b44a2889",
+      "text": "Ms. Brask told the court that she had received the 900-page case file only three days before this hearing and asked for an adjournment of two weeks to prepare the defence.",
+      "hearing_date": "2025-06-02",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 878,
+        "end": 1049,
+        "text": "Ms. Brask told the court that she had received the 900-page case file only three days before this hearing and asked for an adjournment of two weeks to prepare the defence."
+      }
+    },
+    {
+      "id": "1631ae848fcd433a",
+      "text": "The presiding judge refused the request and ordered the trial to continue.",
+      "hearing_date": "2025-06-02",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 1050,
+        "end": 1124,
+        "text": "The presiding judge refused the request and ordered the trial to continue."
+      }
+    },
+    {
+      "id": "696aaa72f8979292",
+      "text": "Ms. Brask reminded the court that Mr. Venn had been arrested at his home before dawn on 14 February 2025 and was questioned by police for two days.",
+      "hearing_date": "2025-06-02",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 1126,
+        "end": 1273,
+        "text": "Ms. Brask reminded the court that Mr. Venn had been arrested at his home before dawn on 14 February 2025 and was questioned by police for two days."
+      }
+    },
+    {
+      "id": "f52f30920577ee17",
+      "text": "She stated that she was first able to meet Mr. Venn on 21 February 2025, a week after his arrest.",
+      "hearing_date": "2025-06-02",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 1274,
+        "end": 1371,
+        "text": "She stated that she was first able to meet Mr. Venn on 21 February 2025, a week after his arrest."
+      }
+    },
+    {
+      "id": "5d3a662a0ea5445e",
+      "text": "The presiding judge informed Mr. Venn that he had the right to remain silent.",
+      "hearing_date": "2025-06-02",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 1373,
+        "end": 1450,
+        "text": "The presiding judge informed Mr. Venn that he had the right to remain silent."
+      }
+    },
+    {
+      "id": "839093c5e1812b52",
+      "text": "Mr. Venn chose to make a statement, in which he denied the charge and said that his articles were based on documents given to him by employees of the Ministry of Water.",
+      "hearing_date": "2025-06-02",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 1451,
+        "end": 1619,
+        "text": "Mr. Venn chose to make a statement, in which he denied the charge and said that his articles were based on documents given to him by employees of the Ministry of Water."
+      }
+    },
+    {
+      "id": "ca22dfc35376dd15",
+      "text": "The hearing ended at 13:40.",
+      "hearing_date": "2025-06-02",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 1621,
+        "end": 1648,
+        "text": "The hearing ended at 13:40."
+      }
+    },
+    {
+      "id": "e8dc7aecbe49451a",
+      "text": "The hearing began at 10:10 before Presiding Judge Ilena Varda.",
+      "hearing_date": "2025-06-16",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 181,
+        "end": 243,
+        "text": "The hearing began at 10:10 before Presiding Judge Ilena Varda."
+      }
+    },
+    {
+      "id": "1e6afca2bb97f5de",
+      "text": "The courtroom was open to the public.",
+      "hearing_date": "2025-06-16",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 244,
+        "end": 281,
+        "text": "The courtroom was open to the public."
+      }
+    },
+    {
+      "id": "4857395f0e938a98",
+      "text": "Mr. Venn was present in the dock for the whole hearing.",
+      "hearing_date": "2025-06-16",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 283,
+        "end": 338,
+        "text": "Mr. Venn was present in the dock for the whole hearing."
+      }
+    },
+    {
+      "id": "848a001e7ff8554e",
+      "text": "Defence counsel Lena Brask was present and represented him.",
+      "hearing_date": "2025-06-16",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 339,
+        "end": 398,
+        "text": "Defence counsel Lena Brask was present and represented him."
+      }
+    },
+    {
+      "id": "4de340a793f0885d",
+      "text": "Two officials of the Ministry of Water testified for the prosecution.",
+      "hearing_date": "2025-06-16",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 400,
+        "end": 469,
+        "text": "Two officials of the Ministry of Water testified for the prosecution."
+      }
+    },
+    {
+      "id": "0fc2c1f81b0b8629",
+      "text": "Both said that the figures in Mr. Venn's articles did not match the audited project accounts.",
+      "hearing_date": "2025-06-16",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 470,
+        "end": 563,
+        "text": "Both said that the figures in Mr. Venn's articles did not match the audited project accounts."
+      }
+    },
+    {
+      "id": "98c608851c957e20",
+      "text": "Ms. Brask cross-examined both witnesses about who had prepared the audit.",
+      "hearing_date": "2025-06-16",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 564,
+        "end": 637,
+        "text": "Ms. Brask cross-examined both witnesses about who had prepared the audit."
+      }
+    },
+    {
+      "id": "11cdcfd7454d6df4",
+      "text": "Defence counsel argued that the messages presented by the prosecution had been extracted from Mr. Venn's mobile telephone, which police seized at his home on 14 February 2025 without a judicial warrant, and asked the court to exclude them as evidence.",
+      "hearing_date": "2025-06-16",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 639,
+        "end": 890,
+        "text": "Defence counsel argued that the messages presented by the prosecution had been extracted from Mr. Venn's mobile telephone, which police seized at his home on 14 February 2025 without a judicial warrant, and asked the court to exclude them as evidence."
+      }
+    },
+    {
+      "id": "9c7baec61ab3e8d8",
+      "text": "The prosecutor replied that the seizure was lawful because the telephone was found during the arrest.",
+      "hearing_date": "2025-06-16",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 891,
+        "end": 992,
+        "text": "The prosecutor replied that the seizure was lawful because the telephone was found during the arrest."
+      }
+    },
+    {
+      "id": "d3c92a815e7980b9",
+      "text": "The presiding judge said that the court would rule on the request later.",
+      "hearing_date": "2025-06-16",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 993,
+        "end": 1065,
+        "text": "The presiding judge said that the court would rule on the request later."
+      }
+    },
+    {
+      "id": "af03731c0bd41202",
+      "text": "The hearing ended at 12:55.",
+      "hearing_date": "2025-06-16",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 1067,
+        "end": 1094,
+        "text": "The hearing ended at 12:55."
+      }
+    },
+    {
+      "id": "fb37483613b4c257",
+      "text": "The hearing began at 10:00 before Presiding Judge Ilena Varda.",
+      "hearing_date": "2025-06-30",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 181,
+        "end": 243,
+        "text": "The hearing began at 10:00 before Presiding Judge Ilena Varda."
+      }
+    },
+    {
+      "id": "6861962234540d74",
+      "text": "Mr. Venn was present in the dock when the hearing opened.",
+      "hearing_date": "2025-06-30",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 245,
+        "end": 302,
+        "text": "Mr. Venn was present in the dock when the hearing opened."
+      }
+    },
+    {
+      "id": "dc61ece4535e1924",
+      "text": "Defence counsel Lena Brask was present.",
+      "hearing_date": "2025-06-30",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 303,
+        "end": 342,
+        "text": "Defence counsel Lena Brask was present."
+      }
+    },
+    {
+      "id": "9329029e26fae398",
+      "text": "The presiding judge ruled that the messages taken from Mr. Venn's telephone were admissible, without giving reasons.",
+      "hearing_date": "2025-06-30",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 344,
+        "end": 460,
+        "text": "The presiding judge ruled that the messages taken from Mr. Venn's telephone were admissible, without giving reasons."
+      }
+    },
+    {
+      "id": "5c063057c50eaaa3",
+      "text": "Ms. Brask's objection was recorded.",
+      "hearing_date": "2025-06-30",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 461,
+        "end": 496,
+        "text": "Ms. Brask's objection was recorded."
+      }
+    },
+    {
+      "id": "56bd8a8f755a1e2e",
+      "text": "At the prosecution's request, the presiding judge ordered the public and journalists to leave the courtroom during the testimony of a police investigator, citing national security.",
+      "hearing_date": "2025-06-30",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 498,
+        "end": 678,
+        "text": "At the prosecution's request, the presiding judge ordered the public and journalists to leave the courtroom during the testimony of a police investigator, citing national security."
+      }
+    },
+    {
+      "id": "7d063727ce194935",
+      "text": "The monitor was also asked to leave and could not observe that part of the hearing.",
+      "hearing_date": "2025-06-30",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 679,
+        "end": 762,
+        "text": "The monitor was also asked to leave and could not observe that part of the hearing."
+      }
+    },
+    {
+      "id": "a5f0e5664d048a6e",
+      "text": "When the public was readmitted, a second police investigator testified about the analysis of the telephone.",
+      "hearing_date": "2025-06-30",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 764,
+        "end": 871,
+        "text": "When the public was readmitted, a second police investigator testified about the analysis of the telephone."
+      }
+    },
+    {
+      "id": "89f0ba190eb74fcb",
+      "text": "Ms. Brask questioned him about how the messages had been extracted.",
+      "hearing_date": "2025-06-30",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 872,
+        "end": 939,
+        "text": "Ms. Brask questioned him about how the messages had been extracted."
+      }
+    },
+    {
+      "id": "68319053f33d6c86",
+      "text": "Defence counsel asked the court to hear two witnesses, both editors at Mirevo Today, who had attended the editorial meeting at which the articles were approved.",
+      "hearing_date": "2025-06-30",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 941,
+        "end": 1101,
+        "text": "Defence counsel asked the court to hear two witnesses, both editors at Mirevo Today, who had attended the editorial meeting at which the articles were approved."
+      }
+    },
+    {
+      "id": "c04c0c8c609e1482",
+      "text": "The presiding judge refused to hear them, without giving reasons.",
+      "hearing_date": "2025-06-30",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 1102,
+        "end": 1167,
+        "text": "The presiding judge refused to hear them, without giving reasons."
+      }
+    },
+    {
+      "id": "7bd7d5a53affd075",
+      "text": "Defence counsel argued that the first article was published before the amendment to Article 214 entered into force, so that Mr. Venn could not be punished for conduct that was lawful at the time.",
+      "hearing_date": "2025-06-30",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 1169,
+        "end": 1364,
+        "text": "Defence counsel argued that the first article was published before the amendment to Article 214 entered into force, so that Mr. Venn could not be punished for conduct that was lawful at the time."
+      }
+    },
+    {
+      "id": "4b1a5e6ff4038981",
+      "text": "The hearing ended at 14:20.",
+      "hearing_date": "2025-06-30",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 1366,
+        "end": 1393,
+        "text": "The hearing ended at 14:20."
+      }
+    },
+    {
+      "id": "920a20246275c839",
+      "text": "The hearing began at 09:30 before Presiding Judge Ilena Varda.",
+      "hearing_date": "2025-07-14",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_4.txt",
+        "start": 181,
+        "end": 243,
+        "text": "The hearing began at 09:30 before Presiding Judge Ilena Varda."
+      }
+    },
+    {
+      "id": "d5972a308c9b78bd",
+      "text": "The courtroom was open to the public.",
+      "hearing_date": "2025-07-14",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_4.txt",
+        "start": 244,
+        "end": 281,
+        "text": "The courtroom was open to the public."
+      }
+    },
+    {
+      "id": "6284173fdfa79059",
+      "text": "Mr. Venn was present in the dock.",
+      "hearing_date": "2025-07-14",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_4.txt",
+        "start": 283,
+        "end": 316,
+        "text": "Mr. Venn was present in the dock."
+      }
+    },
+    {
+      "id": "acda15926b8cb811",
+      "text": "Defence counsel Lena Brask was present and made the closing statement for the defence.",
+      "hearing_date": "2025-07-14",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_4.txt",
+        "start": 317,
+        "end": 403,
+        "text": "Defence counsel Lena Brask was present and made the closing statement for the defence."
+      }
+    },
+    {
+      "id": "62fc4d6f88784ed7",
+      "text": "The prosecutor asked for a sentence of five years' imprisonment.",
+      "hearing_date": "2025-07-14",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_4.txt",
+        "start": 405,
+        "end": 469,
+        "text": "The prosecutor asked for a sentence of five years' imprisonment."
+      }
+    },
+    {
+      "id": "789855aa5a0e4e19",
+      "text": "The presiding judge delivered the verdict on 14 July 2025, finding Mr. Venn guilty under Article 214(2) of the Penal Code and sentencing him to four years' imprisonment.",
+      "hearing_date": "2025-07-14",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_4.txt",
+        "start": 471,
+        "end": 640,
+        "text": "The presiding judge delivered the verdict on 14 July 2025, finding Mr. Venn guilty under Article 214(2) of the Penal Code and sentencing him to four years' imprisonment."
+      }
+    },
+    {
+      "id": "5ddca0b18eb0d6d9",
+      "text": "Reading the judgment took about forty minutes.",
+      "hearing_date": "2025-07-14",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_4.txt",
+        "start": 641,
+        "end": 687,
+        "text": "Reading the judgment took about forty minutes."
+      }
+    },
+    {
+      "id": "a19e22de6c250c53",
+      "text": "Ms. Brask announced that the defence would appeal.",
+      "hearing_date": "2025-07-14",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_4.txt",
+        "start": 689,
+        "end": 739,
+        "text": "Ms. Brask announced that the defence would appeal."
+      }
+    }
+  ],
+  "arguments": [
+    {
+      "id": "5d7289956b70bf37",
+      "party": "defense",
+      "text": "Defence counsel argued that the messages presented by the prosecution had been extracted from Mr. Venn's mobile telephone, which police seized at his home on 14 February 2025 without a judicial warrant, and asked the court to exclude them as evidence.",
+      "hearing_date": "2025-06-16",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 639,
+        "end": 890,
+        "text": "Defence counsel argued that the messages presented by the prosecution had been extracted from Mr. Venn's mobile telephone, which police seized at his home on 14 February 2025 without a judicial warrant, and asked the court to exclude them as evidence."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 639,
+        "end": 760,
+        "text": "Defence counsel argued that the messages presented by the prosecution had been extracted from Mr. Venn's mobile telephone"
+      },
+      "match": "exact",
+      "needs_review": false
+    },
+    {
+      "id": "4f7bdcb8e7f341dc",
+      "party": "prosecution",
+      "text": "The prosecutor replied that the seizure was lawful because the telephone was found during the arrest.",
+      "hearing_date": "2025-06-16",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 891,
+        "end": 992,
+        "text": "The prosecutor replied that the seizure was lawful because the telephone was found during the arrest."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/notes/hearing_2.txt",
+        "start": 891,
+        "end": 941,
+        "text": "The prosecutor replied that the seizure was lawful"
+      },
+      "match": "exact",
+      "needs_review": false
+    },
+    {
+      "id": "f0a6f89dc5bdb643",
+      "party": "defense",
+      "text": "Defence counsel argued that the first article was published before the amendment to Article 214 entered into force, so that Mr. Venn could not be punished for conduct that was lawful at the time.",
+      "hearing_date": "2025-06-30",
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 1169,
+        "end": 1364,
+        "text": "Defence counsel argued that the first article was published before the amendment to Article 214 entered into force, so that Mr. Venn could not be punished for conduct that was lawful at the time."
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 1169,
+        "end": 1283,
+        "text": "Defence counsel argued that the first article was published before the amendment to Article 214 entered into force"
+      },
+      "match": "exact",
+      "needs_review": false
+    }
+  ],
+  "citations": [
+    {
+      "id": "9295d220b1a86483",
+      "text": "Article 214(2) of the Penal Code",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 1934,
+        "end": 1966,
+        "text": "Article 214(2) of the Penal Code"
+      }
+    },
+    {
+      "id": "a65e41e00537539d",
+      "text": "Article 214(2) of the Penal Code",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 2272,
+        "end": 2304,
+        "text": "Article 214(2) of the Penal Code"
+      }
+    },
+    {
+      "id": "a7ef79f9dfb67427",
+      "text": "Article 214(2) of the Penal Code",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 676,
+        "end": 708,
+        "text": "Article 214(2) of the Penal Code"
+      }
+    },
+    {
+      "id": "4094d36f52e4a279",
+      "text": "Article 214",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 1164,
+        "end": 1175,
+        "text": "Article 214"
+      }
+    },
+    {
+      "id": "df44649bd3580a9e",
+      "text": "Article 214(2) of the Penal Code",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 1221,
+        "end": 1253,
+        "text": "Article 214(2) of the Penal Code"
+      }
+    },
+    {
+      "id": "ba37e5bd02f31e2c",
+      "text": "Article 214",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 2580,
+        "end": 2591,
+        "text": "Article 214"
+      }
+    },
+    {
+      "id": "61ee37611bbe7d1c",
+      "text": "Article 214(2) of the Penal Code",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 3114,
+        "end": 3146,
+        "text": "Article 214(2) of the Penal Code"
+      }
+    }
+  ],
+  "passages": [
+    {
+      "id": "dede8cd41771abf3",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 0,
+      "section": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 0,
+        "end": 41,
+        "text": "OFFICE OF THE PUBLIC PROSECUTOR OF MIREVO"
+      }
+    },
+    {
+      "id": "6a1283e0bc9aaf8e",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 1,
+      "section": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 42,
+        "end": 52,
+        "text": "INDICTMENT"
+      }
+    },
+    {
+      "id": "28284171a50d3ac4",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 2,
+      "section": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 53,
+        "end": 75,
+        "text": "Case no. MDC-2025-0147"
+      }
+    },
+    {
+      "id": "5430cdbbc9b3f1af",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 3,
+      "section": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 76,
+        "end": 113,
+        "text": "The Republic of Calderra v. Daro Venn"
+      }
+    },
+    {
+      "id": "1084b8d1734ad189",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 4,
+      "section": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 114,
+        "end": 134,
+        "text": "Mirevo, 3 March 2025"
+      }
+    },
+    {
+      "id": "7245df381259997c",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 5,
+      "section": "I. THE ACCUSED",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 136,
+        "end": 150,
+        "text": "I. THE ACCUSED"
+      }
+    },
+    {
+      "id": "3d3a05a0d43f15e6",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 6,
+      "section": "I. THE ACCUSED",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 152,
+        "end": 225,
+        "text": "Daro Venn, born on 11 May 1987 in Halvar, journalist, residing in Mirevo."
+      }
+    },
+    {
+      "id": "514cf04ad88bce2f",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 7,
+      "section": "II. PROCEDURAL HISTORY",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 227,
+        "end": 249,
+        "text": "II. PROCEDURAL HISTORY"
+      }
+    },
+    {
+      "id": "69620ac75e8e32e1",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 8,
+      "section": "II. PROCEDURAL HISTORY",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 251,
+        "end": 339,
+        "text": "The accused was arrested at his home in Mirevo in the early morning of 14 February 2025."
+      }
+    },
+    {
+      "id": "87736886273cc4dd",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 9,
+      "section": "II. PROCEDURAL HISTORY",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 340,
+        "end": 459,
+        "text": "On 15 February 2025 the accused was brought before the Public Prosecutor, who ordered that he remain in police custody."
+      }
+    },
+    {
+      "id": "afdb34054609ce96",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 10,
+      "section": "II. PROCEDURAL HISTORY",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 460,
+        "end": 599,
+        "text": "On 19 February 2025 the accused was brought before Judge Ilena Varda of the Mirevo District Court, who ordered his detention pending trial."
+      }
+    },
+    {
+      "id": "09cb7d686d3b8f08",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 11,
+      "section": "II. PROCEDURAL HISTORY",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 600,
+        "end": 691,
+        "text": "On 3 March 2025 the Public Prosecutor filed this indictment with the Mirevo District Court."
+      }
+    },
+    {
+      "id": "476fd6081c474d2c",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 12,
+      "section": "III. STATEMENT OF FACTS",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 693,
+        "end": 716,
+        "text": "III. STATEMENT OF FACTS"
+      }
+    },
+    {
+      "id": "d0333d48adb097f4",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 13,
+      "section": "III. STATEMENT OF FACTS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 718,
+        "end": 954,
+        "text": "Between 9 February and 12 February 2025, the accused published a series of articles on the news portal Mirevo Today alleging that officials of the Ministry of Water had diverted public funds intended for the northern irrigation project."
+      }
+    },
+    {
+      "id": "8b0ff900304b2a6c",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 14,
+      "section": "III. STATEMENT OF FACTS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 955,
+        "end": 1151,
+        "text": "The articles were shared more than 40,000 times within three days and caused public alarm in the northern districts, where residents gathered outside the regional water office on 13 February 2025."
+      }
+    },
+    {
+      "id": "0762e0718b1930d6",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 15,
+      "section": "III. STATEMENT OF FACTS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 1152,
+        "end": 1327,
+        "text": "The accused knew that the allegations were false, because the Ministry had published the audited project accounts on 2 February 2025, a week before the first article appeared."
+      }
+    },
+    {
+      "id": "1ea04878f49324c4",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 16,
+      "section": "III. STATEMENT OF FACTS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 1328,
+        "end": 1493,
+        "text": "Messages recovered from the accused's mobile telephone show that he coordinated the timing of the publications with persons abroad in order to maximise their impact."
+      }
+    },
+    {
+      "id": "f22b0a2e878f8840",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 17,
+      "section": "III. STATEMENT OF FACTS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 1494,
+        "end": 1617,
+        "text": "The conduct of the accused was deliberate and was intended to undermine public confidence in the institutions of the State."
+      }
+    },
+    {
+      "id": "82da655c1a9ea904",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 18,
+      "section": "IV. EVIDENCE",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 1619,
+        "end": 1631,
+        "text": "IV. EVIDENCE"
+      }
+    },
+    {
+      "id": "48b151feb8f0aafa",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 19,
+      "section": "IV. EVIDENCE",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 1633,
+        "end": 1908,
+        "text": "The prosecution relies on the articles published on Mirevo Today, the audited accounts of the northern irrigation project, the testimony of two officials of the Ministry of Water and of two police investigators, and the messages recovered from the accused's mobile telephone."
+      }
+    },
+    {
+      "id": "45c74cb0f69984f1",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 20,
+      "section": "V. LEGAL QUALIFICATION",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 1910,
+        "end": 1932,
+        "text": "V. LEGAL QUALIFICATION"
+      }
+    },
+    {
+      "id": "f1db9345f1dbc0e8",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 21,
+      "section": "V. LEGAL QUALIFICATION",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 1934,
+        "end": 2151,
+        "text": "Article 214(2) of the Penal Code provides: \"Whoever disseminates information that he knows to be false, where such dissemination is likely to cause public alarm, shall be punished by imprisonment of two to six years.\""
+      }
+    },
+    {
+      "id": "1762f7e3ff248a96",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 22,
+      "section": "VI. CHARGE",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 2153,
+        "end": 2163,
+        "text": "VI. CHARGE"
+      }
+    },
+    {
+      "id": "72df0ada1ac77fc7",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 23,
+      "section": "VI. CHARGE",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 2165,
+        "end": 2305,
+        "text": "The accused is charged with disseminating false information likely to cause public alarm, an offence under Article 214(2) of the Penal Code."
+      }
+    },
+    {
+      "id": "d862293f1b596c93",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 24,
+      "section": "VI. CHARGE",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 2307,
+        "end": 2401,
+        "text": "The Public Prosecutor requests that the accused be found guilty and sentenced to imprisonment."
+      }
+    },
+    {
+      "id": "a12217622c5c7621",
+      "doc_id": "venn-2025/indictment.txt",
+      "index": 25,
+      "section": "VI. CHARGE",
+      "kind": "signature",
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 2403,
+        "end": 2453,
+        "text": "(signed) Malik Ferrow, Public Prosecutor of Mirevo"
+      }
+    },
+    {
+      "id": "f3e9307fd3f1f73d",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 0,
+      "section": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 0,
+        "end": 39,
+        "text": "MIREVO DISTRICT COURT, CRIMINAL CHAMBER"
+      }
+    },
+    {
+      "id": "160d1b02f3ceaa2a",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 1,
+      "section": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 40,
+        "end": 48,
+        "text": "JUDGMENT"
+      }
+    },
+    {
+      "id": "126c149e3b143c05",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 2,
+      "section": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 49,
+        "end": 71,
+        "text": "Case no. MDC-2025-0147"
+      }
+    },
+    {
+      "id": "2168fb12749a61be",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 3,
+      "section": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 72,
+        "end": 109,
+        "text": "The Republic of Calderra v. Daro Venn"
+      }
+    },
+    {
+      "id": "777b53479d9466d3",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 4,
+      "section": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 110,
+        "end": 135,
+        "text": "Delivered on 14 July 2025"
+      }
+    },
+    {
+      "id": "fbff4e70394a0996",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 5,
+      "section": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 136,
+        "end": 164,
+        "text": "Presiding Judge: Ilena Varda"
+      }
+    },
+    {
+      "id": "3349d020740b6683",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 6,
+      "section": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 165,
+        "end": 205,
+        "text": "Lay assessors: Oren Valk and Teja Morrow"
+      }
+    },
+    {
+      "id": "07b867fdfec215d7",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 7,
+      "section": "I. PROCEDURAL HISTORY",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 207,
+        "end": 228,
+        "text": "I. PROCEDURAL HISTORY"
+      }
+    },
+    {
+      "id": "cac644192c639ab4",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 8,
+      "section": "I. PROCEDURAL HISTORY",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 230,
+        "end": 372,
+        "text": "The accused was arrested on 14 February 2025 and was brought before this Court on 19 February 2025, which ordered his detention pending trial."
+      }
+    },
+    {
+      "id": "d823338754fa822d",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 9,
+      "section": "I. PROCEDURAL HISTORY",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 373,
+        "end": 442,
+        "text": "His detention was extended on 19 March 2025 and again on 14 May 2025."
+      }
+    },
+    {
+      "id": "4276dbb9041b961b",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 10,
+      "section": "I. PROCEDURAL HISTORY",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 443,
+        "end": 484,
+        "text": "The indictment was filed on 3 March 2025."
+      }
+    },
+    {
+      "id": "06c5d745980e6579",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 11,
+      "section": "I. PROCEDURAL HISTORY",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 485,
+        "end": 551,
+        "text": "The trial opened on 2 June 2025, and the Court held four hearings."
+      }
+    },
+    {
+      "id": "a0a7f99ebb332fd1",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 12,
+      "section": "II. THE CHARGE",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 553,
+        "end": 567,
+        "text": "II. THE CHARGE"
+      }
+    },
+    {
+      "id": "ec118636c3b4791d",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 13,
+      "section": "II. THE CHARGE",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 569,
+        "end": 709,
+        "text": "The accused is charged with disseminating false information likely to cause public alarm, an offence under Article 214(2) of the Penal Code."
+      }
+    },
+    {
+      "id": "935c2437b80a6c35",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 14,
+      "section": "III. SUBMISSIONS OF THE PARTIES",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 711,
+        "end": 742,
+        "text": "III. SUBMISSIONS OF THE PARTIES"
+      }
+    },
+    {
+      "id": "e5d73374460dd4c4",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 15,
+      "section": "III. SUBMISSIONS OF THE PARTIES",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 744,
+        "end": 919,
+        "text": "The prosecution argues that the accused knew that the allegations were false and that his conduct was intended to undermine public confidence in the institutions of the State."
+      }
+    },
+    {
+      "id": "5415033eedd933ad",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 16,
+      "section": "III. SUBMISSIONS OF THE PARTIES",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 920,
+        "end": 1075,
+        "text": "The defence contends that the messages relied on by the prosecution were extracted from a telephone seized without a judicial warrant and must be excluded."
+      }
+    },
+    {
+      "id": "db74eda1ef163ca2",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 17,
+      "section": "III. SUBMISSIONS OF THE PARTIES",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 1076,
+        "end": 1195,
+        "text": "The defence further argues that the first article was published before the amendment to Article 214 entered into force."
+      }
+    },
+    {
+      "id": "c0e5e968560cbd13",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 18,
+      "section": "IV. THE APPLICABLE LAW",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 1197,
+        "end": 1219,
+        "text": "IV. THE APPLICABLE LAW"
+      }
+    },
+    {
+      "id": "1757db7c5c69e56a",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 19,
+      "section": "IV. THE APPLICABLE LAW",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 1221,
+        "end": 1438,
+        "text": "Article 214(2) of the Penal Code provides: \"Whoever disseminates information that he knows to be false, where such dissemination is likely to cause public alarm, shall be punished by imprisonment of two to six years.\""
+      }
+    },
+    {
+      "id": "e3ae3fab01479c43",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 20,
+      "section": "V. ASSESSMENT OF THE COURT",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 1440,
+        "end": 1466,
+        "text": "V. ASSESSMENT OF THE COURT"
+      }
+    },
+    {
+      "id": "8210a01295126267",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 21,
+      "section": "V. ASSESSMENT OF THE COURT",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 1468,
+        "end": 1704,
+        "text": "Between 9 February and 12 February 2025, the accused published a series of articles on the news portal Mirevo Today alleging that officials of the Ministry of Water had diverted public funds intended for the northern irrigation project."
+      }
+    },
+    {
+      "id": "cfbd262d8d4e629e",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 22,
+      "section": "V. ASSESSMENT OF THE COURT",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 1705,
+        "end": 1901,
+        "text": "The articles were shared more than 40,000 times within three days and caused public alarm in the northern districts, where residents gathered outside the regional water office on 13 February 2025."
+      }
+    },
+    {
+      "id": "70fcff8097095f50",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 23,
+      "section": "V. ASSESSMENT OF THE COURT",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 1902,
+        "end": 2077,
+        "text": "The accused knew that the allegations were false, because the Ministry had published the audited project accounts on 2 February 2025, a week before the first article appeared."
+      }
+    },
+    {
+      "id": "702714c220e2ff6d",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 24,
+      "section": "V. ASSESSMENT OF THE COURT",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 2079,
+        "end": 2270,
+        "text": "Messages retrieved from the telephone of the accused demonstrate that he arranged when the articles would appear together with individuals outside the country, so as to increase their effect."
+      }
+    },
+    {
+      "id": "bc7c465f99059dec",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 25,
+      "section": "V. ASSESSMENT OF THE COURT",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 2272,
+        "end": 2441,
+        "text": "The Court has examined the testimony of the two officials of the Ministry of Water, each of whom confirmed that the published figures did not match the audited accounts."
+      }
+    },
+    {
+      "id": "dd25229a2220f040",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 26,
+      "section": "V. ASSESSMENT OF THE COURT",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 2442,
+        "end": 2502,
+        "text": "The Court considers their testimony credible and consistent."
+      }
+    },
+    {
+      "id": "6c4516a6e9979489",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 27,
+      "section": "V. ASSESSMENT OF THE COURT",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 2504,
+        "end": 2718,
+        "text": "As to the defence argument that the first article predates the amendment to Article 214, the Court notes that the amendment entered into force on 1 January 2025, while the first article appeared on 9 February 2025."
+      }
+    },
+    {
+      "id": "c65798581064685d",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 28,
+      "section": "V. ASSESSMENT OF THE COURT",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 2719,
+        "end": 2755,
+        "text": "That argument is therefore rejected."
+      }
+    },
+    {
+      "id": "43bc77fb99497c46",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 29,
+      "section": "V. ASSESSMENT OF THE COURT",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 2757,
+        "end": 2901,
+        "text": "The Court finds that the conduct of the accused was deliberate and was intended to undermine public confidence in the institutions of the State."
+      }
+    },
+    {
+      "id": "fe7aa5a31faeab46",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 30,
+      "section": "V. ASSESSMENT OF THE COURT",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 2903,
+        "end": 3010,
+        "text": "In determining the sentence, the Court has taken into account that the accused has no previous convictions."
+      }
+    },
+    {
+      "id": "9fa05d0fda5e7ac7",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 31,
+      "section": "VI. DISPOSITION",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 3012,
+        "end": 3027,
+        "text": "VI. DISPOSITION"
+      }
+    },
+    {
+      "id": "478bb06eb7ed0438",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 32,
+      "section": "VI. DISPOSITION",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 3029,
+        "end": 3193,
+        "text": "For these reasons, the Court finds the accused Daro Venn guilty of the offence under Article 214(2) of the Penal Code and sentences him to four years' imprisonment."
+      }
+    },
+    {
+      "id": "fe0eeccd56acbdcd",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 33,
+      "section": "VI. DISPOSITION",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 3194,
+        "end": 3290,
+        "text": "The time spent in pretrial detention since 19 February 2025 shall be deducted from the sentence."
+      }
+    },
+    {
+      "id": "0de61b34e9bdd6ec",
+      "doc_id": "venn-2025/judgment.txt",
+      "index": 34,
+      "section": "VI. DISPOSITION",
+      "kind": "signature",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 3292,
+        "end": 3329,
+        "text": "(signed) Ilena Varda, Presiding Judge"
+      }
+    }
+  ],
+  "rulings": [
+    {
+      "id": "7d885481560f3deb",
+      "case_id": "venn-2025",
+      "code": "detention_ordered",
+      "judge_name": "Ilena Varda",
+      "date": "2025-02-19",
+      "value": null,
+      "span": {
+        "doc_id": "venn-2025/indictment.txt",
+        "start": 496,
+        "end": 598,
+        "text": "brought before Judge Ilena Varda of the Mirevo District Court, who ordered his detention pending trial"
+      }
+    },
+    {
+      "id": "5fbae12c07360443",
+      "case_id": "venn-2025",
+      "code": "detention_ordered",
+      "judge_name": "Ilena Varda",
+      "date": "2025-03-19",
+      "value": null,
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 373,
+        "end": 416,
+        "text": "His detention was extended on 19 March 2025"
+      }
+    },
+    {
+      "id": "d535be63c802e9c7",
+      "case_id": "venn-2025",
+      "code": "detention_ordered",
+      "judge_name": "Ilena Varda",
+      "date": "2025-05-14",
+      "value": null,
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 417,
+        "end": 441,
+        "text": "and again on 14 May 2025"
+      }
+    },
+    {
+      "id": "bd1ff2533deaa674",
+      "case_id": "venn-2025",
+      "code": "hearing_public",
+      "judge_name": "Ilena Varda",
+      "date": "2025-06-02",
+      "value": null,
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 360,
+        "end": 393,
+        "text": "the courtroom doors remained open"
+      }
+    },
+    {
+      "id": "d298f93d65616fa6",
+      "case_id": "venn-2025",
+      "code": "defense_motion_denied",
+      "judge_name": "Ilena Varda",
+      "date": "2025-06-02",
+      "value": null,
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_1.txt",
+        "start": 1050,
+        "end": 1124,
+        "text": "The presiding judge refused the request and ordered the trial to continue."
+      }
+    },
+    {
+      "id": "89b238cf29cb7c15",
+      "case_id": "venn-2025",
+      "code": "contested_evidence_admitted",
+      "judge_name": "Ilena Varda",
+      "date": "2025-06-30",
+      "value": null,
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 344,
+        "end": 460,
+        "text": "The presiding judge ruled that the messages taken from Mr. Venn's telephone were admissible, without giving reasons."
+      }
+    },
+    {
+      "id": "2a67c6d81861ca31",
+      "case_id": "venn-2025",
+      "code": "hearing_closed",
+      "judge_name": "Ilena Varda",
+      "date": "2025-06-30",
+      "value": null,
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 528,
+        "end": 651,
+        "text": "the presiding judge ordered the public and journalists to leave the courtroom during the testimony of a police investigator"
+      }
+    },
+    {
+      "id": "f50fd4787be84196",
+      "case_id": "venn-2025",
+      "code": "defense_motion_denied",
+      "judge_name": "Ilena Varda",
+      "date": "2025-06-30",
+      "value": null,
+      "span": {
+        "doc_id": "venn-2025/notes/hearing_3.txt",
+        "start": 1102,
+        "end": 1167,
+        "text": "The presiding judge refused to hear them, without giving reasons."
+      }
+    },
+    {
+      "id": "303b37719315dbb8",
+      "case_id": "venn-2025",
+      "code": "verdict_conviction",
+      "judge_name": "Ilena Varda",
+      "date": "2025-07-14",
+      "value": null,
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 3048,
+        "end": 3146,
+        "text": "the Court finds the accused Daro Venn guilty of the offence under Article 214(2) of the Penal Code"
+      }
+    },
+    {
+      "id": "895c387fcd252469",
+      "case_id": "venn-2025",
+      "code": "sentence_months",
+      "judge_name": "Ilena Varda",
+      "date": "2025-07-14",
+      "value": 48.0,
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 3151,
+        "end": 3192,
+        "text": "sentences him to four years' imprisonment"
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+# Every message Ratio shows comes from these templates, so the wording can be reviewed in one
+# place. Hard rule 3: no verdicts about people. Templates describe what the record shows and leave
+# conclusions to the reviewing lawyer.
+version: 1
+
+templates:
+  absence_violation: "The notes describe facts contrary to {provision} ({name}). Review the linked notes."
+  absence_compliance: "The notes contain evidence of compliance with {provision} ({name})."
+  absence_follow_up: "No evidence in the notes for {provision} ({name}). Follow-up for the monitor: {question}"
+  clock_exceeds: "{from_label} to {to_label}: {duration}, longer than the {threshold} benchmark. {citation_note}"
+  clock_needs_review: "{from_label} to {to_label}: {duration}. The dates need review before this interval is compared with the {threshold} benchmark."
+  clock_measured: "{from_label} to {to_label}: {duration}. No confirmed threshold; measured and shown only."
+  reuse_verbatim: "This passage of the judgment's reasoning closely matches indictment text ({percent}% of its five-word sequences appear in the indictment)."
+  reuse_paraphrase: "This passage of the judgment's reasoning closely paraphrases indictment text (similarity {similarity})."
+  reuse_unaddressed: "No response to this defense argument was found in the judgment's reasoning ({count} passages checked). Whether it was decisive is for the reviewing lawyer."
+  judge_pattern: "Pattern that warrants review: {label} ({judge_rate}, n={judge_n} cases) differs from the baseline for the same court and charge type ({baseline_rate}, n={baseline_n} cases); {k} indicators compared."
+  judge_not_distinguishable: "Not distinguishable from the baseline at this sample size."
+  judge_hidden: "Not shown: {n} cases (fewer than {min})."
+
+notes:
+  selection_bias: "TrialWatch monitors cases already suspected of unfairness, so these rates are not representative. The baseline is also drawn from monitored cases. Indicators are prompts for review; conclusions on impartiality are for the reviewing lawyer."
+  synthetic_banner: "SYNTHETIC DATA: fictional case. All people, courts, country, language and laws are invented."
+  not_attributed: "Case-level outputs from other modules (not attributed to the judge)"
+  needs_legal_review: "Needs legal review"
+  model_note_label: "Model note (unverified)"
+
+# Event names shown on the timeline (roles, never the names of people).
+event_labels:
+  arrest: "Arrest"
+  first_appearance: "First appearance before a judge"
+  counsel_access: "First access to counsel"
+  charge: "Indictment filed"
+  detention_extension: "Detention extended"
+  hearing: "Trial hearing"
+  trial_start: "Trial opened"
+  verdict: "Verdict"
+
+# Removed from any model-generated text before display (hard rule 3). Each entry is a regular
+# expression matched as a whole word, case-insensitively, after Unicode normalisation; stems catch
+# every word form ("bias" also catches "biased", but not "unbiased").
+block_list:
+  - "bias(?:ed|es|ing)?"
+  - "prejudic\\w*"
+  - "partisan\\w*"
+  - "partiality"
+  - "corrupt\\w*"
+  - "brib\\w*"
+  - "dishonest\\w*"
+  - "liars?"
+  - "lie[sd]?"
+  - "lying"
+  - "incompeten\\w*"
+  - "puppets?"
+  - "complicit\\w*"
+  - "rubber[\\s-]*stamp\\w*"
+  - "plagiar\\w*"
+  - "bad[\\s-]+faith"

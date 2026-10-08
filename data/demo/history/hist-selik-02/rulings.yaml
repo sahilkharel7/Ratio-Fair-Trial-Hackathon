@@ -1,0 +1,29 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_ordered
+  doc: summary.txt
+  quote: the court ordered that Farid Moss be detained pending trial
+  judge: Anwar Selik
+  date: 2023-10-02
+- code: hearing_public
+  doc: summary.txt
+  quote: All hearings were held in public.
+  judge: Anwar Selik
+  date: null
+- code: defense_motion_granted
+  doc: summary.txt
+  quote: The court granted the defence request to call an additional witness.
+  judge: Anwar Selik
+  date: null
+- code: verdict_conviction
+  doc: summary.txt
+  quote: the court convicted Farid Moss
+  judge: Anwar Selik
+  date: 2024-02-13
+- code: sentence_months
+  doc: summary.txt
+  quote: a sentence of 36 months' imprisonment
+  judge: Anwar Selik
+  date: 2024-02-13
+  value: 36.0

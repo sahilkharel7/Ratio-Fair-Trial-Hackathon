@@ -1,0 +1,12 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+case_id: hist-varda-03
+title: Republic of Calderra v. Jonas Petrel
+court: Mirevo District Court, Criminal Chamber
+charge_type: Dissemination of false information (Penal Code Art. 214)
+data_provenance: synthetic
+documents:
+- path: summary.txt
+  type: monitoring_note
+  title: Monitoring summary
+rulings: rulings.yaml

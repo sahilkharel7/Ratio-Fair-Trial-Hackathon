@@ -1,0 +1,136 @@
+# Analysis settings. These are engineering heuristics (similarity thresholds, chunk sizes), not
+# legal thresholds; legal benchmarks live in benchmarks.yaml.
+version: 1
+
+llm:
+  default_model: "qwen2.5:7b-instruct"  # overridden by the RATIO_MODEL environment variable
+  host: "http://127.0.0.1:11434"  # loopback only; the client refuses anything else
+  num_ctx: 8192  # fixed for every call (changing it reloads the model; the default 4096 truncates silently)
+  temperature: 0
+  seed: 42
+  timeout_seconds: 90
+  keep_alive: "30m"
+  num_predict:
+    extraction: 1500
+    labels: 3000
+    argument_check: 400
+
+extraction:
+  chunk_chars: 2500
+  chunk_overlap_chars: 200
+  min_quote_chars: 12  # shorter model quotes are dropped (they match too many places)
+  fuzzy_min_quote_chars: 30  # fuzzy matching only for long quotes whose digits match exactly
+  fuzzy_threshold: 90
+  # A note sentence is kept as a party argument only if it contains one of these verbs; this
+  # drops announcements, reminders and requests that a small model sometimes labels as arguments.
+  argument_markers:
+    - "argued"
+    - "argues"
+    - "contended"
+    - "contends"
+    - "submitted that"
+    - "submits that"
+    - "maintained that"
+    - "maintains that"
+    - "objected"
+    - "challenged"
+    - "insisted that"
+    - "claimed that"
+    - "asserted that"
+
+embeddings:
+  model_dir: "models/all-MiniLM-L6-v2"
+
+absence:
+  # Shortlists are built per rubric part: the top notes overall for case-level parts, and the
+  # top notes of every monitored hearing for per-hearing parts (so no hearing is skipped).
+  # Notes containing one of a part's keywords (rubric.yaml) are always included, up to max_shortlist.
+  shortlist_top_k: 6
+  per_hearing_top_k: 4
+  max_shortlist: 30
+  shortlist_min_similarity: 0.15
+  # The note most similar to a rubric context indicator (e.g. the defendant's language) is shown
+  # next to a follow-up question as possibly relevant; it never counts as evidence.
+  context_min_similarity: 0.35
+
+reuse:
+  shingle_size: 5
+  minhash_num_perm: 128
+  minhash_seed: 1
+  lsh_threshold: 0.3
+  verbatim_jaccard: 0.5
+  verbatim_containment: 0.6
+  paraphrase_cosine: 0.7  # planted paraphrase measures 0.756 with MiniLM; best hard negative 0.523
+  paraphrase_min_shared_words: 3
+  min_passage_words: 6
+  # Judgment sections that are not the court's own reasoning (matched against the heading text).
+  non_reasoning_headings:
+    - "procedural history"
+    - "the charge"
+    - "charges"
+    - "submissions"
+    - "arguments of the parties"
+    - "disposition"
+    - "operative part"
+    - "for these reasons"
+  recital_markers:
+    - "is charged with"
+    - "stands charged"
+    - "the indictment alleges"
+    - "the indictment states"
+    - "count \\d+"
+  statute_markers:
+    - "provides:"
+    - "provides that"
+    - "reads:"
+    - "reads as follows"
+    - "stipulates"
+  party_terms:
+    - "the prosecution"
+    - "the prosecutor"
+    - "the public prosecutor"
+    - "the defen[cs]e"
+    - "defen[cs]e counsel"
+    - "counsel for the (accused|defen[cs]e)"
+  attribution_verbs:
+    - "argues?"
+    - "argued"
+    - "submits?"
+    - "submitted"
+    - "contends?"
+    - "contended"
+    - "alleges?"
+    - "alleged"
+    - "claims?"
+    - "claimed"
+    - "maintains?"
+    - "maintained"
+    - "asserts?"
+    - "asserted"
+    - "requests?"
+    - "requested"
+  endorsement_words:
+    - "rightly"
+    - "correctly"
+    - "agrees"
+    - "accepts"
+    - "adopts"
+    - "shares the view"
+  court_voice_markers:
+    - "the court finds"
+    - "the court considers"
+    - "the court notes"
+    - "the court holds"
+    - "the court is satisfied"
+    - "the court has examined"
+    - "the court has considered"
+
+judges:
+  min_case_count: 5  # an indicator is hidden if the judge or the baseline has fewer cases
+  alpha: 0.05  # family-wise level; split across the k indicators shown (Bonferroni)
+  name_match_threshold: 92
+  ambiguous_floor: 75
+  date_tolerance_days: 1825  # heuristic: a name seen at the same court more than 5 years apart needs confirmation
+
+ui:
+  context_chars: 600

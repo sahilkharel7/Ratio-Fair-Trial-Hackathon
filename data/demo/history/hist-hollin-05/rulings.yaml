@@ -1,0 +1,24 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_refused
+  doc: summary.txt
+  quote: the court refused the request for pretrial detention and released Dov Annick
+    on bail
+  judge: Petra Hollin
+  date: 2025-01-28
+- code: hearing_public
+  doc: summary.txt
+  quote: All hearings were held in public.
+  judge: Petra Hollin
+  date: null
+- code: defense_motion_denied
+  doc: summary.txt
+  quote: The court denied the defence motion to adjourn the trial.
+  judge: Petra Hollin
+  date: null
+- code: verdict_acquittal
+  doc: summary.txt
+  quote: the court acquitted Dov Annick
+  judge: Petra Hollin
+  date: 2025-05-20

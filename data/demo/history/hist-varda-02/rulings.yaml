@@ -1,0 +1,24 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_ordered
+  doc: summary.txt
+  quote: the court ordered that Mila Dravin be detained pending trial
+  judge: Ilena Varda
+  date: 2023-05-03
+- code: hearing_public
+  doc: summary.txt
+  quote: All hearings were held in public.
+  judge: Ilena Varda
+  date: null
+- code: verdict_conviction
+  doc: summary.txt
+  quote: the court convicted Mila Dravin
+  judge: Ilena Varda
+  date: 2023-09-12
+- code: sentence_months
+  doc: summary.txt
+  quote: a sentence of 30 months' imprisonment
+  judge: Ilena Varda
+  date: 2023-09-12
+  value: 30.0

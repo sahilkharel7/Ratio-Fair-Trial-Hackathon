@@ -1,0 +1,86 @@
+{
+  "case_id": "venn-2025",
+  "synthetic": true,
+  "events": [
+    {
+      "id": "arrest_indictment",
+      "type": "arrest",
+      "date": "2025-02-14",
+      "precision": "date",
+      "anchor": {
+        "doc": "indictment.txt",
+        "quote": "The accused was arrested at his home in Mirevo in the early morning of 14 February 2025"
+      }
+    },
+    {
+      "id": "first_appearance_indictment",
+      "type": "first_appearance",
+      "date": "2025-02-19",
+      "precision": "date",
+      "anchor": {
+        "doc": "indictment.txt",
+        "quote": "On 19 February 2025 the accused was brought before Judge Ilena Varda of the Mirevo District Court"
+      }
+    },
+    {
+      "id": "counsel_access_note",
+      "type": "counsel_access",
+      "date": "2025-02-21",
+      "precision": "date",
+      "anchor": {
+        "doc": "notes/hearing_1.txt",
+        "quote": "she was first able to meet Mr. Venn on 21 February 2025"
+      }
+    },
+    {
+      "id": "charge_indictment",
+      "type": "charge",
+      "date": "2025-03-03",
+      "precision": "date",
+      "anchor": {
+        "doc": "indictment.txt",
+        "quote": "On 3 March 2025 the Public Prosecutor filed this indictment"
+      }
+    },
+    {
+      "id": "extension_1",
+      "type": "detention_extension",
+      "date": "2025-03-19",
+      "precision": "date",
+      "anchor": {
+        "doc": "judgment.txt",
+        "quote": "His detention was extended on 19 March 2025"
+      }
+    },
+    {
+      "id": "extension_2",
+      "type": "detention_extension",
+      "date": "2025-05-14",
+      "precision": "date",
+      "anchor": {
+        "doc": "judgment.txt",
+        "quote": "and again on 14 May 2025"
+      }
+    },
+    {
+      "id": "trial_start_note",
+      "type": "trial_start",
+      "date": "2025-06-02",
+      "precision": "datetime",
+      "anchor": {
+        "doc": "notes/hearing_1.txt",
+        "quote": "The trial opened on 2 June 2025 at 10:05"
+      }
+    },
+    {
+      "id": "verdict_note",
+      "type": "verdict",
+      "date": "2025-07-14",
+      "precision": "date",
+      "anchor": {
+        "doc": "notes/hearing_4.txt",
+        "quote": "The presiding judge delivered the verdict on 14 July 2025"
+      }
+    }
+  ]
+}

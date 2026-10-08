@@ -1,0 +1,35 @@
+# SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+synthetic: true
+rulings:
+- code: detention_refused
+  doc: summary.txt
+  quote: the court refused the request for pretrial detention and released Esme Rook
+    on bail
+  judge: Anwar Selik
+  date: 2023-04-11
+- code: hearing_public
+  doc: summary.txt
+  quote: All hearings were held in public.
+  judge: Anwar Selik
+  date: null
+- code: contested_evidence_excluded
+  doc: summary.txt
+  quote: The court excluded the evidence that the defence had contested.
+  judge: Anwar Selik
+  date: null
+- code: defense_motion_denied
+  doc: summary.txt
+  quote: The court denied the defence motion to adjourn the trial.
+  judge: Anwar Selik
+  date: null
+- code: verdict_conviction
+  doc: summary.txt
+  quote: the court convicted Esme Rook
+  judge: Anwar Selik
+  date: 2023-08-29
+- code: sentence_months
+  doc: summary.txt
+  quote: a sentence of 24 months' imprisonment
+  judge: Anwar Selik
+  date: 2023-08-29
+  value: 24.0
