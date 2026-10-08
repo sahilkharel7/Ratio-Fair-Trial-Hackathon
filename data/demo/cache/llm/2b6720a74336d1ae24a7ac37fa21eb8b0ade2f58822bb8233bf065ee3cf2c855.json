@@ -1,0 +1,46 @@
+{
+  "key": "2b6720a74336d1ae24a7ac37fa21eb8b0ade2f58822bb8233bf065ee3cf2c855",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "labels",
+  "response": {
+    "labels": [
+      {
+        "indicator_id": "c_proceedings_stalled",
+        "label": "contradicts",
+        "note": "The request for an adjournment suggests undue delay in the proceedings.",
+        "observation": "O1 (2025-06-02): Ms. Brask told the court that she had received the 900-page case file only three days before this hearing and asked for an adjournment of two weeks to prepare the defence."
+      },
+      {
+        "indicator_id": "c_proceedings_stalled",
+        "label": "contradicts",
+        "note": "The refusal to adjourn the trial indicates a lack of undue delay.",
+        "observation": "O2 (2025-06-02): The presiding judge refused the request and ordered the trial to continue."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about informing the defendant of their right to remain silent, not about undue delay.",
+        "observation": "O3 (2025-06-02): The presiding judge informed Mr. Venn that he had the right to remain silent."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about a future ruling, not about undue delay.",
+        "observation": "O4 (2025-06-16): The presiding judge said that the court would rule on the request later."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about a security measure, not about undue delay.",
+        "observation": "O5 (2025-06-30): At the prosecution's request, the presiding judge ordered the public and journalists to leave the courtroom during the testimony of a police investigator, citing national security."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about a request for witnesses being denied, not about undue delay.",
+        "observation": "O6 (2025-06-30): The presiding judge refused to hear them, without giving reasons."
+      }
+    ]
+  },
+  "schema": "LabelReply"
+}

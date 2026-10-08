@@ -1,0 +1,61 @@
+{
+  "key": "fc42b50ace463d1324996d8959001fc5016f5549d67bcd805f1b53f82e4b7d6d",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "extraction",
+  "response": {
+    "arguments": [],
+    "events": [
+      {
+        "actors": [
+          "The accused"
+        ],
+        "date_text": "14 February 2025",
+        "iso_date": "2025-02-14",
+        "quote": "The accused was arrested on 14 February 2025",
+        "sentence": 2,
+        "type": "arrest"
+      },
+      {
+        "actors": [
+          "this Court"
+        ],
+        "date_text": "19 February 2025",
+        "iso_date": "2025-02-19",
+        "quote": "was brought before this Court on 19 February 2025",
+        "sentence": 2,
+        "type": "first_appearance"
+      },
+      {
+        "actors": [
+          "this Court"
+        ],
+        "date_text": "19 March 2025, 14 May 2025",
+        "iso_date": "2025-03-19, 2025-05-14",
+        "quote": "His detention was extended on 19 March 2025 and again on 14 May 2025",
+        "sentence": 3,
+        "type": "detention_extension"
+      },
+      {
+        "actors": [
+          "this Court"
+        ],
+        "date_text": "3 March 2025",
+        "iso_date": "2025-03-03",
+        "quote": "The indictment was filed on 3 March 2025",
+        "sentence": 4,
+        "type": "charge"
+      },
+      {
+        "actors": [
+          "this Court"
+        ],
+        "date_text": "2 June 2025",
+        "iso_date": "2025-06-02",
+        "quote": "The trial opened on 2 June 2025",
+        "sentence": 5,
+        "type": "trial_start"
+      }
+    ]
+  },
+  "schema": "ChunkExtraction"
+}

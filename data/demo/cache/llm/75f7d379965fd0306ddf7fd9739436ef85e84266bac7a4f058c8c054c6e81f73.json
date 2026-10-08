@@ -1,0 +1,30 @@
+{
+  "key": "75f7d379965fd0306ddf7fd9739436ef85e84266bac7a4f058c8c054c6e81f73",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "extraction",
+  "response": {
+    "arguments": [
+      {
+        "party": "prosecution",
+        "quote": "The prosecutor asked for a sentence of five years' imprisonment."
+      },
+      {
+        "party": "defense",
+        "quote": "Ms. Brask announced that the defence would appeal."
+      }
+    ],
+    "events": [
+      {
+        "actors": [
+          "Presiding Judge Ilena Varda"
+        ],
+        "date_text": "14 July 2025",
+        "iso_date": "2025-07-14",
+        "quote": "The presiding judge delivered the verdict on 14 July 2025, finding Mr. Venn guilty under Article 214(2) of the Penal Code and sentencing him to four years' imprisonment.",
+        "sentence": 2,
+        "type": "verdict"
+      }
+    ]
+  },
+  "schema": "ChunkExtraction"
+}

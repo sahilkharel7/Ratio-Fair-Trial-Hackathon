@@ -1,0 +1,26 @@
+{
+  "key": "98ffe2fee8a89acf446ddab92449dc4dc09be5c1ca67a266c57efeab9a6bbefb",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "extraction",
+  "response": {
+    "arguments": [
+      {
+        "party": "defense",
+        "quote": "Defence counsel argued that the first article was published before the amendment to Article 214 entered into force, so that Mr. Venn could not be punished for conduct that was lawful at the time."
+      }
+    ],
+    "events": [
+      {
+        "actors": [
+          "Presiding Judge Ilena Varda"
+        ],
+        "date_text": "30 June 2025",
+        "iso_date": "2025-06-30",
+        "quote": "The hearing began at 10:00 before Presiding Judge Ilena Varda.",
+        "sentence": 1,
+        "type": "trial_start"
+      }
+    ]
+  },
+  "schema": "ChunkExtraction"
+}

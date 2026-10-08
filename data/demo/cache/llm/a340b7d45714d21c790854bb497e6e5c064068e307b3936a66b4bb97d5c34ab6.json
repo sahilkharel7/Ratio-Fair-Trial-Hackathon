@@ -1,0 +1,58 @@
+{
+  "key": "a340b7d45714d21c790854bb497e6e5c064068e307b3936a66b4bb97d5c34ab6",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "labels",
+  "response": {
+    "labels": [
+      {
+        "indicator_id": "g_silence_respected",
+        "label": "supports",
+        "note": "The judge informed the defendant of his right to remain silent.",
+        "observation": "O1 (2025-06-02): The presiding judge informed Mr. Venn that he had the right to remain silent."
+      },
+      {
+        "indicator_id": "g_silence_respected",
+        "label": "supports",
+        "note": "The defendant chose to testify and did not face compulsion.",
+        "observation": "O2 (2025-06-02): Mr. Venn chose to make a statement, in which he denied the charge and said that his articles were based on documents given to him by employees of the Ministry of Water."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The openness of the courtroom does not pertain to the right against self-incrimination.",
+        "observation": "O3 (2025-06-16): The courtroom was open to the public."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The decision to exclude the public is related to national security, not the right against self-incrimination.",
+        "observation": "O4 (2025-06-30): At the prosecution's request, the presiding judge ordered the public and journalists to leave the courtroom during the testimony of a police investigator, citing national security."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The request for witnesses is unrelated to the right against self-incrimination.",
+        "observation": "O5 (2025-06-30): Defence counsel asked the court to hear two witnesses, both editors at Mirevo Today, who had attended the editorial meeting at which the articles were approved."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The refusal to hear witnesses is unrelated to the right against self-incrimination.",
+        "observation": "O6 (2025-06-30): The presiding judge refused to hear them, without giving reasons."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The presence of the defence counsel is unrelated to the right against self-incrimination.",
+        "observation": "O7 (2025-07-14): Defence counsel Lena Brask was present and made the closing statement for the defence."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The prosecutor's request for a sentence is unrelated to the right against self-incrimination.",
+        "observation": "O8 (2025-07-14): The prosecutor asked for a sentence of five years' imprisonment."
+      }
+    ]
+  },
+  "schema": "LabelReply"
+}

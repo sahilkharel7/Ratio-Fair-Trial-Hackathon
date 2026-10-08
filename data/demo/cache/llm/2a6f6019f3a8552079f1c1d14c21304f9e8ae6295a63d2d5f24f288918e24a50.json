@@ -1,0 +1,112 @@
+{
+  "key": "2a6f6019f3a8552079f1c1d14c21304f9e8ae6295a63d2d5f24f288918e24a50",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "labels",
+  "response": {
+    "labels": [
+      {
+        "indicator_id": "b_counsel_consulted",
+        "label": "supports",
+        "note": "Defence counsel was present and could consult with the defendant.",
+        "observation": "O1 (2025-06-02): Defence counsel Lena Brask, whom Mr. Venn had retained himself, was present and sat beside the dock."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about Mr. Venn's language and background, not about preparation time or consultation.",
+        "observation": "O2 (2025-06-02): According to the case file and to his counsel, Mr. Venn's first language is Ostric; he grew up in the Ostric-speaking north of the country."
+      },
+      {
+        "indicator_id": "b_preparation_inadequate",
+        "label": "contradicts",
+        "note": "Defence counsel requested an adjournment due to insufficient time to prepare.",
+        "observation": "O3 (2025-06-02): Ms. Brask told the court that she had received the 900-page case file only three days before this hearing and asked for an adjournment of two weeks to prepare the defence."
+      },
+      {
+        "indicator_id": "b_preparation_inadequate",
+        "label": "contradicts",
+        "note": "The judge refused the adjournment request, indicating inadequate preparation time.",
+        "observation": "O4 (2025-06-02): The presiding judge refused the request and ordered the trial to continue."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the timing of the first meeting, not about preparation or consultation.",
+        "observation": "O5 (2025-06-02): She stated that she was first able to meet Mr. Venn on 21 February 2025, a week after his arrest."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about Mr. Venn's statement, not about preparation or consultation.",
+        "observation": "O6 (2025-06-02): Mr. Venn chose to make a statement, in which he denied the charge and said that his articles were based on documents given to him by employees of the Ministry of Water."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about courtroom access, not about preparation or consultation.",
+        "observation": "O7 (2025-06-16): The courtroom was open to the public."
+      },
+      {
+        "indicator_id": "b_counsel_consulted",
+        "label": "supports",
+        "note": "Defence counsel was present and representing the defendant.",
+        "observation": "O8 (2025-06-16): Defence counsel Lena Brask was present and represented him."
+      },
+      {
+        "indicator_id": "b_counsel_consulted",
+        "label": "supports",
+        "note": "Defence counsel was cross-examining witnesses, indicating consultation.",
+        "observation": "O9 (2025-06-16): Ms. Brask cross-examined both witnesses about who had prepared the audit."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the admissibility of evidence, not about preparation or consultation.",
+        "observation": "O10 (2025-06-16): Defence counsel argued that the messages presented by the prosecution had been extracted from Mr. Venn's mobile telephone, which police seized at his home on 14 February 2025 without a judicial warrant, and asked the court to exclude them as evidence."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the judge's ruling, not about preparation or consultation.",
+        "observation": "O11 (2025-06-16): The presiding judge said that the court would rule on the request later."
+      },
+      {
+        "indicator_id": "b_counsel_consulted",
+        "label": "supports",
+        "note": "Defence counsel was present and could consult with the defendant.",
+        "observation": "O12 (2025-06-30): Defence counsel Lena Brask was present."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about courtroom access, not about preparation or consultation.",
+        "observation": "O13 (2025-06-30): At the prosecution's request, the presiding judge ordered the public and journalists to leave the courtroom during the testimony of a police investigator, citing national security."
+      },
+      {
+        "indicator_id": "b_counsel_consulted",
+        "label": "supports",
+        "note": "Defence counsel was seeking to call witnesses, indicating consultation.",
+        "observation": "O14 (2025-06-30): Defence counsel asked the court to hear two witnesses, both editors at Mirevo Today, who had attended the editorial meeting at which the articles were approved."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the legal argument, not about preparation or consultation.",
+        "observation": "O15 (2025-06-30): Defence counsel argued that the first article was published before the amendment to Article 214 entered into force, so that Mr. Venn could not be punished for conduct that was lawful at the time."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about courtroom access, not about preparation or consultation.",
+        "observation": "O16 (2025-06-30): The courtroom was open to the public."
+      },
+      {
+        "indicator_id": "b_counsel_consulted",
+        "label": "supports",
+        "note": "Defence counsel was present and making the closing statement, indicating consultation.",
+        "observation": "O17 (2025-06-30): Defence counsel Lena Brask was present and made the closing statement for the defence."
+      }
+    ]
+  },
+  "schema": "LabelReply"
+}

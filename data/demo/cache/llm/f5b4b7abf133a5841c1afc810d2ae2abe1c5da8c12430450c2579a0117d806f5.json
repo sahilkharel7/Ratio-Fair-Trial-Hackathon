@@ -1,0 +1,112 @@
+{
+  "key": "f5b4b7abf133a5841c1afc810d2ae2abe1c5da8c12430450c2579a0117d806f5",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "labels",
+  "response": {
+    "labels": [
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the defendant's presence, not about the interpreter.",
+        "observation": "O1 (2025-06-02): Mr. Venn was present in the courtroom throughout the hearing, seated in a glass dock."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the defendant's language background, not about the interpreter.",
+        "observation": "O2 (2025-06-02): According to the case file and to his counsel, Mr. Venn's first language is Ostric; he grew up in the Ostric-speaking north of the country."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the judge reading out the charge, not about the interpreter.",
+        "observation": "O3 (2025-06-02): The presiding judge read out the charge under Article 214(2) of the Penal Code."
+      },
+      {
+        "indicator_id": "f_interpreter_refused",
+        "label": "contradicts",
+        "note": "The judge refused a request for an interpreter.",
+        "observation": "O4 (2025-06-02): The presiding judge refused the request and ordered the trial to continue."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the defendant's right to remain silent, not about the interpreter.",
+        "observation": "O5 (2025-06-02): The presiding judge informed Mr. Venn that he had the right to remain silent."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the courtroom access, not about the interpreter.",
+        "observation": "O6 (2025-06-16): The courtroom was open to the public."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the evidence, not about the interpreter.",
+        "observation": "O7 (2025-06-16): Defence counsel argued that the messages presented by the prosecution had been extracted from Mr. Venn's mobile telephone, which police seized at his home on 14 February 2025 without a judicial warrant, and asked the court to exclude them as evidence."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the prosecutor's argument, not about the interpreter.",
+        "observation": "O8 (2025-06-16): The prosecutor replied that the seizure was lawful because the telephone was found during the arrest."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the judge's ruling, not about the interpreter.",
+        "observation": "O9 (2025-06-16): The presiding judge said that the court would rule on the request later."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the courtroom access, not about the interpreter.",
+        "observation": "O10 (2025-06-30): At the prosecution's request, the presiding judge ordered the public and journalists to leave the courtroom during the testimony of a police investigator, citing national security."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the monitor's access, not about the interpreter.",
+        "observation": "O11 (2025-06-30): The monitor was also asked to leave and could not observe that part of the hearing."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the witnesses, not about the interpreter.",
+        "observation": "O12 (2025-06-30): Defence counsel asked the court to hear two witnesses, both editors at Mirevo Today, who had attended the editorial meeting at which the articles were approved."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the judge's refusal, not about the interpreter.",
+        "observation": "O13 (2025-06-30): The presiding judge refused to hear them, without giving reasons."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the start of the hearing, not about the interpreter.",
+        "observation": "O14 (2025-07-14): The hearing began at 09:30 before Presiding Judge Ilena Varda."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the courtroom access, not about the interpreter.",
+        "observation": "O15 (2025-07-14): The courtroom was open to the public."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the presence of the defence counsel, not about the interpreter.",
+        "observation": "O16 (2025-07-14): Defence counsel Lena Brask was present and made the closing statement for the defence."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the prosecutor's request, not about the interpreter.",
+        "observation": "O17 (2025-07-14): The prosecutor asked for a sentence of five years' imprisonment."
+      }
+    ]
+  },
+  "schema": "LabelReply"
+}

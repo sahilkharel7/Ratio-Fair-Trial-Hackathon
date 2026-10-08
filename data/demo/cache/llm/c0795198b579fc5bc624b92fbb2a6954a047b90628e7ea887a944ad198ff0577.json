@@ -1,0 +1,46 @@
+{
+  "key": "c0795198b579fc5bc624b92fbb2a6954a047b90628e7ea887a944ad198ff0577",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "extraction",
+  "response": {
+    "arguments": [
+      {
+        "party": "defense",
+        "quote": "Ms. Brask told the court that she had received the 900-page case file only three days before this hearing and asked for an adjournment of two weeks to prepare the defence."
+      }
+    ],
+    "events": [
+      {
+        "actors": [
+          "Presiding Judge Ilena Varda"
+        ],
+        "date_text": "2 June 2025",
+        "iso_date": "2025-06-02",
+        "quote": "The trial opened on 2 June 2025 at 10:05 before Presiding Judge Ilena Varda, sitting with two lay assessors.",
+        "sentence": 2,
+        "type": "trial_start"
+      },
+      {
+        "actors": [
+          "police"
+        ],
+        "date_text": "14 February 2025",
+        "iso_date": "2025-02-14",
+        "quote": "Mr. Venn had been arrested at his home before dawn on 14 February 2025 and was questioned by police for two days.",
+        "sentence": 4,
+        "type": "arrest"
+      },
+      {
+        "actors": [
+          "Ms. Brask"
+        ],
+        "date_text": "21 February 2025",
+        "iso_date": "2025-02-21",
+        "quote": "She stated that she was first able to meet Mr. Venn on 21 February 2025, a week after his arrest.",
+        "sentence": 5,
+        "type": "counsel_access"
+      }
+    ]
+  },
+  "schema": "ChunkExtraction"
+}

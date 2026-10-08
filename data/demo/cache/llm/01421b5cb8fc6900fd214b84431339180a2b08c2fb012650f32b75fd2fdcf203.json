@@ -1,0 +1,15 @@
+{
+  "key": "01421b5cb8fc6900fd214b84431339180a2b08c2fb012650f32b75fd2fdcf203",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "extraction",
+  "response": {
+    "arguments": [
+      {
+        "party": "defense",
+        "quote": "As to the defence argument that the first article predates the amendment to Article 214, the Court notes that the amendment entered into force on 1 January 2025, while the first article appeared on 9 February 2025."
+      }
+    ],
+    "events": []
+  },
+  "schema": "ChunkExtraction"
+}

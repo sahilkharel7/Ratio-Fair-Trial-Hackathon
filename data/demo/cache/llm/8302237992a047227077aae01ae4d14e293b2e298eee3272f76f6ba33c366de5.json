@@ -1,0 +1,26 @@
+{
+  "key": "8302237992a047227077aae01ae4d14e293b2e298eee3272f76f6ba33c366de5",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "extraction",
+  "response": {
+    "arguments": [
+      {
+        "party": "defense",
+        "quote": "Defence counsel argued that the messages presented by the prosecution had been extracted from Mr. Venn's mobile telephone, which police seized at his home on 14 February 2025 without a judicial warrant, and asked the court to exclude them as evidence."
+      }
+    ],
+    "events": [
+      {
+        "actors": [
+          "Presiding Judge Ilena Varda"
+        ],
+        "date_text": "16 June 2025",
+        "iso_date": "2025-06-16",
+        "quote": "The hearing began at 10:10 before Presiding Judge Ilena Varda.",
+        "sentence": 1,
+        "type": "trial_start"
+      }
+    ]
+  },
+  "schema": "ChunkExtraction"
+}

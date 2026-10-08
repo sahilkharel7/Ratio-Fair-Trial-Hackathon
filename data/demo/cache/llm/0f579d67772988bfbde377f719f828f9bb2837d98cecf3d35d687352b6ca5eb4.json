@@ -1,0 +1,184 @@
+{
+  "key": "0f579d67772988bfbde377f719f828f9bb2837d98cecf3d35d687352b6ca5eb4",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "labels",
+  "response": {
+    "labels": [
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the public access to the courtroom, not about the presence of the defendant or his counsel.",
+        "observation": "O1 (2025-06-02): About twenty members of the public and three journalists attended, and the courtroom doors remained open."
+      },
+      {
+        "indicator_id": "d_defendant_present",
+        "label": "supports",
+        "note": "The defendant was present in the courtroom during the hearing.",
+        "observation": "O2 (2025-06-02): Mr. Venn was present in the courtroom throughout the hearing, seated in a glass dock."
+      },
+      {
+        "indicator_id": "d_counsel_present",
+        "label": "supports",
+        "note": "The defence counsel chosen by the defendant was present and acted at the hearing.",
+        "observation": "O3 (2025-06-02): Defence counsel Lena Brask, whom Mr. Venn had retained himself, was present and sat beside the dock."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the defendant's language, not about his presence or counsel.",
+        "observation": "O4 (2025-06-02): According to the case file and to his counsel, Mr. Venn's first language is Ostric; he grew up in the Ostric-speaking north of the country."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the preparation time for the defence, not about the presence or counsel.",
+        "observation": "O5 (2025-06-02): Ms. Brask told the court that she had received the 900-page case file only three days before this hearing and asked for an adjournment of two weeks to prepare the defence."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the judge's decision on the adjournment request, not about the presence or counsel.",
+        "observation": "O6 (2025-06-02): The presiding judge refused the request and ordered the trial to continue."
+      },
+      {
+        "indicator_id": "d_defendant_present",
+        "label": "supports",
+        "note": "The defendant was informed of his right to remain silent, indicating he was present.",
+        "observation": "O7 (2025-06-02): The presiding judge informed Mr. Venn that he had the right to remain silent."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the end time of the hearing, not about the presence or counsel.",
+        "observation": "O8 (2025-06-02): The hearing ended at 13:40."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the start time of the hearing, not about the presence or counsel.",
+        "observation": "O9 (2025-06-16): The hearing began at 10:10 before Presiding Judge Ilena Varda."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about public access to the courtroom, not about the presence or counsel.",
+        "observation": "O10 (2025-06-16): The courtroom was open to the public."
+      },
+      {
+        "indicator_id": "d_defendant_present",
+        "label": "supports",
+        "note": "The defendant was present in the courtroom during the hearing.",
+        "observation": "O11 (2025-06-16): Mr. Venn was present in the dock for the whole hearing."
+      },
+      {
+        "indicator_id": "d_counsel_present",
+        "label": "supports",
+        "note": "The defence counsel chosen by the defendant was present and acted at the hearing.",
+        "observation": "O12 (2025-06-16): Defence counsel Lena Brask was present and represented him."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the defense argument, not about the presence or counsel.",
+        "observation": "O13 (2025-06-16): Defence counsel argued that the messages presented by the prosecution had been extracted from Mr. Venn's mobile telephone, which police seized at his home on 14 February 2025 without a judicial warrant, and asked the court to exclude them as evidence."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the judge's decision, not about the presence or counsel.",
+        "observation": "O14 (2025-06-16): The presiding judge said that the court would rule on the request later."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the end time of the hearing, not about the presence or counsel.",
+        "observation": "O15 (2025-06-16): The hearing ended at 12:55."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the start time of the hearing, not about the presence or counsel.",
+        "observation": "O16 (2025-06-30): The hearing began at 10:00 before Presiding Judge Ilena Varda."
+      },
+      {
+        "indicator_id": "d_defendant_present",
+        "label": "supports",
+        "note": "The defendant was present in the courtroom during the hearing.",
+        "observation": "O17 (2025-06-30): Mr. Venn was present in the dock when the hearing opened."
+      },
+      {
+        "indicator_id": "d_counsel_present",
+        "label": "supports",
+        "note": "The defence counsel chosen by the defendant was present and acted at the hearing.",
+        "observation": "O18 (2025-06-30): Defence counsel Lena Brask was present."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the public access to the courtroom, not about the presence or counsel.",
+        "observation": "O19 (2025-06-30): At the prosecution's request, the presiding judge ordered the public and journalists to leave the courtroom during the testimony of a police investigator, citing national security."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the defense request for witnesses, not about the presence or counsel.",
+        "observation": "O20 (2025-06-30): Defence counsel asked the court to hear two witnesses, both editors at Mirevo Today, who had attended the editorial meeting at which the articles were approved."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the judge's decision, not about the presence or counsel.",
+        "observation": "O21 (2025-06-30): The presiding judge refused to hear them, without giving reasons."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the defense argument, not about the presence or counsel.",
+        "observation": "O22 (2025-06-30): Defence counsel argued that the first article was published before the amendment to Article 214 entered into force, so that Mr. Venn could not be punished for conduct that was lawful at the time."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the end time of the hearing, not about the presence or counsel.",
+        "observation": "O23 (2025-06-30): The hearing ended at 14:20."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the start time of the hearing, not about the presence or counsel.",
+        "observation": "O24 (2025-07-14): The hearing began at 09:30 before Presiding Judge Ilena Varda."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about public access to the courtroom, not about the presence or counsel.",
+        "observation": "O25 (2025-07-14): The courtroom was open to the public."
+      },
+      {
+        "indicator_id": "d_defendant_present",
+        "label": "supports",
+        "note": "The defendant was present in the courtroom during the hearing.",
+        "observation": "O26 (2025-07-14): Mr. Venn was present in the dock."
+      },
+      {
+        "indicator_id": "d_counsel_present",
+        "label": "supports",
+        "note": "The defence counsel chosen by the defendant was present and acted at the hearing.",
+        "observation": "O27 (2025-07-14): Defence counsel Lena Brask was present and made the closing statement for the defence."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the prosecutor's request, not about the presence or counsel.",
+        "observation": "O28 (2025-07-14): The prosecutor asked for a sentence of five years' imprisonment."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "This observation is about the duration of the judgment, not about the presence or counsel.",
+        "observation": "O29 (2025-07-14): Reading the judgment took about forty minutes."
+      }
+    ]
+  },
+  "schema": "LabelReply"
+}

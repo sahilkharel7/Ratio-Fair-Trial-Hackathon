@@ -1,0 +1,42 @@
+{
+  "key": "6cb38f70b31e48d182b84083ccb7dbcf2c8c004230612c22ff3e3895ee863a63",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "extraction",
+  "response": {
+    "arguments": [],
+    "events": [
+      {
+        "actors": [
+          "the accused"
+        ],
+        "date_text": "14 February 2025",
+        "iso_date": "2025-02-14",
+        "quote": "The accused was arrested at his home in Mirevo in the early morning of 14 February 2025.",
+        "sentence": 3,
+        "type": "arrest"
+      },
+      {
+        "actors": [
+          "Judge Ilena Varda",
+          "the accused"
+        ],
+        "date_text": "19 February 2025",
+        "iso_date": "2025-02-19",
+        "quote": "On 19 February 2025 the accused was brought before Judge Ilena Varda of the Mirevo District Court, who ordered his detention pending trial.",
+        "sentence": 5,
+        "type": "first_appearance"
+      },
+      {
+        "actors": [
+          "the Public Prosecutor"
+        ],
+        "date_text": "3 March 2025",
+        "iso_date": "2025-03-03",
+        "quote": "On 3 March 2025 the Public Prosecutor filed this indictment with the Mirevo District Court.",
+        "sentence": 6,
+        "type": "charge"
+      }
+    ]
+  },
+  "schema": "ChunkExtraction"
+}
