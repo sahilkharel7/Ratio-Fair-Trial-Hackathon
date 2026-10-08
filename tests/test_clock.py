@@ -119,3 +119,11 @@ def test_exact_times_give_exact_hours():
     gc35 = interval(run(replace_events(events)), "gc35_48h")
     assert gc35.min_hours == gc35.max_hours == 36
     assert gc35.status == "within_benchmark"
+
+
+def test_interval_endpoints_are_the_merged_timeline_events():
+    result = run(MOCK)
+    timeline = {event.id: event for event in result.timeline}
+    gc35 = interval(result, "gc35_48h")
+    assert timeline[gc35.from_event_id].type == "arrest"
+    assert timeline[gc35.to_event_id].type == "first_appearance"

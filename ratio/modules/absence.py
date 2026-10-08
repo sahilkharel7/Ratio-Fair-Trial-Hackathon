@@ -117,6 +117,12 @@ def _label(
     return tuple(labels.values())
 
 
+def _mentions_context(item: RubricItem, obs: Observation) -> bool:
+    """A context note must mention what the context is about (e.g. a language), not only resemble it."""
+    keywords = [keyword for indicator in item.context for keyword in indicator.keywords]
+    return not keywords or any(keyword in obs.text.lower() for keyword in keywords)
+
+
 def _context(item: RubricItem, observations, vectors, labels, ctx: AnalysisContext) -> tuple[Evidence, ...]:
     if not item.context or not observations:
         return ()
@@ -124,7 +130,11 @@ def _context(item: RubricItem, observations, vectors, labels, ctx: AnalysisConte
     similarity = cosine_matrix(vectors, ctx.embedder.encode([i.text for i in item.context])).max(axis=1)
     threshold = ctx.config.settings.absence.context_min_similarity
     ranked = sorted(range(len(observations)), key=lambda i: -float(similarity[i]))
-    chosen = [i for i in ranked if similarity[i] >= threshold and observations[i].id not in labelled]
+    chosen = [
+        i
+        for i in ranked
+        if similarity[i] >= threshold and observations[i].id not in labelled and _mentions_context(item, observations[i])
+    ]
     return tuple(Evidence(role="context", span=observations[i].span) for i in chosen[:MAX_CONTEXT_NOTES])
 
 

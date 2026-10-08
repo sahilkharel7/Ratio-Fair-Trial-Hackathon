@@ -93,6 +93,21 @@
       "note": ""
     },
     {
+      "id": "a_follow_up",
+      "module": "absence",
+      "standard_id": "iccpr_14_3_a",
+      "kind": "follow_up",
+      "status": "no_evidence",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "notes/hearing_1.txt",
+          "quote": "Mr. Venn's first language is Ostric"
+        }
+      ],
+      "note": "The language fact is also the context for the charge follow-up."
+    },
+    {
       "id": "f_follow_up",
       "module": "absence",
       "standard_id": "iccpr_14_3_f",

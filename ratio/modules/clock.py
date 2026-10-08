@@ -14,6 +14,7 @@ from collections import defaultdict
 
 from ratio.config import Benchmark
 from ratio.context import AnalysisContext
+from ratio.display import duration_text
 from ratio.messages import render
 from ratio.results import ClockResult, Interval, IntervalStatus, TimelineEvent, TimelineState
 from ratio.schema import CaseRecord, Event, Evidence, Flag, stable_id
@@ -51,7 +52,7 @@ def _timeline_event(event_type: str, mentions: list[Event]) -> TimelineEvent:
         state = "ok"
     first = min(usable, key=lambda e: e.parsed_date) if usable else None
     return TimelineEvent(
-        id=stable_id(*(e.id for e in mentions), "timeline"),
+        id=_timeline_id(mentions),
         type=event_type,
         date=first.parsed_date if first else None,
         precision=first.precision if first else "unknown",
@@ -62,13 +63,27 @@ def _timeline_event(event_type: str, mentions: list[Event]) -> TimelineEvent:
     )
 
 
-def build_timeline(events: tuple[Event, ...]) -> tuple[TimelineEvent, ...]:
+def _timeline_id(mentions: list[Event]) -> str:
+    return stable_id(*(e.id for e in mentions), "timeline")
+
+
+def _groups(events: tuple[Event, ...]) -> dict[tuple, list[Event]]:
+    """Mentions of one real-world event: one group per type, or per type and date for repeating types."""
     groups: dict[tuple, list[Event]] = defaultdict(list)
     for event in events:
         key = (event.type, event.parsed_date.date()) if event.type in REPEATING and event.parsed_date else (event.type,)
         groups[key].append(event)
-    timeline = [_timeline_event(key[0], mentions) for key, mentions in groups.items()]
+    return groups
+
+
+def build_timeline(events: tuple[Event, ...]) -> tuple[TimelineEvent, ...]:
+    timeline = [_timeline_event(key[0], mentions) for key, mentions in _groups(events).items()]
     return tuple(sorted(timeline, key=lambda t: (t.date is None, t.date or dt.datetime.max, t.type)))
+
+
+def timeline_ids(events: tuple[Event, ...]) -> dict[str, str]:
+    """Record event id -> id of the timeline event that merges it."""
+    return {event.id: _timeline_id(mentions) for mentions in _groups(events).values() for event in mentions}
 
 
 def _candidates(events: tuple[Event, ...], event_type: str) -> tuple[list[Event], bool]:
@@ -112,12 +127,6 @@ def _status(benchmark: Benchmark, low: float | None, high: float | None, review:
     return "exceeds_benchmark" if low > threshold else "may_exceed"
 
 
-def _duration(low: float, high: float) -> str:
-    if low == high:
-        return f"{low:g} hours"
-    return f"between {low / 24:g} and {high / 24:g} days ({low:g} to {high:g} hours; dates are day-level)"
-
-
 def _flag(record: CaseRecord, benchmark: Benchmark, interval: Interval, ctx: AnalysisContext) -> Flag:
     labels = ctx.config.messages.event_labels
     template = "clock_exceeds" if interval.status == "exceeds_benchmark" else "clock_needs_review"
@@ -134,7 +143,7 @@ def _flag(record: CaseRecord, benchmark: Benchmark, interval: Interval, ctx: Ana
             template,
             from_label=labels[benchmark.from_event],
             to_label=labels[benchmark.to_event],
-            duration=_duration(interval.min_hours, interval.max_hours),
+            duration=duration_text(interval.min_hours, interval.max_hours),
             threshold=f"{benchmark.threshold_hours:g}-hour",
             citation_note=benchmark.flag_note,
         ).strip(),
@@ -144,7 +153,7 @@ def _flag(record: CaseRecord, benchmark: Benchmark, interval: Interval, ctx: Ana
     )
 
 
-def _interval(benchmark: Benchmark, record: CaseRecord) -> Interval:
+def _interval(benchmark: Benchmark, record: CaseRecord, merged: dict[str, str]) -> Interval:
     low, high, starts, ends, review, note = _measure(benchmark, record)
     status = _status(benchmark, low, high, review)
     flagged = status in {"exceeds_benchmark", "may_exceed", "needs_review"}
@@ -152,8 +161,8 @@ def _interval(benchmark: Benchmark, record: CaseRecord) -> Interval:
         id=stable_id(record.case_id, "clock", benchmark.id),
         benchmark_id=benchmark.id,
         benchmark_name=benchmark.name,
-        from_event_id=starts[0].id if starts else None,
-        to_event_id=ends[0].id if ends else None,
+        from_event_id=merged[starts[0].id] if starts else None,
+        to_event_id=merged[ends[0].id] if ends else None,
         min_hours=low,
         max_hours=high,
         threshold_hours=benchmark.threshold_hours,
@@ -168,7 +177,8 @@ def _interval(benchmark: Benchmark, record: CaseRecord) -> Interval:
 
 
 def run(record: CaseRecord, ctx: AnalysisContext) -> ClockResult:
-    intervals = tuple(_interval(benchmark, record) for benchmark in ctx.config.benchmarks.benchmarks)
+    merged = timeline_ids(record.events)
+    intervals = tuple(_interval(benchmark, record, merged) for benchmark in ctx.config.benchmarks.benchmarks)
     by_id = {benchmark.id: benchmark for benchmark in ctx.config.benchmarks.benchmarks}
     flags = tuple(_flag(record, by_id[i.benchmark_id], i, ctx) for i in intervals if i.flag_id is not None)
     return ClockResult(timeline=build_timeline(record.events), intervals=intervals, flags=flags)

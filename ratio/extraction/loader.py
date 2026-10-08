@@ -253,6 +253,36 @@ def build_rulings(manifest: CaseManifest, documents: tuple[Document, ...], data:
     return tuple(rulings)
 
 
+def read_uploaded_files(uploaded: Mapping[str, bytes]) -> tuple[CaseManifest, dict[str, bytes]]:
+    """The manifest and listed files of an uploaded folder, read in memory (nothing is written to disk).
+
+    Keys are the browser's relative paths ("venn-case/notes/hearing_1.txt"); the folder that
+    holds case.yaml is the case root, and only files the manifest lists are kept.
+    """
+    names = {PurePosixPath(name.removeprefix("./")).as_posix(): name for name in uploaded}
+    manifests = sorted((p for p in names if PurePosixPath(p).name == MANIFEST_NAME), key=lambda p: (p.count("/"), p))
+    if not manifests:
+        raise LoaderError(f"the uploaded folder has no {MANIFEST_NAME}")
+    if len(manifests) > 1 and manifests[0].count("/") == manifests[1].count("/"):
+        raise LoaderError(f"the uploaded folder has several {MANIFEST_NAME} files at the same level")
+    root = PurePosixPath(manifests[0]).parent
+    data = uploaded[names[manifests[0]]]
+    if len(data) > MAX_MANIFEST_BYTES:
+        raise LoaderError(f"{MANIFEST_NAME} is too large")
+    try:
+        manifest = parse_manifest(data.decode("utf-8-sig"))
+    except UnicodeDecodeError as exc:
+        raise LoaderError(f"{MANIFEST_NAME} is not valid UTF-8") from exc
+    listed = [doc.path for doc in manifest.documents] + ([manifest.rulings] if manifest.rulings else [])
+    files: dict[str, bytes] = {}
+    for name in listed:
+        key = (root / name).as_posix() if str(root) != "." else name
+        if key not in names:
+            raise LoaderError(f"{name}: listed in {MANIFEST_NAME} but not in the uploaded folder")
+        files[name] = uploaded[names[key]]
+    return manifest, files
+
+
 def read_case_folder(folder: Path) -> tuple[CaseManifest, dict[str, bytes]]:
     root = Path(folder).resolve()
     manifest_path = root / MANIFEST_NAME

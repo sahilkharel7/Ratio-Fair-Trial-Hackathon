@@ -14,9 +14,23 @@ def messages():
     return load_config().messages
 
 
-def test_no_template_or_note_contains_a_blocked_term(messages):
-    for text in list(messages.templates.values()) + list(messages.notes.values()):
+def test_no_template_note_or_label_contains_a_blocked_term(messages):
+    wording = [*messages.templates.values(), *messages.notes.values(), *messages.labels.values(), *messages.event_labels.values()]
+    for text in wording:
         assert not contains_blocked_term(text, messages.block_list), text
+
+
+def test_every_status_and_exclusion_has_a_reviewed_label(messages):
+    from typing import get_args
+
+    from ratio.results import ExclusionReason, GuaranteeStatus, IntervalStatus, TimelineState
+    from ratio.schema import FLAG_STATUSES, EvidenceRole
+
+    keys = {*get_args(GuaranteeStatus), *get_args(IntervalStatus), *get_args(ExclusionReason)}
+    keys |= {status for statuses in FLAG_STATUSES.values() for status in statuses if status != "pattern_warrants_review"}
+    keys |= {f"timeline_{state}" for state in get_args(TimelineState)}
+    keys |= {f"role_{role}" for role in get_args(EvidenceRole)}
+    assert keys <= messages.labels.keys()
 
 
 def test_render_fills_every_placeholder(messages):

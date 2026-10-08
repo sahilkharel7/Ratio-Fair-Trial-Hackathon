@@ -54,7 +54,7 @@ items:
         violation:
           - {id: a_charge_in_foreign_language, text: "The charge was given only in a language the defendant does not understand"}
     context:
-      - {id: a_context_language, text: "The defendant's first or preferred language differs from the language used by the court"}
+      - {id: a_context_language, text: "The defendant's first or preferred language differs from the language used by the court", keywords: ["language", "speaks", "speak ", "interpret", "translat", "native", "fluent"]}
     follow_up: "In what language was the defendant informed of the charge, and did the defendant understand it?"
 
   - id: iccpr_14_3_b
@@ -185,7 +185,7 @@ items:
           - {id: f_interpreter_missing, text: "The defendant could not follow the proceedings and no interpreter was provided"}
           - {id: f_interpreter_refused, text: "A request for an interpreter was refused"}
     context:
-      - {id: f_context_language, text: "The defendant's first or preferred language differs from the language used in court"}
+      - {id: f_context_language, text: "The defendant's first or preferred language differs from the language used in court", keywords: ["language", "speaks", "speak ", "interpret", "translat", "native", "fluent"]}
     follow_up: "Was an interpreter present at each hearing? If not, does the defendant understand and speak the language used in court?"
 
   - id: iccpr_14_3_g

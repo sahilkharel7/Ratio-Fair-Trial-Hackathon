@@ -16,3 +16,7 @@ maxUploadSize = 20
 toolbarMode = "viewer"
 showErrorDetails = "stacktrace"
 showErrorLinks = false
+
+[theme]
+# A calm accent: red is reserved for the one confirmed benchmark that is exceeded.
+primaryColor = "#2f6fb0"

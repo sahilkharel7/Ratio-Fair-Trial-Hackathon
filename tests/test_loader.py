@@ -5,8 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from ratio.extraction.build import load_case
-from ratio.extraction.loader import LoaderError, decode_document
+from ratio.extraction.build import build_base_record, load_case
+from ratio.extraction.loader import LoaderError, decode_document, read_case_folder, read_uploaded_files
+from ratio.paths import DEMO_CASE_DIR
 
 MARKER = "SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.\n"
 
@@ -136,3 +137,36 @@ def test_a_note_without_a_caption_keeps_its_first_paragraph(tmp_path):
     note = MARKER + "Mr. Venn was present in the courtroom.\n\nDefence counsel was present.\n"
     record = load_case(write_case(tmp_path / "case", note=note))
     assert [obs.text for obs in record.observations] == ["Mr. Venn was present in the courtroom.", "Defence counsel was present."]
+
+
+# --- uploaded folders (read in memory, never written to disk) -----------------------------------
+
+
+def demo_upload(prefix: str = "venn-case/") -> dict[str, bytes]:
+    files = {f"{prefix}{p.relative_to(DEMO_CASE_DIR).as_posix()}": p.read_bytes() for p in DEMO_CASE_DIR.rglob("*") if p.is_file()}
+    return {**files, f"{prefix}notes/.DS_Store": b"\x00junk", "../outside.txt": b"never read"}
+
+
+def test_uploaded_folder_reads_like_the_case_folder():
+    manifest, files = read_uploaded_files(demo_upload())
+    folder_manifest, folder_files = read_case_folder(DEMO_CASE_DIR)
+    assert manifest == folder_manifest and files == folder_files
+    assert build_base_record(manifest, files) == build_base_record(folder_manifest, folder_files)
+
+
+def test_flat_upload_with_case_yaml_at_the_top():
+    manifest, files = read_uploaded_files(demo_upload(prefix=""))
+    assert manifest.case_id == "venn-2025" and "notes/hearing_1.txt" in files
+
+
+@pytest.mark.parametrize(
+    "change, message",
+    [
+        (lambda files: {k: v for k, v in files.items() if not k.endswith("case.yaml")}, "no case.yaml"),
+        (lambda files: {**files, "other/case.yaml": files["venn-case/case.yaml"]}, "several case.yaml"),
+        (lambda files: {k: v for k, v in files.items() if not k.endswith("judgment.txt")}, "judgment.txt: listed in case.yaml"),
+    ],
+)
+def test_bad_uploads_are_refused_with_a_clear_message(change, message):
+    with pytest.raises(LoaderError, match=message):
+        read_uploaded_files(change(demo_upload()))

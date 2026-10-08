@@ -102,8 +102,8 @@ class Interval(Frozen):
     id: str
     benchmark_id: str
     benchmark_name: str
-    from_event_id: str | None
-    to_event_id: str | None
+    from_event_id: str | None  # the TimelineEvent the interval starts from
+    to_event_id: str | None  # the TimelineEvent it ends at
     min_hours: float | None
     max_hours: float | None
     threshold_hours: float | None

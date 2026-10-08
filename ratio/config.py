@@ -42,6 +42,7 @@ class RubricIndicator(Frozen):
     id: str
     text: str
     covers_all_hearings: bool = False
+    keywords: tuple[str, ...] = ()  # context indicators: a note is shown as context only if it mentions one
 
 
 class RubricPart(Frozen):
@@ -273,8 +274,12 @@ class Messages(Frozen):
     version: int
     templates: dict[str, str]
     notes: dict[str, str]
+    labels: dict[str, str] = {}
     event_labels: dict[str, str]
     block_list: tuple[str, ...] = Field(min_length=1)
+
+    def label(self, key: str) -> str:
+        return self.labels.get(key, key.replace("_", " "))
 
 
 # --- standards.yaml ------------------------------------------------------------------------

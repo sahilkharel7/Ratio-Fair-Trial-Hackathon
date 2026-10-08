@@ -42,7 +42,7 @@ ratio = ["config/*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
+pythonpath = [".", "app"]
 addopts = "-m 'not live' --strict-markers"
 markers = [
   "embed: needs the local MiniLM model in models/ (run scripts/fetch_models.py once)",

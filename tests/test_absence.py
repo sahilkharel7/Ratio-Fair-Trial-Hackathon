@@ -193,3 +193,14 @@ def test_language_fact_is_shown_as_context_for_the_interpreter_follow_up():
     assert f.status == "no_evidence"
     assert any("first language is Ostric" in e.span.text for e in f.context)
     assert all(e.role == "context" for e in f.context)
+
+
+@pytest.mark.embed
+@needs_model
+def test_charge_follow_up_shows_the_language_fact_not_a_merely_similar_note():
+    result, _ = run(embedder=MiniLMEmbedder(), config=CONFIG)
+    a = assessment(result, "iccpr_14_3_a")
+    assert a.status == "no_evidence"
+    assert [e.span.text for e in a.context] == [
+        next(o.text for o in MOCK.observations if "first language is Ostric" in o.text)
+    ]  # "the court would rule on the request later" scores higher with MiniLM but mentions no language

@@ -9,7 +9,11 @@ from __future__ import annotations
 
 import datetime as dt
 import json
+import tempfile
+import time
 from collections.abc import Callable
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Literal
 
 from ratio.config import RatioConfig
@@ -22,7 +26,7 @@ from ratio.modules import absence, clock, reuse
 from ratio.paths import DEMO_CACHE_DIR, DEMO_CASE_DIR, RUNTIME_CACHE_DIR
 from ratio.provenance import DocResolver, enforce, filter_follow_up, resolver_for
 from ratio.results import CaseAnalysis, ReuseResult
-from ratio.schema import CaseRecord, Flag, Frozen
+from ratio.schema import Argument, CaseRecord, Event, Flag, Frozen
 
 LLMMode = Literal["live", "replay"]
 ProgressCallback = Callable[[str, int, int], None]
@@ -122,6 +126,57 @@ def analyze(record: CaseRecord, ctx: AnalysisContext) -> CaseAnalysis:
         dropped_reasons=tuple(dropped),
         llm_model=ctx.llm.model,
         llm_mode=None if replay_only is None else ("replay" if replay_only else "live"),
+    )
+
+
+def process(
+    base: CaseRecord,
+    llm: CachedLLM,
+    config: RatioConfig,
+    *,
+    embedder: Embedder | None = None,
+    progress: ProgressCallback | None = None,
+) -> tuple[CaseRecord, CaseAnalysis, ExtractionReport]:
+    """Extraction then analysis: what the app runs when a case is loaded."""
+    record, report = ingest(base, llm, config, progress=progress)
+    return record, analyze(record, analysis_context(config, llm, embedder)), report
+
+
+@dataclass(frozen=True)
+class LiveNote:
+    """One note re-extracted by the local model, bypassing every cache."""
+
+    doc_id: str
+    model: str
+    seconds: float
+    events: tuple[Event, ...]
+    arguments: tuple[Argument, ...]
+    same_as_record: bool
+
+
+def _items(record: CaseRecord, doc_id: str) -> tuple[set[tuple], set[tuple]]:
+    events = {(e.type, e.span.start, e.span.end, e.parsed_date) for e in record.events if e.span.doc_id == doc_id and e.type != "hearing"}
+    arguments = {(a.party, a.span.start, a.span.end) for a in record.arguments if a.span.doc_id == doc_id}
+    return events, arguments
+
+
+def run_note_live(record: CaseRecord, doc_id: str, config: RatioConfig, *, model: str | None = None) -> LiveNote:
+    """Re-run extraction for one document with the live local model and compare it with the record."""
+    document = record.document(doc_id)
+    single = record.model_copy(update={"documents": (document,), "events": (), "arguments": ()})
+    with tempfile.TemporaryDirectory(prefix="ratio-live-") as scratch:  # no cache to read from
+        llm = make_llm(config, mode="live", write_dir=Path(scratch), read_dirs=(), model=model)
+        started = time.monotonic()
+        live, _ = ingest(single, llm, config)
+        seconds = time.monotonic() - started
+    events = tuple(e for e in live.events if e.type != "hearing")
+    return LiveNote(
+        doc_id=doc_id,
+        model=llm.model,
+        seconds=round(seconds, 1),
+        events=events,
+        arguments=live.arguments,
+        same_as_record=_items(live, doc_id) == _items(record, doc_id),
     )
 
 
