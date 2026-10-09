@@ -4,10 +4,16 @@ A React/Vite preview of the `frontend-improvements` dashboard, using analysis
 exported from the committed synthetic case and judicial history. The original
 Python application remains the place to import cases and run the local model.
 
-This preview includes all five review views, searchable original documents,
-source highlights, judgment/indictment comparison, and coded judicial history.
+This preview includes all five review views, a unified document/finding search,
+filtered research results, saved documents and exact passages, research history,
+browser-local working notes, source highlights, judgment/indictment comparison,
+and coded judicial history. Export review includes the saved working file and notes.
 It does not accept uploaded cases or run a model in the cloud. The hosting status
 and About dialog explain that distinction to visitors.
+
+Saved research, notes, and the last 30 unique search/document activities persist
+in this browser's local storage. They do not synchronize across devices or users.
+See [DESIGN.md](DESIGN.md) for interface references and reusable view patterns.
 
 ## Refresh the synthetic record
 
