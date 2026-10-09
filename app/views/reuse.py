@@ -14,11 +14,12 @@ from ratio_ui import session, widgets
 
 PANEL_HEIGHT = 560
 LEGEND = (
-    '<div class="ratio-legend"><mark class="ratio-verbatim">verbatim</mark>'
+    '<div class="ratio-legend">Highlights: <mark class="ratio-verbatim">verbatim</mark>'
     '<mark class="ratio-paraphrase">close paraphrase</mark>'
-    '<mark class="ratio-charge">restates the charge</mark>'
-    '<span class="ratio-excluded">greyed text</span><span class="ratio-tag">charge recital</span> '
-    "is quotation or not reasoning, with the reason · the same number marks both sides of a match</div>"
+    '<mark class="ratio-charge">restates the charge</mark> '
+    '<span class="ratio-excluded">Greyed text</span><span class="ratio-tag">charge recital</span> '
+    "is quotation or other text that is not reasoning; its tag gives the reason. The same number marks both "
+    "sides of a match, and the list under Matched passages states in words what kind of match each number is.</div>"
 )
 VIEWS = ("Court's reasoning", "Whole documents")
 
@@ -34,7 +35,11 @@ def _metrics(reuse: ReuseResult) -> None:
     )  # fmt: skip
     columns[1].metric("Verbatim", percent(share(reuse.verbatim_chars)))
     columns[2].metric("Close paraphrase", percent(share(reuse.paraphrase_chars)))
-    columns[3].metric("Defence arguments without a response", sum(check.flag_id is not None for check in reuse.arguments))
+    columns[3].metric("No response found", sum(check.flag_id is not None for check in reuse.arguments))  # short: fits at 125% zoom
+    st.caption(
+        "Each percentage is a share of the court's own reasoning, counted in characters, after quotation is excluded. "
+        "No response found counts the defence arguments in the monitoring notes that the reasoning does not answer, as far as Ratio could find."
+    )
     if reuse.score is None and reuse.score_note:
         st.caption(f"No score: {md_escape(reuse.score_note)}.")
     if reuse.charge_wording_chars:
@@ -108,9 +113,9 @@ def _argument(record: CaseRecord, reuse: ReuseResult, check: ArgumentCheck) -> N
             widgets.jurisprudence(for_finding(flag, session.config().jurisprudence))
             _state_reply(record, flag)
         if not check.checked:
-            st.caption("The model's answer did not name any passage, so this argument was not checked.")
+            st.caption("The local model's answer did not name any passage, so this argument was not checked.")
         if check.responding:
-            st.caption(f"Answered in the reasoning ({check.passages_checked} of {check.passages_total} passages checked):")
+            st.caption(f"Response found in the reasoning ({check.passages_checked} of {check.passages_total} passages checked):")
             answers = [Evidence(role="judgment", span=span) for span in check.responding]
             widgets.evidence(record, answers, key=f"answer-{check.argument_id}", heading="Response in the judgment")
         widgets.model_note(check.model_note)
@@ -131,15 +136,16 @@ matches = {flag_id: pairs for flag_id, pairs in by_passage(reuse.pairs).items()}
 numbers = {flag_id: str(n) for n, flag_id in enumerate(matches, start=1)}
 flags = {flag.id: flag for flag in reuse.flags}
 _metrics(reuse)
+st.header("The reasoning beside the indictment")
 _side_by_side(record, reuse, numbers)
-st.subheader("Matched passages")
+st.header("Matched passages")
 if not matches:
     st.caption("No passage of the reasoning matches the indictment.")
 for flag_id in matches:
     if flag_id in flags:
         _match(record, flags[flag_id], numbers[flag_id])
-st.subheader("Defence arguments from the notes")
+st.header("Defence arguments in the monitoring notes")
 if not reuse.arguments:
-    st.caption("No defence arguments were found in the notes.")
+    st.caption("No defence arguments were found in the monitoring notes.")
 for check in reuse.arguments:
     _argument(record, reuse, check)

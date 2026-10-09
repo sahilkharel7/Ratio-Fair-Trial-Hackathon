@@ -16,9 +16,9 @@ if str(APP_DIR) not in sys.path:
 import streamlit as st  # noqa: E402
 
 from ratio import netguard  # noqa: E402
-from ratio_ui import privacy, style  # noqa: E402
+from ratio_ui import privacy, session, style  # noqa: E402
 
-st.set_page_config(page_title="Ratio", page_icon="⚖️", layout="wide")
+st.set_page_config(page_title="Ratio", page_icon="⚖️", layout="wide")  # an emoji is drawn locally; a Material icon would be fetched online
 netguard.install()  # any connection that is not to this computer now fails loudly
 
 problems = privacy.problems()
@@ -31,6 +31,9 @@ if problems:
     st.stop()
 
 style.inject()
+# In the reviewer's order: the case, the findings in it, the context that tests them, and the
+# reviewer's own decisions. A flat list, because Streamlit's sectioned menu is not a valid list for
+# screen readers.
 pages = [
     st.Page("views/case.py", title="Case", default=True),
     st.Page("views/coverage.py", title="Rights coverage"),
@@ -42,4 +45,7 @@ pages = [
     st.Page("views/steelman.py", title="State's reply"),
     st.Page("views/review.py", title="Review"),
 ]
-st.navigation(pages).run()
+page = st.navigation(pages)
+with st.sidebar:
+    style.offline_note(session.config().messages.notes["offline_note"])
+page.run()

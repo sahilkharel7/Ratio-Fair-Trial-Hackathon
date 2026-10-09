@@ -86,14 +86,14 @@ def quote_html(record: CaseRecord, item: Evidence) -> str:
     return f'<div class="ratio-quote"><span class="ratio-where">{html.escape(where)}</span>“{html.escape(text)}”</div>'
 
 
-def source_button(span: SourceSpan, record: CaseRecord, key: str, text: str = "Source", heading: str = "") -> None:
-    if st.button(text, key=key, help="Open the exact source text, highlighted in its document"):
+def source_button(span: SourceSpan, record: CaseRecord, key: str, text: str = "View source", heading: str = "") -> None:
+    if st.button(text, key=key, help="Opens the exact passage, highlighted in its document and checked against it"):
         viewer.show_source(span, record, heading)
 
 
 def evidence(record: CaseRecord, items: Sequence[Evidence], key: str, heading: str = "") -> None:
     for index, item in enumerate(items):
-        text_column, button_column = st.columns([10, 2], vertical_alignment="center")
+        text_column, button_column = st.columns([7, 2], vertical_alignment="center")  # room for "View source"
         text_column.html(quote_html(record, item))
         with button_column:
             source_button(item.span, record, key=f"{key}-{index}", heading=heading)
@@ -139,7 +139,7 @@ def state_reply(record: CaseRecord, reply: StateReply | None, key: str, *, expan
             st.markdown(f"**{md_escape(ground.label if ground else argument.ground_id)}**")
             if ground is not None and ground.quote:
                 st.caption(md_escape(f"{cfg.jurisprudence.sources[ground.source].symbol}, {ground.pinpoint}: “{ground.quote}”"))
-            st.markdown(f"*Model:* {md_escape(argument.argument)}")
+            st.markdown(f"*Local model:* {md_escape(argument.argument)}")
             evidence(record, [Evidence(role="mention", span=argument.span)], key=f"{key}-{index}", heading="The State's reply rests on")
         unsupported = [grounds[g].label if g in grounds else g for g in reply.unsupported_grounds]
         if unsupported:

@@ -45,7 +45,7 @@ def html_bodies(at: AppTest) -> list[str]:
 
 
 def source_buttons(at: AppTest):
-    return [button for button in at.button if button.label == "Source"]
+    return [button for button in at.button if button.label == "View source"]
 
 
 def test_case_page_summarises_the_demo_without_errors(app):
@@ -149,7 +149,7 @@ def test_the_states_reply_page_shows_each_contested_finding_with_its_checked_arg
     assert (app.metric[0].value, app.metric[2].value) == (str(len(result.replies)), str(sum(len(r.arguments) for r in result.replies)))
     heading = default_config().messages.notes["steelman_heading"]
     assert sum(e.label.startswith(heading) for e in app.expander) == len(result.replies)
-    assert any(m.value.startswith("*Model:* ") for m in app.markdown)  # the model's wording is labelled as such
+    assert any(m.value.startswith("*Local model:* ") for m in app.markdown)  # the model's wording is labelled as such
     flags = {flag.id: flag for flag in analysis.all_flags()}
     findings = sum(len(flags[r.flag_id].evidence) for r in result.replies)  # each finding shows its own source too
     assert len(source_buttons(app)) == findings + sum(len(r.arguments) for r in result.replies)
@@ -211,7 +211,7 @@ def plain(markdown: str) -> str:
 
 
 def page_text(at: AppTest) -> list[str]:
-    elements = [*at.markdown, *at.caption, *at.warning, *at.info, *at.title, *at.subheader]
+    elements = [*at.markdown, *at.caption, *at.warning, *at.info, *at.title, *at.header, *at.subheader]
     return [plain(element.value) for element in elements]
 
 

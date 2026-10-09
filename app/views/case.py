@@ -34,13 +34,18 @@ def _run(title: str, action) -> None:
     st.rerun()
 
 
+def _count(number: int, noun: str) -> str:
+    """'1 finding', '3 findings': a count on screen reads as plain English."""
+    return f"{number} {noun}" if number == 1 else f"{number} {noun}s"
+
+
 def _demo_card() -> None:
     with st.container(border=True):
         st.subheader("Demo case")
         st.markdown(
             "*Republic of Calderra v. Daro Venn*, a **synthetic** case: four hearing notes, the indictment, "
-            "the judgment and three detention orders. The local model's answers are replayed from a recorded cache, so this works "
-            "with Ollama stopped and the network off."
+            "the judgment and three detention orders. The local model's answers were recorded earlier and are "
+            "replayed, so the demo works offline, without the model running."
         )
         if st.button("Load the demo case", type="primary", key="load_demo"):
             _run("Loading the demo case", lambda progress: session.load_demo(progress=progress))
@@ -69,8 +74,9 @@ def _upload_card() -> None:
     with st.container(border=True):
         st.subheader("Your case folder")
         st.markdown(
-            "A folder with `case.yaml`, the monitoring notes, the indictment and the judgment (.txt, .md or .pdf). "
-            "Public or synthetic material only. The local model reads it; nothing leaves this computer."
+            "Choose a folder that holds `case.yaml` and the case documents: the monitoring notes, the indictment "
+            "and the judgment, as .txt, .md or .pdf files. Use public or synthetic material only. "
+            "The local model reads the folder on this computer; nothing is sent anywhere."
         )
         files = st.file_uploader(
             "Case folder", accept_multiple_files="directory", type=["yaml", "yml", "txt", "md", "pdf"],
@@ -88,15 +94,16 @@ def _findings(loaded: LoadedCase) -> None:
     unanswered = [c for c in reuse.arguments if not c.addressed] if reuse else []
     st.page_link(
         "views/coverage.py",
-        label=f"Rights coverage: {statuses.count('evidence_of_violation')} with evidence of violation, "
-        f"{statuses.count('evidence_of_compliance')} with evidence of compliance, {statuses.count('no_evidence')} follow-up questions",
+        label=f"Rights coverage: {_count(statuses.count('evidence_of_violation'), 'guarantee')} with evidence of violation, "
+        f"{statuses.count('evidence_of_compliance')} with evidence of compliance, "
+        f"{_count(statuses.count('no_evidence'), 'follow-up question')}",
     )
-    st.page_link("views/timeline.py", label=f"Timeline: {len(red)} interval longer than a confirmed benchmark")
+    st.page_link("views/timeline.py", label=f"Timeline: {_count(len(red), 'interval')} longer than a confirmed benchmark")
     _renewal_link(analysis)
     st.page_link(
         "views/reuse.py",
-        label=f"Reasoning reuse: {percent(reuse.score if reuse else None)} of the reasoning traceable to the indictment; "
-        f"{len(unanswered)} defence argument without a response",
+        label=f"Reasoning reuse: {percent(reuse.score if reuse else None)} of the court's reasoning traceable to the indictment; "
+        f"{_count(len(unanswered), 'defence argument')} without a response",
     )
     _judge_link(loaded)
     _review_link(loaded)
@@ -114,13 +121,11 @@ def _renewal_link(analysis) -> None:
     if renewal is None or not renewal.orders:
         return
     repeated = sum(flag.status == "repeated_grounds" for flag in renewal.flags)
-    orders = "1 detention order" if len(renewal.orders) == 1 else f"{len(renewal.orders)} detention orders"
     st.page_link(
         "views/renewal.py",
-        label=f"Detention renewals: {orders}, {repeated} with grounds repeating earlier orders, {len(renewal.gaps)} gap between orders"
-        if len(renewal.gaps) == 1 else
-        f"Detention renewals: {orders}, {repeated} with grounds repeating earlier orders, {len(renewal.gaps)} gaps between orders",
-    )  # fmt: skip
+        label=f"Detention renewals: {_count(len(renewal.orders), 'detention order')}, {repeated} with grounds repeating "
+        f"earlier orders, {_count(len(renewal.gaps), 'gap')} between orders",
+    )
 
 
 def _judge_link(loaded: LoadedCase) -> None:
@@ -149,14 +154,14 @@ def _export(loaded: LoadedCase) -> None:
     st.download_button(
         "Download report draft (.md)", data=report, file_name=f"{loaded.record.case_id}-report-draft.md",
         mime="text/markdown", key="export_report",
-        help="Every finding with its exact source text quoted, ready to edit. Nothing leaves this computer.",
     )  # fmt: skip
+    st.caption("An editable text file: every finding, with the passage it rests on quoted word for word. It is saved on this computer.")
 
 
 def _summary(loaded: LoadedCase) -> None:
     record, analysis = loaded.record, loaded.analysis
     st.divider()
-    st.subheader(md_escape(record.meta.title))
+    st.header(md_escape(record.meta.title))
     judge = f" · Presiding judge: {md_escape(record.meta.presiding_judge)}" if record.meta.presiding_judge else ""
     st.caption(f"{md_escape(record.meta.court)} · {md_escape(record.meta.charge_type)}{judge}")
     columns = st.columns(4)
@@ -165,14 +170,16 @@ def _summary(loaded: LoadedCase) -> None:
     columns[2].metric("Dated events", sum(e.type != "hearing" for e in record.events))
     columns[3].metric("Party arguments", len(record.arguments))
     flags = analysis.all_flags()
-    mode = "answers replayed from the recorded cache" if analysis.llm_mode == "replay" else "run live on this computer"
+    mode = "answers replayed from a recording" if analysis.llm_mode == "replay" else "run live on this computer"
+    st.subheader("Findings")
     st.markdown(
-        f"**{len(flags)} findings**, each linked to the exact text it rests on. "
-        f"{analysis.dropped_flags} dropped because their source text could not be found. "
-        f"Model: {md_escape(analysis.llm_model or 'none')} ({mode})."
+        f"**{_count(len(flags), 'finding')}**, each linked to the exact passage it rests on. "
+        f"Findings whose passage could not be found in the record are dropped: {analysis.dropped_flags} in this case. "
+        f"Local model: {md_escape(analysis.llm_model or 'none')} ({mode})."
     )
     _findings(loaded)
     _export(loaded)
+    st.subheader("Documents in this case")
     rows = [
         {"Document": d.title, "Type": d.type.replace("_", " "), "Hearing date": d.date.isoformat() if d.date else "", "Characters": len(d.text)}
         for d in record.documents
@@ -185,12 +192,15 @@ def _live_note(loaded: LoadedCase) -> None:
     notes = {doc.id: doc.title for doc in record.documents_of_type("monitoring_note")}
     if not notes:
         return
-    st.subheader("Live model check")
-    st.markdown("Run one note through the local model now, with no cache, and compare its answer with the recorded one.")
-    doc_id = st.selectbox("Note", list(notes), format_func=notes.get, key="live_doc")
+    st.header("Live model check")
+    st.markdown(
+        "Run one monitoring note through the local model now, without the recording, and compare its answer "
+        "with the recorded one."
+    )
+    doc_id = st.selectbox("Monitoring note", list(notes), format_func=notes.get, key="live_doc")
     if st.button("Run this note live", key="live_run"):
         try:
-            with st.spinner("Asking the local model"):
+            with st.spinner("The local model is reading the note"):
                 st.session_state[LIVE_KEY] = run_note_live(record, doc_id, session.config(), model=loaded.analysis.llm_model)
         except LLMError as exc:
             st.warning(f"The local model is not available ({md_escape(str(exc))}). The rest of the demo works without it.")
@@ -208,9 +218,11 @@ if loaded is not None and loaded.record.meta.synthetic:
     style.banner(session.config().messages.notes["synthetic_banner"])
 st.title("Ratio")
 st.markdown(
-    "Offline analysis of trial-monitoring records for a reviewing lawyer. Every finding links to the exact "
-    "text it rests on, and nothing leaves this computer."
+    "Ratio is an offline reading aid for one trial-monitoring record: the monitoring notes, the indictment, "
+    "the judgment and the detention orders. Every finding links to the exact passage it rests on. "
+    "The legal evaluation stays with the reviewing lawyer, and nothing leaves this computer."
 )
+st.header("Load a case")
 demo_column, upload_column = st.columns(2, gap="large")
 with demo_column:
     _demo_card()

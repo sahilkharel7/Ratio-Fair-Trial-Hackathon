@@ -185,7 +185,9 @@ class _Report:
                 if references:
                     self.add(f"{md(self.note('jurisprudence_heading'))}: " + "; ".join(md(ref.citation) for ref in references) + ".", "")
             if assessment.unlabelled_notes:
-                self.add(f"{assessment.unlabelled_notes} shortlisted notes were not labelled by the model.", "")
+                n = assessment.unlabelled_notes
+                sentences = "1 possibly relevant sentence in the notes was" if n == 1 else f"{n} possibly relevant sentences in the notes were"
+                self.add(f"{sentences} not classified by the local model.", "")
             self.add(f"*{md(assessment.citation)}*", "")
 
     def timeline(self, clock: ClockResult | None) -> None:

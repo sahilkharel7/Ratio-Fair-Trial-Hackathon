@@ -4,6 +4,8 @@ order. Repetition shows where to look; whether detention was re-examined is for 
 
 from __future__ import annotations
 
+import datetime as dt
+
 import streamlit as st
 
 from ratio.display import Mark, marked_html, md_escape, percent
@@ -16,8 +18,20 @@ PANEL_HEIGHT = 420
 LEGEND = (
     '<div class="ratio-legend"><mark class="ratio-verbatim">repeated word for word</mark>'
     '<mark class="ratio-paraphrase">close paraphrase</mark>'
-    '<span class="ratio-excluded">greyed text</span> is quoted law, the request, the operative part or the caption</div>'
+    '<span class="ratio-excluded">Grey text</span> is left out of the comparison: quoted law, the prosecutor\'s '
+    "request, the operative part, the caption and the signature.</div>"
 )
+COLUMN_NOTE = (
+    "Grounds repeating earlier orders: the share of the order's grounds found in an earlier order, word for word or "
+    "as a close paraphrase. New grounds passages: of its grounds passages long enough to compare, how many no earlier "
+    "order contains. An empty cell means there was nothing to compare: the first order, an undated order, or one "
+    "with no grounds."
+)
+
+
+def _day(date: dt.date | None, missing: str) -> str:
+    """A date written out for reading, "19 March 2025"; the table keeps year-month-day so it sorts."""
+    return f"{date.day} {date:%B %Y}" if date else missing
 
 
 def _table(renewal: RenewalResult) -> None:
@@ -26,7 +40,7 @@ def _table(renewal: RenewalResult) -> None:
         {
             "Order": order.title,
             "Date": order.date.isoformat() if order.date else "undated",
-            "Detention until": order.until.isoformat() if order.until else "not read",
+            "Detention until": order.until.isoformat() if order.until else "not found",
             "Days since the previous order": "" if order.days_since_previous is None else str(order.days_since_previous),
             "Grounds repeating earlier orders": "" if order.share_repeated is None else percent(order.share_repeated),
             "New grounds passages": f"{order.passages_new} of {order.passages_compared}" if order.share_repeated is not None else "",
@@ -35,6 +49,7 @@ def _table(renewal: RenewalResult) -> None:
         for order in renewal.orders
     ]
     st.dataframe(rows, hide_index=True)
+    st.caption(COLUMN_NOTE)
 
 
 def _excluded(order: OrderSummary) -> list[Mark]:
@@ -70,10 +85,10 @@ def _grounds_start(record: CaseRecord, renewal: RenewalResult, doc_id: str) -> i
     return max((p.span.start for p in passages if p.kind == "heading" and p.span.start <= grounds[0]), default=grounds[0])
 
 
-def _panel(record: CaseRecord, renewal: RenewalResult, doc_id: str, marks: list[Mark]) -> None:
+def _panel(record: CaseRecord, renewal: RenewalResult, doc_id: str, marks: list[Mark], role: str) -> None:
     document = record.document(doc_id)
     start = _grounds_start(record, renewal, doc_id)
-    st.markdown(f"**{md_escape(document.title)}**")
+    st.markdown(f"**{widgets.label(role)}:** {md_escape(document.title)}")
     with st.container(height=PANEL_HEIGHT, border=True):
         st.html(marked_html(document.text[start:], marks, offset=start))
 
@@ -82,8 +97,10 @@ def _order(record: CaseRecord, renewal: RenewalResult, order: OrderSummary) -> N
     flag = next((f for f in renewal.flags if f.id == order.flag_id), None)
     with st.container(border=True):
         heading, status = st.columns([8, 3], vertical_alignment="center")
-        until = order.until.isoformat() if order.until else "not read"
-        heading.markdown(f"**{md_escape(order.title)}** · detention until {until}")
+        heading.markdown(
+            f"**{md_escape(order.title)}** · {_day(order.date, 'undated')} · "
+            f"detention until {_day(order.until, 'not found')}"
+        )
         if flag is not None:
             with status:
                 widgets.badge(flag.status)
@@ -102,7 +119,8 @@ def _order(record: CaseRecord, renewal: RenewalResult, order: OrderSummary) -> N
         sources = list(dict.fromkeys(pair.earlier.doc_id for pair in order.pairs))
         if not sources:
             return
-        with st.expander("Side by side with the earlier order", expanded=flag is not None):
+        earlier_orders = "the earlier order" if len(sources) == 1 else f"{len(sources)} earlier orders"
+        with st.expander(f"Grounds side by side: this order and {earlier_orders} it repeats", expanded=flag is not None):
             earlier = sources[0]
             if len(sources) > 1:
                 titles = {doc_id: record.document(doc_id).title for doc_id in sources}
@@ -110,9 +128,9 @@ def _order(record: CaseRecord, renewal: RenewalResult, order: OrderSummary) -> N
             st.html(LEGEND)
             left, right = st.columns(2, gap="medium")
             with left:
-                _panel(record, renewal, order.doc_id, _excluded(order) + _matched(order, order.doc_id, "later"))
+                _panel(record, renewal, order.doc_id, _excluded(order) + _matched(order, order.doc_id, "later"), "role_later_order")
             with right:
-                _panel(record, renewal, earlier, _earlier_marks(renewal, order, earlier))
+                _panel(record, renewal, earlier, _earlier_marks(renewal, order, earlier), "role_earlier_order")
 
 
 def _gaps(record: CaseRecord, renewal: RenewalResult) -> None:
@@ -138,16 +156,17 @@ _replies = loaded.analysis.steelman
 widgets.header(loaded, "Detention renewals", "each detention order compared with the orders before it")
 st.markdown(md_escape(session.config().messages.notes["renewal_intro"]))
 if renewal is None or not renewal.orders:
-    st.info("This case has no detention orders. List them in case.yaml with `type: detention_order`.")
+    st.info("This case has no detention orders. To compare them, list each order in case.yaml with `type: detention_order`.")
     st.stop()
+st.header(f"Detention orders ({len(renewal.orders)})")
 _table(renewal)
 for note in renewal.notes:
     st.caption(md_escape(note))
-st.subheader("Gaps between orders")
+st.header("Gaps between orders")
 if not renewal.gaps:
     st.caption("Each order in the record was made no later than the day after the previous one ended.")
 _gaps(record, renewal)
-st.subheader("Grounds of each renewal")
+st.header("Grounds of each renewal")
 renewals = [order for order in renewal.orders if order.share_repeated is not None]
 if not renewals:
     st.caption("There is no later order with grounds to compare.")

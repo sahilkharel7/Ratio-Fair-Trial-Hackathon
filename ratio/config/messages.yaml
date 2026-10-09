@@ -30,7 +30,8 @@ templates:
 notes:
   selection_bias: "TrialWatch monitors cases already suspected of unfairness, so these rates are not representative. The baseline is also drawn from monitored cases. Indicators are prompts for review; conclusions on impartiality are for the reviewing lawyer."
   synthetic_banner: "SYNTHETIC DATA: fictional case. All people, courts, country, language and laws are invented."
-  not_attributed: "Case-level outputs from other modules (not attributed to the judge)"
+  offline_note: "Runs offline. The case record and the local model stay on this computer, and nothing is sent anywhere."
+  not_attributed: "Findings in this judge's cases from Ratio's other checks (not attributed to the judge)"
   needs_legal_review: "Needs legal review"
   model_note_label: "Model note (unverified)"
   # The report draft export (ratio/report.py): its title, disclaimer and section headings.
@@ -61,7 +62,7 @@ labels:
   evidence_of_compliance: "Evidence of compliance"
   evidence_of_violation: "Evidence of violation"
   no_evidence: "No evidence: follow-up"
-  incomplete: "Incomplete: notes not labelled"
+  incomplete: "Incomplete: some notes not classified"
   exceeds_benchmark: "Longer than the benchmark"
   may_exceed: "May exceed the benchmark"
   needs_review: "Dates need review"

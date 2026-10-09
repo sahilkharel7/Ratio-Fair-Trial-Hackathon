@@ -4,6 +4,8 @@ audited), appear in the report draft, and are measured by `python -m ratio feedb
 
 from __future__ import annotations
 
+from collections.abc import Hashable
+
 import streamlit as st
 from pydantic import ValidationError
 
@@ -25,6 +27,16 @@ CHOICES = {"accepted": "Accept", "edited": "Reword", "rejected": "Reject"}
 def _reviewer() -> str | None:
     name = (st.session_state.get(REVIEWER_KEY) or "").strip()
     return name or None
+
+
+def _names(items: list[tuple[Hashable, str]], noun: str) -> dict[Hashable, str]:
+    """How the buttons name each item (id, label): by its label, numbered where several share one, so a
+    screen reader's list of buttons tells them apart."""
+    same = {label: [item_id for item_id, other in items if other == label] for _, label in items}
+    return {
+        item_id: label if len(same[label]) == 1 else f"{label}, {noun} {same[label].index(item_id) + 1} of {len(same[label])}"
+        for item_id, label in items
+    }
 
 
 def _problem(exc: ValidationError) -> str:
@@ -52,10 +64,10 @@ def _when(review: Review) -> str:
     return f"{widgets.label('review_' + review.decision) if review.decision != 'reopened' else 'Reopened'} on {review.created_at[:10]}{by}"
 
 
-def _finding(loaded: LoadedCase, flag: Flag, review: Review | None, history: list[Review]) -> None:
+def _finding(loaded: LoadedCase, flag: Flag, name: str, review: Review | None, history: list[Review]) -> None:
     case_id = loaded.record.case_id
     with st.container(border=True):
-        st.markdown(f"**{md_escape(flag.standard_label)}**")
+        st.markdown(f"**{md_escape(name)}**")
         with st.container(horizontal=True):
             widgets.badge(flag.status)
             widgets.badge(f"review_{review.decision}" if review else "review_pending")
@@ -82,9 +94,10 @@ def _finding(loaded: LoadedCase, flag: Flag, review: Review | None, history: lis
             wording = st.text_area(
                 "Your wording (used when you reword)", value=feedback.message(flag, review), key=f"wording-{flag.id}", height=68
             )
-            if st.form_submit_button("Save decision", type="primary", key=f"save-{flag.id}"):
+            if st.form_submit_button(f"Save decision on {md_escape(name)}", type="primary", key=f"save-{flag.id}"):
                 _decide(case_id, flag, decision, note, wording)
-        if review is not None and st.button("Reopen", key=f"reopen-{flag.id}", help="Withdraw the decision; the history keeps it"):
+        reopen_help = "Withdraw the decision; the history keeps it"
+        if review is not None and st.button(f"Reopen {md_escape(name)}", key=f"reopen-{flag.id}", help=reopen_help):
             _decide(case_id, flag, "reopened", "", None)
         if len(history) > 1:
             with st.expander(f"History ({len(history)} decisions)"):
@@ -96,17 +109,19 @@ def _finding(loaded: LoadedCase, flag: Flag, review: Review | None, history: lis
 def _missed(loaded: LoadedCase) -> None:
     labels = {module: widgets.label(f"module_{module}") for module in MODULES}
     case_id = loaded.record.case_id
-    st.subheader(session.config().messages.notes["report_missed"])
-    for issue in session.store().missed_issues(case_id):
-        text, button = st.columns([10, 2], vertical_alignment="center")
+    st.header(session.config().messages.notes["report_missed"])
+    issues = session.store().missed_issues(case_id)
+    issue_names = _names([(issue.id, issue.standard) for issue in issues], "issue")
+    for issue in issues:
+        text, button = st.columns([7, 3], vertical_alignment="center")  # room for "Withdraw <standard>"
         by = f", {issue.reviewer}" if issue.reviewer else ""
         text.markdown(md_escape(f"{labels[issue.module]}, {issue.standard}: {issue.note} ({issue.created_at[:10]}{by})"))
-        if button.button("Withdraw", key=f"withdraw-{issue.id}"):
+        if button.button(f"Withdraw {md_escape(issue_names[issue.id])}", key=f"withdraw-{issue.id}"):
             session.store().withdraw_missed_issue(issue.id)
             st.rerun()
     with st.form(key="missed-issue", clear_on_submit=True):
-        module = st.selectbox("Module that should have flagged it", list(MODULES), format_func=labels.get, key="missed-module")
-        standard = st.text_input("Standard or guarantee", placeholder="e.g. ICCPR Art. 14(3)(f)", key="missed-standard")
+        module = st.selectbox("Part of Ratio that should have flagged it", list(MODULES), format_func=labels.get, key="missed-module")
+        standard = st.text_input("Standard or guarantee", placeholder="For example, ICCPR Art. 14(3)(f)", key="missed-standard")
         note = st.text_area("What the record shows", key="missed-note", height=68)
         if st.form_submit_button("Record missed issue", key="missed-save"):
             try:
@@ -141,11 +156,14 @@ columns[0].metric("Findings", len(flags))
 columns[1].metric("Reviewed", len(decided))
 for column, decision, title in zip(columns[2:], ("accepted", "edited", "rejected"), ("Accepted", "Reworded", "Rejected"), strict=True):
     column.metric(title, sum(r.decision == decision for r in decided))
-st.text_input("Reviewer (optional, saved with each decision)", key=REVIEWER_KEY)
+st.text_input("Reviewer name (optional, saved with each decision)", key=REVIEWER_KEY)
 stale = [review for flag_id, review in in_force.items() if flag_id not in shown]
 if stale:
     _stale(stale)
-choice = st.segmented_control("Show", FILTERS, default=FILTERS[0], key=FILTER_KEY, label_visibility="collapsed") or FILTERS[0]
+st.header("Findings")
+st.caption("Reopening a finding withdraws its decision. Earlier decisions are never deleted: each finding keeps its history.")
+choice = st.segmented_control("Show findings", FILTERS, default=FILTERS[0], key=FILTER_KEY) or FILTERS[0]
+finding_names = _names([(flag.id, flag.standard_label) for flag in flags], "finding")
 for module in MODULES:
     selected = [
         flag for flag in flags
@@ -155,5 +173,5 @@ for module in MODULES:
         continue
     st.subheader(widgets.label(f"module_{module}"))
     for flag in selected:
-        _finding(loaded, flag, in_force.get(flag.id), [r for r in reviews if r.flag_id == flag.id])
+        _finding(loaded, flag, finding_names[flag.id], in_force.get(flag.id), [r for r in reviews if r.flag_id == flag.id])
 _missed(loaded)
