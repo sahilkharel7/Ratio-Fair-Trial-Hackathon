@@ -3,15 +3,19 @@
 from __future__ import annotations
 
 import functools
+import hashlib
+import json
 import re
 from pathlib import Path
 from typing import Literal
+from urllib.parse import urlsplit
 
 import yaml
 from pydantic import Field, ValidationError, field_validator, model_validator
 
+from ratio.netguard import is_loopback_host
 from ratio.paths import CONFIG_DIR
-from ratio.schema import EventType, Frozen, ReviewStatus
+from ratio.schema import FLAG_STATUSES, EventType, Frozen, ReviewStatus
 
 # Hard rule 5: the only benchmark the team has confirmed (GC35 para 33, 48 hours). A benchmark can
 # be marked "confirmed" only if its id is listed here, so confirming another one is a reviewed change.
@@ -333,6 +337,25 @@ class UISettings(Frozen):
     context_chars: int = Field(gt=0)
 
 
+class PrecedentSettings(Frozen):
+    """Similar cases (ratio/precedents.py). The corpus file is the source of truth; OpenSearch is an
+    optional index of it and must run on this computer."""
+
+    backend: Literal["sqlite", "opensearch"] = "sqlite"
+    opensearch_url: str = "http://127.0.0.1:9200"
+    opensearch_index: str = Field(default="precedent_passages", pattern=r"^[a-z][a-z0-9_-]*$")
+    min_shared: int = Field(default=2, ge=1)  # shared fact patterns a precedent needs, at least one about procedure
+    top_k: int = Field(default=8, gt=0)
+
+    @field_validator("opensearch_url")
+    @classmethod
+    def _on_this_computer(cls, url: str) -> str:
+        parts = urlsplit(url)
+        if parts.scheme not in ("http", "https") or not is_loopback_host(parts.hostname or ""):
+            raise ValueError(f"opensearch_url must be on this computer (127.0.0.1), not {url!r}")
+        return url
+
+
 class Settings(Frozen):
     version: int
     llm: LLMSettings
@@ -342,6 +365,7 @@ class Settings(Frozen):
     judges: JudgeSettings
     renewal: RenewalSettings = RenewalSettings()
     steelman: SteelmanSettings = SteelmanSettings()
+    precedents: PrecedentSettings = PrecedentSettings()
     ui: UISettings
 
 
@@ -424,6 +448,71 @@ class Jurisprudence(Frozen):
         return self
 
 
+# --- fact_patterns.yaml --------------------------------------------------------------------
+
+FacetGroup = Literal["procedure", "profile", "charge"]
+
+
+class FacetSignal(Frozen):
+    """A stored finding that gives a case this facet: its module, standard and status."""
+
+    module: str
+    standard: str
+    status: str
+
+
+class FactPattern(Frozen):
+    id: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
+    label: str = Field(min_length=1)
+    group: FacetGroup
+    provision: str | None = None
+    description: str = Field(min_length=1)  # what the facts look like; also the extraction prompt's definition
+    signals: tuple[FacetSignal, ...] = ()
+    keywords: tuple[str, ...] = ()  # regular expressions, matched as whole words, case-insensitive
+
+    @model_validator(mode="after")
+    def _one_source(self) -> FactPattern:
+        if self.group == "procedure" and (not self.signals or self.keywords):
+            raise ValueError(f"{self.id}: a procedure facet comes only from Ratio's findings (signals)")
+        if self.group != "procedure" and (not self.keywords or self.signals):
+            raise ValueError(f"{self.id}: a profile or charge facet comes only from keywords")
+        for keyword in self.keywords:
+            try:
+                re.compile(keyword)
+            except re.error as exc:
+                raise ValueError(f"{self.id}: keyword {keyword!r} is not a valid pattern: {exc}") from exc
+        return self
+
+
+@functools.cache
+def keyword_pattern(keywords: tuple[str, ...]) -> re.Pattern[str]:
+    return re.compile(r"\b(?:" + "|".join(keywords) + r")\b", re.IGNORECASE)
+
+
+class FactPatternTaxonomy(Frozen):
+    version: int
+    review_status: Literal["needs_legal_review"]
+    facets: tuple[FactPattern, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _ids_unique(self) -> FactPatternTaxonomy:
+        ids = [facet.id for facet in self.facets]
+        if len(ids) != len(set(ids)):
+            raise ValueError("duplicate fact pattern ids")
+        return self
+
+    def facet(self, facet_id: str) -> FactPattern:
+        for facet in self.facets:
+            if facet.id == facet_id:
+                return facet
+        raise KeyError(facet_id)
+
+    @property
+    def sha(self) -> str:
+        """Identifies this taxonomy; a corpus built with another one is refused."""
+        return hashlib.sha256(json.dumps(self.model_dump(mode="json"), sort_keys=True).encode()).hexdigest()
+
+
 # --- steelman.yaml -------------------------------------------------------------------------
 
 
@@ -474,6 +563,22 @@ class RatioConfig(Frozen):
     standards: Standards
     jurisprudence: Jurisprudence
     steelman: SteelmanCatalogue
+    fact_patterns: FactPatternTaxonomy
+
+    @model_validator(mode="after")
+    def _fact_pattern_signals_known(self) -> RatioConfig:
+        """A facet rests only on a finding Ratio can make: never on "no evidence", and never on a
+        benchmark that needs legal review (hard rule 5)."""
+        rubric_ids = {item.id for item in self.rubric.items}
+        confirmed = {b.id for b in self.benchmarks.benchmarks if b.review_status == "confirmed"}
+        standards = {"absence": rubric_ids, "clock": confirmed, "reuse": set(self.standards.standards), "renewal": set(self.standards.standards)}
+        for facet in self.fact_patterns.facets:
+            for signal in facet.signals:
+                if signal.module not in standards or signal.status not in FLAG_STATUSES.get(signal.module, ()):
+                    raise ValueError(f"fact_patterns.yaml: {facet.id} rests on an unknown finding {signal.module}/{signal.status}")
+                if signal.standard not in standards[signal.module]:
+                    raise ValueError(f"fact_patterns.yaml: {facet.id} rests on {signal.standard!r}, not a rubric item, confirmed benchmark or standard")
+        return self
 
     @model_validator(mode="after")
     def _steelman_sources_known(self) -> RatioConfig:
@@ -523,6 +628,7 @@ _FILES: dict[str, tuple[str, type[Frozen]]] = {
     "standards": ("standards.yaml", Standards),
     "jurisprudence": ("jurisprudence.yaml", Jurisprudence),
     "steelman": ("steelman.yaml", SteelmanCatalogue),
+    "fact_patterns": ("fact_patterns.yaml", FactPatternTaxonomy),
 }
 
 

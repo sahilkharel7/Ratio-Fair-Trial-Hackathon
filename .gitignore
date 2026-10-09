@@ -16,6 +16,8 @@ data/ratio.db
 data/ratio.db-*
 data/cache/
 data/uploads/
+# The precedent corpus: real public documents, built locally, never committed
+data/corpus/
 
 # Eval output
 eval/out/
@@ -25,6 +27,7 @@ eval/out/
 .claude/
 .env
 .env.*
+!.env.example
 .coverage.*
 .ruff_cache/
 .mypy_cache/

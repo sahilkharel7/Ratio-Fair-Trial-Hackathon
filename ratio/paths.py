@@ -19,9 +19,16 @@ ALIAS_DECISIONS = HISTORY_DIR / "alias_decisions.yaml"  # decisions on the synth
 PUBLIC_ALIAS_DECISIONS = DATA_DIR / "alias_decisions.yaml"  # decisions on public cases, never in a SYNTHETIC file
 DEMO_CACHE_DIR = DEMO_DIR / "cache"
 RUNTIME_CACHE_DIR = DATA_DIR / "cache" / "llm"
+CORPUS_DIR = DATA_DIR / "corpus"  # the precedent corpus (git-ignored: real public documents)
 
 
 def db_path() -> Path:
     """SQLite store location; RATIO_DB overrides the default (tests use a temp file)."""
     override = os.environ.get("RATIO_DB")
     return Path(override) if override else DATA_DIR / "ratio.db"
+
+
+def corpus_db_path() -> Path:
+    """The built precedent corpus; RATIO_CORPUS_DB overrides the default (tests use a temp file)."""
+    override = os.environ.get("RATIO_CORPUS_DB")
+    return Path(override) if override else CORPUS_DIR / "precedents.db"

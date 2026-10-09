@@ -89,6 +89,11 @@ def current(reviews: Iterable[Review]) -> dict[str, Review]:
     return latest
 
 
+def rejected_flag_ids(reviews: Iterable[Review]) -> frozenset[str]:
+    """The findings whose decision in force is a rejection by the reviewing lawyer."""
+    return frozenset(flag_id for flag_id, review in current(reviews).items() if review.decision == "rejected")
+
+
 def message(flag: Flag, review: Review | None) -> str:
     """The wording to show: the reviewer's when they edited the finding, else Ratio's."""
     return review.edited_message if review is not None and review.decision == "edited" else flag.message

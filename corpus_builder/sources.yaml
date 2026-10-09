@@ -1,0 +1,305 @@
+# Public sources of the precedent corpus ("Similar cases"), read by corpus_builder/sources.py.
+#
+# Only these addresses are fetched: each source's seeds and, for a source with a sitemap, the
+# sitemap pages whose address matches url_pattern. A link found in a page is never followed.
+# robots.txt is obeyed, and each host gets at most one request every min_interval_s seconds (longer
+# if its robots.txt sets a Crawl-delay). Every seed must start with one of allowed_prefixes.
+#
+# documents.un.org and docs.un.org cannot be prefixes: their robots.txt disallows /doc, /api and
+# /access. A UN document from there is downloaded by hand into data/corpus/local/<source id>/ and
+# listed under local_files (path, the url it came from, and what is known about it).
+#
+# Seed fields: url (required), symbol, title, state, year. Keep this schema stable: more seeds are
+# added from verified research. Every seed below was checked once on 2026-10-09 (one HEAD or GET with
+# the builder's user agent, obeying robots.txt and the delays) and answered 200, except the ccpr_views
+# full texts, which redirect to cdn.ccprcentre.org (see that source).
+version: 1
+
+sources:
+  - id: trialwatch_reports
+    kind: trialwatch_report
+    name: "TrialWatch reports (cfj.org)"
+    body: "TrialWatch (Clooney Foundation for Justice)"
+    attribution: "TrialWatch, an initiative of the Clooney Foundation for Justice (cfj.org). Reproduced as public reference material."
+    # TODO: verify reuse with TrialWatch. cfj.org has no terms-of-use page (checked 2026-10-09): the footer
+    # and page-sitemap.xml link only https://cfj.org/privacy-notice/, about personal data, so the home
+    # page is cited.
+    terms_url: https://cfj.org/
+    terms_checked: 2026-10-09
+    terms_summary: "No terms-of-use page exists: the footer (and page-sitemap.xml) links only a Privacy Notice about personal data, which says nothing on content reuse; the footer reads \"© 2026 Clooney Foundation For Justice.\" Treat the reports as copyrighted CFJ publications, publicly downloadable: cite and link, do not republish wholesale."
+    allowed_prefixes: ["https://cfj.org/"]
+    min_interval_s: 10  # robots.txt (2026-10-09): nothing disallowed, Crawl-delay: 10
+    # Curated seeds, no sitemap: the sitemap lists each case's HTML page (/reports/<slug>/), which would
+    # duplicate the PDF reports below. A seed's symbol is the slug of its case page.
+    sitemap: null
+    url_pattern: null
+    seeds:
+      - url: https://cfj.org/wp-content/uploads/2023/07/Shahidul-Alam-Fairness-Report_January-2023.pdf
+        symbol: bangladesh-v-shahidul-alam
+        title: "Bangladesh v. Shahidul Alam"
+        state: Bangladesh
+        year: 2023
+      - url: https://cfj.org/wp-content/uploads/2023/07/belarus-journalists.pdf
+        symbol: belarus-v-katsiaryna-andreyeva-and-daria-chultsova
+        title: "Belarus v. Katsiaryna Andreyeva and Daria Chultsova"
+        state: Belarus
+        year: 2022
+      - url: https://cfj.org/wp-content/uploads/2023/07/fairnessreport_cambodia_uc_ys.pdf
+        symbol: cambodia-vs-uon-chhin-and-yeang-sothearin
+        title: "Cambodia vs. Uon Chhin and Yeang Sothearin"
+        state: Cambodia
+        year: 2022
+      - url: https://cfj.org/wp-content/uploads/2023/07/fair_trial_report_cambodia_ros_sokhet.pdf
+        symbol: cambodia-v-ros-sokhet
+        title: "Cambodia v. Ros Sokhet"
+        state: Cambodia
+        year: 2022
+      - url: https://cfj.org/wp-content/uploads/2023/07/Bao-Choy_July-2021_Fairness-Report-1.pdf
+        symbol: hong-kong-special-administrative-region-v-bao-choy-yuk-ling
+        title: "Hong Kong Special Administrative Region v. Bao Choy Yuk-ling"
+        state: China (Hong Kong SAR)
+        year: 2021
+      - url: https://cfj.org/wp-content/uploads/2023/07/Malaysiakini-and-Steven-Gan_October-2021_Malaysia_Fairness-Report.pdf
+        symbol: malaysia-v-malaysiakini-and-steven-gan
+        title: "Malaysia v. Malaysiakini and Steven Gan"
+        state: Malaysia
+        year: 2021
+      - url: https://cfj.org/wp-content/uploads/2023/07/fair-trial-report-belarus-marina-zolotova.pdf
+        symbol: monitoring-of-the-trial-of-marina-zolotova
+        title: "Monitoring of the Trial of Marina Zolotova"
+        state: Belarus
+        year: 2022
+      - url: https://cfj.org/wp-content/uploads/2023/07/Fairness-Report-on-the-Trial-of-Omar-Radi-in-Morocco.pdf
+        symbol: morocco-v-omar-radi
+        title: "Morocco v. Omar Radi"
+        state: Morocco
+        year: 2022
+      - url: https://cfj.org/wp-content/uploads/2023/07/Svetlana-Prokopyeva-February-2021.pdf
+        symbol: russian-federation-vs-svetlana-prokopyeva
+        title: "Russian Federation vs. Svetlana Prokopyeva"
+        state: Russian Federation
+        year: 2021
+      - url: https://cfj.org/wp-content/uploads/2023/07/ENG-Pham-Doan-Trang-Fairness-Report-April-2022.pdf
+        symbol: socialist-republic-of-vietnam-v-pham-thi-doan-trang
+        title: "Socialist Republic of Vietnam v. Pham Thi Doan Trang"
+        state: Viet Nam
+        year: 2022
+      - url: https://cfj.org/wp-content/uploads/2023/07/01272020-Turkey-Veysel-Ok-Fairness-Report.pdf
+        symbol: turkey-v-veysel-ok
+        title: "Turkey v. Veysel Ok"
+        state: Turkey
+        year: 2020
+      - url: https://cfj.org/wp-content/uploads/2024/02/guatemala-v-zamora-report.pdf
+        symbol: guatemala-v-jose-ruben-zamora
+        title: "Guatemala v. José Rubén Zamora"
+        state: Guatemala
+        year: 2024
+      - url: https://cfj.org/wp-content/uploads/2024/04/April-2024-Fairness-Report_Mir-Shakeel-ur-Rehman_Pakistan.pdf
+        symbol: pakistan-v-mir-shakeel-ur-rehman
+        title: "Pakistan v. Mir Shakeel-ur-Rehman"
+        state: Pakistan
+        year: 2024
+      - url: https://cfj.org/wp-content/uploads/2025/02/Fairness-Report-Temirov-LIVE_Kyrgyzstan-February-2025-Final.pdf
+        symbol: kyrgyz-republic-v-temirov-live-journalists-et-al
+        title: "Kyrgyz Republic v. Temirov LIVE Journalists et al."
+        state: Kyrgyzstan
+        year: 2025
+      - url: https://cfj.org/wp-content/uploads/2026/01/2025.01-Fairness-Report_Georgia-Mzia-Amaglobeli.pdf
+        symbol: georgia-v-mzia-amaglobeli
+        title: "Georgia v. Mzia Amaglobeli"
+        state: Georgia
+        year: 2026
+      - url: https://cfj.org/wp-content/uploads/2026/07/2026-July-Abzas-Media-Fairness-Report.pdf
+        symbol: fairness-report-abzas-media
+        title: "CFJ Fairness Report: Abzas Media"
+        state: Azerbaijan
+        year: 2026
+      - url: https://cfj.org/wp-content/uploads/2025/01/Fairness-Report_Duman-Mukhammedkarim_Kazakhstan-January-2025-Final.pdf
+        symbol: fairness-report-kazakhstan-v-duman-mukhammedkarim
+        title: "Fairness Report: Kazakhstan v. Duman Mukhammedkarim"
+        state: Kazakhstan
+        year: 2025
+      - url: https://cfj.org/wp-content/uploads/2023/07/fair-trial-report-kazakhstan-alnur-ilyashev.pdf
+        symbol: kazakhstan-v-alnur-ilyashev
+        title: "Kazakhstan v. Alnur Ilyashev"
+        state: Kazakhstan
+        year: 2022
+      - url: https://cfj.org/wp-content/uploads/2025/03/EN-Fairness-Report_Thailand_Chutima-Sidasathian-March-2025.pdf
+        symbol: thailand-vs-dr-chutima-sidasathian
+        title: "Thailand vs. Dr. Chutima Sidasathian"
+        state: Thailand
+        year: 2025
+      - url: https://cfj.org/wp-content/uploads/2023/07/EN-Aigul-Utepova-Fairness-Report-April-2022.pdf
+        symbol: kazakhstan-v-aigul-utepova
+        title: "Kazakhstan v. Aigul Utepova"
+        state: Kazakhstan
+        year: 2022
+
+  - id: hri_fairness_reports
+    kind: trialwatch_report
+    name: "TrialWatch fairness reports (Columbia Law School Human Rights Institute)"
+    body: "TrialWatch (Columbia Law School Human Rights Institute)"
+    attribution: "Fairness reports prepared for TrialWatch with the Human Rights Institute, Columbia Law School (hri.law.columbia.edu). Reproduced as public reference material."
+    # TODO: verify reuse. The site links no terms page (checked 2026-10-09).
+    terms_url: https://hri.law.columbia.edu/
+    terms_checked: 2026-10-09
+    terms_summary: "The footer has no terms-of-use or legal link, only \"© 2022 Human Rights Institute\" (Columbia Law School). No reuse licence is stated; the three PDFs are the hackathon packet's own references."
+    allowed_prefixes: ["https://hri.law.columbia.edu/"]
+    min_interval_s: 3  # robots.txt (2026-10-09): Drupal defaults, /sites/default/files/publications/ allowed, no Crawl-delay
+    # The same reports as TrialWatch case pages on cfj.org that are not seeds there: a seed's symbol is
+    # the slug of that page.
+    seeds:
+      - url: https://hri.law.columbia.edu/sites/default/files/publications/fairness_report_on_the_trial_of_tuna_altinel_in_turkey.pdf
+        # year inferred: the report shows no date; Altinel was acquitted in January 2020 (public reporting)
+        symbol: turkey-vs-ahmet-tuna-altinel
+        title: "Fairness Report on the Trial of Tuna Altinel in Turkey"
+        state: Turkey
+        year: 2020
+      - url: https://hri.law.columbia.edu/sites/default/files/publications/otf-fairness-report-july-2020.pdf
+        symbol: thailand-v-does-1-5-of-the-organization-for-thai-federation
+        title: "Fairness Report: Thailand v. Does 1-5 of the Organization for Thai Federation (July 2020)"
+        state: Thailand
+        year: 2020
+      - url: https://hri.law.columbia.edu/sites/default/files/publications/Fairness%20Report_Thailand-Pan%20Thalufah%20June%202025-2.pdf
+        symbol: thailand-v-katanyu-muenkhamruang-pan
+        title: "Fairness Report: Thailand v. Katanyu 'Pan' Muenkhamruang (Pan Thalufah), June 2025"
+        state: Thailand
+        year: 2025
+
+  - id: wgad_opinions
+    kind: wgad_opinion
+    name: "Opinions of the UN Working Group on Arbitrary Detention (ohchr.org)"
+    body: "UN Working Group on Arbitrary Detention"
+    attribution: "Opinions adopted by the UN Working Group on Arbitrary Detention, published by OHCHR (ohchr.org). United Nations documents."
+    # TODO: read this page in a browser. On 2026-10-09 every ohchr.org HTML page answered our user agent
+    # with a 403 Cloudflare challenge, so it was read only through a search engine's index; the PDFs
+    # under /sites/default/files/ answer 200.
+    terms_url: https://www.ohchr.org/en/copyright
+    terms_checked: 2026-10-09
+    terms_summary: "The page is titled \"Disclaimer\" (read through a search engine's index; a direct read met a Cloudflare challenge): site information is provided for information purposes without warranties; OHCHR does not guarantee third-party content; materials reflect the authors' views. No general reuse licence; the opinions are official UN documents (A/HRC/WGAD/...) published for public use."
+    allowed_prefixes: ["https://www.ohchr.org/"]
+    min_interval_s: 3  # robots.txt (2026-10-09): Drupal defaults, /sites/default/files/ allowed, no Crawl-delay
+    seeds:
+      - url: https://www.ohchr.org/sites/default/files/Documents/Issues/Detention/Opinions2015AUV/Opinion_2015_6_Swaziland_Maseko_AUV.pdf
+        symbol: A/HRC/WGAD/2015/6
+        title: "Opinion No. 6/2015 (Eswatini (then Swaziland))"
+        state: Eswatini (then Swaziland)
+        year: 2015
+      - url: https://www.ohchr.org/sites/default/files/Documents/Issues/Detention/Opinions/Session78/A_HRC_WGAD_2017_27.pdf
+        symbol: A/HRC/WGAD/2017/27
+        title: "Opinion No. 27/2017 (Viet Nam)"
+        state: Viet Nam
+        year: 2017
+      - url: https://www.ohchr.org/sites/default/files/2021-11/A_HRC_WGAD_2021_25_AdvanceEditedVersion.pdf
+        symbol: A/HRC/WGAD/2021/25
+        title: "Opinion No. 25/2021 (China)"
+        state: China
+        year: 2021
+      - url: https://www.ohchr.org/sites/default/files/2021-11/A_HRC_WGAD_2021_40_AdvanceEditedVersion.pdf
+        symbol: A/HRC/WGAD/2021/40
+        title: "Opinion No. 40/2021 (Viet Nam)"
+        state: Viet Nam
+        year: 2021
+      - url: https://www.ohchr.org/sites/default/files/documents/issues/detention-wg/opinions/session94/2022-10-28/A-HRC-WGAD-2022-53-Egypt-Advance-Edited-Version.pdf
+        symbol: A/HRC/WGAD/2022/53
+        title: "Opinion No. 53/2022 (Egypt)"
+        state: Egypt
+        year: 2022
+      - url: https://www.ohchr.org/sites/default/files/documents/issues/detention-wg/opinions/session99/a-hrc-wgad-2024-11-ru-federation-aev.pdf
+        symbol: A/HRC/WGAD/2024/11
+        title: "Opinion No. 11/2024 (Russian Federation)"
+        state: Russian Federation
+        year: 2024
+      - url: https://www.ohchr.org/sites/default/files/documents/issues/detention-wg/opinions/session100/a-hrc-wgad-2024-28-thailand-advance-edited.pdf
+        symbol: A/HRC/WGAD/2024/28
+        title: "Opinion No. 28/2024 (Thailand)"
+        state: Thailand
+        year: 2024
+      - url: https://www.ohchr.org/sites/default/files/documents/issues/detention-wg/opinions/session100/a-hrc-wgad-2024-34-china-hong-kong-advance.pdf
+        symbol: A/HRC/WGAD/2024/34
+        title: "Opinion No. 34/2024 (China (Hong Kong SAR))"
+        state: China (Hong Kong SAR)
+        year: 2024
+      - url: https://www.ohchr.org/sites/default/files/documents/issues/detention-wg/opinions/session102/a-hrc-wgad-2025-9-aev.pdf
+        symbol: A/HRC/WGAD/2025/9
+        title: "Opinion No. 9/2025 (China)"
+        state: China
+        year: 2025
+      - url: https://www.ohchr.org/sites/default/files/documents/issues/detention-wg/opinions/session103/a-hrc-wgad-56-2025-egypt-aev.pdf
+        symbol: A/HRC/WGAD/2025/56
+        title: "Opinion No. 56/2025 (Egypt)"
+        state: Egypt
+        year: 2025
+      - url: https://www.ohchr.org/sites/default/files/documents/issues/detention-wg/opinions/session105/a-hrc-wgad-2026-22-philippines-advance-ed.pdf
+        symbol: A/HRC/WGAD/2026/22
+        title: "Opinion No. 22/2026 (Philippines)"
+        state: Philippines
+        year: 2026
+
+  - id: ccpr_views
+    kind: ccpr_views
+    name: "Views of the UN Human Rights Committee (ccprcentre.org)"
+    body: "UN Human Rights Committee"
+    attribution: "Views adopted by the UN Human Rights Committee under the Optional Protocol to the ICCPR (United Nations documents); copies hosted by the Centre for Civil and Political Rights (ccprcentre.org)."
+    # TODO: verify reuse. The site links no terms page (checked 2026-10-09). The Views are UN documents:
+    # download them by hand from the UN (local_files) if reuse is unclear.
+    terms_url: https://ccprcentre.org/
+    terms_checked: 2026-10-09
+    terms_summary: "No terms-of-use link in the footer, which reads \"© 2008-2026. All Rights Reserved Centre for Civil and Political Rights (CCPR Centre)\". The case digests are CCPR Centre content (all rights reserved); the underlying Views are UN documents."
+    # ccprcentre.org robots.txt (2026-10-09): Crawl-delay: 10, nothing disallowed. Its full texts under
+    # /files/decisions/ redirect (302) to cdn.ccprcentre.org. On 2026-10-09
+    # https://cdn.ccprcentre.org/robots.txt answered 404 (no robots.txt, so no restrictions) and a
+    # decision PDF there answered 200 application/pdf. The fetcher reads each host's robots.txt again at
+    # fetch time, redirect targets included, and obeys what it finds then.
+    allowed_prefixes: ["https://ccprcentre.org/", "https://cdn.ccprcentre.org/"]
+    min_interval_s: 10
+    # Only the Views' full text: the UN's own document, as a PDF under /files/decisions/. Never a
+    # ccprcentre.org/decision/<n> page: that page is the CCPR Centre's own digest of the case (its
+    # summary and commentary, "All Rights Reserved"), not the UN text. So the cases whose English full
+    # text is not such a PDF are left out (Kovsh (Abramova), Marques de Morais, Bodrozic, Njaru
+    # (Afuson), Esergepov (a .docx), Cacho Ribeiro (Spanish only), Djakupova and Idinov, Bokayev and
+    # Ayanov): to add one, download its Views by hand from the UN and list it under local_files. A
+    # "decision page" comment below only notes where the PDF is linked from; it is never fetched.
+    seeds:
+      - url: https://ccprcentre.org/files/decisions/277_1988_Jijon_v__Ecuador1.pdf
+        # decision page: https://ccprcentre.org/decision/16315
+        symbol: CCPR/C/44/D/277/1988
+        title: "Teran Jijon v. Ecuador"
+        state: Ecuador
+        year: 1992
+      - url: https://ccprcentre.org/files/decisions/458_1991_Mukong_v__Cameroon.pdf
+        # decision page: https://ccprcentre.org/decision/16236
+        symbol: CCPR/C/51/D/458/1991
+        title: "Mukong v. Cameroon"
+        state: Cameroon
+        year: 1994
+      - url: https://ccprcentre.org/files/decisions/G1813926.pdf
+        # decision page: https://ccprcentre.org/decision/16860
+        symbol: CCPR/C/122/D/2252/2013
+        title: "Khadzhiyev and Muradova v. Turkmenistan"
+        state: Turkmenistan
+        year: 2018
+      - url: https://ccprcentre.org/files/decisions/G1813304.pdf
+        # decision page: https://ccprcentre.org/decision/16857
+        symbol: CCPR/C/122/D/2212/2012
+        title: "Sannikov v. Belarus"
+        state: Belarus
+        year: 2018
+      - url: https://ccprcentre.org/files/decisions/G2032783.pdf
+        # decision page: https://ccprcentre.org/decision/17116
+        symbol: CCPR/C/129/D/2535/2015
+        title: "Lukpan Akhmedyarov v. Kazakhstan"
+        state: Kazakhstan
+        year: 2020
+      - url: https://ccprcentre.org/files/decisions/G2325912_(1).pdf
+        # decision page: https://ccprcentre.org/decision/17564
+        symbol: CCPR/C/139/D/3252/2018
+        title: "Dina Maslova v. Kyrgyzstan"
+        state: Kyrgyzstan
+        year: 2023
+      - url: https://ccprcentre.org/files/decisions/G2516750_(1).pdf
+        # decision page: https://ccprcentre.org/decision/17726
+        symbol: CCPR/C/144/D/3053/2017
+        title: "Lopez Mendoza and Tintori Parra v. Venezuela"
+        state: Venezuela
+        year: 2025

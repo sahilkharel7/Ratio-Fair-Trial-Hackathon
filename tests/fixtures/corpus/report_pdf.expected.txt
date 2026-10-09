@@ -1,0 +1,11 @@
+SYNTHETIC: an invented fairness report, written for Ratio's tests. No real person, court or trial.
+Fairness Report on the Trial of Tamsin Orlo in the Republic of Quillmark
+The monitor attended every hearing of the trial. The accused, a journalist, was charged with
+spreading false information after publishing an article about a water contract.
+She was arrested at her home and was brought before a judge six days later. Her lawyer
+was not present at the remand hearing, and the court refused to hear two defence witnes-
+ses without giving reasons. The monitor relied on international standards.
+
+The court extended the detention three times, each time with the same wording as the first
+order, and did not address the arguments of the defence about the length of the detention.
+This page exists so that the text is long enough to pass the length check of the normaliser.

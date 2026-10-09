@@ -1,0 +1,15 @@
+SYNTHETIC: an invented trial-monitoring report written for the corpus builder tests. No real person, state or case.
+
+Fairness report: the trial of Dario Melk (invented), Republic of Ostravia (invented)
+
+Summary
+
+Dario Melk, a blogger who wrote about local elections, was charged with spreading false news through his website.
+
+The monitor observed that the defendant was kept in a police station for four days before any judge saw him.
+
+At the first hearing the prosecution read its indictment aloud, and the judgment later repeated long passages of it word for word.
+
+Assessment
+
+In the monitor's assessment, the delay before the first appearance breached the requirement of prompt judicial control.

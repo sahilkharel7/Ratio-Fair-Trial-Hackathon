@@ -15,7 +15,7 @@ from ratio.paths import MINILM_DIR, REPO_ROOT
 from ratio.store import CaseStore
 
 APP = REPO_ROOT / "app" / "main.py"
-PAGES = ("views/coverage.py", "views/timeline.py", "views/renewal.py", "views/reuse.py", "views/judges.py", "views/jurisprudence.py", "views/steelman.py", "views/review.py")
+PAGES = ("views/coverage.py", "views/timeline.py", "views/renewal.py", "views/reuse.py", "views/judges.py", "views/jurisprudence.py", "views/similar.py", "views/steelman.py", "views/review.py")
 JUDGE_PAGE = "views/judges.py"
 pytestmark = [
     pytest.mark.embed,

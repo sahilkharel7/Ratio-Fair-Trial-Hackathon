@@ -4,7 +4,9 @@ through the live local model."""
 from __future__ import annotations
 
 import html
+import logging
 import re
+from collections.abc import Sequence
 
 import streamlit as st
 from pydantic import ValidationError
@@ -15,6 +17,7 @@ from ratio.extraction.loader import LoaderError, read_uploaded_files
 from ratio.llm import LLMError
 from ratio.pipeline import run_note_live
 from ratio.feedback import current
+from ratio.precedent_schema import PrecedentLink
 from ratio.report import draft_report
 from ratio.schema import Evidence, SourceSpan
 from ratio_ui import session, style, viewer, widgets
@@ -96,7 +99,7 @@ def _workstream(title: str, value: str | int, description: str, page: str, link:
         st.page_link(page, label=link)
 
 
-def _findings(loaded: LoadedCase) -> None:
+def _findings(loaded: LoadedCase, similar: Sequence[PrecedentLink] | None) -> None:
     analysis = loaded.analysis
     absence, clock, reuse = analysis.absence, analysis.clock, analysis.reuse
     statuses = [a.status for a in absence.assessments] if absence else []
@@ -125,6 +128,9 @@ def _findings(loaded: LoadedCase) -> None:
         )
         with style.panel("judicial-history"):
             _judge_link(loaded)
+        if similar:  # only when a precedent corpus links this case: no empty panel otherwise
+            with style.panel("similar-cases"):
+                widgets.similar_link(similar)
 
 
 def _judge_link(loaded: LoadedCase) -> None:
@@ -176,14 +182,30 @@ def _renewal_link(analysis) -> None:
     )
 
 
-def _export(loaded: LoadedCase) -> None:
-    """The findings as a Markdown report draft, built here and downloaded from this computer's own server."""
+def _report(loaded: LoadedCase, similar: Sequence[PrecedentLink]) -> str:
+    """The report draft, listing the similar cases to check when they are ready: that optional section
+    never costs the lawyer the report."""
     cases, case_id = session.store(), loaded.record.case_id
     history = [record for record in cases.all_records() if record.case_id != case_id]
-    report = draft_report(
-        loaded.record, loaded.analysis, session.judge_report_or_none(), session.config(),
-        history=history, reviews=cases.reviews(case_id), missed=cases.missed_issues(case_id),
-    )  # fmt: skip
+
+    def draft(links: Sequence[PrecedentLink]) -> str:
+        return draft_report(
+            loaded.record, loaded.analysis, session.judge_report_or_none(), session.config(),
+            history=history, reviews=cases.reviews(case_id), missed=cases.missed_issues(case_id), similar=links,
+        )  # fmt: skip
+
+    try:
+        return draft(similar)
+    except Exception:  # noqa: BLE001 - only the optional section is new here: the draft goes out without it
+        if not similar:
+            raise
+        logging.getLogger(__name__).warning("Similar cases left out of the report draft", exc_info=True)
+        return draft(())
+
+
+def _export(loaded: LoadedCase, similar: Sequence[PrecedentLink]) -> None:
+    """The findings as a Markdown report draft, built here and downloaded from this computer's own server."""
+    report = _report(loaded, similar)
     st.download_button(
         "Download report draft (.md)", data=report, file_name=f"{loaded.record.case_id}-report-draft.md",
         mime="text/markdown", key="export_report",
@@ -217,7 +239,8 @@ def _summary(loaded: LoadedCase) -> None:
             events = [e for e in analysis.clock.timeline if e.type != "hearing" and e.date is not None] if analysis.clock else []
             style.metric("Procedural events", len(events), "Distinct dated events, excluding hearings")
     style.section("Review workstreams", "Move from the overview to the evidence behind each result.")
-    _findings(loaded)
+    similar = session.similar_links_ready(loaded)  # never fails, never waits long: None until ready
+    _findings(loaded, similar)
     style.section("Complete the legal review", "Compare continued detention, test possible replies, and record your own decisions.")
     context_column, review_column = st.columns(2)
     with context_column, style.panel("renewal-context"):
@@ -226,7 +249,7 @@ def _summary(loaded: LoadedCase) -> None:
     with review_column, style.panel("review-and-research"):
         _review_link(loaded)
         st.page_link("views/jurisprudence.py", label="Research linked jurisprudence →")
-    _export(loaded)
+    _export(loaded, similar or ())
     with st.expander("Analysis record and method"):
         mode = "answers replayed from the recorded cache" if analysis.llm_mode == "replay" else "run live on this computer"
         st.markdown(

@@ -275,5 +275,15 @@ steelman:
   top_k_passages: 8
   max_arguments: 3
 
+# Similar cases (ratio/precedents.py). The corpus is data/corpus/precedents.db, built by
+# `python -m corpus_builder`; with backend opensearch, Ratio queries the copy indexed in OpenSearch on
+# this computer (`docker compose up -d opensearch`) and falls back to the file when it is not running.
+precedents:
+  backend: opensearch
+  opensearch_url: "http://127.0.0.1:9200"
+  opensearch_index: precedent_passages
+  min_shared: 2  # shared fact patterns a precedent needs, at least one of them about procedure
+  top_k: 8
+
 ui:
   context_chars: 600

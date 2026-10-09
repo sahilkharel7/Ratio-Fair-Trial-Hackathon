@@ -27,6 +27,7 @@ dependencies = [
   "pyyaml==6.0.3",
   "pypdf==6.19.0",
   "numpy==2.4.6",
+  "opensearch-py==3.2.0",  # Similar cases: the optional vector index on 127.0.0.1
 ]
 
 [project.optional-dependencies]
@@ -34,12 +35,18 @@ dev = [
   "pytest==9.1.1",
   "pytest-cov==7.1.0",
 ]
+# The precedent corpus builder only (python -m corpus_builder, run online by a maintainer). The Ratio
+# app never installs or imports it: only public documents are ever sent to the cloud model.
+corpus = [
+  "google-genai==2.29.0",
+]
 
 [tool.setuptools.packages.find]
-include = ["ratio*"]
+include = ["ratio*", "corpus_builder*"]
 
 [tool.setuptools.package-data]
 ratio = ["config/*.yaml"]
+corpus_builder = ["sources.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -48,6 +55,7 @@ addopts = "-m 'not live' --strict-markers"
 markers = [
   "embed: needs the local MiniLM model in models/ (run scripts/fetch_models.py once)",
   "live: needs a running local Ollama server with RATIO_MODEL pulled",
+  "opensearch: needs OpenSearch on http://127.0.0.1:9200 (docker compose up -d opensearch); skipped when it is not running",
 ]
 
 [tool.coverage.run]

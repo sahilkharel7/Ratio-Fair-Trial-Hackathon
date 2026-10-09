@@ -1,0 +1,123 @@
+# Fact patterns two cases can share, for "Similar cases". NEEDS LEGAL REVIEW.
+#
+# A facet is a recorded fact, never a legal conclusion about the case under review:
+# - On the case side it comes only from one of Ratio's own findings (signals: a stored flag with this
+#   module, standard and status), or from an exact keyword match in the case's documents. A
+#   "no evidence" follow-up and a benchmark that needs legal review never make a facet, so no
+#   threshold is invented here (hard rule 5).
+# - On the precedent side it comes from a public decision or report, at build time, with a verbatim
+#   quote checked against the document's text (hard rule 2).
+# - Outcomes (convicted, violation found) are shown as quotes but never matched on: "Similar cases" is
+#   a reading aid, not a prediction.
+#
+# The ids reuse Ratio's reviewed vocabulary (rubric items, the confirmed benchmark, standards), so the
+# mapping to law is the one already in rubric.yaml, benchmarks.yaml and standards.yaml.
+version: 1
+review_status: needs_legal_review
+
+facets:
+  # --- procedure: from Ratio's findings on the case ---------------------------------------
+  - id: iccpr_14_3_a
+    label: "Not informed promptly of the charge"
+    group: procedure
+    provision: "ICCPR Art. 14(3)(a)"
+    description: "The accused was not told promptly and in detail, in a language they understand, what they were charged with, or the charge was changed without notice."
+    signals: [{module: absence, standard: iccpr_14_3_a, status: evidence_of_violation}]
+  - id: iccpr_14_3_b
+    label: "Counsel or time to prepare restricted"
+    group: procedure
+    provision: "ICCPR Art. 14(3)(b)"
+    description: "The accused could not prepare a defence or talk to a lawyer: no lawyer at a hearing, remand or interrogation, access to counsel refused or delayed, too little time, or no access to the case file."
+    signals: [{module: absence, standard: iccpr_14_3_b, status: evidence_of_violation}]
+  - id: iccpr_14_3_c
+    label: "Proceedings unduly delayed"
+    group: procedure
+    provision: "ICCPR Art. 14(3)(c)"
+    description: "The trial or the proceedings took an unreasonably long time."
+    signals: [{module: absence, standard: iccpr_14_3_c, status: evidence_of_violation}]
+  - id: iccpr_14_3_d
+    label: "Presence or counsel of choice denied"
+    group: procedure
+    provision: "ICCPR Art. 14(3)(d)"
+    description: "The accused was tried in their absence or removed from the hearing, their chosen lawyer was barred or replaced, or they had no lawyer although they wanted one."
+    signals: [{module: absence, standard: iccpr_14_3_d, status: evidence_of_violation}]
+  - id: iccpr_14_3_e
+    label: "Witnesses not examined on equal terms"
+    group: procedure
+    provision: "ICCPR Art. 14(3)(e)"
+    description: "The defence could not call its witnesses or experts, or could not question the prosecution's witnesses."
+    signals: [{module: absence, standard: iccpr_14_3_e, status: evidence_of_violation}]
+  - id: iccpr_14_3_f
+    label: "No interpreter"
+    group: procedure
+    provision: "ICCPR Art. 14(3)(f)"
+    description: "The accused did not understand the language of the court and had no interpreter."
+    signals: [{module: absence, standard: iccpr_14_3_f, status: evidence_of_violation}]
+  - id: iccpr_14_3_g
+    label: "Statement or confession compelled"
+    group: procedure
+    provision: "ICCPR Art. 14(3)(g)"
+    description: "A statement or confession was obtained by threats, ill-treatment, promises or pressure, or the accused was forced to testify against themselves."
+    signals: [{module: absence, standard: iccpr_14_3_g, status: evidence_of_violation}]
+  - id: gc35_48h
+    label: "More than 48 hours before a judge"
+    group: procedure
+    provision: "ICCPR Art. 9(3)"
+    description: "After arrest the person was held for more than 48 hours before being brought before a judge or another officer exercising judicial power."
+    signals: [{module: clock, standard: gc35_48h, status: exceeds_benchmark}]
+  - id: reasoning_reuse
+    label: "Judgment repeats the prosecution's text"
+    group: procedure
+    provision: "ICCPR Art. 14(1)"
+    description: "The court's judgment or reasoning copies or closely follows the indictment or the prosecution's text instead of giving the court's own reasons."
+    signals:
+      - {module: reuse, standard: reasoning_reuse, status: verbatim_reuse}
+      - {module: reuse, standard: reasoning_reuse, status: paraphrase_reuse}
+  - id: unaddressed_defense_argument
+    label: "Defence arguments not answered"
+    group: procedure
+    provision: "ICCPR Art. 14(1)"
+    description: "The court did not respond to the defence's arguments or objections in its decision."
+    signals: [{module: reuse, standard: unaddressed_defense_argument, status: unaddressed_argument}]
+  - id: renewal_review
+    label: "Detention renewed on repeated grounds"
+    group: procedure
+    provision: "ICCPR Art. 9(3)"
+    description: "Pretrial detention was extended again and again on the same or formulaic grounds, without reasons specific to the person."
+    signals: [{module: renewal, standard: renewal_review, status: repeated_grounds}]
+
+  # --- who was prosecuted, and for what: exact keyword matches in the case's documents -------
+  # A match counts only where it describes the accused or names the offence (ratio/precedents.py):
+  # a media word in apposition to the accused or as what they are ("Daro Venn, ..., journalist,"; "the
+  # accused is a reporter"), never an object or a victim ("stole a camera from a journalist"); an
+  # offence word only in the indictment's wording of a charge the accused faces ("charged with ...", or
+  # a CHARGE section citing the provision), never one negated, withdrawn or past ("is not charged
+  # with", "the charge of ... was dropped", "previously convicted of") or the object of another noun
+  # ("theft of a phone used to spread false news"). So each charge keyword is the name of an offence,
+  # never a bare verb: not "insulted the shop assistant", "made false statements" or "terrorised".
+  - id: media_defendant
+    label: "Journalist or media worker prosecuted"
+    group: profile
+    description: "The person prosecuted or detained is a journalist, reporter, editor, blogger, publisher or other media worker."
+    keywords: ['journalists?', 'reporters?', 'editors?(?:-in-chief)?', 'bloggers?', 'publishers?', 'columnists?', 'media workers?']
+  - id: charge_false_information
+    label: "Charged with false information or false news"
+    group: charge
+    description: "The charge is spreading false information, false news or fake news, or a similar offence."
+    keywords: ['false information', 'false news', 'fake news', 'disseminat\w* false', 'spread\w* false']
+  - id: charge_defamation
+    label: "Charged with defamation or insult"
+    group: charge
+    description: "The charge is criminal defamation, libel, slander or insulting an official, a state body or the head of state."
+    keywords:
+      - 'defamation'
+      - 'defamatory'
+      - 'libel'
+      - 'slander'
+      # insulting an official, a state body or the head of state; never an insult to anyone else
+      - 'insult(?:s|ed|ing)?(?:\s+(?:of|to|against))?\s+(?:(?:the|a|an)\s+)?(?:[\w-]+\s+)?(?:president|head\s+of\s+(?:the\s+)?state|monarch|king|queen|(?:public|state|government)\s+officials?|officials?|(?:public|civil)\s+servants?|state(?:\s+(?:bod(?:y|ies)|institutions?|organs?|symbols?))?|nation|republic|government|authorities|army|armed\s+forces|police|judiciary|courts?|judges?|parliament|flag)'
+  - id: charge_extremism
+    label: "Charged under extremism or terrorism law"
+    group: charge
+    description: "The charge is extremism, terrorism, separatism, terrorist propaganda or a similar national-security offence."
+    keywords: ['extremis[mt]s?', 'terroris[mt]s?', 'separatis[mt]s?', 'propaganda for']  # "terrorist", never "terrorised"

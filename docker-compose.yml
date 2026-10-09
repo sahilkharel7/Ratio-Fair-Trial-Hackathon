@@ -1,0 +1,34 @@
+# OpenSearch for the "Similar cases" vector index (optional: Ratio falls back to the SQLite corpus
+# file when it is not running). Start it with `docker compose up -d opensearch`.
+#
+# Loopback only: the port is published on 127.0.0.1, so nothing outside this computer can reach it.
+# The index holds only the public precedent corpus, the same data as data/corpus/precedents.db, so the
+# security plugin is off; turn it on (and set OPENSEARCH_INITIAL_ADMIN_PASSWORD) before publishing
+# the port to any network.
+services:
+  opensearch:
+    image: opensearchproject/opensearch:3.6.0@sha256:b5dd1512af2a99748c942cfbbd7f32162623336b210667d0fc6333c6321f171d
+    container_name: ratio-opensearch
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g
+      - DISABLE_SECURITY_PLUGIN=true
+      - DISABLE_INSTALL_DEMO_CONFIG=true
+      - path.repo=/usr/share/opensearch/snapshots
+    ulimits:
+      memlock: { soft: -1, hard: -1 }
+      nofile: { soft: 65536, hard: 65536 }
+    ports:
+      - "127.0.0.1:9200:9200"
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data
+      - ./data/corpus/snapshots:/usr/share/opensearch/snapshots
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:9200/_cluster/health?wait_for_status=yellow&timeout=5s || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 30
+
+volumes:
+  opensearch-data:

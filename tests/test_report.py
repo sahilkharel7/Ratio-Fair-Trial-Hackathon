@@ -101,6 +101,7 @@ def test_the_cli_writes_the_demo_report(tmp_path, monkeypatch, capsys):
     text = out.read_text(encoding="utf-8")
     assert text.startswith("# Report draft: Republic of Calderra v. Daro Venn") and "### F14 · " in text
     assert "written to" in capsys.readouterr().err
+    assert "Similar cases to check" not in text  # no corpus installed (tests/conftest.py): the command still succeeds
 
 
 @needs_embedder

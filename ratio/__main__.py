@@ -13,18 +13,24 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 
-from ratio import netguard, preflight
-from ratio.config import ConfigError, default_config
+from ratio import netguard, precedents, preflight
+from ratio.config import ConfigError, RatioConfig, default_config
+from ratio.embeddings import MiniLMEmbedder
 from ratio.extraction.build import load_case
 from ratio.extraction.loader import LoaderError
-from ratio.feedback import case_findings, summarise
+from ratio.feedback import Review, case_findings, rejected_flag_ids, summarise
 from ratio.history import history_for, load_all_alias_decisions, load_history
 from ratio.llm import LLMError, OllamaClient
 from ratio.paths import DEMO_CASE_DIR
 from ratio.pipeline import analysis_context, analyze, analyze_judges, build_demo_cache, demo_llm, ingest, make_llm
+from ratio.precedent_access import open_index
+from ratio.precedent_schema import PrecedentLink
 from ratio.report import draft_report
+from ratio.results import CaseAnalysis
+from ratio.schema import CaseRecord
 from ratio.store import CaseStore
 
 
@@ -59,6 +65,23 @@ def _cmd_ingest(args: argparse.Namespace) -> int:
     return 0
 
 
+def _similar_cases(
+    record: CaseRecord, analysis: CaseAnalysis, config: RatioConfig, reviews: Sequence[Review]
+) -> tuple[PrecedentLink, ...]:
+    """The public past cases sharing the case's fact patterns, when a corpus is installed (a finding the
+    reviewer rejected makes none). An optional section: the report is written without it on any failure."""
+    try:
+        settings, taxonomy = config.settings.precedents, config.fact_patterns
+        index, _ = open_index(settings, taxonomy)
+        if index is None:
+            return ()
+        found = precedents.profile(record, analysis, taxonomy, rejected_flag_ids=rejected_flag_ids(reviews))
+        return precedents.link(found, index, MiniLMEmbedder(), settings, taxonomy)
+    except Exception as exc:  # noqa: BLE001 - optional: the report draft never fails for similar cases
+        print(f"note: similar cases left out of the report ({type(exc).__name__}: {exc})", file=sys.stderr)
+        return ()
+
+
 def _cmd_report(args: argparse.Namespace) -> int:
     config = default_config()
     case_dir = Path(args.case_dir)
@@ -68,9 +91,11 @@ def _cmd_report(args: argparse.Namespace) -> int:
     history = [r for r in history_for(record, load_history()) if r.case_id != record.case_id]  # never next to public data
     judges = analyze_judges([*history, record], {record.case_id: analysis}, load_all_alias_decisions(), config)
     store = CaseStore()  # decisions reviewers recorded on this case in the app
+    reviews = store.reviews(record.case_id)
     report = draft_report(
         record, analysis, judges, config,
-        history=history, reviews=store.reviews(record.case_id), missed=store.missed_issues(record.case_id),
+        history=history, reviews=reviews, missed=store.missed_issues(record.case_id),
+        similar=_similar_cases(record, analysis, config, reviews),
     )  # fmt: skip
     if args.output:
         Path(args.output).write_text(report, encoding="utf-8")

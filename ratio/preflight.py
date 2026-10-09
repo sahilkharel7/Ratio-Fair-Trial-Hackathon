@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
-from ratio.config import ConfigError, RatioConfig
+from ratio.config import ConfigError, FactPatternTaxonomy, PrecedentSettings, RatioConfig
 from ratio.context import Embedder
 from ratio.embeddings import EmbeddingModelMissing
 from ratio.evaluation import flag_recall
@@ -35,8 +35,11 @@ from ratio.extraction.loader import LoaderError
 from ratio.history import load_all_alias_decisions, load_history
 from ratio.llm import CachedLLM, CacheMiss, LLMError, OllamaClient
 from ratio.netguard import is_loopback_host, names_remote_resource
-from ratio.paths import ALIAS_DECISIONS, DEMO_CASE_DIR, GOLD_DIR, MINILM_DIR, PUBLIC_ALIAS_DECISIONS, REPO_ROOT, db_path
+from ratio.paths import ALIAS_DECISIONS, DEMO_CASE_DIR, GOLD_DIR, MINILM_DIR, PUBLIC_ALIAS_DECISIONS, REPO_ROOT, corpus_db_path, db_path
 from ratio.pipeline import DEMO_CACHE_MANIFEST, analyze_judges, demo_llm, process, read_demo_manifest
+from ratio.precedent_access import FILE_STATUS, open_index
+from ratio.precedent_schema import PrecedentIndex
+from ratio.precedent_store import BUILD_CHAIN
 from ratio.results import CaseAnalysis, JudgeReport
 from ratio.schema import CaseRecord
 
@@ -44,6 +47,7 @@ Status = Literal["ok", "warn", "fail"]
 
 PYTHON, PACKAGES, EMBEDDINGS, PRIVACY, STORE = "Python", "Packages", "Embedding model", "Privacy settings", "Case store"
 DEMO, MODEL, CLOUD, PORT = "Demo without the model", "Local model (live-note step only)", "Ollama cloud features", "App port"
+SIMILAR = "Similar cases corpus (optional)"
 
 PYPROJECT = REPO_ROOT / "pyproject.toml"
 STREAMLIT_CONFIGS = (REPO_ROOT / ".streamlit" / "config.toml", REPO_ROOT / "app" / ".streamlit" / "config.toml")
@@ -56,6 +60,10 @@ FETCH_MODEL = "python scripts/fetch_models.py (once, while online)"
 RESTORE_CONFIGS = "git checkout -- .streamlit/config.toml app/.streamlit/config.toml"
 RESTORE_DEMO = "git checkout -- data/demo"
 START_OLLAMA = "brew services start ollama (or open the Ollama app)"
+INSTALL_CORPUS = f"Build it while online: {BUILD_CHAIN} (see corpus_builder/); or ask the maintainer"
+REBUILD_CORPUS = "Rebuild it while online as the message says, or ask the maintainer"
+START_OPENSEARCH = "docker compose up -d opensearch, then python -m corpus_builder index-opensearch (until then the app reads the corpus file)"
+IndexOpener = Callable[[PrecedentSettings, FactPatternTaxonomy], tuple[PrecedentIndex | None, str]]
 PRIVACY_VALUES: Mapping[tuple[str, str], object] = {
     ("browser", "gatherUsageStats"): False,
     ("server", "address"): APP_HOST,
@@ -349,12 +357,40 @@ def app_port(host: str = APP_HOST, port: int = APP_PORT) -> Check:
     return Check(PORT, "ok", f"{host}:{port} is free")
 
 
+def precedent_corpus(
+    config: RatioConfig, settings: PrecedentSettings | None = None, opener: IndexOpener = open_index, path: Path | None = None
+) -> Check:
+    """Similar cases is optional: no corpus, an unreadable one, or OpenSearch stopped, is a warning and never
+    a failure. ``path``: the corpus file the opener reads (corpus_db_path(), so RATIO_CORPUS_DB)."""
+    settings = settings or config.settings.precedents
+    index, status = opener(settings, config.fact_patterns)
+    if index is None:
+        return _no_corpus(path or corpus_db_path(), status)
+    meta = index.meta()
+    detail = f"{_count(meta.documents, 'document')}, built {meta.built_at[:10]}; read from: {status}"
+    if settings.backend == "opensearch" and status.startswith(FILE_STATUS):
+        return Check(SIMILAR, "warn", detail, START_OPENSEARCH)
+    return Check(SIMILAR, "ok", detail)
+
+
+def _no_corpus(path: Path, status: str) -> Check:
+    """A corpus file that is there but cannot be opened is unreadable, not missing."""
+    if path.exists():
+        return Check(SIMILAR, "warn", f"Unreadable: {status}", REBUILD_CORPUS)
+    return Check(SIMILAR, "warn", f"Not installed at {_shown(path)}; the Similar cases page says how to install it", INSTALL_CORPUS)
+
+
 def _guarded(name: str, run: Callable[[], Check], status: Status = "fail") -> Check:
     """A check that meets something unexpected reports it instead of stopping the whole report."""
     try:
         return run()
     except Exception as exc:  # noqa: BLE001 - a diagnostic must report every problem, never crash on one
         return Check(name, status, f"The check stopped: {type(exc).__name__}: {exc}", "Fix the file or setting named here, then run the check again")
+
+
+def similar_cases(config: RatioConfig, settings: PrecedentSettings | None = None, opener: IndexOpener = open_index) -> Check:
+    """The Similar cases check as run_all would run it: anything unexpected is a warning."""
+    return _guarded(SIMILAR, lambda: precedent_corpus(config, settings, opener), "warn")
 
 
 def run_all(config: RatioConfig) -> tuple[Check, ...]:
@@ -368,6 +404,7 @@ def run_all(config: RatioConfig) -> tuple[Check, ...]:
         _guarded(MODEL, lambda: ollama_server(config), "warn"),
         _guarded(CLOUD, lambda: ollama_cloud(config), "warn"),
         _guarded(PORT, lambda: app_port(), "warn"),
+        similar_cases(config),  # optional, so warning-only
     )
 
 

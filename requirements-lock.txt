@@ -19,6 +19,7 @@ certifi==2026.7.22
     # via
     #   httpcore
     #   httpx
+    #   opensearch-py
     #   requests
 charset-normalizer==3.5.2
     # via requests
@@ -46,6 +47,8 @@ datasketch==2.0.0
     # via ratio (pyproject.toml)
 dateparser==1.4.3
     # via ratio (pyproject.toml)
+events==0.5
+    # via opensearch-py
 filelock==4.0.12
     # via
     #   huggingface-hub
@@ -54,6 +57,8 @@ fsspec==2026.9.0
     # via
     #   huggingface-hub
     #   torch
+grpcio==1.84.0
+    # via opensearch-protobufs
 h11==0.16.0
     # via
     #   httpcore
@@ -159,6 +164,10 @@ nvidia-nvshmem-cu13==3.4.5 ; sys_platform == 'linux'
     # via torch
 nvidia-nvtx==13.0.85 ; (platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')
     # via cuda-toolkit
+opensearch-protobufs==1.2.0
+    # via opensearch-py
+opensearch-py==3.2.0
+    # via ratio (pyproject.toml)
 packaging==26.3
     # via
     #   altair
@@ -175,7 +184,9 @@ pluggy==1.6.0
     #   pytest
     #   pytest-cov
 protobuf==7.36.2
-    # via streamlit
+    # via
+    #   opensearch-protobufs
+    #   streamlit
 pyarrow==25.0.1
     # via streamlit
 pydantic==2.14.0
@@ -199,6 +210,7 @@ pytest-cov==7.1.0
 python-dateutil==2.9.0.post0
     # via
     #   dateparser
+    #   opensearch-py
     #   pandas
 python-multipart==0.0.32
     # via streamlit
@@ -220,7 +232,9 @@ regex==2026.9.29
     #   dateparser
     #   transformers
 requests==2.34.2
-    # via streamlit
+    # via
+    #   opensearch-py
+    #   streamlit
 rich==15.0.0
     # via typer
 rpds-py==2026.9.1
@@ -282,6 +296,7 @@ typing-extensions==4.16.0
     # via
     #   altair
     #   anyio
+    #   grpcio
     #   huggingface-hub
     #   pydantic
     #   pydantic-core
@@ -302,7 +317,9 @@ tzlocal==5.4.4
 unidecode==1.4.0
     # via ratio (pyproject.toml)
 urllib3==2.8.0
-    # via requests
+    # via
+    #   opensearch-py
+    #   requests
 uvicorn==0.54.0
     # via streamlit
 watchdog==6.0.0 ; sys_platform != 'darwin'

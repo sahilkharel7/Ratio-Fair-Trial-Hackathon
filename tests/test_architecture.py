@@ -6,11 +6,13 @@ anything that opens files or sockets.
 """
 
 import ast
+import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
 
-from ratio.paths import PACKAGE_DIR
+from ratio.paths import PACKAGE_DIR, REPO_ROOT
 
 FORBIDDEN_IMPORTS = (
     "ratio.extraction",
@@ -67,3 +69,64 @@ def test_modules_never_open_files_or_evaluate_code(path: Path):
 
 def test_the_rule_is_checking_real_files():
     assert any(path.name == "__init__.py" for path in MODULE_FILES)
+
+
+# --- Similar cases: the online builder and the offline runtime stay apart (hard rule 1) ------------
+
+RUNTIME_FILES = sorted([*PACKAGE_DIR.rglob("*.py"), *(REPO_ROOT / "app").rglob("*.py")])
+BUILDER_FILES = sorted((REPO_ROOT / "corpus_builder").glob("*.py"))
+SEARCH_CLIENT = PACKAGE_DIR / "precedent_opensearch.py"
+
+
+def _imports(path: Path) -> list[str]:
+    return imported_names(ast.parse(path.read_text(encoding="utf-8")))
+
+
+def _imports_any(path: Path, prefixes: tuple[str, ...]) -> list[str]:
+    return [name for name in _imports(path) if any(name == bad or name.startswith(bad + ".") for bad in prefixes)]
+
+
+@pytest.mark.parametrize("path", RUNTIME_FILES, ids=lambda p: str(p.relative_to(REPO_ROOT)))
+def test_the_app_never_imports_the_builder_or_the_cloud_model(path: Path):
+    assert not _imports_any(path, ("google.genai", "google.generativeai", "corpus_builder")), path.name
+
+
+@pytest.mark.parametrize("path", [*RUNTIME_FILES, *BUILDER_FILES], ids=lambda p: str(p.relative_to(REPO_ROOT)))
+def test_only_the_search_backend_imports_opensearchpy(path: Path):
+    if path != SEARCH_CLIENT:
+        assert not _imports_any(path, ("opensearchpy",)), path.name
+
+
+def test_the_search_backend_imports_opensearchpy_only_inside_functions():
+    tree = ast.parse(SEARCH_CLIENT.read_text(encoding="utf-8"))
+    top_level = imported_names(ast.Module(body=[node for node in tree.body if isinstance(node, (ast.Import, ast.ImportFrom))], type_ignores=[]))
+    assert not [name for name in top_level if name.startswith("opensearchpy")]
+    assert any(name.startswith("opensearchpy") for name in imported_names(tree))  # the check sees the lazy imports
+
+
+def test_similar_cases_obeys_the_modules_rules():
+    path = PACKAGE_DIR / "precedents.py"
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    assert not _imports_any(path, FORBIDDEN_IMPORTS)
+    calls = {node.func.id for node in ast.walk(tree) if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)}
+    assert not calls & FORBIDDEN_CALLS
+
+
+@pytest.mark.parametrize("path", BUILDER_FILES, ids=lambda p: p.name)
+def test_the_builder_never_reads_cases_or_calls_the_case_model(path: Path):
+    assert not _imports_any(path, ("ratio.store", "ratio.pipeline", "ratio.llm", "ratio.netguard.install")), path.name
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    installs = [node for node in ast.walk(tree) if isinstance(node, ast.Attribute) and node.attr == "install" and getattr(node.value, "id", "") == "netguard"]
+    assert not installs, f"{path.name} installs the network guard"
+
+
+def test_the_builder_rule_is_checking_real_files():
+    assert any(path.name == "opensearch.py" for path in BUILDER_FILES)
+    assert SEARCH_CLIENT in RUNTIME_FILES
+
+
+def test_the_precedent_corpus_is_never_committed():
+    if shutil.which("git") is None or not (REPO_ROOT / ".git").exists():
+        pytest.skip("not a git checkout")
+    ignored = subprocess.run(["git", "check-ignore", "-q", "data/corpus/x"], cwd=REPO_ROOT, check=False)
+    assert ignored.returncode == 0, "data/corpus/ must be git-ignored: it holds real public documents"

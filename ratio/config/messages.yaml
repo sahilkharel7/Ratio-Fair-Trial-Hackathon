@@ -26,6 +26,12 @@ templates:
   judge_method: "Each case counts once per indicator. The first appearance and the verdict are decided by one ruling of the case, and the case counts for the judge who made it; the other indicators use this judge's own coded rulings in the case. The baseline is every other judge of the same court for the same charge type, with no wider pool. Rates show {confidence} Wilson intervals. The pattern label needs a Newcombe interval for the difference that excludes zero at 1 - {alpha}/k, where k is the number of indicators compared on this page. Indicators with fewer than {minimum} cases, for the judge or the baseline, are not shown. Names waiting for confirmation, and cases whose rulings cannot be put in order, count nowhere."
   review_status: "Reviewed: {reviewed} of {total} findings ({accepted} accepted, {edited} reworded, {rejected} rejected). Issues recorded that Ratio did not flag: {missed}."
   review_stale: "Earlier decisions on findings this analysis no longer produces: {n}. They are kept for the record and listed on the Review page."
+  # Similar cases (app/views/similar.py): a reading aid, never a finding or a prediction.
+  similar_status: "Precedent index: {status}."
+  similar_score: "Shares {patterns} with this case; similarity of the closest passages: {cosine} (cosine)."
+  similar_score_no_cosine: "Shares {patterns} with this case."
+  similar_none: "No public case in the corpus shares at least {min_shared} of this case's fact patterns, one of them about procedure."
+  similar_built: "Built on {date} from {documents}, with {facets} fact patterns quoted. Extraction model: {model}. Quotes dropped because they were not found word for word in their document: {dropped}."
 
 notes:
   selection_bias: "TrialWatch monitors cases already suspected of unfairness, so these rates are not representative. The baseline is also drawn from monitored cases. Indicators are prompts for review; conclusions on impartiality are for the reviewing lawyer."
@@ -56,6 +62,15 @@ notes:
   steelman_unsupported: "Grounds the passages shown to the model did not support"
   steelman_intro: "For each finding the State would contest, the strongest reply the State could make, argued by the local model from the record so that the reviewing lawyer can test the finding before relying on it. Judge patterns get no reply: arguing a judge's side would be a statement about a person."
   report_no_judge: "No coded rulings are stored for the presiding judge of this case, so there are no indicators to report."
+  report_similar: "Similar cases to check"
+  similar_intro: "Public past cases that share fact patterns with this case: Views of the UN Human Rights Committee, opinions of the UN Working Group on Arbitrary Detention and TrialWatch fairness reports. A fact pattern of this case comes from one of Ratio's findings or from an exact phrase in its documents; a past case's comes from a passage of its public text, quoted word for word and checked against that text. Rarer shared patterns rank higher. Each shared pattern shows this case's passage beside the past case's, and what the deciding body said about it, in its own words."
+  similar_caveat: "Similar recorded facts, chosen by shared fact patterns. Not a finding and not a prediction: whether a precedent applies is for the reviewing lawyer. Needs legal review."
+  similar_no_corpus: "No precedent corpus is installed on this computer, so similar cases cannot be shown. Build it while online: python -m corpus_builder fetch, then normalize, extract, verify, embed and build-db (see corpus_builder/); or ask the maintainer. For the optional OpenSearch index: docker compose up -d opensearch, then python -m corpus_builder index-opensearch."
+  similar_no_facets: "Ratio found none of the fact patterns it compares in this case, so no past case can be linked to it."
+  similar_computing: "Still comparing this case with the public cases. They keep computing on this computer: check again in a moment."
+  similar_failed: "Similar cases could not be computed on this computer. The rest of Ratio works without them; the reason is in the app's log."
+  similar_corpus_heading: "Corpus and attribution"
+  similar_attribution: "Each document remains the work of its source and is quoted here for reference, with its attribution. The terms of use were last checked on the dates shown."
 
 # Short labels the app shows next to findings (reviewed like the templates).
 labels:
@@ -115,6 +130,23 @@ labels:
   module_clock: "Timeline"
   module_reuse: "Reasoning reuse"
   module_judges: "Judge profile"
+  # Similar cases: where a precedent comes from, and how its deciding body's words are labelled.
+  precedent_ccpr_views: "Committee Views"
+  precedent_wgad_opinion: "WGAD opinion"
+  precedent_trialwatch_report: "TrialWatch assessment"
+  real_public_case: "Real public case"
+  synthetic_precedent: "Synthetic test document"
+  precedent_fact: "Facts as recorded"
+  similar_this_case: "This case"
+  similar_check_again: "Check again"
+  facet_from_finding: "from one of Ratio's findings"
+  facet_from_keyword: "from the wording of the case documents"
+  finding_violation_found: "Violation found"
+  finding_violation_found_ccpr_views: "Committee found a violation"
+  finding_violation_found_wgad_opinion: "Working Group found the detention arbitrary"
+  finding_no_violation: "No violation found"
+  finding_not_examined: "Not examined"
+  finding_monitor_assessment: "TrialWatch assessment"
 
 # Event names shown on the timeline (roles, never the names of people).
 event_labels:

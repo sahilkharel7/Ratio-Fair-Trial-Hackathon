@@ -4,18 +4,27 @@ the source viewer. Document and model text is always escaped before it is shown.
 from __future__ import annotations
 
 import html
-from collections.abc import Sequence
+import logging
+from collections.abc import Mapping, Sequence
 
 import streamlit as st
 
 from ratio.display import md_escape
 from ratio.jurisprudence import Reference
+from ratio.precedent_schema import PrecedentDoc, PrecedentLink, PrecedentQuote, SharedFacet
 from ratio.results import StateReply
 from ratio.schema import CaseRecord, Evidence, SourceSpan
 from ratio_ui import session, style, viewer
 from ratio_ui.session import LoadedCase
 
+_log = logging.getLogger(__name__)
 QUOTE_CHARS = 420
+VIEWS_FINDINGS = frozenset({"violation_found", "no_violation", "not_examined"})
+FINDINGS_SHOWN: Mapping[str, frozenset[str]] = {  # the outcomes each kind of source states; any other is not shown
+    "ccpr_views": VIEWS_FINDINGS,
+    "wgad_opinion": VIEWS_FINDINGS,
+    "trialwatch_report": frozenset({"monitor_assessment", "not_examined"}),  # a monitor assesses, it finds no violation
+}
 BADGE_COLORS = {
     "evidence_of_compliance": "green",
     "evidence_of_violation": "red",
@@ -153,3 +162,60 @@ def model_note(text: str | None) -> None:
     if text:
         with st.expander(session.config().messages.notes["model_note_label"]):
             st.markdown(md_escape(text))
+
+
+# --- Similar cases ------------------------------------------------------------------------------
+
+
+def _clipped(text: str) -> str:
+    return text if len(text) <= QUOTE_CHARS else text[:QUOTE_CHARS].rsplit(" ", 1)[0] + " …"
+
+
+def finding_label(doc: PrecedentDoc, shared: SharedFacet) -> str | None:
+    """How the deciding body's words are labelled, e.g. "Committee found a violation"; None for a kind of
+    finding its kind of source does not make, which is then not shown."""
+    kind = shared.finding_kind
+    if kind not in FINDINGS_SHOWN.get(doc.kind, frozenset()):
+        return None
+    return session.config().messages.labels.get(f"finding_{kind}_{doc.kind}") or label(f"finding_{kind}")
+
+
+def narrow_evidence(record: CaseRecord, items: Sequence[Evidence], key: str, heading: str = "") -> None:
+    """Evidence rows for a half-width column: each quote with its View source button under it, so the
+    button's label is never cut short."""
+    for index, item in enumerate(items):
+        st.html(quote_html(record, item))
+        source_button(item.span, record, key=f"{key}-{index}", heading=heading)
+
+
+def precedent_quote_html(where: str, quote: PrecedentQuote, *, clip: bool = True) -> str:
+    text = _clipped(quote.span.text) if clip else quote.span.text
+    return f'<div class="ratio-quote"><span class="ratio-where">{html.escape(where)}</span>“{html.escape(text)}”</div>'
+
+
+def precedent_evidence(doc: PrecedentDoc, shared: SharedFacet, key: str) -> None:
+    """A public past case's side of a shared fact pattern: its facts and, when quoted, what its deciding
+    body said about them, each with a button that opens the passage checked against the corpus. A
+    finding is shown whole: the corpus build bounds its length, and a cut could drop its "not"."""
+    quotes = [(label("precedent_fact"), shared.precedent_fact, True)]
+    finding = finding_label(doc, shared)
+    if shared.precedent_finding is not None and finding is not None:  # an outcome only as the body's own words
+        quotes.append((finding, shared.precedent_finding, False))
+    for index, (where, quote, clip) in enumerate(quotes):  # laid out like narrow_evidence, beside it
+        st.html(precedent_quote_html(where, quote, clip=clip))
+        if st.button("View source", key=f"{key}-{index}", help="Opens the exact passage, highlighted in the public document and checked against it"):
+            viewer.show_precedent(quote.span, doc, shared.label)
+
+
+def similar_link(links: Sequence[PrecedentLink] | None) -> None:
+    """The Case page's line for Similar cases, from session.similar_links_ready: nothing while the links
+    are computing or when no corpus is installed. It never fails, as the Case page is the demo's main page."""
+    if links is None:
+        return
+    try:
+        count = len(links)
+        cases = "1 public case shares" if count == 1 else f"{count} public cases share"
+        min_shared = session.precedent_settings().min_shared
+        st.page_link("views/similar.py", label=f"Similar cases: {cases} at least {min_shared} fact patterns")
+    except Exception:  # noqa: BLE001 - an optional line: the Similar cases page shows what went wrong
+        _log.warning("Similar cases line left out of the Case page", exc_info=True)

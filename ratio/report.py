@@ -18,6 +18,7 @@ from ratio import feedback, jurisprudence
 from ratio.config import Benchmark, Benchmarks, Messages, RatioConfig
 from ratio.display import duration_text, guarantee_badge, line_number, percent
 from ratio.messages import render
+from ratio.precedent_schema import PrecedentDoc, PrecedentLink
 from ratio.results import (
     AbsenceResult,
     CaseAnalysis,
@@ -78,6 +79,12 @@ def _date(event: TimelineEvent) -> str:
         return "undated"
     formats = {"datetime": "%Y-%m-%d %H:%M", "month": "%Y-%m", "year": "%Y"}
     return event.date.strftime(formats.get(event.precision, "%Y-%m-%d"))
+
+
+def _citation(doc: PrecedentDoc) -> str:
+    """A public past case as a lawyer cites it: title, symbol, deciding body, state and year."""
+    parts = (doc.title, doc.symbol, doc.body, doc.state, str(doc.year) if doc.year else None)
+    return ", ".join(part for part in parts if part)
 
 
 def _rate(estimate: RateEstimate) -> str:
@@ -300,6 +307,14 @@ class _Report:
             self.add(f"- **{md(self.label('module_' + issue.module))}, {md(issue.standard)}:** {md(issue.note)}{by}")
         self.add("")
 
+    def similar(self, links: Sequence[PrecedentLink]) -> None:
+        """Public past cases sharing this case's fact patterns: what to read, never what they found."""
+        self.add(f"## {md(self.note('report_similar'))}", "", f"*{md(self.note('similar_caveat'))}*", "")
+        for found in links:
+            patterns = "; ".join(shared.label for shared in found.shared)
+            self.add(f"- **{md(_citation(found.precedent))}.** Shared fact patterns: {md(patterns)}.  ", f"  {md(found.precedent.url)}")
+        self.add("")
+
     def decision(self, review: feedback.Review) -> None:
         by = f", {md(review.reviewer)}" if review.reviewer else ""
         reason = f" Reason: {md(review.note)}" if review.note.strip() else ""
@@ -358,10 +373,12 @@ def draft_report(
     history: Sequence[CaseRecord] = (),
     reviews: Sequence[feedback.Review] = (),
     missed: Sequence[feedback.MissedIssue] = (),
+    similar: Sequence[PrecedentLink] = (),
 ) -> str:
     """The case as a Markdown report draft. ``history`` holds the other stored cases, so a judge
     pattern's coded rulings are located by document title and line; ``reviews`` and ``missed`` are
-    the reviewers' decisions and missed issues recorded for this case, in the order they were made."""
+    the reviewers' decisions and missed issues recorded for this case, in the order they were made;
+    ``similar`` are the public past cases linked to it (ratio/precedents.py), listed to be checked."""
     flags = feedback.case_findings(analysis, judges)
     in_force = feedback.current(r for r in reviews if r.case_id == record.case_id)
     shown = {flag.id for flag in flags}
@@ -376,6 +393,8 @@ def draft_report(
     report.judge(judges)
     if missed:
         report.missed(missed)
+    if similar:
+        report.similar(similar)
     for flag in flags:  # a finding the body did not cite still reaches the annex
         report.ref(flag)
     report.annex()

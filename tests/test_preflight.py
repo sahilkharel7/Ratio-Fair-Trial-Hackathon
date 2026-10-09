@@ -348,7 +348,10 @@ def test_a_busy_app_port_is_reported_and_a_free_one_passes():
 
 
 def test_run_all_checks_everything_in_order(monkeypatch):
-    names = ["python_version", "packages", "embedding_model", "privacy_settings", "case_store", "demo_replay", "ollama_server", "ollama_cloud", "app_port"]
+    names = [
+        "python_version", "packages", "embedding_model", "privacy_settings", "case_store", "demo_replay",
+        "ollama_server", "ollama_cloud", "app_port", "similar_cases",
+    ]  # fmt: skip
     for name in names:
         monkeypatch.setattr(preflight, name, lambda *args, _name=name, **kwargs: Check(_name, "ok", "fine"))
     assert [check.name for check in preflight.run_all(CONFIG)] == names
@@ -360,9 +363,58 @@ def test_a_check_that_meets_something_unexpected_reports_it(monkeypatch):
     monkeypatch.setattr(preflight, "packages", raising(RuntimeError("something odd")))
     monkeypatch.setattr(preflight, "ollama_server", raising(RuntimeError("odd reply")))
     monkeypatch.setattr(preflight, "ollama_cloud", raising(KeyError("cloud")))
+    monkeypatch.setattr(preflight, "precedent_corpus", raising(RuntimeError("odd corpus")))
     checks = {check.name: check for check in preflight.run_all(CONFIG)}
     assert checks["Packages"].status == "fail" and "RuntimeError: something odd" in checks["Packages"].detail
     assert checks["Local model (live-note step only)"].status == "warn" and checks["Ollama cloud features"].status == "warn"
+    similar = checks[preflight.SIMILAR]  # optional: never a failure, even when it breaks
+    assert similar.status == "warn" and "RuntimeError: odd corpus" in similar.detail
+
+
+def test_without_a_corpus_the_similar_cases_check_only_warns_and_the_demo_stays_ready(monkeypatch):
+    for name in ("python_version", "packages", "embedding_model", "privacy_settings", "case_store", "demo_replay", "ollama_server", "ollama_cloud", "app_port"):
+        monkeypatch.setattr(preflight, name, lambda *args, _name=name, **kwargs: Check(_name, "ok", "fine"))
+    checks = preflight.run_all(CONFIG)  # the suite points RATIO_CORPUS_DB at a file that does not exist
+    assert checks[-1].name == preflight.SIMILAR and checks[-1].status == "warn"
+    assert preflight.exit_code(checks) == 0 and preflight.format_report(checks).endswith("Ready for the demo: 0 failures, 1 warning.")
+
+
+CORPUS_STEPS = ("fetch", "normalize", "extract", "verify", "embed", "build-db")
+
+
+def test_no_corpus_file_is_not_installed_and_the_fix_names_every_build_step(tmp_path, monkeypatch):
+    monkeypatch.setenv("RATIO_CORPUS_DB", str(tmp_path / "precedents.db"))
+    check = preflight.similar_cases(CONFIG)
+    assert (check.status, check.detail.split(" ")[:2]) == ("warn", ["Not", "installed"])
+    assert all(step in check.fix for step in CORPUS_STEPS), check.fix
+
+
+@pytest.mark.parametrize(
+    ("content", "says"),
+    [(b"SYNTHETIC: not a database", "cannot be read"), (b"", "cannot be read (no such table: meta)")],
+    ids=["not-a-database", "empty-file"],
+)
+def test_a_corpus_file_that_cannot_be_opened_is_unreadable_not_missing(tmp_path, monkeypatch, content, says):
+    path = tmp_path / "precedents.db"
+    path.write_bytes(content)
+    monkeypatch.setenv("RATIO_CORPUS_DB", str(path))
+    check = preflight.similar_cases(CONFIG)
+    assert check.status == "warn" and check.detail.startswith("Unreadable: ") and "Not installed" not in check.detail
+    assert says in check.detail and "ask the maintainer" in check.fix
+
+
+def test_the_corpus_check_looks_for_the_file_the_opener_read(tmp_path):
+    there = tmp_path / "precedents.db"
+    there.write_bytes(b"SYNTHETIC")
+    refused = lambda settings, taxonomy: (None, "refused")  # noqa: E731
+    assert preflight.precedent_corpus(CONFIG, opener=refused, path=there).detail == "Unreadable: refused"
+    assert preflight.precedent_corpus(CONFIG, opener=refused, path=tmp_path / "missing.db").detail.startswith("Not installed")
+
+
+def test_the_corpus_fix_says_to_build_it_or_ask_the_maintainer_never_to_copy_one():
+    for text in (preflight.INSTALL_CORPUS, CONFIG.messages.notes["similar_no_corpus"]):
+        assert "python -m corpus_builder" in text and "ask the maintainer" in text
+        assert "copy" not in text.lower(), text
 
 
 def test_the_report_shows_fixes_and_only_failures_block_the_demo():
