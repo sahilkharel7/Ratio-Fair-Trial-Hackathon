@@ -16,7 +16,7 @@ from collections.abc import Mapping
 from pathlib import Path, PurePosixPath
 
 import yaml
-from pydantic import Field, ValidationError, model_validator
+from pydantic import Field, ValidationError, field_validator, model_validator
 
 from ratio.extraction.align import find_all
 from ratio.extraction.dates import has_explicit_year, parse_date_text
@@ -88,6 +88,11 @@ class _RulingEntry(Frozen):
     judge: str = Field(min_length=1)
     date: dt.date | None = None
     value: float | None = Field(default=None, ge=0, allow_inf_nan=False, strict=True)  # e.g. months; strict: 'yes' is not 1
+
+    @field_validator("value")
+    @classmethod
+    def _unsigned_zero(cls, value: float | None) -> float | None:
+        return None if value is None else value + 0.0  # -0.0 passes ge=0 but would print as "-0"
 
 
 class _RulingsFile(Frozen):

@@ -186,6 +186,10 @@ class OllamaClient:
     def version(self) -> str:
         return str(self._post("/api/version", None).get("version", "unknown"))
 
+    def status(self) -> dict:
+        """The server's own report of its settings, e.g. {"cloud": {"disabled": true, "source": "config"}}."""
+        return self._post("/api/status", None)
+
     def check_model(self) -> dict:
         """Confirm the model is pulled and local; returns Ollama's description of it."""
         info = self._post("/api/show", {"model": self._model})

@@ -210,8 +210,9 @@ def test_a_ruling_value_must_be_a_finite_non_negative_number(tmp_path, value):
         load_case(write_case(tmp_path / "case", rulings=rulings))
 
 
-@pytest.mark.parametrize(("value", "expected"), [("36", 36.0), ("36.5", 36.5), ("0", 0.0)])
+@pytest.mark.parametrize(("value", "expected"), [("36", 36.0), ("36.5", 36.5), ("0", 0.0), ("-0.0", 0.0)])
 def test_a_numeric_ruling_value_is_read_as_a_number(tmp_path, value, expected):
     rulings = RULINGS.replace("date: 2025-07-14}", f"date: 2025-07-14, value: {value}}}")
     [ruling] = load_case(write_case(tmp_path / "case", rulings=rulings)).rulings
     assert ruling.value == expected
+    assert f"{ruling.value:g}" == f"{expected:g}"  # a negative zero would print as "-0"

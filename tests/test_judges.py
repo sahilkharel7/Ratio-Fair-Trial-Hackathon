@@ -297,8 +297,9 @@ def test_alias_decisions_must_be_utf8_and_valid(tmp_path):
 
     path = tmp_path / "alias_decisions.yaml"
     path.write_bytes('synthetic: true\ndecisions:\n  - {case_id: c1, name: "I. Varda", same_as: "Iléna Várda"}\n'.encode("cp1252"))
-    with pytest.raises(LoaderError, match="UTF-8"):
+    with pytest.raises(LoaderError, match="UTF-8") as raised:
         load_alias_decisions(path)
+    assert str(path) in str(raised.value)  # two files share the name, so the message names the folder too
     path.write_text("synthetic: true\ndecisions:\n  - {case_id: c1}\n", encoding="utf-8")
     with pytest.raises(LoaderError, match="invalid"):
         load_alias_decisions(path)

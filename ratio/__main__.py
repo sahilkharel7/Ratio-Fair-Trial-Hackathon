@@ -3,6 +3,7 @@
     python -m ratio ingest [CASE_DIR] [--live]   build a case record and save it to the store
     python -m ratio build-demo-cache [--fresh]   record the demo's model calls with Ollama
     python -m ratio check-ollama                 check the local Ollama server and model
+    python -m ratio preflight                    check this computer is ready for the offline demo
 """
 
 from __future__ import annotations
@@ -11,7 +12,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from ratio import netguard
+from ratio import netguard, preflight
 from ratio.config import ConfigError, default_config
 from ratio.extraction.build import load_case
 from ratio.extraction.loader import LoaderError
@@ -65,6 +66,12 @@ def _cmd_check_ollama(_: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_preflight(_: argparse.Namespace) -> int:
+    checks = preflight.run_all(default_config())
+    print(preflight.format_report(checks))
+    return preflight.exit_code(checks)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m ratio", description="Ratio (offline fair-trial monitoring analysis)")
     commands = parser.add_subparsers(dest="command", required=True)
@@ -74,10 +81,11 @@ def main(argv: list[str] | None = None) -> int:
     rebuild = commands.add_parser("build-demo-cache", help="record the demo's model calls with the local model")
     rebuild.add_argument("--fresh", action="store_true", help="ask every call again instead of reusing recorded replies")
     commands.add_parser("check-ollama", help="check the local Ollama server and model")
+    commands.add_parser("preflight", help="check this computer is ready for the offline demo")
     args = parser.parse_args(argv)
 
     netguard.install()
-    handlers = {"ingest": _cmd_ingest, "build-demo-cache": _cmd_build_demo_cache, "check-ollama": _cmd_check_ollama}
+    handlers = {"ingest": _cmd_ingest, "build-demo-cache": _cmd_build_demo_cache, "check-ollama": _cmd_check_ollama, "preflight": _cmd_preflight}
     try:
         return handlers[args.command](args)
     except (LLMError, LoaderError, ConfigError) as exc:

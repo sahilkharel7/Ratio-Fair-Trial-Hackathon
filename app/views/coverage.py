@@ -16,12 +16,12 @@ SELECTED = "ratio_coverage_item"
 def _grid(assessments: tuple[GuaranteeAssessment, ...]) -> None:
     for assessment in assessments:
         with st.container(border=True):
-            name, status, action = st.columns([6, 4, 2], vertical_alignment="center")
-            name.markdown(f"**{md_escape(assessment.provision)}**  \n{md_escape(assessment.name)}")
-            with status:
+            st.markdown(f"**{md_escape(assessment.provision)}**  \n{md_escape(assessment.name)}")
+            # status and button at their natural width: fixed columns cut them to "O…" on a laptop screen
+            with st.container(horizontal=True, horizontal_alignment="distribute", vertical_alignment="center"):
                 widgets.badge(assessment.status)
-            if action.button("Open", key=f"open-{assessment.rubric_id}"):
-                st.session_state[SELECTED] = assessment.rubric_id
+                if st.button("Open", key=f"open-{assessment.rubric_id}"):
+                    st.session_state[SELECTED] = assessment.rubric_id
 
 
 def _parts(assessment: GuaranteeAssessment) -> None:

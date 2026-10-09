@@ -8,11 +8,13 @@ monitoring data. Unix-domain sockets and binding local servers are unaffected.
 from __future__ import annotations
 
 import ipaddress
+import re
 import socket
 from typing import Any
 
 # Only "localhost" is guaranteed to resolve on this machine; other names could need a DNS lookup.
 _LOOPBACK_NAMES = frozenset({"localhost"})
+_REMOTE_REFERENCE = re.compile(r"(?:^|[^\w])//|url\(", re.IGNORECASE)  # http://, https://, //host, url(...)
 _originals: dict[str, Any] = {}
 
 
@@ -34,6 +36,18 @@ def is_loopback_host(host: object) -> bool:
         return ipaddress.ip_address(name.split("%", 1)[0]).is_loopback
     except ValueError:
         return False
+
+
+def names_remote_resource(value: object) -> bool:
+    """True when a setting (or anything nested in it) points the browser at another computer,
+    such as a font or theme file named by URL."""
+    if isinstance(value, str):
+        return bool(_REMOTE_REFERENCE.search(value))
+    if isinstance(value, dict):
+        return any(names_remote_resource(item) for item in value.values())
+    if isinstance(value, (list, tuple)):
+        return any(names_remote_resource(item) for item in value)
+    return False
 
 
 def _blocked(host: object) -> NetworkBlockedError:
