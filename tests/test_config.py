@@ -186,3 +186,37 @@ def test_a_key_that_overrides_a_merged_mapping_is_still_allowed(tmp_path):
     path = tmp_path / "merge.yaml"
     path.write_text("base: &base {a: 1, b: 2}\nderived:\n  <<: *base\n  b: 3\n", encoding="utf-8")
     assert _read_yaml(path)["derived"] == {"a": 1, "b": 3}
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "templates:\n  - &t\n    <<: {a: 1, b: 2}\n    b: 3\nitems:\n  x:\n    <<: *t\n",  # an anchor in a list, merged later
+        "x:\n  <<: &m\n    <<: {a: 1}\n    a: 2\ny:\n  m: *m\n",  # a merge source that itself merges
+        "=: x\n",  # the "=" key, read as a plain string
+    ],
+)
+def test_valid_merges_and_special_keys_load_as_the_safe_loader_reads_them(tmp_path, text):
+    import yaml
+
+    from ratio.config import _read_yaml
+
+    path = tmp_path / "valid.yaml"
+    path.write_text(text, encoding="utf-8")
+    assert _read_yaml(path) == yaml.safe_load(text)
+
+
+@pytest.mark.parametrize(
+    ("text", "match"),
+    [
+        ("d:\n  <<: {a: 1, a: 2}\n", "duplicate key 'a'"),  # inside an inline merge source
+        ("? [a, b]\n: x\n", "unhashable"),  # a list as a key
+    ],
+)
+def test_broken_keys_are_refused_with_the_file_named(tmp_path, text, match):
+    from ratio.config import _read_yaml
+
+    path = tmp_path / "broken.yaml"
+    path.write_text(text, encoding="utf-8")
+    with pytest.raises(ConfigError, match=f"(?s)broken.yaml.*{match}"):  # the message spans lines
+        _read_yaml(path)

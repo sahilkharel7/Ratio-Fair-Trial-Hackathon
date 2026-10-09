@@ -1,4 +1,4 @@
-"""Ratio: offline fair-trial monitoring analysis (FairTrial x AI Hackathon, Track 2)."""
+"""Ratio: offline fair-trial monitoring analysis (FairTrial AI Hackathon, Track 2)."""
 
 import os
 

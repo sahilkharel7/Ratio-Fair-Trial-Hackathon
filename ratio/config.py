@@ -385,23 +385,31 @@ _FILES: dict[str, tuple[str, type[Frozen]]] = {
 }
 
 
+_UNCHECKED_KEY_TAGS = frozenset({"tag:yaml.org,2002:merge", "tag:yaml.org,2002:value"})  # "<<" and "="
+
+
 class _UniqueKeyLoader(yaml.SafeLoader):
-    """SafeLoader that refuses a key written twice in one mapping (PyYAML would keep the last one)."""
+    """SafeLoader that refuses a key written twice in one mapping (PyYAML would keep the last one).
 
+    Each mapping is checked once, with its keys as written: PyYAML flattens a mapping before it
+    builds it, and a merge ("<<:") rewrites the keys of the mapping it reads from."""
 
-def _unique_mapping(loader: yaml.SafeLoader, node: yaml.MappingNode, deep: bool = False) -> dict:
-    seen = set()
-    for key_node, _ in node.value:  # the keys as written: a key that overrides a merged one ("<<:") is allowed
-        if key_node.tag == "tag:yaml.org,2002:merge":
-            continue
-        key = loader.construct_object(key_node, deep=deep)
-        if key in seen:
-            raise yaml.constructor.ConstructorError(None, None, f"duplicate key {key!r}", key_node.start_mark)
-        seen.add(key)
-    return yaml.SafeLoader.construct_mapping(loader, node, deep=deep)
+    def __init__(self, stream: str) -> None:
+        super().__init__(stream)
+        self._checked: set[yaml.Node] = set()
 
-
-_UniqueKeyLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG, _unique_mapping)
+    def flatten_mapping(self, node: yaml.MappingNode) -> None:
+        if node not in self._checked:
+            self._checked.add(node)
+            seen: set[object] = set()
+            for key_node, _ in node.value:
+                if not isinstance(key_node, yaml.ScalarNode) or key_node.tag in _UNCHECKED_KEY_TAGS:
+                    continue  # merges, "=", and list or mapping keys, which PyYAML itself refuses
+                key = self.construct_object(key_node)
+                if key in seen:
+                    raise yaml.constructor.ConstructorError(None, None, f"duplicate key {key!r}", key_node.start_mark)
+                seen.add(key)
+        super().flatten_mapping(node)
 
 
 def _read_yaml(path: Path) -> object:

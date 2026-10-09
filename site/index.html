@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
-<meta name="description" content="Ratio reads a trial’s monitoring record and gives the reviewing lawyer findings to check line by line, each linked to the sentence it rests on. It runs offline, on the reviewer’s own computer. FairTrial x AI Hackathon, Track 2.">
+<meta name="description" content="Ratio reads a trial’s monitoring record and gives the reviewing lawyer findings to check line by line, each linked to the sentence it rests on. It runs offline, on the reviewer’s own computer. FairTrial AI Hackathon, Track 2.">
 <title>Ratio</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <style>
@@ -641,7 +641,7 @@
     <div class="wrap">
       <div class="hero-grid">
         <div class="hero-title">
-          <p class="kicker">FairTrial x AI Hackathon · Track 2: Observation to Legal Evaluation</p>
+          <p class="kicker">FairTrial AI Hackathon · Track 2: Observation to Legal Evaluation</p>
           <h1 id="page-title">Ratio</h1>
           <p class="deck">Reads a trial’s monitoring record and gives the reviewing lawyer findings to check line by line, each linked to the sentence it rests on. The legal evaluation stays with the lawyer.</p>
         </div>
@@ -889,7 +889,7 @@
             <p>Ratio describes what the record shows and leaves conclusions to the reviewing lawyer.</p>
           </div>
           <div class="rule-body">
-            <p><span class="rule-label">How Ratio enforces it.</span> The messages of findings and the labels come from fixed templates (<code>ratio/config/messages.yaml</code>). Model notes appear only under “Model note (unverified)”, after words that characterise a person are removed. Judge indicators say “pattern that warrants review” only when the confidence interval for the difference from the baseline excludes zero, with the significance level divided across the indicators shown. Otherwise they say the judge is not distinguishable from the baseline at this sample size. Every rate shows n and a 95% Wilson interval. Indicators are hidden below 5 cases. The baseline is the same court and charge type only. Rulings are coded by people, never by the model. A name counts for a judge only at the same court, and doubtful names wait for a person to decide.</p>
+            <p><span class="rule-label">How Ratio enforces it.</span> The messages of findings, and the short status and evidence labels shown next to them, come from fixed templates (<code>ratio/config/messages.yaml</code>). Model notes appear only under “Model note (unverified)”, after words that characterise a person are removed. Judge indicators say “pattern that warrants review” only when the confidence interval for the difference from the baseline excludes zero, with the significance level divided across the indicators shown. Otherwise they say the judge is not distinguishable from the baseline at this sample size. Every rate shows n and a 95% Wilson interval. Indicators are hidden below 5 cases. The baseline is the same court and charge type only. Rulings are coded by people, never by the model. A name counts for a judge only at the same court, and doubtful names wait for a person to decide.</p>
             <p class="rule-test"><span class="rule-label">How it is tested.</span> Known-value tests for the Wilson and Newcombe intervals. App tests check the judge page for blocked terms and for the fixed note, n and intervals.</p>
           </div>
         </li>
@@ -1005,7 +1005,7 @@
     <div class="wrap">
       <h2 id="team-title">Team and hackathon</h2>
       <p class="team-names">Komal Neupane, Sahil Kharel, Hardik Kafle and Emeric Chang.</p>
-      <p>Ratio was built for the FairTrial x AI Hackathon, Track 2: Observation to Legal Evaluation, run by Columbia Law School’s Human Rights Institute with the TrialWatch project. This page is the team’s own; it is not published by the hackathon’s organisers.</p>
+      <p>Ratio was built for the FairTrial AI Hackathon, Track 2: Observation to Legal Evaluation, run by Columbia Law School’s Human Rights Institute with the TrialWatch project. This page is the team’s own; it is not published by the hackathon’s organisers.</p>
     </div>
   </section>
 
@@ -1013,7 +1013,7 @@
 
 <footer class="site-footer">
   <div class="wrap">
-    <p>Ratio · FairTrial x AI Hackathon, Track 2 · <a href="https://github.com/sahilkharel7/Ratio-Fair-Trial-Hackathon">Source code on GitHub</a>. Licensed under the <a href="https://github.com/sahilkharel7/Ratio-Fair-Trial-Hackathon/blob/main/LICENSE">Apache License 2.0</a>.</p>
+    <p>Ratio · FairTrial AI Hackathon, Track 2 · <a href="https://github.com/sahilkharel7/Ratio-Fair-Trial-Hackathon">Source code on GitHub</a>. Licensed under the <a href="https://github.com/sahilkharel7/Ratio-Fair-Trial-Hackathon/blob/main/LICENSE">Apache License 2.0</a>.</p>
     <p>This page is static: no scripts, cookies, analytics, forms or external resources. Its host, Vercel, keeps standard request logs. All case material shown is synthetic.</p>
   </div>
 </footer>
