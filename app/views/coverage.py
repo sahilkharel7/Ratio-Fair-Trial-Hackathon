@@ -5,6 +5,7 @@ from __future__ import annotations
 import streamlit as st
 
 from ratio.display import guarantee_badge, md_escape
+from ratio.jurisprudence import for_finding, for_follow_up
 from ratio.messages import render
 from ratio.results import GuaranteeAssessment
 from ratio_ui import session, widgets
@@ -56,6 +57,9 @@ def _details(loaded: LoadedCase, assessment: GuaranteeAssessment) -> None:
         st.markdown(md_escape(flag.message))
         widgets.evidence(record, flag.evidence, key=f"flag-{assessment.rubric_id}", heading=flag.standard_label)
         widgets.model_note(flag.model_note)
+        widgets.jurisprudence(for_finding(flag, session.config().jurisprudence))
+        if loaded.analysis.steelman is not None:
+            widgets.state_reply(record, loaded.analysis.steelman.for_flag(flag.id), key=f"state-{flag.id}")
     elif assessment.follow_up is not None:
         follow_up = assessment.follow_up
         text = render(messages, "absence_follow_up", provision=assessment.provision, name=assessment.name, question=follow_up.question)
@@ -68,6 +72,7 @@ def _details(loaded: LoadedCase, assessment: GuaranteeAssessment) -> None:
         if follow_up.context:
             st.caption("Possibly relevant, not counted as evidence:")
             widgets.evidence(record, follow_up.context, key=f"context-{assessment.rubric_id}", heading="Context")
+        widgets.jurisprudence(for_follow_up(follow_up, session.config().jurisprudence))
     _parts(assessment)
 
 

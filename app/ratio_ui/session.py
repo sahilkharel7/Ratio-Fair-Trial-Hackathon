@@ -11,12 +11,13 @@ import streamlit as st
 from ratio.config import RatioConfig, default_config
 from ratio.embeddings import MiniLMEmbedder
 from ratio.extraction.build import build_base_record, load_case
-from ratio.extraction.loader import CaseManifest
+from ratio.extraction.loader import CaseManifest, LoaderError
+from ratio.feedback import case_findings
 from ratio.history import history_for, load_all_alias_decisions, load_history
 from ratio.paths import DEMO_CASE_DIR
 from ratio.pipeline import analyze_judges, demo_llm, make_llm, process
 from ratio.results import CaseAnalysis, JudgeReport
-from ratio.schema import CaseRecord
+from ratio.schema import CaseRecord, Flag
 from ratio.store import CaseStore
 
 CASE_KEY = "ratio_case_id"
@@ -86,6 +87,19 @@ def judge_report() -> JudgeReport:
     records = cases.all_records()
     analyses = {record.case_id: analysis for record in records if (analysis := cases.load_analysis(record.case_id)) is not None}
     return analyze_judges(records, analyses, load_all_alias_decisions(), config())
+
+
+def judge_report_or_none() -> JudgeReport | None:
+    """The judge report, or None when the registry cannot be built (the judge page explains why)."""
+    try:
+        return judge_report()
+    except LoaderError:
+        return None
+
+
+def findings(loaded: LoadedCase) -> tuple[Flag, ...]:
+    """Every finding shown for the case: its own, then the patterns of its presiding judge."""
+    return case_findings(loaded.analysis, judge_report_or_none()) if loaded.analysis is not None else ()
 
 
 def open_case(case_id: str) -> None:

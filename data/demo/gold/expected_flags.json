@@ -230,6 +230,40 @@
         }
       ],
       "note": "Planted: restated in the submissions section but never answered in the reasoning."
+    },
+    {
+      "id": "renewal_repeated_grounds",
+      "module": "renewal",
+      "standard_id": "renewal_review",
+      "kind": "flag",
+      "status": "repeated_grounds",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "orders/detention_order_3.txt",
+          "quote": "The forensic examination of the telephone seized from the accused has not yet been completed"
+        }
+      ],
+      "note": "Planted: the third order repeats the second order's grounds word for word, three months later."
+    },
+    {
+      "id": "renewal_gap",
+      "module": "renewal",
+      "standard_id": "renewal_gap",
+      "kind": "flag",
+      "status": "order_gap",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "orders/detention_order_2.txt",
+          "quote": "extended until 12 May 2025"
+        },
+        {
+          "doc": "orders/detention_order_3.txt",
+          "quote": "14 May 2025"
+        }
+      ],
+      "note": "Planted: the second order ran until 12 May; the third is dated 14 May, so 13 May is covered by no order."
     }
   ],
   "must_not_flag": [
@@ -337,6 +371,66 @@
         }
       ],
       "note": ""
+    },
+    {
+      "id": "no_renewal_fresh_grounds",
+      "module": "renewal",
+      "standard_id": "renewal_review",
+      "kind": "flag",
+      "status": "any",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "orders/detention_order_2.txt",
+          "quote": "The accused has relatives in a neighbouring country"
+        }
+      ],
+      "note": "The second order repeats one ground of the first but adds three new ones."
+    },
+    {
+      "id": "no_renewal_statute_quote",
+      "module": "renewal",
+      "standard_id": "renewal_review",
+      "kind": "flag",
+      "status": "any",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "orders/detention_order_3.txt",
+          "quote": "Detention pending trial may be ordered where there is a reasonable suspicion"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "no_renewal_request",
+      "module": "renewal",
+      "standard_id": "renewal_review",
+      "kind": "flag",
+      "status": "any",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "orders/detention_order_3.txt",
+          "quote": "The Public Prosecutor requests that the detention of the accused be extended"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "no_gap_same_day_renewal",
+      "module": "renewal",
+      "standard_id": "renewal_gap",
+      "kind": "flag",
+      "status": "any",
+      "match": "all",
+      "anchors": [
+        {
+          "doc": "orders/detention_order_1.txt",
+          "quote": "detained pending trial until 19 March 2025"
+        }
+      ],
+      "note": "The first order ran until 19 March and the second is dated 19 March: no gap."
     }
   ]
 }

@@ -13,6 +13,7 @@ import streamlit as st
 from ratio.display import md_escape, percent
 from ratio.extraction.loader import LoaderError
 from ratio.history import decisions_file
+from ratio.jurisprudence import for_finding
 from ratio.messages import render
 from ratio.paths import REPO_ROOT
 from ratio.results import AliasCandidate, DataNote, Descriptive, Indicator, JudgeProfile, JudgeReport, RateEstimate
@@ -71,6 +72,9 @@ def _indicator(profile: JudgeProfile, indicator: Indicator, key: str) -> None:
                 f"({indicator.difference_confidence:.1%} interval, for {profile.k_compared} indicators compared)."
             )
         st.markdown(md_escape(indicator.message))
+        pattern = next((f for f in profile.flags if f.id == indicator.flag_id), None)
+        if pattern is not None:
+            widgets.jurisprudence(for_finding(pattern, session.config().jurisprudence))
         if indicator.outcomes:
             label = f"The {len(indicator.outcomes)} cases counted for this judge, each with its coded ruling (yes: counted in the {indicator.judge.k})"
             with st.expander(label):

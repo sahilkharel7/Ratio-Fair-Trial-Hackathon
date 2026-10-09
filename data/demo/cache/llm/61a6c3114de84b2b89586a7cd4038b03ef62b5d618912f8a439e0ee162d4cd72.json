@@ -1,0 +1,11 @@
+{
+  "key": "61a6c3114de84b2b89586a7cd4038b03ef62b5d618912f8a439e0ee162d4cd72",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman_check",
+  "response": {
+    "note": "Ms. Brask asked for an adjournment.",
+    "shows": false
+  },
+  "schema": "GroundCheck",
+  "synthetic": true
+}

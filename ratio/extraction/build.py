@@ -1,7 +1,8 @@
 """Build the deterministic part of a case record, with no model involved:
 documents, metadata, observations (one per note sentence), passages of court documents,
 statute citations, hearing events from note headers, the verdict date from a judgment's caption
-("Delivered on 14 July 2025"), and hand-coded rulings.
+("Delivered on 14 July 2025"), detention orders and their extension events (extraction/orders.py),
+and hand-coded rulings.
 The LLM layer adds events and arguments on top of this record.
 """
 
@@ -20,6 +21,7 @@ from ratio.extraction.loader import (
     read_case_folder,
 )
 from ratio.extraction.dates import find_written_dates, parse_date_text
+from ratio.extraction.orders import extension_events, read_orders
 from ratio.extraction.segment import Segment, caption_lines, find_citations, segment_document
 from ratio.schema import CaseRecord, Citation, Document, Event, Observation, Passage, SourceSpan, stable_id
 
@@ -114,14 +116,16 @@ def build_base_record(manifest: CaseManifest, files: Mapping[str, bytes]) -> Cas
                 for s, e in find_citations(doc.text)
             )
     rulings_data = files.get(manifest.rulings) if manifest.rulings else None
+    orders = read_orders(documents)
     return CaseRecord(
         meta=build_meta(manifest, documents),
         documents=documents,
-        events=tuple(built_events),
+        events=(*built_events, *extension_events(orders, documents)),
         observations=tuple(observations),
         citations=tuple(citations),
         passages=tuple(passages),
         rulings=build_rulings(manifest, documents, rulings_data),
+        orders=orders,
     )
 
 

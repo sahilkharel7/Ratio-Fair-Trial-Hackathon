@@ -9,8 +9,10 @@ from pydantic import ValidationError
 from ratio.display import md_escape, percent
 from ratio.embeddings import EmbeddingModelMissing
 from ratio.extraction.loader import LoaderError, read_uploaded_files
+from ratio.feedback import current
 from ratio.llm import LLMError
 from ratio.pipeline import run_note_live
+from ratio.report import draft_report
 from ratio.schema import Evidence
 from ratio_ui import session, style, widgets
 from ratio_ui.session import LoadedCase
@@ -36,8 +38,8 @@ def _demo_card() -> None:
     with st.container(border=True):
         st.subheader("Demo case")
         st.markdown(
-            "*Republic of Calderra v. Daro Venn*, a **synthetic** case: four hearing notes, the indictment "
-            "and the judgment. The local model's answers are replayed from a recorded cache, so this works "
+            "*Republic of Calderra v. Daro Venn*, a **synthetic** case: four hearing notes, the indictment, "
+            "the judgment and three detention orders. The local model's answers are replayed from a recorded cache, so this works "
             "with Ollama stopped and the network off."
         )
         if st.button("Load the demo case", type="primary", key="load_demo"):
@@ -90,12 +92,35 @@ def _findings(loaded: LoadedCase) -> None:
         f"{statuses.count('evidence_of_compliance')} with evidence of compliance, {statuses.count('no_evidence')} follow-up questions",
     )
     st.page_link("views/timeline.py", label=f"Timeline: {len(red)} interval longer than a confirmed benchmark")
+    _renewal_link(analysis)
     st.page_link(
         "views/reuse.py",
         label=f"Reasoning reuse: {percent(reuse.score if reuse else None)} of the reasoning traceable to the indictment; "
         f"{len(unanswered)} defence argument without a response",
     )
     _judge_link(loaded)
+    _review_link(loaded)
+
+
+def _review_link(loaded: LoadedCase) -> None:
+    flags = session.findings(loaded)
+    decided = current(session.store().reviews(loaded.record.case_id))
+    reviewed = sum(flag.id in decided for flag in flags)
+    st.page_link("views/review.py", label=f"Review: {reviewed} of {len(flags)} findings reviewed by a lawyer")
+
+
+def _renewal_link(analysis) -> None:
+    renewal = analysis.renewal
+    if renewal is None or not renewal.orders:
+        return
+    repeated = sum(flag.status == "repeated_grounds" for flag in renewal.flags)
+    orders = "1 detention order" if len(renewal.orders) == 1 else f"{len(renewal.orders)} detention orders"
+    st.page_link(
+        "views/renewal.py",
+        label=f"Detention renewals: {orders}, {repeated} with grounds repeating earlier orders, {len(renewal.gaps)} gap between orders"
+        if len(renewal.gaps) == 1 else
+        f"Detention renewals: {orders}, {repeated} with grounds repeating earlier orders, {len(renewal.gaps)} gaps between orders",
+    )  # fmt: skip
 
 
 def _judge_link(loaded: LoadedCase) -> None:
@@ -111,6 +136,21 @@ def _judge_link(loaded: LoadedCase) -> None:
         cases = "1 case" if len(profile.case_ids) == 1 else f"{len(profile.case_ids)} cases"
         compared = "1 indicator" if profile.k_compared == 1 else f"{profile.k_compared} indicators"
         st.page_link("views/judges.py", label=f"Judge profile: {md_escape(profile.display_name)}, {found} ({cases}, {compared} compared)")
+
+
+def _export(loaded: LoadedCase) -> None:
+    """The findings as a Markdown report draft, built here and downloaded from this computer's own server."""
+    cases, case_id = session.store(), loaded.record.case_id
+    history = [record for record in cases.all_records() if record.case_id != case_id]
+    report = draft_report(
+        loaded.record, loaded.analysis, session.judge_report_or_none(), session.config(),
+        history=history, reviews=cases.reviews(case_id), missed=cases.missed_issues(case_id),
+    )  # fmt: skip
+    st.download_button(
+        "Download report draft (.md)", data=report, file_name=f"{loaded.record.case_id}-report-draft.md",
+        mime="text/markdown", key="export_report",
+        help="Every finding with its exact source text quoted, ready to edit. Nothing leaves this computer.",
+    )  # fmt: skip
 
 
 def _summary(loaded: LoadedCase) -> None:
@@ -132,6 +172,7 @@ def _summary(loaded: LoadedCase) -> None:
         f"Model: {md_escape(analysis.llm_model or 'none')} ({mode})."
     )
     _findings(loaded)
+    _export(loaded)
     rows = [
         {"Document": d.title, "Type": d.type.replace("_", " "), "Hearing date": d.date.isoformat() if d.date else "", "Characters": len(d.text)}
         for d in record.documents

@@ -1,0 +1,25 @@
+SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.
+MIREVO DISTRICT COURT, CRIMINAL CHAMBER
+DETENTION ORDER
+Case no. MDC-2025-0147
+The Republic of Calderra v. Daro Venn
+Date: 19 February 2025
+Judge: Ilena Varda
+
+I. REQUEST
+
+The Public Prosecutor requests that the accused be detained pending trial.
+
+II. APPLICABLE LAW
+
+Article 167(1) of the Code of Criminal Procedure provides: "Detention pending trial may be ordered where there is a reasonable suspicion that the accused committed the offence and a risk that he will flee, interfere with the evidence or commit a further offence."
+
+III. GROUNDS
+
+There is a reasonable suspicion that the accused published articles containing false information about the Ministry of Water that caused public alarm. The accused has relatives in a neighbouring country and travelled there twice in the past year, so there is a risk that he will flee. The accused knows the officials of the Ministry of Water who are expected to testify, and there is a risk that he will seek to influence their statements. The offence carries a penalty of up to six years of imprisonment.
+
+IV. DECISION
+
+The accused shall be detained pending trial until 19 March 2025.
+
+(signed) Ilena Varda

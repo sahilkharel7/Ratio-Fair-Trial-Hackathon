@@ -9,6 +9,8 @@ from collections.abc import Sequence
 import streamlit as st
 
 from ratio.display import md_escape
+from ratio.jurisprudence import Reference
+from ratio.results import StateReply
 from ratio.schema import CaseRecord, Evidence, SourceSpan
 from ratio_ui import session, style, viewer
 from ratio_ui.session import LoadedCase
@@ -35,6 +37,12 @@ BADGE_COLORS = {
     "needs_legal_review": "violet",
     "pattern_warrants_review": "blue",  # neutral: a prompt for review, never a finding about the judge
     "hidden_indicator": "gray",
+    "repeated_grounds": "orange",
+    "order_gap": "orange",
+    "review_pending": "gray",
+    "review_accepted": "green",
+    "review_edited": "blue",
+    "review_rejected": "orange",  # red stays reserved for the confirmed benchmark and evidence of violation
 }
 
 
@@ -100,6 +108,43 @@ def progress_bar():
         bar.progress(done / total, text=f"Reading {md_escape(label)} ({done} of {total})")
 
     return update
+
+
+def jurisprudence(references: Sequence[Reference]) -> None:
+    """The corpus entries linked to a finding or a question, with the fixed caveat."""
+    if not references:
+        return
+    notes = session.config().messages.notes
+    with st.expander(f"{notes['jurisprudence_heading']} ({len(references)})"):
+        for ref in references:
+            st.html(f'<div class="ratio-quote"><span class="ratio-where">{html.escape(ref.citation)}</span>{html.escape(ref.shown)}</div>')
+        st.caption(md_escape(notes["jurisprudence_caveat"]))
+
+
+def state_reply(record: CaseRecord, reply: StateReply | None, key: str, *, expanded: bool = False) -> None:
+    """The State's strongest reply to one finding: each argument's reviewed ground, the model's wording
+    (unverified) and the exact record quote it rests on, then the grounds the record did not support."""
+    if reply is None:
+        return
+    cfg = session.config()
+    notes = cfg.messages.notes
+    grounds = {g.id: g for g in cfg.steelman.for_standard(reply.standard_id)}
+    with st.expander(f"{notes['steelman_heading']} ({len(reply.arguments)})", expanded=expanded):
+        if not reply.checked:
+            st.warning(md_escape(reply.note or "The model gave no usable answer."))
+        if reply.checked and not reply.arguments:
+            st.caption("The model found no ground the record passages shown to it support.")
+        for index, argument in enumerate(reply.arguments):
+            ground = grounds.get(argument.ground_id)
+            st.markdown(f"**{md_escape(ground.label if ground else argument.ground_id)}**")
+            if ground is not None and ground.quote:
+                st.caption(md_escape(f"{cfg.jurisprudence.sources[ground.source].symbol}, {ground.pinpoint}: “{ground.quote}”"))
+            st.markdown(f"*Model:* {md_escape(argument.argument)}")
+            evidence(record, [Evidence(role="mention", span=argument.span)], key=f"{key}-{index}", heading="The State's reply rests on")
+        unsupported = [grounds[g].label if g in grounds else g for g in reply.unsupported_grounds]
+        if unsupported:
+            st.caption(md_escape(f"{notes['steelman_unsupported']}: " + "; ".join(unsupported) + "."))
+        st.caption(md_escape(notes["steelman_caveat"]))
 
 
 def model_note(text: str | None) -> None:

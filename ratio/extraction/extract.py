@@ -4,7 +4,8 @@ The prompt lists the chunk's sentences that contain a written date, numbered. Th
 exact quotes; each quote is located in the source (align.py) and expanded to its sentence, which
 becomes the evidence. An event's date must be written in the sentence where its quote starts: it
 is parsed in code, and the model's own date is kept only to flag disagreements for review.
-Anything that cannot be located is dropped and counted in the report.
+Anything that cannot be located is dropped and counted in the report. Detention orders are read in
+code (extraction/orders.py), so they are never sent to the model.
 """
 
 from __future__ import annotations
@@ -35,6 +36,7 @@ from ratio.llm import LLMResponseError, PromptTooLong
 from ratio.schema import PARAGRAPH_BREAK, Argument, CaseRecord, Document, Event, SourceSpan, stable_id
 
 ProgressCallback = Callable[[str, int, int], None]
+READ_IN_CODE = frozenset({"detention_order"})  # their dates are read by extraction/orders.py
 _DATE_SEPARATORS = re.compile(r"\s+(?:and|or|to|until)\s+|[,;&]")
 _OPENING_MARKS = " \t\"'“‘«(["  # a numbered point may open inside a quotation or a bracket
 _LIST_COUNT = r"(?:\d+|two|three|four|five|six|several)"  # "one point" needs no "First,"
@@ -291,6 +293,7 @@ def extract_record(
     plan = [
         (doc, chunk)
         for doc in base.documents
+        if doc.type not in READ_IN_CODE
         for chunk in chunk_spans(doc.text, max_chars=settings.chunk_chars, overlap_chars=settings.chunk_overlap_chars)
     ]
     events: list[Event] = []
@@ -329,7 +332,7 @@ def extract_record(
     dropped += [
         f"{doc.path}: no written date was recognised, so no events were read from it"
         for doc in base.documents
-        if doc.type not in OBSERVATION_SOURCES and not find_written_dates(doc.text)
+        if doc.type not in OBSERVATION_SOURCES | READ_IN_CODE and not find_written_dates(doc.text)
     ]
     built = {_event_key(event) for event in base.events}  # a model mention of a caption date is already there
     kept_events = [event for event in _dedupe(events, _event_key) if _event_key(event) not in built]

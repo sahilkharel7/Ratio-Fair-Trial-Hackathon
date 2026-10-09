@@ -6,10 +6,11 @@ from __future__ import annotations
 import streamlit as st
 
 from ratio.display import Mark, marked_html, md_escape, percent, reuse_marks
+from ratio.jurisprudence import for_finding
 from ratio.modules.reuse import by_passage
 from ratio.results import ArgumentCheck, ReuseResult
 from ratio.schema import CaseRecord, Evidence, Flag, SourceSpan
-from ratio_ui import widgets
+from ratio_ui import session, widgets
 
 PANEL_HEIGHT = 560
 LEGEND = (
@@ -81,6 +82,11 @@ def _side_by_side(record: CaseRecord, reuse: ReuseResult, numbers: dict[str, str
         _panel(record, doc_id, reuse_marks(reuse, numbers, doc_id, widgets.label), pairs, whole)
 
 
+def _state_reply(record: CaseRecord, flag: Flag) -> None:
+    replies = session.current_case().analysis.steelman
+    widgets.state_reply(record, replies.for_flag(flag.id) if replies else None, key=f"state-{flag.id}")
+
+
 def _match(record: CaseRecord, flag: Flag, number: str) -> None:
     with st.container(border=True):
         heading, status = st.columns([8, 3], vertical_alignment="center")
@@ -88,6 +94,8 @@ def _match(record: CaseRecord, flag: Flag, number: str) -> None:
         with status:
             widgets.badge(flag.status)
         widgets.evidence(record, flag.evidence, key=f"match-{flag.id}", heading=f"Matched passage {number}")
+        widgets.jurisprudence(for_finding(flag, session.config().jurisprudence))
+        _state_reply(record, flag)
 
 
 def _argument(record: CaseRecord, reuse: ReuseResult, check: ArgumentCheck) -> None:
@@ -97,6 +105,8 @@ def _argument(record: CaseRecord, reuse: ReuseResult, check: ArgumentCheck) -> N
         widgets.evidence(record, [Evidence(role="argument", span=check.argument)], key=f"argument-{check.argument_id}", heading="Defence argument")
         if flag is not None:
             st.markdown(md_escape(flag.message))
+            widgets.jurisprudence(for_finding(flag, session.config().jurisprudence))
+            _state_reply(record, flag)
         if not check.checked:
             st.caption("The model's answer did not name any passage, so this argument was not checked.")
         if check.responding:

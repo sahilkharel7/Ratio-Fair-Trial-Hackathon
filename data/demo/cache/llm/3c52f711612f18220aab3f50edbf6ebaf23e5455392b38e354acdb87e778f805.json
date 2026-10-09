@@ -1,0 +1,11 @@
+{
+  "key": "3c52f711612f18220aab3f50edbf6ebaf23e5455392b38e354acdb87e778f805",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman_check",
+  "response": {
+    "note": "Forensic exam not completed.",
+    "shows": true
+  },
+  "schema": "GroundCheck",
+  "synthetic": true
+}

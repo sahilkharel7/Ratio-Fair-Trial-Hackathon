@@ -1,0 +1,11 @@
+{
+  "key": "d64ec1692ae252613f498d3db3353861f17a579518b6f2ddc8d7b17943798f5b",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman_check",
+  "response": {
+    "note": "Provides a specific date for arrest.",
+    "shows": false
+  },
+  "schema": "GroundCheck",
+  "synthetic": true
+}

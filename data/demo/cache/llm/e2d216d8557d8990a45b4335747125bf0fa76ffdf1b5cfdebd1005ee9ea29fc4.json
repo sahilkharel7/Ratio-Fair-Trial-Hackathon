@@ -1,0 +1,23 @@
+{
+  "key": "e2d216d8557d8990a45b4335747125bf0fa76ffdf1b5cfdebd1005ee9ea29fc4",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman",
+  "response": {
+    "arguments": [
+      {
+        "argument": "The court found these facts proven at trial, so similar wording is expected.",
+        "ground": "facts_proven_at_trial",
+        "passage": "E4",
+        "quote": "The articles were shared more than 40,000 times within three days and caused public alarm in the northern districts, where residents gathered outside the regional water office on 13 February 2025."
+      },
+      {
+        "argument": "The monitoring record does not show everything that happened in the proceedings.",
+        "ground": "record_incomplete",
+        "passage": "E1",
+        "quote": "Reading the judgment took about forty minutes."
+      }
+    ]
+  },
+  "schema": "SteelmanReply",
+  "synthetic": true
+}

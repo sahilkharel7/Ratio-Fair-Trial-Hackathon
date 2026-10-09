@@ -1,0 +1,11 @@
+{
+  "key": "03279fb8ed1cbdec09cc6f20d683f7b87c3e5d9ef2007a9674714766d85d2a0b",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman_check",
+  "response": {
+    "note": "Details about monitoring not mentioned.",
+    "shows": false
+  },
+  "schema": "GroundCheck",
+  "synthetic": true
+}

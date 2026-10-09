@@ -5,7 +5,7 @@ The live demo has six steps: from the case record to the source line behind each
 Measured on 8 October 2026 (MacBook with Apple Silicon):
 
 - Loading the demo took 3.5 seconds with Ollama stopped.
-- The optional live-note step took 10.6 seconds, and the model gave the same answer as the recorded one.
+- The optional live-note step took 7.5 seconds on 9 October, and the model gave the same answer as the recorded one.
 - The browser made 364 requests, all to 127.0.0.1, and the app's own connections all stayed on 127.0.0.1.
 
 ## Before you present (10 minutes)
@@ -35,7 +35,7 @@ Measured on 8 October 2026 (MacBook with Apple Silicon):
 
 | Time | Step | Click | Say |
 |---|---|---|---|
-| 0:00 | **1. Case record** | **Case** page → **Load the demo case** (about 4 s) | "Four hearing notes, the indictment and the judgment become one case record: 46 note sentences, 14 dated events and 2 party arguments. That gives 11 findings, and each one is linked to the exact text it rests on. The model's answers are replayed from a recording, and this laptop is offline right now." |
+| 0:00 | **1. Case record** | **Case** page → **Load the demo case** (about 4 s) | "Four hearing notes, the indictment, the judgment and three detention orders become one case record: 46 note sentences, 16 dated events and 2 party arguments. That gives 13 findings, and each one is linked to the exact text it rests on. The model's answers are replayed from a recording, and this laptop is offline right now." |
 | 0:25 | *(optional)* live model | **Run this note live** (about 11 s) | "To show that the recorded answers are real, the local model reads hearing 1 again now, on this laptop. It gives the same answer." |
 | 0:40 | **2. Rights coverage** | **Rights coverage** → **Open** on *ICCPR Art. 14(3)(f) Free assistance of an interpreter* | "Violations hide in omissions. No note ever mentions an interpreter. Ratio does not invent a finding. It gives the monitor a follow-up question, and next to it a note it does not count as evidence: the defendant's first language is Ostric." |
 | 1:05 | **3. Timeline** | **Timeline**, at the top: the red interval | "Dates are pulled from three documents and the interval is computed in code: 4 to 6 days from arrest to the first appearance before a judge. General Comment 35, paragraph 33, treats 48 hours as ordinarily sufficient. The appearance before the prosecutor the day after the arrest does not stop the clock: a prosecutor is not a judge. This is our only confirmed benchmark; the others are measured, cited and marked 'needs legal review', never coloured." |
@@ -74,7 +74,7 @@ The line and character numbers in the source viewer count positions in the text 
 
 | File | Shows |
 |---|---|
-| [`screenshots/01-case.png`](screenshots/01-case.png) | The demo case loaded: 11 findings, each linked to its source |
+| [`screenshots/01-case.png`](screenshots/01-case.png) | The demo case loaded: 13 findings, each linked to its source |
 | [`screenshots/02-coverage.png`](screenshots/02-coverage.png) | The coverage grid, with the interpreter follow-up question open |
 | [`screenshots/03-timeline.png`](screenshots/03-timeline.png) | The red interval: 4 to 6 days from arrest to the first appearance before a judge, against GC35's 48 hours |
 | [`screenshots/04-reuse.png`](screenshots/04-reuse.png) | The reuse score and the side-by-side view |

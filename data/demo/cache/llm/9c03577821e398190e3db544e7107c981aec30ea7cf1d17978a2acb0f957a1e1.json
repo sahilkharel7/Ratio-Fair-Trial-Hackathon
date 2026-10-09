@@ -1,0 +1,11 @@
+{
+  "key": "9c03577821e398190e3db544e7107c981aec30ea7cf1d17978a2acb0f957a1e1",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman_check",
+  "response": {
+    "note": "Describes duration of reading judgment.",
+    "shows": false
+  },
+  "schema": "GroundCheck",
+  "synthetic": true
+}

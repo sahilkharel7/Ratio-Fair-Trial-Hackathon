@@ -33,7 +33,7 @@ MatchKind = Literal["exact", "normalized", "fuzzy"]
 Party = Literal["defense", "prosecution"]
 DataProvenance = Literal["synthetic", "public"]
 PassageKind = Literal["header", "heading", "body", "signature"]
-ModuleName = Literal["absence", "clock", "reuse", "judges"]
+ModuleName = Literal["absence", "clock", "reuse", "renewal", "judges"]
 ReviewStatus = Literal["confirmed", "needs_legal_review"]
 EvidenceRole = Literal[
     "supporting",
@@ -46,6 +46,10 @@ EvidenceRole = Literal[
     "indictment",
     "argument",
     "ruling",
+    "later_order",
+    "earlier_order",
+    "order_expiry",
+    "next_order",
 ]
 
 # Allowed Flag.status values per module. "No evidence" is deliberately absent: it is a FollowUp.
@@ -53,6 +57,7 @@ FLAG_STATUSES: dict[str, frozenset[str]] = {
     "absence": frozenset({"evidence_of_compliance", "evidence_of_violation"}),
     "clock": frozenset({"exceeds_benchmark", "needs_review"}),
     "reuse": frozenset({"verbatim_reuse", "paraphrase_reuse", "charge_wording", "unaddressed_argument"}),
+    "renewal": frozenset({"repeated_grounds", "order_gap"}),
     "judges": frozenset({"pattern_warrants_review"}),
 }
 
@@ -204,6 +209,23 @@ class Ruling(Frozen):
     span: SourceSpan
 
 
+class DetentionOrder(Frozen):
+    """A detention order read in code (never by the model): the date it was made and the date it
+    authorises detention until, each with the exact text it was parsed from."""
+
+    doc_id: str
+    date: dt.date | None = None
+    date_span: SourceSpan | None = None
+    until: dt.date | None = None
+    until_span: SourceSpan | None = None  # the sentence of the order that sets the end date
+
+    @model_validator(mode="after")
+    def _dated_from_source(self) -> DetentionOrder:
+        if (self.date is None) != (self.date_span is None) or (self.until is None) != (self.until_span is None):
+            raise ValueError("an order date needs the text it was parsed from")
+        return self
+
+
 class AliasDecision(Frozen):
     """A person's decision on a name from the manual confirmation list (alias_decisions.yaml)."""
 
@@ -242,6 +264,7 @@ class CaseRecord(Frozen):
     citations: tuple[Citation, ...] = ()
     passages: tuple[Passage, ...] = ()
     rulings: tuple[Ruling, ...] = ()
+    orders: tuple[DetentionOrder, ...] = ()
 
     @model_validator(mode="after")
     def _documents_belong_to_case(self) -> CaseRecord:

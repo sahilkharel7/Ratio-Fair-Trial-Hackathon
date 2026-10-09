@@ -217,7 +217,7 @@ def test_a_busy_store_is_a_warning(tmp_path, monkeypatch):
 def test_the_whole_demo_replays_with_no_model_and_no_network():
     check = preflight.demo_replay(CONFIG)
     assert check.status == "ok", check.detail
-    assert "11 findings, each with its source text, and a judge profile of 9 cases with 1 pattern that warrants review" in check.detail
+    assert "13 findings, each with its source text, and a judge profile of 9 cases with 1 pattern that warrants review" in check.detail
 
 
 def test_a_missing_recorded_answer_fails_with_the_command_that_records_it(tmp_path):

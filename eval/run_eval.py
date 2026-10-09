@@ -2,6 +2,7 @@
 
     python -m eval.run_eval          replay the committed model cache (no Ollama needed)
     python -m eval.run_eval --live   call the local Ollama model on cache misses
+    python -m eval.run_eval --reviews   also compare with the lawyers' decisions saved in the store
 
 Reports extraction quality against the hand-checked timeline, the expected outputs found and
 missed (expected_flags.json), must-not-flag violations, the judge profile built from the synthetic
@@ -9,7 +10,9 @@ history of the demo court, and provenance before and after enforcement for every
 patterns included. Exits 1 if any flag lacked an exact source span, shown or dropped (hard rule 2).
 
 Results are in-sample: one synthetic case written by the team, so they show the pipeline
-works end to end, not how it generalises. Writes eval/out/report.json.
+works end to end, not how it generalises. Writes eval/out/report.json. With --reviews, the fresh
+findings are compared with the decisions reviewers recorded on the demo case (ratio/feedback.py), and
+the eval also exits 1 if a finding a reviewer kept is no longer produced.
 """
 
 from __future__ import annotations
@@ -23,6 +26,7 @@ from ratio import netguard
 from ratio.config import default_config
 from ratio.evaluation import FlagRecall, event_violations, extraction_metrics, flag_recall
 from ratio.expected import ExpectedFlags, GoldTimeline
+from ratio.feedback import Regression, case_findings, regression
 from ratio.extraction.build import load_case
 from ratio.history import load_alias_decisions, load_history
 from ratio.paths import DEMO_CASE_DIR, GOLD_DIR, REPO_ROOT
@@ -30,6 +34,7 @@ from ratio.pipeline import analysis_context, analyze, analyze_judges, demo_llm, 
 from ratio.provenance import resolver_for, span_is_valid
 from ratio.results import CaseAnalysis, JudgeReport
 from ratio.schema import CaseRecord, Flag
+from ratio.store import CaseStore
 
 OUT_DIR = REPO_ROOT / "eval" / "out"
 
@@ -93,9 +98,47 @@ def _print_flags(recall: FlagRecall, prov: dict[str, float | int]) -> None:
         print(f"  must-not-flag violation: {item}")
 
 
+def steelman_summary(record: CaseRecord, analysis: CaseAnalysis) -> dict:
+    """The State's replies: how many arguments survived the checks, and that each rests on an exact quote."""
+    replies = analysis.steelman.replies if analysis.steelman is not None else ()
+    resolve = resolver_for([record])
+    arguments = [a for reply in replies for a in reply.arguments]
+    return {
+        "findings_contested": len(replies),
+        "findings_with_a_supported_reply": sum(bool(reply.arguments) for reply in replies),
+        "arguments_kept": len(arguments),
+        "arguments_dropped": sum(len(reply.dropped) for reply in replies),
+        "kept_with_exact_quotes": sum(span_is_valid(a.span, resolve) for a in arguments) / len(arguments) if arguments else 1.0,
+        "unusable_answers": sum(not reply.checked for reply in replies),
+    }
+
+
+def _print_steelman(summary: dict) -> None:
+    print(
+        f"State's strongest reply (model-generated): {summary['findings_contested']} findings contested, "
+        f"{summary['findings_with_a_supported_reply']} with a reply the record supports"
+    )
+    print(
+        f"  arguments kept {summary['arguments_kept']}, dropped by the checks {summary['arguments_dropped']}; "
+        f"kept with exact quotes {summary['kept_with_exact_quotes']:.0%}; unusable answers {summary['unusable_answers']}"
+    )
+
+
+def _print_regression(check: Regression) -> None:
+    kept = len(check.kept_still_shown) + len(check.kept_lost)
+    rejected = len(check.rejected_still_shown) + len(check.rejected_gone)
+    print(f"Against reviewers' decisions on this case: {kept} kept by a reviewer, {rejected} rejected")
+    print(f"  kept and still produced {len(check.kept_still_shown)}/{kept}; rejected and no longer produced {len(check.rejected_gone)}/{rejected}")
+    for flag_id in check.kept_lost:
+        print(f"  regression: a finding a reviewer kept is no longer produced ({flag_id})")
+    for flag_id in check.rejected_still_shown:
+        print(f"  still produced although a reviewer rejected it: {flag_id}")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m eval.run_eval", description=__doc__.splitlines()[0])
     parser.add_argument("--live", action="store_true", help="call the local Ollama model on cache misses")
+    parser.add_argument("--reviews", action="store_true", help="compare with the reviewers' decisions saved in the store")
     args = parser.parse_args(argv)
     netguard.install()
 
@@ -129,6 +172,11 @@ def main(argv: list[str] | None = None) -> int:
         print(f"  must-not violation: {item}")
     _print_flags(recall, prov)
     _print_judges(judges, record.case_id, judge_prov)
+    steel = steelman_summary(record, analysis)
+    _print_steelman(steel)
+    check = regression(case_findings(analysis, judges), CaseStore().reviews(record.case_id)) if args.reviews else None
+    if check is not None:
+        _print_regression(check)
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     result = {
@@ -150,10 +198,13 @@ def main(argv: list[str] | None = None) -> int:
             "notes": [note.text for note in judges.notes],
             "provenance": judge_prov,
         },
+        "steelman": steel,
     }
+    if check is not None:
+        result["reviews"] = check.model_dump()
     (OUT_DIR / "report.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
     sourced = all(p["shown_with_exact_spans"] == 1.0 and p["flags_dropped"] == 0 for p in (prov, judge_prov))
-    return 0 if sourced else 1
+    return 0 if sourced and steel["kept_with_exact_quotes"] == 1.0 and (check is None or check.ok) else 1
 
 
 if __name__ == "__main__":

@@ -1,0 +1,146 @@
+# The grounds the State's strongest reply may rest on (ratio/modules/steelman.py), per standard.
+#
+# The local model argues the State's side of each adverse finding, from numbered passages of the
+# record. Every argument it makes must name one of the grounds listed here for the finding's standard
+# (or under `all`) and quote the record; anything else is dropped. `requires` says what the quoted passage
+# must show for the ground to apply; the model is told to use a ground only when a passage shows it, and
+# a second, short model call checks each argument against it. An `independent` ground must rest on a
+# passage that is not part of the finding's own evidence (checked in code). A ground the model could not support
+# from the record is shown as "not supported by the record". Grounds that the General Comments
+# themselves recognise carry the General Comment's own words (`quote`), checked against the official
+# document by scripts/check_jurisprudence.py.
+#
+# NEEDS LEGAL REVIEW: the grounds were drafted by the engineering team. They are prompts for testing a
+# finding, never findings, and say nothing about anyone's character or motives.
+version: 1
+
+# Findings the State would contest. Compliance, a restated charge and judge patterns get no reply:
+# arguing a judge's side would be a statement about a person (hard rule 3).
+adverse_statuses:
+  - evidence_of_violation
+  - exceeds_benchmark
+  - verbatim_reuse
+  - paraphrase_reuse
+  - unaddressed_argument
+  - repeated_grounds
+  - order_gap
+
+grounds:
+  all:
+    - id: record_incomplete
+      label: "The monitoring record does not show everything that happened in the proceedings"
+      requires: "that part of the proceedings was not observed or not recorded by the monitor"
+
+  iccpr_14_3_a:
+    - id: informed_otherwise
+      label: "The accused was informed of the charge, in a language he understands, in a way the notes do not record"
+      requires: "that the charge was read, explained or given to the accused"
+
+  iccpr_14_3_b:
+    - id: no_adjournment_request
+      label: "The defence did not ask for the time it now says was lacking"
+      requires: "that the defence did not ask for an adjournment or more time"
+      source: gc32
+      pinpoint: "para. 32"
+      quote: "If counsel reasonably feel that the time for the preparation of the defence is insufficient, it is incumbent on them to request the adjournment of the trial."
+    - id: time_adequate
+      label: "The time and facilities given were adequate in the circumstances of the case"
+      requires: "how much time or which documents the defence had, in terms that could be adequate for this case"
+      source: gc32
+      pinpoint: "para. 32"
+      quote: "What counts as “adequate time” depends on the circumstances of each case."
+    - id: cured_later
+      label: "Any shortfall was made good at a later stage of the proceedings"
+      requires: "that the defence later received more time, documents or an adjournment"
+      independent: true
+
+  iccpr_14_3_c:
+    - id: complexity_or_conduct
+      label: "The time taken reflects the complexity of the case or the conduct of the accused"
+      requires: "that the case was complex, or that the accused or the defence caused delay"
+      source: gc32
+      pinpoint: "para. 35"
+      quote: "taking into account mainly the complexity of the case, the conduct of the accused, and the manner in which the matter was dealt with by the administrative and judicial authorities"
+
+  iccpr_14_3_d:
+    - id: presence_or_counsel_otherwise
+      label: "The accused was present, or represented by counsel of his choice, in a way the notes do not record"
+      requires: "that the accused was present or represented by counsel of his choice"
+
+  iccpr_14_3_e:
+    - id: witness_not_relevant
+      label: "The witnesses refused were not relevant to the defence"
+      requires: "what the refused witnesses would have said, in terms that make it irrelevant to the charge"
+      source: gc32
+      pinpoint: "para. 39"
+      quote: "a right to have witnesses admitted that are relevant for the defence"
+    - id: opportunity_at_another_stage
+      label: "The defence had a proper opportunity to question or call witnesses at another stage"
+      requires: "that the defence questioned or called witnesses at another hearing"
+      independent: true
+      source: gc32
+      pinpoint: "para. 39"
+      quote: "to be given a proper opportunity to question and challenge witnesses against them at some stage of the proceedings"
+
+  iccpr_14_3_f:
+    - id: language_sufficient
+      label: "The accused knows the language of the court well enough to defend himself"
+      requires: "that the accused speaks or understands the language used in court"
+      source: gc32
+      pinpoint: "para. 40"
+      quote: "not entitled to the free assistance of an interpreter if they know the official language sufficiently to defend themselves effectively"
+
+  iccpr_14_3_g:
+    - id: statement_voluntary
+      label: "Any statement was made freely, after the accused was told of his right to remain silent"
+      requires: "that the accused was told of his rights or chose freely to make a statement"
+
+  gc35_48h:
+    - id: exceptional_circumstances
+      label: "The delay was exceptional and justified by the circumstances"
+      requires: "a specific event or circumstance that delayed bringing the detainee before a judge"
+      source: gc35
+      pinpoint: "para. 33"
+      quote: "any delay longer than 48 hours must remain absolutely exceptional and be justified under the circumstances"
+    - id: dates_uncertain
+      label: "The record does not establish when the arrest happened or when the detainee was first brought before a judge"
+      requires: "a different or unclear date for the arrest or for the first appearance before a judge"
+
+  reasoning_reuse:
+    - id: facts_proven_at_trial
+      label: "The matching passages state facts the court found proven on the evidence at trial, so similar wording is expected"
+      requires: "evidence heard at trial (testimony, documents, exhibits) that proves the facts the matching passage states"
+      independent: true
+    - id: own_assessment_elsewhere
+      label: "Other passages of the judgment show the court's own assessment of the evidence"
+      requires: "the court, in its own words, weighing evidence or explaining its conclusion (not a party's argument and not a passage that matches the indictment)"
+      independent: true
+
+  unaddressed_defense_argument:
+    - id: answered_implicitly
+      label: "The reasoning disposes of the argument without naming it"
+      requires: "the court ruling on the point the argument raises, even without naming the argument"
+    - id: argument_not_decisive
+      label: "The argument could not have changed the outcome"
+      requires: "other evidence, independent of what the argument objects to, on which the court relies for the same conclusion"
+      independent: true
+
+  renewal_review:
+    - id: investigation_pending
+      label: "The investigation was still incomplete, which justified more time"
+      requires: "an investigative step that was still incomplete when the order was made"
+      source: gc35
+      pinpoint: "para. 37"
+      quote: "Impediments to the completion of the investigation may justify additional time, but general conditions of understaffing or budgetary constraint do not."
+    - id: risks_unchanged
+      label: "The risks found in the earlier order still existed, so restating them reflects that nothing had changed"
+      requires: "that the facts behind the earlier risks (flight, interference) were still present"
+
+  renewal_gap:
+    - id: covered_otherwise
+      label: "Another order, or a decision at a hearing, covered those days but is not in the case folder"
+      requires: "an order, ruling or hearing on detention dated between the end of one order and the next"
+      independent: true
+    - id: end_date_reading
+      label: "The earlier order's end date is to be read as extending to the date of the next order"
+      requires: "wording of the earlier order that sets a later end date, or counts it differently"

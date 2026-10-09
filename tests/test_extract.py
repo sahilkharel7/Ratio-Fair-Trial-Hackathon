@@ -95,8 +95,9 @@ def test_the_prompt_lists_only_sentences_with_written_dates(extracted):
 
 
 def test_two_dates_in_one_sentence_give_two_events(extracted):
-    _, record, _, _ = extracted
-    extensions = sorted(e.parsed_date.date() for e in events_of(record, "detention_extension"))
+    base, record, _, _ = extracted
+    from_model = [e for e in events_of(record, "detention_extension") if e not in base.events]  # the orders' own are built in code
+    extensions = sorted(e.parsed_date.date() for e in from_model)
     assert extensions == [dt.date(2025, 3, 19), dt.date(2025, 5, 14)]
 
 
@@ -235,7 +236,15 @@ def test_deterministic_parts_of_the_record_are_unchanged(extracted):
     assert record.observations == base.observations
     assert record.passages == base.passages
     assert record.rulings == base.rulings
-    assert record.events[: len(base.events)] == base.events  # header events (hearings, the verdict) are kept as built
+    assert record.events[: len(base.events)] == base.events  # header events (hearings, the verdict) and order extensions, built in code, come first
+
+
+def test_detention_orders_are_read_in_code_and_never_sent_to_the_model(extracted):
+    base, record, _, llm = extracted
+    assert not any("Detention" in call.user and "order" in call.user.lower() for call in llm.calls)
+    assert record.orders == base.orders and len(base.orders) == 3
+    in_code = [e for e in base.events if e.type == "detention_extension"]
+    assert sorted(e.parsed_date.date() for e in in_code) == [dt.date(2025, 3, 19), dt.date(2025, 5, 14)]
 
 
 def test_progress_callback_reports_each_chunk():

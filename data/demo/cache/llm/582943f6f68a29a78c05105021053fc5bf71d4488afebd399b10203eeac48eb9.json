@@ -1,0 +1,11 @@
+{
+  "key": "582943f6f68a29a78c05105021053fc5bf71d4488afebd399b10203eeac48eb9",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman_check",
+  "response": {
+    "note": "Describes the accused's knowledge.",
+    "shows": false
+  },
+  "schema": "GroundCheck",
+  "synthetic": true
+}

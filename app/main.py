@@ -35,7 +35,11 @@ pages = [
     st.Page("views/case.py", title="Case", default=True),
     st.Page("views/coverage.py", title="Rights coverage"),
     st.Page("views/timeline.py", title="Timeline"),
+    st.Page("views/renewal.py", title="Detention renewals"),
     st.Page("views/reuse.py", title="Reasoning reuse"),
     st.Page("views/judges.py", title="Judge profile"),
+    st.Page("views/jurisprudence.py", title="Jurisprudence"),
+    st.Page("views/steelman.py", title="State's reply"),
+    st.Page("views/review.py", title="Review"),
 ]
 st.navigation(pages).run()
