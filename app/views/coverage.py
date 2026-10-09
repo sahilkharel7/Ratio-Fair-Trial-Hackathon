@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from ratio.display import md_escape
+from ratio.display import guarantee_badge, md_escape
 from ratio.messages import render
 from ratio.results import GuaranteeAssessment
 from ratio_ui import session, widgets
@@ -19,7 +19,7 @@ def _grid(assessments: tuple[GuaranteeAssessment, ...]) -> None:
             st.markdown(f"**{md_escape(assessment.provision)}**  \n{md_escape(assessment.name)}")
             # status and button at their natural width: fixed columns cut them to "O…" on a laptop screen
             with st.container(horizontal=True, horizontal_alignment="distribute", vertical_alignment="center"):
-                widgets.badge(assessment.status)
+                widgets.badge(guarantee_badge(assessment))
                 if st.button("Open", key=f"open-{assessment.rubric_id}"):
                     st.session_state[SELECTED] = assessment.rubric_id
 
@@ -48,7 +48,7 @@ def _details(loaded: LoadedCase, assessment: GuaranteeAssessment) -> None:
     messages = session.config().messages
     st.subheader(f"{assessment.provision}: {assessment.name}")
     with st.container(horizontal=True):
-        widgets.badge(assessment.status)
+        widgets.badge(guarantee_badge(assessment))
         widgets.badge(assessment.review_status)
     st.caption(md_escape(assessment.citation))
     flag = next((f for f in absence.flags if f.id == assessment.flag_id), None)

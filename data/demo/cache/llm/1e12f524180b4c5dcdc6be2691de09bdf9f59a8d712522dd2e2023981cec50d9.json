@@ -1,0 +1,59 @@
+{
+  "key": "1e12f524180b4c5dcdc6be2691de09bdf9f59a8d712522dd2e2023981cec50d9",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "labels",
+  "response": {
+    "labels": [
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The observation is about a request for an adjournment, which is not related to the right not to be compelled to testify.",
+        "observation": "O1 (2025-06-02): The presiding judge refused the request and ordered the trial to continue."
+      },
+      {
+        "indicator_id": "g_silence_respected",
+        "label": "supports",
+        "note": "The judge informed Mr. Venn of his right to remain silent, which supports the indicator.",
+        "observation": "O2 (2025-06-02): The presiding judge informed Mr. Venn that he had the right to remain silent."
+      },
+      {
+        "indicator_id": "g_silence_respected",
+        "label": "supports",
+        "note": "Mr. Venn chose to make a statement, which respects his right not to be compelled to testify.",
+        "observation": "O3 (2025-06-02): Mr. Venn chose to make a statement, in which he denied the charge and said that his articles were based on documents given to him by employees of the Ministry of Water."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The observation is about a decision to exclude the public, which is unrelated to the right not to be compelled to testif",
+        "observation": "O4 (2025-06-30): At the prosecution's request, the presiding judge ordered the public and journalists to leave the courtroom during the testimony of a police investigator, citing national security."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The observation is about a request for witnesses, which is unrelated to the right not to be compelled to testify.",
+        "observation": "O5 (2025-06-30): Defence counsel asked the court to hear two witnesses, both editors at Mirevo Today, who had attended the editorial meeting at which the articles were approved."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The observation is about a refusal to hear witnesses, which is unrelated to the right not to be compelled to testify.",
+        "observation": "O6 (2025-06-30): The presiding judge refused to hear them, without giving reasons."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The observation is about the presence of defence counsel, which is unrelated to the right not to be compelled to testify",
+        "observation": "O7 (2025-07-14): Defence counsel Lena Brask was present and made the closing statement for the defence."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The observation is about the prosecutor's request for a sentence, which is unrelated to the right not to be compelled to",
+        "observation": "O8 (2025-07-14): The prosecutor asked for a sentence of five years' imprisonment."
+      }
+    ]
+  },
+  "schema": "LabelReply",
+  "synthetic": true
+}

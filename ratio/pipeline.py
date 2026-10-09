@@ -19,7 +19,7 @@ from typing import Literal
 from ratio.config import RatioConfig
 from ratio.context import AnalysisContext, Embedder
 from ratio.embeddings import MiniLMEmbedder
-from ratio.extraction.build import load_case
+from ratio.extraction.build import header_events, load_case
 from ratio.extraction.extract import ExtractionReport, extract_record
 from ratio.llm import CachedLLM, OllamaClient, ResponseCache, model_from_env
 from ratio.modules import absence, clock, judges, reuse
@@ -149,8 +149,8 @@ class LiveNote:
     same_as_record: bool
 
 
-def _items(record: CaseRecord, doc_id: str) -> tuple[set[tuple], set[tuple]]:
-    events = {(e.type, e.span.start, e.span.end, e.parsed_date) for e in record.events if e.span.doc_id == doc_id and e.type != "hearing"}
+def _items(record: CaseRecord, doc_id: str, built: frozenset[str]) -> tuple[set[tuple], set[tuple]]:
+    events = {(e.type, e.span.start, e.span.end, e.parsed_date) for e in record.events if e.span.doc_id == doc_id and e.id not in built}
     arguments = {(a.party, a.span.start, a.span.end) for a in record.arguments if a.span.doc_id == doc_id}
     return events, arguments
 
@@ -164,14 +164,15 @@ def run_note_live(record: CaseRecord, doc_id: str, config: RatioConfig, *, model
         started = time.monotonic()
         live, _ = ingest(single, llm, config)
         seconds = time.monotonic() - started
-    events = tuple(e for e in live.events if e.type != "hearing")
+    built = frozenset(e.id for e in header_events(document))  # read from the header, not by the model
+    events = tuple(e for e in live.events if e.id not in built)
     return LiveNote(
         doc_id=doc_id,
         model=llm.model,
         seconds=round(seconds, 1),
         events=events,
         arguments=live.arguments,
-        same_as_record=_items(live, doc_id) == _items(record, doc_id),
+        same_as_record=_items(live, doc_id, built) == _items(record, doc_id, built),
     )
 
 

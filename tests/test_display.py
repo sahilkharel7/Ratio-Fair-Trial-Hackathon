@@ -1,6 +1,6 @@
 """Display helpers: excerpts with exact offsets, escaped HTML highlights, markdown-safe text."""
 
-from ratio.display import Mark, duration_text, excerpt, excerpt_html, marked_html, md_escape, percent
+from ratio.display import Mark, duration_text, excerpt, excerpt_html, guarantee_badge, marked_html, md_escape, percent
 from ratio.schema import SourceSpan
 
 TEXT = "Line one.\nThe accused was arrested on 14 February 2025 at his home.\nLine three is here."
@@ -86,3 +86,11 @@ def test_reuse_marks_stay_on_the_document_each_pair_belongs_to():
     assert Mark(statute.start, statute.end, "excluded", "STATUTE_QUOTE") in on_judgment
     assert Mark(pair.judgment.start, pair.judgment.end, "verbatim", "1") in on_judgment
     assert amended  # the amended indictment exists but has no match: nothing may be painted on it
+
+
+def test_a_guarantee_with_unlabelled_notes_is_shown_as_incomplete_not_as_no_evidence():
+    from types import SimpleNamespace
+
+    assert guarantee_badge(SimpleNamespace(status="no_evidence", unlabelled_notes=1)) == "incomplete"
+    assert guarantee_badge(SimpleNamespace(status="no_evidence", unlabelled_notes=0)) == "no_evidence"
+    assert guarantee_badge(SimpleNamespace(status="evidence_of_violation", unlabelled_notes=2)) == "evidence_of_violation"

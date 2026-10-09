@@ -160,13 +160,22 @@ def _ask(item: RubricItem, batch: list[Observation], previous: dict[str, str], c
     numbered = [(f"O{n}", obs) for n, obs in enumerate(batch, start=1)]
     prompt = label_user_prompt(item, [(obs_id, obs, previous.get(obs.id)) for obs_id, obs in numbered])
     reply = ctx.llm.complete_json(system=LABEL_SYSTEM, user=prompt, schema=LabelReply, purpose="labels")
-    by_id = dict(numbered)
     answers = []
     for entry in reply.labels:
-        found = _OBSERVATION_ID.search(entry.observation)  # models sometimes copy the whole "O3 (date): text" line
-        if found and found.group(0) in by_id:
-            answers.append((by_id[found.group(0)], entry))
+        obs = _answered(entry.observation, numbered)
+        if obs is not None:
+            answers.append((obs, entry))
     return answers
+
+
+def _answered(reference: str, numbered: list[tuple[str, Observation]]) -> Observation | None:
+    """The note a reply entry is about: its "O3" id (models sometimes copy the whole "O3 (date): text"
+    line), or, when the model copied the note's text without the id, the note with exactly that text."""
+    found = _OBSERVATION_ID.search(reference)
+    if found:
+        return dict(numbered).get(found.group(0))
+    same_text = [obs for _, obs in numbered if " ".join(obs.text.split()) == " ".join(reference.split())]
+    return same_text[0] if len(same_text) == 1 else None
 
 
 def _replies(item: RubricItem, shortlist: list[Observation], previous: dict[str, str], ctx: AnalysisContext):

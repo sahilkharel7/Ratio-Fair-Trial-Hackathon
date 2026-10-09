@@ -93,7 +93,7 @@ def test_part_of_a_longer_date_is_not_accepted():
 
 def test_a_time_is_never_turned_into_a_date():
     body = "The hearing began at 10:10 before the presiding judge. Mr. Venn was present."
-    events, _, _ = extract(body, model_event("trial_start", "The hearing began at 10:10", "10:10", ""), doc_type="monitoring_note")
+    events, _, _ = extract(body, model_event("first_appearance", "The hearing began at 10:10 before the presiding judge", "10:10", ""), doc_type="monitoring_note")
     (start,) = events
     assert start.parsed_date is None and "could not be parsed" in " ".join(start.review_reasons)
 
@@ -134,3 +134,39 @@ def test_the_clean_copy_of_a_repeated_event_is_kept():
     clean = events[0]
     reviewed = clean.model_copy(update={"needs_review": True, "review_reasons": ("model and dateparser disagree",)})
     assert _dedupe([reviewed, clean], _event_key) == [clean]
+
+
+def written_date(sentence: str) -> str:
+    return re.search(r"\d{1,2} [A-Z][a-z]+ \d{4}", sentence).group(0)
+
+
+@pytest.mark.parametrize(
+    ("event_type", "sentence"),
+    [
+        ("counsel_access", "The screenshots offered by the prosecution were excluded on 1 September 2025."),
+        ("trial_start", "The trial was first set for 12 May 2025."),
+        ("trial_start", "Time spent in detention since 9 September 2024 counts toward the sentence."),
+        ("charge", "On 4 March 2026 he signed a written statement prepared by investigators."),
+        ("first_appearance", "On 15 February 2025 he was brought before the Public Prosecutor."),
+        ("first_appearance", "On 15 February 2025 he appeared before the Public Prosecutor, who questioned him."),
+    ],
+)
+def test_an_event_whose_sentence_does_not_name_that_kind_of_event_is_dropped(event_type, sentence):
+    events, report, _ = extract(sentence, model_event(event_type, sentence[:-1], written_date(sentence), ""))
+    assert events == []
+    assert any("does not mention" in reason for reason in report.dropped)
+
+
+@pytest.mark.parametrize(
+    ("event_type", "sentence"),
+    [
+        ("counsel_access", "She stated that she was first able to meet Mr. Venn on 21 February 2025."),
+        ("trial_start", "The trial opened on 2 June 2025 before Judge Ilena Varda."),
+        ("first_appearance", "On 10 September 2024 she was brought before Judge Petra Hollin."),
+        ("first_appearance", "A detention hearing was held on 15 February 2025, at which his detention was ordered."),
+        ("charge", "The indictment was filed on 2 December 2024."),
+    ],
+)
+def test_an_event_whose_sentence_names_it_is_kept(event_type, sentence):
+    events, _, _ = extract(sentence, model_event(event_type, sentence[:-1], written_date(sentence), ""))
+    assert [e.type for e in events] == [event_type]

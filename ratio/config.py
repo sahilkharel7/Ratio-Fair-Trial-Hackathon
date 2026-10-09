@@ -233,6 +233,17 @@ class ExtractionSettings(Frozen):
     argument_markers: tuple[str, ...] = Field(min_length=1)
     argument_continuations: tuple[str, ...] = ()
     argument_list_nouns: tuple[str, ...] = ()
+    event_support: dict[EventType, str] = Field(default_factory=dict)
+
+    @field_validator("event_support")
+    @classmethod
+    def _patterns_compile(cls, patterns: dict[EventType, str]) -> dict[EventType, str]:
+        for event_type, pattern in patterns.items():
+            try:
+                re.compile(rf"\b(?:{pattern})")  # as extraction compiles it
+            except re.error as exc:
+                raise ValueError(f"event_support for {event_type} is not a valid pattern: {exc}") from exc
+        return patterns
 
 
 class AbsenceSettings(Frozen):

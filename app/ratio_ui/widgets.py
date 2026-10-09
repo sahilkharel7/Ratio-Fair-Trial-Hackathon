@@ -18,6 +18,7 @@ BADGE_COLORS = {
     "evidence_of_compliance": "green",
     "evidence_of_violation": "red",
     "no_evidence": "gray",
+    "incomplete": "orange",
     "exceeds_benchmark": "red",
     "may_exceed": "orange",
     "needs_review": "orange",

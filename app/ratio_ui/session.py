@@ -12,7 +12,7 @@ from ratio.config import RatioConfig, default_config
 from ratio.embeddings import MiniLMEmbedder
 from ratio.extraction.build import build_base_record, load_case
 from ratio.extraction.loader import CaseManifest
-from ratio.history import load_all_alias_decisions, load_history
+from ratio.history import history_for, load_all_alias_decisions, load_history
 from ratio.paths import DEMO_CASE_DIR
 from ratio.pipeline import analyze_judges, demo_llm, make_llm, process
 from ratio.results import CaseAnalysis, JudgeReport
@@ -61,10 +61,11 @@ def _save(record: CaseRecord, analysis: CaseAnalysis) -> str:
     return record.case_id
 
 
-def seed_history() -> int:
-    """The synthetic judicial history behind the judge page: coded rulings only, no model involved."""
+def seed_history(records: tuple[CaseRecord, ...] | None = None) -> int:
+    """The synthetic judicial history behind the judge page (all of it by default): coded rulings
+    only, no model involved."""
     cases = store()
-    records = load_history()
+    records = load_history() if records is None else records
     for record in records:
         cases.save_case(record)
     return len(records)
@@ -93,8 +94,11 @@ def open_case(case_id: str) -> None:
 
 
 def analyze_upload(manifest: CaseManifest, files: dict[str, bytes], progress: Progress | None = None) -> str:
-    """An uploaded case, read by the live local model (its replies are cached under data/cache)."""
+    """An uploaded case, read by the live local model (its replies are cached under data/cache). A
+    synthetic case from the court of the synthetic history gets that history, as the demo does."""
     cfg = config()
     base = build_base_record(manifest, files)
     record, analysis, _ = process(base, make_llm(cfg, mode="live"), cfg, embedder=embedder(), progress=progress)
+    if record.meta.synthetic:  # before saving, so a history case can never replace the upload
+        seed_history(history_for(record, load_history()))
     return _save(record, analysis)

@@ -35,6 +35,7 @@ labels:
   evidence_of_compliance: "Evidence of compliance"
   evidence_of_violation: "Evidence of violation"
   no_evidence: "No evidence: follow-up"
+  incomplete: "Incomplete: notes not labelled"
   exceeds_benchmark: "Longer than the benchmark"
   may_exceed: "May exceed the benchmark"
   needs_review: "Dates need review"

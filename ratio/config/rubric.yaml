@@ -45,7 +45,7 @@ items:
         compliance:
           - {id: a_charge_communicated, text: "The charge or indictment was read out to, served on, or explained to the defendant"}
         violation:
-          - {id: a_charge_withheld, text: "The defendant learned of the charge late, only in part, or not at all"}
+          - {id: a_charge_withheld, text: "The defendant learned of the charge late, only in part, or not at all, or the charge was amended without notice or time to prepare a defence to it"}
       - id: a_language
         label: "Informed in a language the defendant understands"
         required: true
@@ -124,19 +124,20 @@ items:
         label: "Defended in person or by counsel of choice at each hearing"
         required: true
         scope: per_hearing
-        keywords: ["counsel", "lawyer", "represent", "in person", "himself", "herself"]
+        keywords: ["counsel", "lawyer", "represent", "in person", "himself", "herself", "not allowed"]
         compliance:
           - {id: d_counsel_present, text: "Defence counsel chosen by the defendant was present and acted at the hearing"}
           - {id: d_defends_in_person, text: "The defendant chose to conduct the defence in person"}
         violation:
-          - {id: d_counsel_missing, text: "Counsel of the defendant's choice was refused, removed or replaced against the defendant's wishes, or the defendant wanted a lawyer and had none"}
+          - {id: d_counsel_barred, text: "The defendant's chosen lawyer was barred from the hearing, or removed or replaced against the defendant's wishes"}
+          - {id: d_counsel_missing, text: "A lawyer was imposed over the defendant's objection with no reason given, or the defendant wanted a lawyer and had none"}
       - id: d_legal_aid
         label: "Told of the right to counsel; legal aid where needed"
         required: false
         scope: case
         keywords: ["legal aid", "assigned", "free of charge", "right to a lawyer"]
         compliance:
-          - {id: d_legal_aid_given, text: "The defendant was told of the right to a lawyer, or was assigned a lawyer free of charge"}
+          - {id: d_legal_aid_given, text: "A defendant with no lawyer of their own was told of the right to a lawyer, or was assigned one free of charge"}
         violation:
           - {id: d_legal_aid_refused, text: "A defendant without a lawyer was not told of the right to one, or was refused assigned counsel"}
     follow_up: "Was the defendant present, and represented by counsel of choice, at every hearing?"
@@ -186,6 +187,8 @@ items:
         violation:
           - {id: f_interpreter_missing, text: "The defendant could not follow the proceedings and no interpreter was provided"}
           - {id: f_interpreter_refused, text: "A request for an interpreter was refused"}
+          - {id: f_interpreter_left, text: "The defendant's interpreter was absent, or left while the proceedings continued"}
+          - {id: f_testimony_uninterpreted, text: "Testimony was given without interpretation to a defendant who needed it"}
     context:
       - {id: f_context_language, text: "The defendant's first or preferred language differs from the language used in court", keywords: ["language", "speaks", "speak ", "interpret", "translat", "native", "fluent"]}
     follow_up: "Was an interpreter present at each hearing? If not, does the defendant understand and speak the language used in court?"
@@ -201,9 +204,9 @@ items:
         label: "No compulsion to testify or confess"
         required: true
         scope: case
-        keywords: ["silent", "silence", "confess", "statement", "pressure", "coerc", " signed", " promis", "threat", " torture", " torturing", "ill-treat", " beaten"]
+        keywords: ["silent", "silence", "confess", "statement", "pressure", "coerc", " signed", " promis", "threat", " torture", " torturing", "ill-treat", " beaten", "declined to answer", "refused to answer"]
         compliance:
-          - {id: g_silence_respected, text: "The defendant was told of the right to remain silent, or chose freely whether to testify"}
+          - {id: g_silence_respected, text: "The defendant was told of the right to remain silent, declined to answer questions, or chose freely whether to testify"}
         violation:
-          - {id: g_compelled, text: "The defendant was pressured, threatened or ill-treated to testify or confess, or a confession made under pressure was used"}
+          - {id: g_compelled, text: "The defendant was pressured, threatened, promised something or ill-treated to make a statement, testify or confess, or such a statement was used"}
     follow_up: "Was the defendant told of the right to remain silent, and is there any sign of pressure to confess?"

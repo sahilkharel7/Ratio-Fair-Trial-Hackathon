@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from ratio.config import ExtractionSettings
 from ratio.context import LLMClient
 from ratio.extraction.align import PLACEHOLDERS, Located, locate_quote, negation_mismatch, sentence_bounds
+from ratio.extraction.backstop import missed_arguments
 from ratio.extraction.build import OBSERVATION_SOURCES
 from ratio.extraction.chunking import Chunk, chunk_spans
 from ratio.extraction.dates import find_written_dates, has_explicit_year, locate_date_text, parse_date_text, parse_iso_date
@@ -175,6 +176,8 @@ def _event(
     if not dates:
         return f"{doc.path}: {item.type} dropped, no date written in its sentence: {first_sentence.text[:60]!r}"
     evidence = _span(doc, *sentence_bounds(doc.text, located.start, located.end))
+    if not _names_event(item.type, evidence.text, settings):
+        return f"{doc.path}: {item.type} dropped, its sentence does not mention a {item.type.replace('_', ' ')}: {evidence.text[:60]!r}"
     quote_reasons = _quote_reviews(doc, located, evidence)
     model_dates, joined_reasons = _model_dates(item.iso_date, len(dates))
     events = []
@@ -196,6 +199,17 @@ def _event(
             )
         )
     return events
+
+
+@functools.cache
+def _support(pattern: str) -> re.Pattern[str]:
+    return re.compile(rf"\b(?:{pattern})", re.IGNORECASE | re.DOTALL)
+
+
+def _names_event(event_type: str, sentence: str, settings: ExtractionSettings) -> bool:
+    """The sentence names this kind of event (settings.event_support); types without a pattern pass."""
+    pattern = settings.event_support.get(event_type)
+    return pattern is None or _support(pattern).search(sentence) is not None
 
 
 @functools.cache
@@ -317,8 +331,10 @@ def extract_record(
         for doc in base.documents
         if doc.type not in OBSERVATION_SOURCES and not find_written_dates(doc.text)
     ]
-    kept_events = _dedupe(events, _event_key)
+    built = {_event_key(event) for event in base.events}  # a model mention of a caption date is already there
+    kept_events = [event for event in _dedupe(events, _event_key) if _event_key(event) not in built]
     kept_arguments = _dedupe(arguments, _argument_key)
+    kept_arguments += missed_arguments(base, kept_arguments)
     record = CaseRecord.model_validate(
         {**base.model_dump(), "events": [*base.model_dump()["events"], *(e.model_dump() for e in kept_events)],
          "arguments": [a.model_dump() for a in kept_arguments]}

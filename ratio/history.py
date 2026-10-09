@@ -10,6 +10,7 @@ from pydantic import ValidationError
 
 from ratio.extraction.build import load_case
 from ratio.extraction.loader import MANIFEST_NAME, LoaderError, safe_yaml
+from ratio.modules.judge_registry import key_text
 from ratio.paths import ALIAS_DECISIONS, HISTORY_DIR, PUBLIC_ALIAS_DECISIONS, REPO_ROOT
 from ratio.schema import AliasDecision, CaseRecord, Frozen
 
@@ -22,6 +23,14 @@ class AliasDecisionsFile(Frozen):
 def load_history(folder: Path = HISTORY_DIR) -> tuple[CaseRecord, ...]:
     """Every case folder (one holding case.yaml) directly inside ``folder``, in name order."""
     return tuple(load_case(path) for path in sorted(Path(folder).iterdir()) if (path / MANIFEST_NAME).is_file())
+
+
+def history_for(upload: CaseRecord, history: tuple[CaseRecord, ...]) -> tuple[CaseRecord, ...]:
+    """The synthetic history an uploaded case is compared with: all of it when the upload is synthetic
+    and from a court the history covers, otherwise none (invented history never sits next to public
+    data, and a case from another court has no judge in it)."""
+    courts = {key_text(case.meta.court) for case in history}
+    return history if upload.meta.synthetic and key_text(upload.meta.court) in courts else ()
 
 
 def decisions_file(synthetic: bool) -> Path:

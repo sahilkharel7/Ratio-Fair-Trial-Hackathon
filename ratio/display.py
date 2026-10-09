@@ -11,7 +11,7 @@ import re
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 
-from ratio.results import ReuseResult
+from ratio.results import GuaranteeAssessment, ReuseResult
 from ratio.schema import SourceSpan
 
 MARK_PRIORITY = {"span": 0, "verbatim": 1, "paraphrase": 2, "charge": 3, "excluded": 4}
@@ -121,6 +121,14 @@ def duration_text(low: float, high: float) -> str:
 
 def percent(value: float | None) -> str:
     return "n/a" if value is None else f"{value:.0%}"
+
+
+def guarantee_badge(assessment: GuaranteeAssessment) -> str:
+    """The label key shown for a guarantee: "incomplete" instead of "no evidence" while shortlisted
+    notes still have no usable label, since the notes were not fully read."""
+    if assessment.status == "no_evidence" and assessment.unlabelled_notes:
+        return "incomplete"
+    return assessment.status
 
 
 def md_escape(text: str) -> str:

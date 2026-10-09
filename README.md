@@ -199,7 +199,7 @@ No real monitoring notes and no published TrialWatch reports are in this reposit
   - Coded rulings must be written by hand.
   - TrialWatch's case selection makes the rates unrepresentative, as every judge page says.
   - A judge whose surname is also a title word (for example "Justice") waits for a person to confirm the name.
-- **The recorded demo answers match exact prompts.** In the demo, one similarity comparison that selects notes for the model is decided by a margin of 0.00009. On a computer whose arithmetic differs slightly (another operating system or processor), that selection could change, and with it one prompt; the replay would then stop with "no cached labels reply for this request". `python -m ratio preflight` detects this and prints the command that records the missing answer with Ollama running.
+- **The recorded demo answers match exact prompts.** In the demo, one similarity comparison that selects notes for the model is decided by a margin of 0.0012. On a computer whose arithmetic differs slightly (another operating system or processor), that selection could change, and with it one prompt; the replay would then stop with "no cached labels reply for this request". `python -m ratio preflight` detects this and prints the command that records the missing answer with Ollama running.
 - **Platforms:** tested on macOS with Apple Silicon. PyTorch no longer publishes wheels for Intel Macs.
 - **Not built yet** (stretch goals):
   - the detention-renewal mode, which compares successive extension orders;

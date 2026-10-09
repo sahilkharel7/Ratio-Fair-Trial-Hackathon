@@ -51,6 +51,18 @@ extraction:
     - "finally,"
     - "lastly,"
   argument_list_nouns: ["points", "arguments", "grounds", "reasons", "issues", "objections", "submissions"]
+  # A model event is kept only if its sentence names that kind of event (a regular expression,
+  # matched at the start of a word, any case), so a dated sentence about something else cannot
+  # date it ("the screenshots were excluded on 1 September" is not counsel access). A trial start
+  # needs the trial and its opening, so "the trial was first set for 12 May" does not count.
+  event_support:
+    arrest: 'arrest|detain|detention|custody|police'
+    first_appearance: 'judge|court|magistrate|tribunal|hearing|arraign'  # never "appeared before the prosecutor"
+    counsel_access: 'lawyer|counsel|attorney|advocate|solicitor|barrister|legal aid|defender|meet|met\b|consult'
+    charge: 'indict|charg|accus'
+    detention_extension: 'detention|custody|remand|extend|extension'
+    trial_start: 'trial\b.{0,80}\b(?:open|began|begin|commenc|start)|(?:open|began|begin|commenc|start)\w*\b.{0,80}\btrial'
+    verdict: 'verdict|judgment|sentenc|convict|acquit|guilty|deliver'
 
 absence:
   # Shortlists are built per rubric part: the top notes overall for case-level parts, and the
@@ -78,7 +90,11 @@ reuse:
   verbatim_jaccard: 0.5
   verbatim_containment: 0.6  # share of the judgment passage's 5-grams found in the indictment
   min_source_share: 0.1  # an indictment passage counts as a source when it supplies this share of the 5-grams
-  paraphrase_cosine: 0.7  # planted paraphrase measures 0.756 with MiniLM; best reasoning hard negative 0.523
+  # MiniLM cosine. Demo: planted paraphrase 0.756, best reasoning hard negative 0.523. Test case
+  # Calderra v. Talmont: paraphrase 0.810; the court's own reasoning on the same facts 0.714 and
+  # 0.730. Set midway between 0.730 and 0.756; the margins are thin (about 0.013) and tuned on three
+  # synthetic cases.
+  paraphrase_cosine: 0.743
   paraphrase_min_shared_words: 3
   min_passage_words: 6  # shorter passages count as reasoning but are never matched
   # Defence arguments are checked against every reasoning passage, or the most similar ones when

@@ -231,6 +231,36 @@
       "review_reasons": []
     },
     {
+      "id": "587fba1b57fe99d9",
+      "type": "verdict",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 110,
+        "end": 135,
+        "text": "Delivered on 14 July 2025"
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 110,
+        "end": 135,
+        "text": "Delivered on 14 July 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 123,
+        "end": 135,
+        "text": "14 July 2025"
+      },
+      "date_text": "14 July 2025",
+      "model_date": null,
+      "parsed_date": "2025-07-14T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
       "id": "a2ff2648bf20aa70",
       "type": "arrest",
       "span": {
