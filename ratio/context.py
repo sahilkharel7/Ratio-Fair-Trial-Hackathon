@@ -17,6 +17,11 @@ T = TypeVar("T", bound=BaseModel)
 CHARS_PER_TOKEN = 3  # conservative estimate, so prompts are refused before Ollama would truncate them
 
 
+class ModelReplyError(RuntimeError):
+    """The model answered, but the answer cannot be used (cut off at the reply length limit, or not
+    the requested schema). Modules may recover from it; a missing model or recording is not one."""
+
+
 def system_with_schema(system: str, schema: type[BaseModel]) -> str:
     """The system prompt as sent: the reply's JSON schema is given in the prompt as well as in ``format``."""
     return f"{system}\n\nReply with JSON only, matching this JSON schema:\n{json.dumps(schema.model_json_schema())}"

@@ -19,37 +19,27 @@ Ratio retains its own identity. Georgia and Arial/Helvetica are local system-fon
 choices, not a claim to reproduce LexisNexis's proprietary typography. No remote
 fonts, images, scripts, or stylesheets are loaded by the app.
 
-## Extending the interface
+## Extending the offline interface
 
-1. Add a view under `app/views/` and register it in `app/main.py`.
-2. Add its navigation entry in `style.sidebar()` in `app/ratio_ui/style.py`.
-3. Use `widgets.header()` for analysed-case pages. Use `style.section()` for
-   sections, `style.panel(unique_key)` for reading and review panels, and
-   `style.metric(label, value, note, tone)` for summaries. Panel keys must be
-   unique within a rendered page, including any source dialog.
-4. Use `widgets.badge()` for the reviewed status vocabulary and
-   `widgets.evidence()` for evidence rows. Keep findings, missing evidence,
-   and legal-review status distinct. Burgundy denotes actions, not a legal finding.
-5. Use `viewer.show_source()` for an exact evidence span and
-   `viewer.show_document()` for the complete original document. The source viewer
-   continues to check spans against their original documents before displaying them.
-6. Adjust colors, font stacks, radii, and spacing in the `--ratio-*` tokens in
-   `app/ratio_ui/theme.css`. Keep both `.streamlit/config.toml` files identical;
-   their palette also styles native controls and tables across theme preferences.
+Sahil's native nine-page navigation, light/dark palettes, bundled serif headings,
+contrast settings, focus outlines, underlined links, print styles and distinct
+mark underlines remain in place. Both `.streamlit/config.toml` files must match.
+The offline app uses native controls, status badges and review forms.
 
-The stylesheet separates product classes (`ratio-*`) from the native Streamlit
-adapter (`data-testid` and explicit container keys). It avoids generated framework
-class names. Review the adapter after upgrading Streamlit. Responsive rules adjust
-summary grids and reading layouts; keyboard focus and reduced-motion preferences
-are retained.
+Use `widgets.header()` and `widgets.evidence()` for analysed-case pages, with
+`widgets.jurisprudence()` and `widgets.state_reply()` for the linked context.
+`style.panel()`, `style.metric()` and the product classes in `theme.css` support
+matter summaries and workstreams while inheriting the native theme. Source readers
+retain exact-span checks. New views must be registered in `app/main.py`.
 
 ## Framework decision
 
 The current application is Streamlit. Upload ingestion, local analysis, SQLite
 state, multipage navigation, and source dialogs all use its Python session model.
 A React migration would require a separate local API and new upload, session,
-and evidence-dialog implementations. This redesign keeps those tested workflows
-and introduces a shared presentation layer without changing the analysis engine.
+and evidence-dialog implementations. The combined version keeps those tested workflows and the latest analysis engine.
+A separate React preview in `web/` exports only the committed synthetic record; it
+provides browser-local demonstration reviews without moving case uploads to a cloud service.
 
 ## Verification
 

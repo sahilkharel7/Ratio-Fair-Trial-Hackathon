@@ -5,7 +5,7 @@ The live demo has six steps: from the case record to the source line behind each
 Measured on 8 October 2026 (MacBook with Apple Silicon):
 
 - Loading the demo took 3.5 seconds with Ollama stopped.
-- The optional live-note step took 10.6 seconds, and the model gave the same answer as the recorded one.
+- The optional live-note step took 7.5 seconds on 9 October, and the model gave the same answer as the recorded one.
 - The browser made 364 requests, all to 127.0.0.1, and the app's own connections all stayed on 127.0.0.1.
 
 ## Before you present (10 minutes)
@@ -35,13 +35,13 @@ Measured on 8 October 2026 (MacBook with Apple Silicon):
 
 | Time | Step | Click | Say |
 |---|---|---|---|
-| 0:00 | **1. Case record** | **Case** page → **Load the demo case** (about 4 s) | "Four hearing notes, the indictment and the judgment become one case record: 46 note sentences, 13 dated events and 2 party arguments. That gives 11 findings, and each one is linked to the exact text it rests on. The model's answers are replayed from a recording, and this laptop is offline right now." |
+| 0:00 | **1. Case record** | **Case** page → **Load the demo case** (about 4 s) | "Four hearing notes, the indictment, the judgment and three detention orders become one case record: 46 note sentences, 16 dated events and 2 party arguments. That gives 13 findings, and each one is linked to the exact text it rests on. The model's answers are replayed from a recording, and this laptop is offline right now." |
 | 0:25 | *(optional)* live model | **Run this note live** (about 11 s) | "To show that the recorded answers are real, the local model reads hearing 1 again now, on this laptop. It gives the same answer." |
-| 0:40 | **2. Rights coverage** | **Rights coverage** → **Open** on *ICCPR Art. 14(3)(f) Free assistance of an interpreter* | "Violations hide in omissions. No note ever mentions an interpreter. Ratio does not invent a finding. It gives the monitor a follow-up question, and next to it a note it does not count as evidence: the defendant's first language is Ostric." |
+| 0:40 | **2. Rights coverage** | **Rights coverage** → **Open 14(3)(f)** on *ICCPR Art. 14(3)(f) Free assistance of an interpreter* | "Violations hide in omissions. No note ever mentions an interpreter. Ratio does not invent a finding. It gives the monitor a follow-up question, and next to it a note it does not count as evidence: the defendant's first language is Ostric." |
 | 1:05 | **3. Timeline** | **Timeline**, at the top: the red interval | "Dates are pulled from three documents and the interval is computed in code: 4 to 6 days from arrest to the first appearance before a judge. General Comment 35, paragraph 33, treats 48 hours as ordinarily sufficient. The appearance before the prosecutor the day after the arrest does not stop the clock: a prosecutor is not a judge. This is our only confirmed benchmark; the others are measured, cited and marked 'needs legal review', never coloured." |
 | 1:35 | **4. Reasoning reuse** | **Reasoning reuse**: the score and the side-by-side view, then **Whole documents** and scroll the judgment to sections II to IV | "60% of the court's own reasoning can be traced to the indictment: 48% word for word and 12% as a close paraphrase. The same number marks both sides of each match. Legitimate quotation doesn't count: the recited charge, the parties' arguments and the quoted statute are greyed out, each tagged with the reason, and excluded before scoring. One defence argument, about how the phone messages were extracted, gets no response in the judgment." |
 | 2:05 | **5. Judge profile** | **Judge profile** | "This note is always at the top: TrialWatch monitors cases already suspected of unfairness, so these rates are not representative. Detention at the first appearance is 9 of 9 cases against 4 of 10 for the other judges of the same court and charge type. It is a 'pattern that warrants review', never a verdict, and n and the intervals are always shown. Two indicators are not distinguishable from the baseline, and two are hidden because they have fewer than 5 cases. A name written only as 'I. Varda' waits for a person to confirm it." |
-| 2:35 | **6. Source** | Any **Source** button, for example under the red interval on the **Timeline** | "Every finding opens its source: the document, the line and the exact characters, checked character for character against the text Ratio read. A finding without a source is dropped. This is the moment that earns trust." |
+| 2:35 | **6. Source** | Any **View source** button, for example under the red interval on the **Timeline** | "Every finding opens its source: the document, the line and the exact characters, checked character for character against the text Ratio read. A finding without a source is dropped. This is the moment that earns trust." |
 | 3:00 | end | | |
 
 Tip: the Case page's summary links to each page, so you can click through in order from there.
@@ -74,7 +74,7 @@ The line and character numbers in the source viewer count positions in the text 
 
 | File | Shows |
 |---|---|
-| [`screenshots/01-case.png`](screenshots/01-case.png) | The demo case loaded: 11 findings, each linked to its source |
+| [`screenshots/01-case.png`](screenshots/01-case.png) | The demo case loaded: 13 findings, each linked to its source |
 | [`screenshots/02-coverage.png`](screenshots/02-coverage.png) | The coverage grid, with the interpreter follow-up question open |
 | [`screenshots/03-timeline.png`](screenshots/03-timeline.png) | The red interval: 4 to 6 days from arrest to the first appearance before a judge, against GC35's 48 hours |
 | [`screenshots/04-reuse.png`](screenshots/04-reuse.png) | The reuse score and the side-by-side view |

@@ -12,6 +12,16 @@ standards:
     label: "Response to defence arguments (ICCPR Art. 14(1))"
     citation: "ICCPR Art. 14(1). Reasoned judgments: GC32 para 29 (the judgment, including the essential findings, evidence and legal reasoning, must be made public) and para 49 (a duly reasoned, written judgement)."
     review_status: needs_legal_review
+  # Detention renewals (ratio/modules/renewal.py). GC35 paras 38 and 22 checked against the official
+  # PDF on 2026-10-09 (see jurisprudence.yaml); the framing still needs legal review.
+  renewal_review:
+    label: "Periodic review of pretrial detention (ICCPR Art. 9(3))"
+    citation: "ICCPR Art. 9(3). GC35 para 38: detention pending trial must rest on an individualised determination that it is reasonable and necessary, and be re-examined periodically in the light of possible alternatives."
+    review_status: needs_legal_review
+  renewal_gap:
+    label: "Legal basis for continued detention (ICCPR Art. 9(1))"
+    citation: "ICCPR Art. 9(1): no one shall be deprived of liberty except on such grounds and in accordance with such procedure as are established by law (GC35 para 22)."
+    review_status: needs_legal_review
   judicial_pattern:
     label: "Pattern indicator (prompt for review)"
     citation: "Context: ICCPR Art. 14(1), impartiality and its appearance (GC32 para 21). Indicators are prompts for review, not findings."

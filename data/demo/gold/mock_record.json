@@ -107,6 +107,42 @@
       "sha256": "36011ea01db4e2fdc24a59b4337eac46471de94df67822c844a333c4c556986e",
       "date": null,
       "date_span": null
+    },
+    {
+      "id": "venn-2025/orders/detention_order_1.txt",
+      "case_id": "venn-2025",
+      "path": "orders/detention_order_1.txt",
+      "type": "detention_order",
+      "title": "Detention order (19 February 2025)",
+      "text": "MIREVO DISTRICT COURT, CRIMINAL CHAMBER\nDETENTION ORDER\nCase no. MDC-2025-0147\nThe Republic of Calderra v. Daro Venn\nDate: 19 February 2025\nJudge: Ilena Varda\n\nI. REQUEST\n\nThe Public Prosecutor requests that the accused be detained pending trial.\n\nII. APPLICABLE LAW\n\nArticle 167(1) of the Code of Criminal Procedure provides: \"Detention pending trial may be ordered where there is a reasonable suspicion that the accused committed the offence and a risk that he will flee, interfere with the evidence or commit a further offence.\"\n\nIII. GROUNDS\n\nThere is a reasonable suspicion that the accused published articles containing false information about the Ministry of Water that caused public alarm. The accused has relatives in a neighbouring country and travelled there twice in the past year, so there is a risk that he will flee. The accused knows the officials of the Ministry of Water who are expected to testify, and there is a risk that he will seek to influence their statements. The offence carries a penalty of up to six years of imprisonment.\n\nIV. DECISION\n\nThe accused shall be detained pending trial until 19 March 2025.\n\n(signed) Ilena Varda\n",
+      "synthetic": true,
+      "sha256": "af46d9999505a94d6b4821eea8a2d37b152965912d9bdb74bd5acc514a678cb0",
+      "date": null,
+      "date_span": null
+    },
+    {
+      "id": "venn-2025/orders/detention_order_2.txt",
+      "case_id": "venn-2025",
+      "path": "orders/detention_order_2.txt",
+      "type": "detention_order",
+      "title": "Detention extension order (19 March 2025)",
+      "text": "MIREVO DISTRICT COURT, CRIMINAL CHAMBER\nDETENTION EXTENSION ORDER\nCase no. MDC-2025-0147\nThe Republic of Calderra v. Daro Venn\nDate: 19 March 2025\nJudge: Ilena Varda\n\nI. REQUEST\n\nThe Public Prosecutor requests that the detention of the accused be extended by two months.\n\nII. APPLICABLE LAW\n\nArticle 167(1) of the Code of Criminal Procedure provides: \"Detention pending trial may be ordered where there is a reasonable suspicion that the accused committed the offence and a risk that he will flee, interfere with the evidence or commit a further offence.\"\n\nIII. GROUNDS\n\nThe accused has relatives in a neighbouring country and travelled there twice in the past year, so there is a risk that he will flee. The forensic examination of the telephone seized from the accused has not yet been completed, and its results are needed to establish when the articles were prepared. Since the first order, two of the officials expected to testify have reported being approached by acquaintances of the accused, which shows that the risk of interference persists. The Court has considered whether house arrest or a duty to report to the police would be sufficient, and finds that neither would prevent such approaches.\n\nIV. DECISION\n\nThe detention of the accused is extended until 12 May 2025.\n\n(signed) Ilena Varda\n",
+      "synthetic": true,
+      "sha256": "26730294a6839834e58103bdabc4e8c085a850f2076f228d6916dae70ec679c1",
+      "date": null,
+      "date_span": null
+    },
+    {
+      "id": "venn-2025/orders/detention_order_3.txt",
+      "case_id": "venn-2025",
+      "path": "orders/detention_order_3.txt",
+      "type": "detention_order",
+      "title": "Detention extension order (14 May 2025)",
+      "text": "MIREVO DISTRICT COURT, CRIMINAL CHAMBER\nDETENTION EXTENSION ORDER\nCase no. MDC-2025-0147\nThe Republic of Calderra v. Daro Venn\nDate: 14 May 2025\nJudge: Ilena Varda\n\nI. REQUEST\n\nThe Public Prosecutor requests that the detention of the accused be extended by two months.\n\nII. APPLICABLE LAW\n\nArticle 167(1) of the Code of Criminal Procedure provides: \"Detention pending trial may be ordered where there is a reasonable suspicion that the accused committed the offence and a risk that he will flee, interfere with the evidence or commit a further offence.\"\n\nIII. GROUNDS\n\nThe forensic examination of the telephone seized from the accused has not yet been completed, and its results are needed to establish when the articles were prepared. Since the first order, two of the officials expected to testify have reported being approached by acquaintances of the accused, which shows that the risk of interference persists. The Court has considered whether house arrest or a duty to report to the police would be sufficient, and finds that neither would prevent such approaches.\n\nIV. DECISION\n\nThe detention of the accused is extended until 14 July 2025.\n\n(signed) Ilena Varda\n",
+      "synthetic": true,
+      "sha256": "0e585169e0b1a9dfb8ae46d9cad04e9724a8ea14d28c34fc416ef69e6babb8c7",
+      "date": null,
+      "date_span": null
     }
   ],
   "events": [
@@ -224,6 +260,96 @@
       "date_text": "14 July 2025",
       "model_date": null,
       "parsed_date": "2025-07-14T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "587fba1b57fe99d9",
+      "type": "verdict",
+      "span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 110,
+        "end": 135,
+        "text": "Delivered on 14 July 2025"
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 110,
+        "end": 135,
+        "text": "Delivered on 14 July 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/judgment.txt",
+        "start": 123,
+        "end": 135,
+        "text": "14 July 2025"
+      },
+      "date_text": "14 July 2025",
+      "model_date": null,
+      "parsed_date": "2025-07-14T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "21bec269e40f357b",
+      "type": "detention_extension",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 127,
+        "end": 146,
+        "text": "Date: 19 March 2025"
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 127,
+        "end": 146,
+        "text": "Date: 19 March 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 133,
+        "end": 146,
+        "text": "19 March 2025"
+      },
+      "date_text": "19 March 2025",
+      "model_date": null,
+      "parsed_date": "2025-03-19T00:00:00",
+      "precision": "date",
+      "actors": [],
+      "match": "exact",
+      "needs_review": false,
+      "review_reasons": []
+    },
+    {
+      "id": "6dd6c661befd4024",
+      "type": "detention_extension",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 127,
+        "end": 144,
+        "text": "Date: 14 May 2025"
+      },
+      "quote_span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 127,
+        "end": 144,
+        "text": "Date: 14 May 2025"
+      },
+      "date_span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 133,
+        "end": 144,
+        "text": "14 May 2025"
+      },
+      "date_text": "14 May 2025",
+      "model_date": null,
+      "parsed_date": "2025-05-14T00:00:00",
       "precision": "date",
       "actors": [],
       "match": "exact",
@@ -1291,6 +1417,36 @@
         "end": 3146,
         "text": "Article 214(2) of the Penal Code"
       }
+    },
+    {
+      "id": "6c5fda612dfe7104",
+      "text": "Article 167(1) of the Code",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 268,
+        "end": 294,
+        "text": "Article 167(1) of the Code"
+      }
+    },
+    {
+      "id": "85fb687d02b6af40",
+      "text": "Article 167(1) of the Code",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 292,
+        "end": 318,
+        "text": "Article 167(1) of the Code"
+      }
+    },
+    {
+      "id": "9c32211dd3d9b000",
+      "text": "Article 167(1) of the Code",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 290,
+        "end": 316,
+        "text": "Article 167(1) of the Code"
+      }
     }
   ],
   "passages": [
@@ -2147,6 +2303,748 @@
         "end": 3329,
         "text": "(signed) Ilena Varda, Presiding Judge"
       }
+    },
+    {
+      "id": "767f36d91dfddd9b",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 0,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 0,
+        "end": 39,
+        "text": "MIREVO DISTRICT COURT, CRIMINAL CHAMBER"
+      }
+    },
+    {
+      "id": "8500e142640985ef",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 1,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 40,
+        "end": 55,
+        "text": "DETENTION ORDER"
+      }
+    },
+    {
+      "id": "93fbff711ada6c4b",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 2,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 56,
+        "end": 78,
+        "text": "Case no. MDC-2025-0147"
+      }
+    },
+    {
+      "id": "e7bc2b6b26b77c2b",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 3,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 79,
+        "end": 116,
+        "text": "The Republic of Calderra v. Daro Venn"
+      }
+    },
+    {
+      "id": "2c53ebb058ad1905",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 4,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 117,
+        "end": 139,
+        "text": "Date: 19 February 2025"
+      }
+    },
+    {
+      "id": "b6291b92fa274e72",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 5,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 140,
+        "end": 158,
+        "text": "Judge: Ilena Varda"
+      }
+    },
+    {
+      "id": "a94b01b1ebec70e4",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 6,
+      "section": "I. REQUEST",
+      "chapter": "I. REQUEST",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 160,
+        "end": 170,
+        "text": "I. REQUEST"
+      }
+    },
+    {
+      "id": "fd51a36f1caa8810",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 7,
+      "section": "I. REQUEST",
+      "chapter": "I. REQUEST",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 172,
+        "end": 246,
+        "text": "The Public Prosecutor requests that the accused be detained pending trial."
+      }
+    },
+    {
+      "id": "0f65b63052b0c56e",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 8,
+      "section": "II. APPLICABLE LAW",
+      "chapter": "II. APPLICABLE LAW",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 248,
+        "end": 266,
+        "text": "II. APPLICABLE LAW"
+      }
+    },
+    {
+      "id": "f683bceba4f7e642",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 9,
+      "section": "II. APPLICABLE LAW",
+      "chapter": "II. APPLICABLE LAW",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 268,
+        "end": 531,
+        "text": "Article 167(1) of the Code of Criminal Procedure provides: \"Detention pending trial may be ordered where there is a reasonable suspicion that the accused committed the offence and a risk that he will flee, interfere with the evidence or commit a further offence.\""
+      }
+    },
+    {
+      "id": "b2057819a29af655",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 10,
+      "section": "III. GROUNDS",
+      "chapter": "III. GROUNDS",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 533,
+        "end": 545,
+        "text": "III. GROUNDS"
+      }
+    },
+    {
+      "id": "b4f8493c26f32315",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 11,
+      "section": "III. GROUNDS",
+      "chapter": "III. GROUNDS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 547,
+        "end": 697,
+        "text": "There is a reasonable suspicion that the accused published articles containing false information about the Ministry of Water that caused public alarm."
+      }
+    },
+    {
+      "id": "859d7bbb6c2e3119",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 12,
+      "section": "III. GROUNDS",
+      "chapter": "III. GROUNDS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 698,
+        "end": 831,
+        "text": "The accused has relatives in a neighbouring country and travelled there twice in the past year, so there is a risk that he will flee."
+      }
+    },
+    {
+      "id": "8d6f2e329b895e0e",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 13,
+      "section": "III. GROUNDS",
+      "chapter": "III. GROUNDS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 832,
+        "end": 986,
+        "text": "The accused knows the officials of the Ministry of Water who are expected to testify, and there is a risk that he will seek to influence their statements."
+      }
+    },
+    {
+      "id": "d810c81407858b5d",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 14,
+      "section": "III. GROUNDS",
+      "chapter": "III. GROUNDS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 987,
+        "end": 1052,
+        "text": "The offence carries a penalty of up to six years of imprisonment."
+      }
+    },
+    {
+      "id": "7df1774a64f38672",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 15,
+      "section": "IV. DECISION",
+      "chapter": "IV. DECISION",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 1054,
+        "end": 1066,
+        "text": "IV. DECISION"
+      }
+    },
+    {
+      "id": "49759d17949228fb",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 16,
+      "section": "IV. DECISION",
+      "chapter": "IV. DECISION",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 1068,
+        "end": 1132,
+        "text": "The accused shall be detained pending trial until 19 March 2025."
+      }
+    },
+    {
+      "id": "ac9ca5fefe7c8059",
+      "doc_id": "venn-2025/orders/detention_order_1.txt",
+      "index": 17,
+      "section": "IV. DECISION",
+      "chapter": "IV. DECISION",
+      "kind": "signature",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_1.txt",
+        "start": 1134,
+        "end": 1154,
+        "text": "(signed) Ilena Varda"
+      }
+    },
+    {
+      "id": "c3556f002261fdb3",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 0,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 0,
+        "end": 39,
+        "text": "MIREVO DISTRICT COURT, CRIMINAL CHAMBER"
+      }
+    },
+    {
+      "id": "3b02dd98f0954c50",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 1,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 40,
+        "end": 65,
+        "text": "DETENTION EXTENSION ORDER"
+      }
+    },
+    {
+      "id": "466d01afce5907f8",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 2,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 66,
+        "end": 88,
+        "text": "Case no. MDC-2025-0147"
+      }
+    },
+    {
+      "id": "8ba47c6d4f550d08",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 3,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 89,
+        "end": 126,
+        "text": "The Republic of Calderra v. Daro Venn"
+      }
+    },
+    {
+      "id": "56a5626a87dd37a7",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 4,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 127,
+        "end": 146,
+        "text": "Date: 19 March 2025"
+      }
+    },
+    {
+      "id": "fec95e9f0f9e366d",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 5,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 147,
+        "end": 165,
+        "text": "Judge: Ilena Varda"
+      }
+    },
+    {
+      "id": "3e55b6445ad1e382",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 6,
+      "section": "I. REQUEST",
+      "chapter": "I. REQUEST",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 167,
+        "end": 177,
+        "text": "I. REQUEST"
+      }
+    },
+    {
+      "id": "831f13cc49a3a57d",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 7,
+      "section": "I. REQUEST",
+      "chapter": "I. REQUEST",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 179,
+        "end": 270,
+        "text": "The Public Prosecutor requests that the detention of the accused be extended by two months."
+      }
+    },
+    {
+      "id": "e598b16ad40681bf",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 8,
+      "section": "II. APPLICABLE LAW",
+      "chapter": "II. APPLICABLE LAW",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 272,
+        "end": 290,
+        "text": "II. APPLICABLE LAW"
+      }
+    },
+    {
+      "id": "61c0a0d081934b0d",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 9,
+      "section": "II. APPLICABLE LAW",
+      "chapter": "II. APPLICABLE LAW",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 292,
+        "end": 555,
+        "text": "Article 167(1) of the Code of Criminal Procedure provides: \"Detention pending trial may be ordered where there is a reasonable suspicion that the accused committed the offence and a risk that he will flee, interfere with the evidence or commit a further offence.\""
+      }
+    },
+    {
+      "id": "ab9711ed33d82e7e",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 10,
+      "section": "III. GROUNDS",
+      "chapter": "III. GROUNDS",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 557,
+        "end": 569,
+        "text": "III. GROUNDS"
+      }
+    },
+    {
+      "id": "9d0086bd66f409bd",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 11,
+      "section": "III. GROUNDS",
+      "chapter": "III. GROUNDS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 571,
+        "end": 704,
+        "text": "The accused has relatives in a neighbouring country and travelled there twice in the past year, so there is a risk that he will flee."
+      }
+    },
+    {
+      "id": "75aeab9a1c781f6f",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 12,
+      "section": "III. GROUNDS",
+      "chapter": "III. GROUNDS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 705,
+        "end": 871,
+        "text": "The forensic examination of the telephone seized from the accused has not yet been completed, and its results are needed to establish when the articles were prepared."
+      }
+    },
+    {
+      "id": "b4803636ed9b0d13",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 13,
+      "section": "III. GROUNDS",
+      "chapter": "III. GROUNDS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 872,
+        "end": 1051,
+        "text": "Since the first order, two of the officials expected to testify have reported being approached by acquaintances of the accused, which shows that the risk of interference persists."
+      }
+    },
+    {
+      "id": "7cd8e291fecda46e",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 14,
+      "section": "III. GROUNDS",
+      "chapter": "III. GROUNDS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 1052,
+        "end": 1206,
+        "text": "The Court has considered whether house arrest or a duty to report to the police would be sufficient, and finds that neither would prevent such approaches."
+      }
+    },
+    {
+      "id": "b36bda421820bfc6",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 15,
+      "section": "IV. DECISION",
+      "chapter": "IV. DECISION",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 1208,
+        "end": 1220,
+        "text": "IV. DECISION"
+      }
+    },
+    {
+      "id": "3d547866ac694093",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 16,
+      "section": "IV. DECISION",
+      "chapter": "IV. DECISION",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 1222,
+        "end": 1281,
+        "text": "The detention of the accused is extended until 12 May 2025."
+      }
+    },
+    {
+      "id": "cf4fdfcde25210f0",
+      "doc_id": "venn-2025/orders/detention_order_2.txt",
+      "index": 17,
+      "section": "IV. DECISION",
+      "chapter": "IV. DECISION",
+      "kind": "signature",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_2.txt",
+        "start": 1283,
+        "end": 1303,
+        "text": "(signed) Ilena Varda"
+      }
+    },
+    {
+      "id": "8223d225542e3f0b",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 0,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 0,
+        "end": 39,
+        "text": "MIREVO DISTRICT COURT, CRIMINAL CHAMBER"
+      }
+    },
+    {
+      "id": "2def7bab03fa0106",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 1,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 40,
+        "end": 65,
+        "text": "DETENTION EXTENSION ORDER"
+      }
+    },
+    {
+      "id": "2120b20fc9aabc74",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 2,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 66,
+        "end": 88,
+        "text": "Case no. MDC-2025-0147"
+      }
+    },
+    {
+      "id": "e0f7a0d78803a8c1",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 3,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 89,
+        "end": 126,
+        "text": "The Republic of Calderra v. Daro Venn"
+      }
+    },
+    {
+      "id": "bf1d34799fb4bfdb",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 4,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 127,
+        "end": 144,
+        "text": "Date: 14 May 2025"
+      }
+    },
+    {
+      "id": "6970b4bd6c544a01",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 5,
+      "section": null,
+      "chapter": null,
+      "kind": "header",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 145,
+        "end": 163,
+        "text": "Judge: Ilena Varda"
+      }
+    },
+    {
+      "id": "4f6317c4a406d576",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 6,
+      "section": "I. REQUEST",
+      "chapter": "I. REQUEST",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 165,
+        "end": 175,
+        "text": "I. REQUEST"
+      }
+    },
+    {
+      "id": "b7ba9f7339de15a2",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 7,
+      "section": "I. REQUEST",
+      "chapter": "I. REQUEST",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 177,
+        "end": 268,
+        "text": "The Public Prosecutor requests that the detention of the accused be extended by two months."
+      }
+    },
+    {
+      "id": "bbacb9816a613dc1",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 8,
+      "section": "II. APPLICABLE LAW",
+      "chapter": "II. APPLICABLE LAW",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 270,
+        "end": 288,
+        "text": "II. APPLICABLE LAW"
+      }
+    },
+    {
+      "id": "7cab89cd26ad1a67",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 9,
+      "section": "II. APPLICABLE LAW",
+      "chapter": "II. APPLICABLE LAW",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 290,
+        "end": 553,
+        "text": "Article 167(1) of the Code of Criminal Procedure provides: \"Detention pending trial may be ordered where there is a reasonable suspicion that the accused committed the offence and a risk that he will flee, interfere with the evidence or commit a further offence.\""
+      }
+    },
+    {
+      "id": "e8fa644c68601b47",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 10,
+      "section": "III. GROUNDS",
+      "chapter": "III. GROUNDS",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 555,
+        "end": 567,
+        "text": "III. GROUNDS"
+      }
+    },
+    {
+      "id": "73dfd8f8397e759a",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 11,
+      "section": "III. GROUNDS",
+      "chapter": "III. GROUNDS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 569,
+        "end": 735,
+        "text": "The forensic examination of the telephone seized from the accused has not yet been completed, and its results are needed to establish when the articles were prepared."
+      }
+    },
+    {
+      "id": "57d3ce98b945265c",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 12,
+      "section": "III. GROUNDS",
+      "chapter": "III. GROUNDS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 736,
+        "end": 915,
+        "text": "Since the first order, two of the officials expected to testify have reported being approached by acquaintances of the accused, which shows that the risk of interference persists."
+      }
+    },
+    {
+      "id": "43424effda8417e5",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 13,
+      "section": "III. GROUNDS",
+      "chapter": "III. GROUNDS",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 916,
+        "end": 1070,
+        "text": "The Court has considered whether house arrest or a duty to report to the police would be sufficient, and finds that neither would prevent such approaches."
+      }
+    },
+    {
+      "id": "835ba236a2b82114",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 14,
+      "section": "IV. DECISION",
+      "chapter": "IV. DECISION",
+      "kind": "heading",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 1072,
+        "end": 1084,
+        "text": "IV. DECISION"
+      }
+    },
+    {
+      "id": "f66f30d35246baeb",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 15,
+      "section": "IV. DECISION",
+      "chapter": "IV. DECISION",
+      "kind": "body",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 1086,
+        "end": 1146,
+        "text": "The detention of the accused is extended until 14 July 2025."
+      }
+    },
+    {
+      "id": "c2990003202f3e52",
+      "doc_id": "venn-2025/orders/detention_order_3.txt",
+      "index": 16,
+      "section": "IV. DECISION",
+      "chapter": "IV. DECISION",
+      "kind": "signature",
+      "span": {
+        "doc_id": "venn-2025/orders/detention_order_3.txt",
+        "start": 1148,
+        "end": 1168,
+        "text": "(signed) Ilena Varda"
+      }
     }
   ],
   "rulings": [
@@ -2290,5 +3188,6 @@
         "text": "sentences him to four years' imprisonment"
       }
     }
-  ]
+  ],
+  "orders": []
 }

@@ -211,6 +211,8 @@ class NumPredict(Frozen):
     extraction: int = Field(gt=0)
     labels: int = Field(gt=0)
     argument_check: int = Field(gt=0)
+    steelman: int = Field(default=700, gt=0)
+    steelman_check: int = Field(default=200, gt=0)
 
 
 class LLMSettings(Frozen):
@@ -233,6 +235,17 @@ class ExtractionSettings(Frozen):
     argument_markers: tuple[str, ...] = Field(min_length=1)
     argument_continuations: tuple[str, ...] = ()
     argument_list_nouns: tuple[str, ...] = ()
+    event_support: dict[EventType, str] = Field(default_factory=dict)
+
+    @field_validator("event_support")
+    @classmethod
+    def _patterns_compile(cls, patterns: dict[EventType, str]) -> dict[EventType, str]:
+        for event_type, pattern in patterns.items():
+            try:
+                re.compile(rf"\b(?:{pattern})")  # as extraction compiles it
+            except re.error as exc:
+                raise ValueError(f"event_support for {event_type} is not a valid pattern: {exc}") from exc
+        return patterns
 
 
 class AbsenceSettings(Frozen):
@@ -307,6 +320,15 @@ class JudgeSettings(Frozen):
         return self
 
 
+class RenewalSettings(Frozen):
+    repeated_share: float = Field(default=0.6, gt=0, le=1)  # flag an order when this share of its grounds repeats earlier orders
+
+
+class SteelmanSettings(Frozen):
+    top_k_passages: int = Field(default=8, gt=0)  # record passages the model may argue from, per finding
+    max_arguments: int = Field(default=3, gt=0)
+
+
 class UISettings(Frozen):
     context_chars: int = Field(gt=0)
 
@@ -318,6 +340,8 @@ class Settings(Frozen):
     absence: AbsenceSettings
     reuse: ReuseSettings
     judges: JudgeSettings
+    renewal: RenewalSettings = RenewalSettings()
+    steelman: SteelmanSettings = SteelmanSettings()
     ui: UISettings
 
 
@@ -350,6 +374,94 @@ class Standards(Frozen):
     standards: dict[str, StandardRef]
 
 
+# --- jurisprudence.yaml ---------------------------------------------------------------------
+
+OFFICIAL_SOURCE_PREFIX = "https://documents.un.org/"
+
+
+class JurisprudenceEntry(Frozen):
+    """A General Comment paragraph (its own words), or a Committee decision cited only for what the
+    General Comment cites it for (the footnote's own words)."""
+
+    id: str
+    kind: Literal["general_comment", "views"]
+    source: str
+    pinpoint: str = Field(min_length=1)
+    standards: tuple[str, ...] = Field(min_length=1)
+    statuses: tuple[str, ...] = ()  # empty: every status of a finding on these standards
+    quote: str | None = None
+    case: str | None = None
+    communication: str | None = Field(default=None, pattern=r"^\d+(?:[-–]\d+)?/\d{4}$")
+    cited_as: str | None = None
+    note: str | None = None
+
+    @model_validator(mode="after")
+    def _shape(self) -> JurisprudenceEntry:
+        if self.kind == "general_comment":
+            if not (self.quote or "").strip() or self.case or self.cited_as:
+                raise ValueError(f"{self.id}: a General Comment entry has a quote and no case")
+        elif not (self.case and self.communication and self.cited_as and self.note) or self.communication not in self.cited_as:
+            raise ValueError(f"{self.id}: a decision needs its case, communication number, the footnote that cites it, and a note")
+        return self
+
+
+class Jurisprudence(Frozen):
+    version: int
+    checked: str
+    sources: dict[str, SourceRef]
+    entries: tuple[JurisprudenceEntry, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _ids_unique_and_sources_official(self) -> Jurisprudence:
+        ids = [entry.id for entry in self.entries]
+        if len(ids) != len(set(ids)):
+            raise ValueError("duplicate jurisprudence ids")
+        if any(not source.url.startswith(OFFICIAL_SOURCE_PREFIX) for source in self.sources.values()):
+            raise ValueError(f"every jurisprudence source must be an official UN document ({OFFICIAL_SOURCE_PREFIX})")
+        unknown = sorted({entry.source for entry in self.entries} - self.sources.keys())
+        if unknown:
+            raise ValueError(f"unknown jurisprudence sources: {unknown}")
+        return self
+
+
+# --- steelman.yaml -------------------------------------------------------------------------
+
+
+class SteelmanGround(Frozen):
+    id: str = Field(pattern=r"^[a-z][a-z0-9_]*$")
+    label: str = Field(min_length=1)
+    requires: str = Field(min_length=1)  # what a quoted passage must show for the ground to apply
+    independent: bool = False  # the quote must come from outside the finding's own evidence
+    source: str | None = None  # a jurisprudence.yaml source, when a General Comment recognises the ground
+    pinpoint: str | None = None
+    quote: str | None = None
+
+    @model_validator(mode="after")
+    def _quoted_with_source(self) -> SteelmanGround:
+        if (self.quote is None) != (self.source is None) or (self.quote is None) != (self.pinpoint is None):
+            raise ValueError(f"ground {self.id}: a quote needs its source and pinpoint, and only a quote has them")
+        return self
+
+
+class SteelmanCatalogue(Frozen):
+    version: int
+    adverse_statuses: tuple[str, ...] = Field(min_length=1)
+    grounds: dict[str, tuple[SteelmanGround, ...]]
+
+    @model_validator(mode="after")
+    def _ids_unique(self) -> SteelmanCatalogue:
+        shared = {ground.id for ground in self.grounds.get("all", ())}
+        for standard_id, grounds in self.grounds.items():
+            ids = [ground.id for ground in grounds]
+            if len(ids) != len(set(ids)) or (standard_id != "all" and shared & set(ids)):
+                raise ValueError(f"duplicate steelman ground ids for {standard_id}")
+        return self
+
+    def for_standard(self, standard_id: str) -> tuple[SteelmanGround, ...]:
+        """The grounds of one standard, then the ones offered for every finding."""
+        return self.grounds.get(standard_id, ()) + self.grounds.get("all", ())
+
+
 # --- all of it ------------------------------------------------------------------------------
 
 
@@ -360,6 +472,15 @@ class RatioConfig(Frozen):
     settings: Settings
     messages: Messages
     standards: Standards
+    jurisprudence: Jurisprudence
+    steelman: SteelmanCatalogue
+
+    @model_validator(mode="after")
+    def _steelman_sources_known(self) -> RatioConfig:
+        unknown = {g.source for grounds in self.steelman.grounds.values() for g in grounds if g.source} - self.jurisprudence.sources.keys()
+        if unknown:
+            raise ValueError(f"steelman.yaml cites unknown sources: {sorted(unknown)}")
+        return self
 
     def standard(self, standard_id: str) -> StandardRef:
         return self.standards.standards[standard_id]
@@ -400,6 +521,8 @@ _FILES: dict[str, tuple[str, type[Frozen]]] = {
     "settings": ("settings.yaml", Settings),
     "messages": ("messages.yaml", Messages),
     "standards": ("standards.yaml", Standards),
+    "jurisprudence": ("jurisprudence.yaml", Jurisprudence),
+    "steelman": ("steelman.yaml", SteelmanCatalogue),
 }
 
 

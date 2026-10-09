@@ -9,12 +9,13 @@ from streamlit import config as st_config
 from streamlit.testing.v1 import AppTest
 
 from ratio.config import default_config
+from ratio.display import md_escape
 from ratio.messages import contains_blocked_term
 from ratio.paths import MINILM_DIR, REPO_ROOT
 from ratio.store import CaseStore
 
 APP = REPO_ROOT / "app" / "main.py"
-PAGES = ("views/coverage.py", "views/timeline.py", "views/reuse.py", "views/judges.py")
+PAGES = ("views/coverage.py", "views/timeline.py", "views/renewal.py", "views/reuse.py", "views/judges.py", "views/jurisprudence.py", "views/steelman.py", "views/review.py")
 JUDGE_PAGE = "views/judges.py"
 pytestmark = [
     pytest.mark.embed,
@@ -44,18 +45,19 @@ def html_bodies(at: AppTest) -> list[str]:
 
 
 def source_buttons(at: AppTest):
-    return [button for button in at.button if button.label == "Source"]
+    return [button for button in at.button if button.label == "View source"]
 
 
 def test_case_page_summarises_the_demo_without_errors(app):
     assert not app.exception and not app.error
-    assert any("11 findings" in m.value for m in app.markdown)
+    assert any("13 findings" in m.value for m in app.markdown)
     assert any("SYNTHETIC DATA" in body for body in html_bodies(app))
     links = [link.proto.label for link in app.get("page_link")]
     assert "Review judicial history →" in links
     assert any("Ilena Varda · 9 cases · 1 pattern that warrants review" in body for body in html_bodies(app))
     [documents] = [frame.value for frame in app.dataframe if "Hearing date" in frame.value.columns]
-    assert list(documents["Hearing date"]) == ["2025-06-02", "2025-06-16", "2025-06-30", "2025-07-14", "", ""]  # no "None"
+    assert list(documents["Hearing date"]) == ["2025-06-02", "2025-06-16", "2025-06-30", "2025-07-14", "", "", "", "", ""]  # no "None"
+    assert app.download_button(key="export_report").label == "Download report draft (.md)"
 
 
 def test_document_search_opens_an_exact_match_and_handles_no_results(app):
@@ -96,7 +98,8 @@ def test_every_guarantee_opens_its_evidence_or_follow_up(app, analysis):
     for assessment in analysis.absence.assessments:
         app.button(key=f"open-{assessment.rubric_id}").click().run()
         flag = next((f for f in analysis.absence.flags if f.id == assessment.flag_id), None)
-        expected = len(flag.evidence) if flag else len(assessment.follow_up.context)
+        reply = analysis.steelman.for_flag(flag.id) if flag else None
+        expected = len(flag.evidence) + (len(reply.arguments) if reply else 0) if flag else len(assessment.follow_up.context)
         assert len(source_buttons(app)) == expected, assessment.rubric_id
         if flag is None:
             assert any(assessment.follow_up.question.split("?")[0] in info.value for info in app.info)
@@ -114,7 +117,8 @@ def test_timeline_has_a_source_button_for_every_span(app, analysis):
 def test_reuse_page_links_both_sides_of_every_pair_and_every_argument(app, analysis):
     app.switch_page("views/reuse.py").run()
     reuse = analysis.reuse
-    spans = 2 * len(reuse.pairs) + len(reuse.arguments) + sum(len(c.responding) for c in reuse.arguments)
+    state = sum(len(r.arguments) for f in reuse.flags if (r := analysis.steelman.for_flag(f.id)))  # the State's quotes
+    spans = 2 * len(reuse.pairs) + len(reuse.arguments) + sum(len(c.responding) for c in reuse.arguments) + state
     assert len(source_buttons(app)) == spans
     def panels() -> str:
         return "".join(body for body in html_bodies(app) if body.startswith('<div class="ratio-doc">'))
@@ -128,6 +132,54 @@ def test_reuse_page_links_both_sides_of_every_pair_and_every_argument(app, analy
     assert whole.startswith('<div class="ratio-doc"><span class="ratio-excluded">MIREVO DISTRICT COURT')
     assert 'class="ratio-tag">charge recital<' in whole and 'class="ratio-tag">statute quote<' in whole
     assert len(source_buttons(app)) == spans
+
+
+def test_renewal_page_lists_the_orders_shows_the_gap_and_highlights_the_copied_grounds(app, analysis):
+    app.switch_page("views/renewal.py").run()
+    assert not app.exception and not app.error
+    renewal = analysis.renewal
+    [table] = [frame.value for frame in app.dataframe if "Detention until" in frame.value.columns]
+    assert list(table["Detention until"]) == ["2025-03-19", "2025-05-12", "2025-07-14"]
+    assert list(table["Status"]) == ["", "", "Grounds repeated"]
+    gap = next(f for f in renewal.flags if f.status == "order_gap")
+    assert any(m.value == md_escape(gap.message) for m in app.markdown)
+    spans = sum(len(f.evidence) for f in renewal.flags) + sum(len(r.arguments) for f in renewal.flags if (r := analysis.steelman.for_flag(f.id)))
+    assert len(source_buttons(app)) == spans  # every piece of evidence, and every quote of the State's reply, opens its source
+    panels = [body for body in html_bodies(app) if body.startswith('<div class="ratio-doc">')]
+    assert len(panels) == 4  # the second and the third order, each beside the order it repeats
+    assert panels[0].count('<mark class="ratio-verbatim">') == 1  # the second order repeats one ground
+    assert panels[2].count('<mark class="ratio-verbatim">') == 3  # the third repeats all three of the second's
+    assert panels[2].startswith('<div class="ratio-doc">III. GROUNDS')  # each panel opens on the grounds
+    assert 'class="ratio-tag">not reasoning<' in panels[2]  # the operative part is greyed
+    labels = [link.proto.label for link in app.switch_page("views/case.py").run().get("page_link")]
+    assert "Detention renewals: 3 detention orders, 1 with grounds repeating earlier orders, 1 gap between orders" in labels
+
+
+def test_jurisprudence_appears_next_to_findings_and_on_its_own_page(app, analysis):
+    config = default_config()
+    app.switch_page("views/timeline.py").run()
+    heading = config.messages.notes["jurisprudence_heading"]
+    assert any(e.label.startswith(heading) for e in app.expander)  # next to the red interval
+    app.switch_page("views/jurisprudence.py").run()
+    assert not app.exception and not app.error
+    quotes = [body for body in html_bodies(app) if 'class="ratio-quote"' in body]
+    assert any("Terán Jijón v. Ecuador, communication No. 277/1988" in body for body in quotes)
+    assert any("Taright v. Algeria" in body for body in quotes)
+    assert any(e.label == f"The whole corpus ({len(config.jurisprudence.entries)} entries)" for e in app.expander)
+    assert not any(contains_blocked_term(body, config.messages.block_list) for body in quotes)
+
+
+def test_the_states_reply_page_shows_each_contested_finding_with_its_checked_arguments(app, analysis):
+    app.switch_page("views/steelman.py").run()
+    assert not app.exception and not app.error
+    result = analysis.steelman
+    assert (app.metric[0].value, app.metric[2].value) == (str(len(result.replies)), str(sum(len(r.arguments) for r in result.replies)))
+    heading = default_config().messages.notes["steelman_heading"]
+    assert sum(e.label.startswith(heading) for e in app.expander) == len(result.replies)
+    assert any(m.value.startswith("*Local model:* ") for m in app.markdown)  # the model's wording is labelled as such
+    flags = {flag.id: flag for flag in analysis.all_flags()}
+    findings = sum(len(flags[r.flag_id].evidence) for r in result.replies)  # each finding shows its own source too
+    assert len(source_buttons(app)) == findings + sum(len(r.arguments) for r in result.replies)
 
 
 def test_source_button_opens_the_exact_span_highlighted_in_its_document(app, analysis):
@@ -186,7 +238,7 @@ def plain(markdown: str) -> str:
 
 
 def page_text(at: AppTest) -> list[str]:
-    elements = [*at.markdown, *at.caption, *at.warning, *at.info, *at.title, *at.subheader]
+    elements = [*at.markdown, *at.caption, *at.warning, *at.info, *at.title, *at.header, *at.subheader]
     return [plain(element.value) for element in elements]
 
 

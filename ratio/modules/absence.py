@@ -24,7 +24,7 @@ from collections.abc import Iterable, Sequence
 import numpy as np
 
 from ratio.config import RatioConfig, RubricIndicator, RubricItem, RubricPart
-from ratio.context import AnalysisContext, estimated_tokens, system_with_schema
+from ratio.context import AnalysisContext, ModelReplyError, estimated_tokens, system_with_schema
 from ratio.embeddings import cosine_matrix
 from ratio.messages import filter_model_note, render
 from ratio.modules.absence_prompts import LABEL_SYSTEM, LabelReply, ObservationLabel, label_user_prompt
@@ -159,14 +159,29 @@ def _batches(item: RubricItem, shortlist: list[Observation], previous: dict[str,
 def _ask(item: RubricItem, batch: list[Observation], previous: dict[str, str], ctx: AnalysisContext) -> list[tuple[Observation, ObservationLabel]]:
     numbered = [(f"O{n}", obs) for n, obs in enumerate(batch, start=1)]
     prompt = label_user_prompt(item, [(obs_id, obs, previous.get(obs.id)) for obs_id, obs in numbered])
-    reply = ctx.llm.complete_json(system=LABEL_SYSTEM, user=prompt, schema=LabelReply, purpose="labels")
-    by_id = dict(numbered)
+    try:
+        reply = ctx.llm.complete_json(system=LABEL_SYSTEM, user=prompt, schema=LabelReply, purpose="labels")
+    except ModelReplyError:  # e.g. long notes overflow the reply limit: ask about each half on its own
+        if len(batch) == 1:
+            return []  # the note stays unlabelled, so its guarantee is never marked compliant without it
+        half = len(batch) // 2
+        return _ask(item, batch[:half], previous, ctx) + _ask(item, batch[half:], previous, ctx)
     answers = []
     for entry in reply.labels:
-        found = _OBSERVATION_ID.search(entry.observation)  # models sometimes copy the whole "O3 (date): text" line
-        if found and found.group(0) in by_id:
-            answers.append((by_id[found.group(0)], entry))
+        obs = _answered(entry.observation, numbered)
+        if obs is not None:
+            answers.append((obs, entry))
     return answers
+
+
+def _answered(reference: str, numbered: list[tuple[str, Observation]]) -> Observation | None:
+    """The note a reply entry is about: its "O3" id (models sometimes copy the whole "O3 (date): text"
+    line), or, when the model copied the note's text without the id, the note with exactly that text."""
+    found = _OBSERVATION_ID.search(reference)
+    if found:
+        return dict(numbered).get(found.group(0))
+    same_text = [obs for _, obs in numbered if " ".join(obs.text.split()) == " ".join(reference.split())]
+    return same_text[0] if len(same_text) == 1 else None
 
 
 def _replies(item: RubricItem, shortlist: list[Observation], previous: dict[str, str], ctx: AnalysisContext):

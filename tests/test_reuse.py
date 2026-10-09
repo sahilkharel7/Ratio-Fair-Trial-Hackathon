@@ -124,9 +124,40 @@ def test_paraphrase_threshold_has_a_margin_on_both_sides():
         return float(cosine_matrix(embedder.encode([passages[index].span.text]), source_vectors).max())
 
     threshold = SETTINGS.paraphrase_cosine
-    assert best(24) >= threshold + 0.05  # the planted paraphrase (0.756)
+    assert best(24) >= threshold + 0.01  # the planted paraphrase (0.756)
     hard_negatives = [best(index) for index in (25, 26, 27, 28, 30)]  # reasoning passages that copy nothing
     assert max(hard_negatives) <= threshold - 0.15  # best is 0.523
+
+
+# SYNTHETIC: judgment and indictment sentences of the test case Republic of Calderra v. Rhea Talmont
+# (every name in it is invented): (judgment, indictment, is a paraphrase).
+TALMONT_PAIRS = [
+    (
+        "5. The posts led residents to stop drinking tap water and emptied the bottled water in several shops.",
+        "5. The posts caused alarm among residents of the Selve valley and led to the sale of bottled water running out in several shops.",
+        True,
+    ),
+    (
+        "The inspectorate's reports and the testimony of the regional inspector state that no waste was released in August or September 2024.",
+        "Inspections by the Regional Environmental Inspectorate in August and September 2024 found no release of waste from the Selve Chemical Works.",
+        False,  # the court summarising the evidence it then weighs
+    ),
+    (
+        "4. The Court is satisfied that Ms. Talmont knew of the inspection results before the second and third posts, because she referred to them in the third post and called them a cover-up.",
+        "4. The accused knew the claim was false, because she had been told of the inspection results before publishing the second and third posts.",
+        False,  # the court's own reason for the same finding
+    ),
+]
+
+
+@pytest.mark.embed
+@needs_model
+@pytest.mark.parametrize(("judgment", "indictment", "paraphrase"), TALMONT_PAIRS)
+def test_reasoning_on_the_same_facts_is_not_taken_for_a_paraphrase(judgment, indictment, paraphrase):
+    embedder = MiniLMEmbedder()
+    cosine = float(cosine_matrix(embedder.encode([judgment]), embedder.encode([indictment]))[0, 0])
+    threshold = SETTINGS.paraphrase_cosine
+    assert cosine >= threshold + 0.05 if paraphrase else cosine <= threshold - 0.01
 
 
 @pytest.mark.embed

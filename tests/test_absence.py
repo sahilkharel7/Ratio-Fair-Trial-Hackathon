@@ -333,6 +333,63 @@ def test_a_keyword_matches_only_at_the_start_of_a_word():
     assert not any("inexpert" in call.user for call in llm.calls)
 
 
+def echo_text(label: str, indicator: str, note_text: str):
+    """A model that copies the note's text instead of its "O1" id (seen with a one-note batch)."""
+
+    def respond(system, user, schema, purpose):
+        return {"labels": [{"observation": text, "label": label, "indicator_id": indicator, "note": "n"} for text in observations_in(user).values()]}
+
+    return respond
+
+
+def test_a_reply_that_copies_the_note_instead_of_its_id_still_counts():
+    text = "He told her he signed it after an officer promised he could go home that night."
+    result, _ = run(record=one_note(text), responder=echo_text("contradicts", "g_compelled", text), config=KEYWORDS_ONLY)
+    g = assessment(result, "iccpr_14_3_g")
+    assert g.unlabelled_notes == 0 and g.status == "evidence_of_violation"
+
+
+def test_a_copied_text_that_matches_no_note_is_still_ignored():
+    def invented(system, user, schema, purpose):
+        return {"labels": [{"observation": "A sentence that is in no note.", "label": "contradicts", "indicator_id": "g_compelled", "note": "n"}]}
+
+    result, _ = run(record=one_note("He told her he signed it after an officer promised he could go home."), responder=invented, config=KEYWORDS_ONLY)
+    g = assessment(result, "iccpr_14_3_g")
+    assert g.status == "no_evidence" and g.unlabelled_notes == 1
+
+
+# SYNTHETIC: sentences of the test case Republic of Calderra v. Rhea Talmont; every name is invented.
+TALMONT_CASES = [
+    (  # the interpreter left and the hearing went on: a concrete (f) violation indicator
+        "At about 13:00 the interpreter told the presiding judge she had to leave for another hearing. "
+        "The presiding judge continued without her.",
+        r"interpreter told the presiding judge",
+        ("contradicts", "f_interpreter_left"),
+        ("iccpr_14_3_f", "evidence_of_violation"),
+    ),
+    (  # silence used: reaches (g) through the keyword "declined to answer"
+        "At the police station, Ms. Talmont declined to answer questions on her lawyer's advice.",
+        r"declined to answer questions",
+        ("supports", "g_silence_respected"),
+        ("iccpr_14_3_g", "evidence_of_compliance"),
+    ),
+    (  # the chosen lawyer barred: reaches (d) through the keyword "not allowed"
+        "Ms. Quint was not allowed into the courtroom.",
+        r"was not allowed into the courtroom",
+        ("contradicts", "d_counsel_barred"),
+        ("iccpr_14_3_d", "evidence_of_violation"),
+    ),
+]
+
+
+@pytest.mark.parametrize(("text", "pattern", "label", "expected"), TALMONT_CASES)
+def test_concrete_indicators_and_keywords_reach_the_talmont_statuses(text, pattern, label, expected):
+    rules = [(pattern, *label)]
+    result, _ = run(record=one_note(text), responder=careful_reader(rules), config=KEYWORDS_ONLY)
+    rubric_id, status = expected
+    assert assessment(result, rubric_id).status == status
+
+
 def test_a_label_is_not_grounded_by_a_sentence_from_another_paragraph():
     # The note before "read out the charge" (another paragraph) says the first language is Ostric.
     rules = [(r"read out the charge", "supports", "a_charge_in_understood_language")]
@@ -359,3 +416,29 @@ def test_a_rubric_item_needs_a_required_part():
     item["parts"] = [{**part, "required": False} for part in item["parts"]]
     with pytest.raises(ValidationError, match="required"):
         RubricItem.model_validate(item)
+
+
+def test_an_answer_cut_off_at_the_length_limit_is_asked_again_in_halves():
+    from ratio.llm import LLMResponseError
+
+    def short_replies_only(system, user, schema, purpose):
+        if len(observations_in(user)) > 2:  # a long batch overflows the reply budget
+            raise LLMResponseError("model output was truncated (done_reason='length')")
+        return careful_reader()(system, user, schema, purpose)
+
+    result, _ = run(responder=short_replies_only)
+    assert statuses(result) == EXPECTED
+    assert all(a.unlabelled_notes == 0 for a in result.assessments)
+
+
+def test_a_note_whose_answer_is_always_cut_off_stays_unlabelled_instead_of_stopping_the_case():
+    from ratio.llm import LLMResponseError
+
+    def never_for_the_dock(system, user, schema, purpose):
+        if any("dock" in text for text in observations_in(user).values()):
+            raise LLMResponseError("model output was truncated (done_reason='length')")
+        return careful_reader()(system, user, schema, purpose)
+
+    result, _ = run(responder=never_for_the_dock)
+    assert sum(a.unlabelled_notes for a in result.assessments) > 0
+    assert all(a.status != "evidence_of_compliance" or a.unlabelled_notes == 0 for a in result.assessments)

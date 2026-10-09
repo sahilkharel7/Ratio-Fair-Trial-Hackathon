@@ -194,6 +194,96 @@ class ReuseResult(Frozen):
     flags: tuple[Flag, ...] = ()
 
 
+# --- Module 5: Detention renewals ---------------------------------------------------------
+
+
+class RenewalPair(Frozen):
+    """A grounds passage of a later order that repeats a passage of an earlier one."""
+
+    id: str
+    kind: Literal["verbatim", "paraphrase"]
+    later: SourceSpan
+    earlier: SourceSpan
+    later_ranges: tuple[CharRange, ...] = ()  # the repeated 5-gram text (verbatim only)
+    earlier_ranges: tuple[CharRange, ...] = ()
+    containment: float | None = None
+    cosine: float | None = None
+
+
+class OrderSummary(Frozen):
+    """One detention order, in date order. ``share_repeated`` is None for the first order, for an
+    undated order and for an order with no grounds to measure."""
+
+    doc_id: str
+    title: str
+    date: dt.date | None
+    until: dt.date | None
+    date_span: SourceSpan | None = None
+    until_span: SourceSpan | None = None
+    days_since_previous: int | None = None
+    grounds_passage_ids: tuple[str, ...] = ()
+    grounds_chars: int = Field(default=0, ge=0)
+    repeated_chars: int = Field(default=0, ge=0)
+    share_repeated: float | None = Field(default=None, ge=0, le=1)
+    passages_compared: int = Field(default=0, ge=0)  # grounds passages long enough to compare
+    passages_new: int = Field(default=0, ge=0)  # of those, the ones no earlier order contains
+    pairs: tuple[RenewalPair, ...] = ()
+    excluded: tuple[ExcludedPassage, ...] = ()
+    flag_id: str | None = None
+
+
+class OrderGap(Frozen):
+    """Whole days between the end date of one order and the date of the next one in the record."""
+
+    id: str
+    earlier_doc_id: str
+    later_doc_id: str
+    until: dt.date
+    next_date: dt.date
+    days: int = Field(gt=0)
+    evidence: tuple[Evidence, ...] = Field(min_length=2)
+    flag_id: str | None = None
+
+
+class RenewalResult(Frozen):
+    orders: tuple[OrderSummary, ...] = ()
+    gaps: tuple[OrderGap, ...] = ()
+    notes: tuple[str, ...] = ()  # what could not be measured, and why
+    flags: tuple[Flag, ...] = ()
+
+
+# --- The State's strongest reply (ratio/steelman.py) -----------------------------------------
+
+
+class StateArgument(Frozen):
+    """One argument the local model made for the State, on a reviewed ground, resting on an exact quote
+    of the record. ``argument`` is model text: shown only as unverified, after the block list."""
+
+    ground_id: str
+    argument: str = Field(min_length=1)
+    span: SourceSpan
+    passage_label: str  # the passage id the model was shown, e.g. "E3"
+
+
+class StateReply(Frozen):
+    flag_id: str
+    standard_id: str
+    arguments: tuple[StateArgument, ...] = ()
+    unsupported_grounds: tuple[str, ...] = ()  # grounds offered that no quoted passage supported
+    passages_shown: int = Field(default=0, ge=0)
+    dropped: tuple[str, ...] = ()  # model arguments that failed a check, and why
+    checked: bool = True  # False when the model gave no usable answer
+    note: str | None = None
+
+
+class SteelmanResult(Frozen):
+    replies: tuple[StateReply, ...] = ()
+    model: str | None = None
+
+    def for_flag(self, flag_id: str) -> StateReply | None:
+        return next((reply for reply in self.replies if reply.flag_id == flag_id), None)
+
+
 # --- Module 4: Judicial History Tracker -----------------------------------------------------
 
 
@@ -344,11 +434,13 @@ class CaseAnalysis(Frozen):
     absence: AbsenceResult | None = None
     clock: ClockResult | None = None
     reuse: ReuseResult | None = None
+    renewal: RenewalResult | None = None
+    steelman: SteelmanResult | None = None
     dropped_flags: int = Field(default=0, ge=0)
     dropped_reasons: tuple[str, ...] = ()
     llm_model: str | None = None
     llm_mode: str | None = None
 
     def all_flags(self) -> tuple[Flag, ...]:
-        results = (self.absence, self.clock, self.reuse)
+        results = (self.absence, self.clock, self.renewal, self.reuse)
         return tuple(flag for result in results if result is not None for flag in result.flags)

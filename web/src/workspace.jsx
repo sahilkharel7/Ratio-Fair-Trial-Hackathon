@@ -1,5 +1,11 @@
 import React, { useContext, useRef, useEffect, useState } from "react";
 import { matchesQuery, firstMatch } from "./research.mjs";
+import {
+  allFindings,
+  currentReviews,
+  moduleNames,
+  moduleRoutes,
+} from "./workflow.mjs";
 
 export function Icon({ name, size = 18 }) {
   const paths = {
@@ -144,12 +150,15 @@ export function MatterHeader({ data, navigate, download }) {
   );
 }
 export function ReviewQueue({ data, navigate, context }) {
-  const { openSource } = useContext(context);
+  const { openSource, reviews } = useContext(context);
+  const decisions = currentReviews(reviews);
   const [filter, setFilter] = useState("all");
   const priority = {
     evidence_of_violation: 0,
     exceeds_benchmark: 1,
     unaddressed_argument: 2,
+    repeated_grounds: 2,
+    order_gap: 2,
     verbatim_reuse: 3,
     close_paraphrase: 4,
     evidence_of_compliance: 5,
@@ -157,14 +166,18 @@ export function ReviewQueue({ data, navigate, context }) {
   const items = [
     ...data.analysis.absence.flags,
     ...data.analysis.clock.flags,
+    ...data.analysis.renewal.flags,
     ...data.analysis.reuse.flags,
+    ...data.review_findings.filter((f) => f.module === "judges"),
   ].sort((a, b) => (priority[a.status] ?? 4) - (priority[b.status] ?? 4));
   const filtered = items.filter((f) => filter === "all" || f.module === filter);
-  const routes = { absence: "/coverage", clock: "/timeline", reuse: "/reuse" };
+  const routes = moduleRoutes;
   const names = {
     absence: "Rights coverage",
     clock: "Procedure",
     reuse: "Reasoning",
+    renewal: "Detention",
+    judges: "Judicial context",
   };
   return (
     <section className="review-queue">
@@ -180,7 +193,9 @@ export function ReviewQueue({ data, navigate, context }) {
           ["all", "All findings"],
           ["absence", "Rights coverage"],
           ["clock", "Procedure"],
+          ["renewal", "Detention"],
           ["reuse", "Reasoning"],
+          ["judges", "Judicial context"],
         ].map(([id, label]) => (
           <button
             key={id}
@@ -240,20 +255,37 @@ export function ReviewQueue({ data, navigate, context }) {
                   : ""}
               </a>
               <p>{f.message}</p>
+              {f.module === "judges" && (
+                <p className="selection-note">
+                  {data.messages.notes.selection_bias}
+                </p>
+              )}
               <div className="issue-foot">
                 <span>
                   <Icon name="file" size={13} />
                   {f.evidence.length} source passages
                 </span>
-                <span>Requires legal judgment</span>
+                <span>
+                  {decisions[f.id]
+                    ? data.messages.labels["review_" + decisions[f.id].decision]
+                    : "Not reviewed"}
+                </span>
               </div>
             </div>
-            <button
-              className="text-action"
-              onClick={() => openSource(f.evidence[0].span, f.standard_label)}
-            >
-              View source <Icon name="arrow" size={15} />
-            </button>
+            <div className="queue-actions">
+              <button
+                className="text-action"
+                onClick={() => openSource(f.evidence[0].span, f.standard_label)}
+              >
+                View source <Icon name="arrow" size={15} />
+              </button>
+              <button
+                className="text-action queue-review"
+                onClick={() => navigate(`/review?finding=${f.id}`)}
+              >
+                Review finding <Icon name="check" size={14} />
+              </button>
+            </div>
           </article>
         ))}
       </div>
@@ -261,10 +293,34 @@ export function ReviewQueue({ data, navigate, context }) {
   );
 }
 export function ReviewRail({ data, navigate, context }) {
-  const { recent, saved, notes, setNotes } = useContext(context);
+  const { recent, saved, notes, setNotes, reviews } = useContext(context);
+  const reviewed = allFindings(data).filter(
+    (f) => currentReviews(reviews)[f.id],
+  ).length;
   const docs = data.record.documents;
   return (
     <aside className="review-rail">
+      <section className="rail-panel review-progress">
+        <div className="rail-heading">
+          <Icon name="check" />
+          <h2>Review progress</h2>
+        </div>
+        <div className="saved-summary">
+          <strong>
+            {reviewed}
+            <small> / {allFindings(data).length}</small>
+          </strong>
+          <span>findings and prompts reviewed</span>
+        </div>
+        <progress
+          value={reviewed}
+          max={allFindings(data).length}
+          aria-label="Review progress"
+        />
+        <button className="text-action" onClick={() => navigate("/review")}>
+          Continue review & export <Icon name="arrow" size={14} />
+        </button>
+      </section>
       <section className="rail-panel">
         <div className="rail-heading">
           <Icon name="folder" />
@@ -331,7 +387,9 @@ export function Research({ data, query, navigate, context, scope = "all" }) {
   const allFlags = [
     ...data.analysis.absence.flags,
     ...data.analysis.clock.flags,
+    ...data.analysis.renewal.flags,
     ...data.analysis.reuse.flags,
+    ...data.review_findings.filter((f) => f.module === "judges"),
   ];
   const docs = data.record.documents.filter((d) =>
     matchesQuery(`${d.title}\n${d.text}`, query),
@@ -352,7 +410,7 @@ export function Research({ data, query, navigate, context, scope = "all" }) {
     visible = [...visible].sort((a, b) =>
       (b.date || "").localeCompare(a.date || ""),
     );
-  const routes = { absence: "/coverage", clock: "/timeline", reuse: "/reuse" };
+  const routes = moduleRoutes;
   return (
     <>
       <div className="page-heading">
@@ -398,6 +456,7 @@ export function Research({ data, query, navigate, context, scope = "all" }) {
                 ["monitoring_note", "Monitoring notes"],
                 ["indictment", "Indictment"],
                 ["judgment", "Judgment"],
+                ["detention_order", "Detention orders"],
               ].map(([id, label]) => (
                 <button
                   key={id}

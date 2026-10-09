@@ -13,6 +13,7 @@ import streamlit as st
 from ratio.display import md_escape, percent
 from ratio.extraction.loader import LoaderError
 from ratio.history import decisions_file
+from ratio.jurisprudence import for_finding
 from ratio.messages import render
 from ratio.paths import REPO_ROOT
 from ratio.results import AliasCandidate, DataNote, Descriptive, Indicator, JudgeProfile, JudgeReport, RateEstimate
@@ -44,7 +45,7 @@ def _points(value: float) -> str:
 
 
 def _row(evidence: Evidence, where: str, key: str, heading: str) -> None:
-    text_column, button_column = st.columns([10, 2], vertical_alignment="center")
+    text_column, button_column = st.columns([7, 2], vertical_alignment="center")  # room for "View source"
     quote = f'<div class="ratio-quote"><span class="ratio-where">{html.escape(where)}</span>“{html.escape(evidence.span.text)}”</div>'
     text_column.html(quote)
     with button_column:
@@ -71,9 +72,12 @@ def _indicator(profile: JudgeProfile, indicator: Indicator, key: str) -> None:
                 f"({indicator.difference_confidence:.1%} interval, for {profile.k_compared} indicators compared)."
             )
         st.markdown(md_escape(indicator.message))
+        pattern = next((f for f in profile.flags if f.id == indicator.flag_id), None)
+        if pattern is not None:
+            widgets.jurisprudence(for_finding(pattern, session.config().jurisprudence))
         if indicator.outcomes:
-            label = f"The {len(indicator.outcomes)} cases counted for this judge, each with its coded ruling (yes: counted in the {indicator.judge.k})"
-            with st.expander(label):
+            with st.expander(f"Cases for this judge, each with its coded ruling ({len(indicator.outcomes)})"):
+                st.caption(f"Yes marks the {indicator.judge.k} of {indicator.judge.n} cases that count towards this judge's rate; no marks the others.")
                 for number, outcome in enumerate(indicator.outcomes):
                     where = f"{outcome.title} · {'yes' if outcome.counted else 'no'}"
                     _row(outcome.ruling, where, f"{key}-{number}", f"{outcome.title}: coded ruling")
@@ -105,24 +109,26 @@ def _manual_note(synthetic: bool) -> str:
 def _waiting(candidates: tuple[AliasCandidate, ...]) -> None:
     rows = [
         {"Case": c.case_id, "Name as written": c.raw_name, "Court": c.court, "Possible match": c.candidate_name or "none",
-         "Similarity": c.score, "Why it waits": c.reason}
+         "Name similarity (0 to 100)": c.score, "Why it waits": c.reason}
         for c in candidates
     ]  # fmt: skip
     st.dataframe(rows, hide_index=True)
 
 
 def _signals(profile: JudgeProfile) -> None:
-    st.subheader(_notes()["not_attributed"])
+    st.header(_notes()["not_attributed"])
     if not profile.case_signals:
-        st.caption("None of this judge's cases has been analysed by the other modules yet.")
+        st.caption("None of this judge's cases has been analysed by Ratio's other checks yet.")
         return
     for signal in profile.case_signals:
-        text, button = st.columns([10, 2], vertical_alignment="center")
-        text.markdown(
-            f"{md_escape(signal.title)}: {_plural(signal.flags, 'finding')}; "
-            f"{percent(signal.reuse_score)} of the judgment's reasoning traceable to the indictment."
+        text, button = st.columns([8, 4], vertical_alignment="center")
+        reuse = (
+            f"{percent(signal.reuse_score)} of the judgment's reasoning traceable to the indictment"
+            if signal.reuse_score is not None
+            else "no reasoning reuse score"
         )
-        if button.button("Open case", key=f"open-{signal.case_id}"):
+        text.markdown(f"{md_escape(signal.title)}: {_plural(signal.flags, 'finding')}; {reuse}.")
+        if button.button(f"Open case {md_escape(signal.title)}", key=f"open-{signal.case_id}"):
             session.open_case(signal.case_id)
             st.switch_page("views/case.py")
 
@@ -135,8 +141,10 @@ def _method() -> str:
 
 def _lists(synthetic: bool, waiting: list[AliasCandidate], notes: list[DataNote]) -> None:
     """Every name of this kind of data that waits for a decision, and the data notes."""
+    if waiting or notes:
+        st.header("Judge registry, all courts")
     if waiting:
-        with st.expander(f"Manual confirmation list, all courts ({len(waiting)})"):
+        with st.expander(f"Names waiting for confirmation ({len(waiting)})"):
             st.caption(md_escape(_manual_note(synthetic)))
             _waiting(tuple(waiting))
     if notes:
@@ -151,6 +159,7 @@ def _profile(profile: JudgeProfile) -> None:
         f"{md_escape(profile.court)} · {md_escape('; '.join(profile.charge_types))} · {_plural(len(profile.case_ids), 'case')} · "
         f"name as written: {md_escape(variants)}"
     )
+    st.header("Indicators")
     st.markdown(f"Indicators compared on this page: **{profile.k_compared}**. Rates count each case once.")
     with st.expander("How these numbers are computed"):
         st.markdown(md_escape(_method()))
@@ -163,7 +172,7 @@ def _profile(profile: JudgeProfile) -> None:
         for item in (d for d in profile.descriptive if d.charge_type == charge_type):
             _descriptive(item, titles, key=f"{profile.judge_id}-{charge_index}-{item.code}")
     if profile.pending:
-        st.subheader("Names waiting for confirmation")
+        st.header("Names that may belong to this judge, waiting for confirmation")
         st.caption(md_escape(_manual_note(profile.synthetic)))
         _waiting(profile.pending)
     _signals(profile)
@@ -219,7 +228,8 @@ style.eyebrow("Cross-case analysis")
 st.title("Judge profile")
 st.warning(_notes()["selection_bias"])
 if len(kinds) > 1:
-    st.segmented_control("Data", kinds, format_func=KINDS.get, key=KIND_KEY, help="Synthetic and public cases are never shown or compared together.")
+    st.segmented_control("Data", kinds, format_func=KINDS.get, key=KIND_KEY)
+    st.caption("Synthetic and public cases are never shown or compared together.")
 if report.dropped_flags:
     st.warning(f"{_plural(report.dropped_flags, 'pattern')} not shown: the source text of a coded ruling could not be found.")
 if profiles:

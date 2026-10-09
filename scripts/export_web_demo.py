@@ -12,14 +12,60 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+from unidecode import unidecode
 from ratio import netguard
 from ratio.config import default_config
-from ratio.display import marked_html, reuse_marks
+from ratio.display import Mark, marked_html, reuse_marks
 from ratio.extraction.build import load_case
 from ratio.history import load_history, load_alias_decisions
 from ratio.modules.reuse import by_passage
+from ratio.feedback import case_findings
+from ratio.jurisprudence import Reference, for_finding, for_follow_up
+from ratio.report import draft_report
 from ratio.paths import ALIAS_DECISIONS, DEMO_CASE_DIR
 from ratio.pipeline import analyze_judges, demo_llm, process
+
+
+def reference_payload(ref):
+    return {**ref.entry.model_dump(mode="json"), "citation": ref.citation, "shown": ref.shown,
+            "source": ref.source.model_dump(mode="json")}
+
+
+def renewal_comparisons(record, renewal, messages):
+    """Presentation-only marks: comparison scores and statuses remain pipeline outputs."""
+    def start_of_grounds(order):
+        starts = [p.span.start for p in record.passages_of(order.doc_id) if p.id in order.grounds_passage_ids]
+        if not starts:
+            return 0
+        return max((p.span.start for p in record.passages_of(order.doc_id)
+                    if p.kind == 'heading' and p.span.start <= min(starts)), default=min(starts))
+
+    def excluded(order):
+        return [Mark(e.span.start, e.span.end, 'excluded',
+                     '' if e.reason == 'header_or_signature' else messages.label(e.reason)) for e in order.excluded]
+
+    def matches(order, doc_id, side):
+        marks = []
+        for pair in order.pairs:
+            span = pair.later if side == 'later' else pair.earlier
+            ranges = pair.later_ranges if side == 'later' else pair.earlier_ranges
+            if span.doc_id == doc_id:
+                marks += [Mark(r.start, r.end, pair.kind) for r in ranges] or [Mark(span.start, span.end, pair.kind)]
+        return marks
+
+    orders = {order.doc_id: order for order in renewal.orders}
+    result = {}
+    for order in renewal.orders:
+        sides = {}
+        for doc_id in [order.doc_id, *dict.fromkeys(pair.earlier.doc_id for pair in order.pairs)]:
+            own = orders[doc_id]
+            marks = excluded(own) + matches(order, doc_id, 'later' if doc_id == order.doc_id else 'earlier')
+            doc = record.document(doc_id)
+            start = start_of_grounds(own)
+            sides[doc_id] = {'whole': marked_html(doc.text, marks),
+                             'grounds': marked_html(doc.text[start:], marks, offset=start)}
+        result[order.doc_id] = sides
+    return result
 
 
 def main() -> None:
@@ -49,7 +95,7 @@ def main() -> None:
         }
     payload = {
         'synthetic': True,
-        'preview': {'mode': 'recorded-demo', 'source_branch': 'frontend-improvements', 'legal_analysis': 'local-only'},
+        'preview': {'mode': 'recorded-demo', 'source_branch': 'codex/combined-legal-workspace', 'analysis_base': 'a4bc765', 'legal_analysis': 'local-only'},
         'record': {**record.model_dump(mode='json'), 'case_id': record.case_id},
         'analysis': analysis.model_dump(mode='json'),
         'judges': judges.model_dump(mode='json'),
@@ -57,6 +103,20 @@ def main() -> None:
         'messages': cfg.messages.model_dump(mode='json'),
         'benchmarks': cfg.benchmarks.model_dump(mode='json'),
         'comparison': comparison,
+        'review_findings': [flag.model_dump(mode='json') for flag in case_findings(analysis, judges)],
+        'jurisprudence': {
+            'checked': cfg.jurisprudence.checked,
+            'entries': [reference_payload(Reference(e, cfg.jurisprudence.sources[e.source])) for e in cfg.jurisprudence.entries],
+            'by_finding': {f.id: [reference_payload(r) for r in for_finding(f, cfg.jurisprudence)] for f in case_findings(analysis, judges)},
+            'by_follow_up': {f.rubric_id: [reference_payload(r) for r in for_follow_up(f, cfg.jurisprudence)] for f in analysis.absence.follow_ups},
+        },
+        'steelman_catalogue': cfg.steelman.model_dump(mode='json'),
+        # Presentation guard for English review wording: match Python's Latin/Greek/Cyrillic
+        # transliteration, in addition to NFKC and removal of invisible characters.
+        'review_transliteration': {chr(n): unidecode(chr(n)) for lo, hi in ((128, 1328), (0x1C80, 0x1C90), (0x1E00, 0x2000), (0xA640, 0xA6A0))
+                                  for n in range(lo, hi) if unidecode(chr(n)) != chr(n)},
+        'renewal_comparison': renewal_comparisons(record, analysis.renewal, cfg.messages),
+        'report_markdown': draft_report(record, analysis, judges, cfg, history=records[1:]),
     }
     target = ROOT / 'web' / 'public' / 'demo.json'
     target.parent.mkdir(parents=True, exist_ok=True)

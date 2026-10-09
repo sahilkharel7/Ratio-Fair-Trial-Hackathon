@@ -1,0 +1,11 @@
+{
+  "key": "46b7af7f4c482117259760ddaf815de82170845590cb1e918f78ffe4ab44b0cd",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman_check",
+  "response": {
+    "note": "Does not show court ruling",
+    "shows": false
+  },
+  "schema": "GroundCheck",
+  "synthetic": true
+}

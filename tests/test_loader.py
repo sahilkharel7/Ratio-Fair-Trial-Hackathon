@@ -67,6 +67,25 @@ def test_hearing_date_header_sets_document_date_and_observations(tmp_path):
     assert len(hearings) == 1 and hearings[0].precision == "date"
 
 
+@pytest.mark.parametrize("line", ["Delivered on 22 September 2025", "Date: 22 September 2025", "Delivered: 22 September 2025"])
+def test_the_judgment_caption_date_is_the_verdict_with_the_caption_line_as_its_source(tmp_path, line):
+    judgment = JUDGMENT.replace("JUDGMENT\n", f"JUDGMENT\n{line}\n")
+    record = load_case(write_case(tmp_path / "case", judgment=judgment))
+    (verdict,) = [event for event in record.events if event.type == "verdict"]
+    assert verdict.parsed_date == dt.datetime(2025, 9, 22) and verdict.precision == "date"
+    assert verdict.span.text == line and verdict.date_span.text == "22 September 2025"
+
+
+@pytest.mark.parametrize(
+    "line",
+    ["Hearings: 16 June 2025 to 22 September 2025", "Case filed on 2 December 2024", "Delivered on 14 July 2025 and 21 July 2025", "Delivered in July 2025"],
+)
+def test_other_caption_dates_are_not_a_verdict(tmp_path, line):
+    judgment = JUDGMENT.replace("JUDGMENT\n", f"JUDGMENT\n{line}\n")
+    record = load_case(write_case(tmp_path / "case", judgment=judgment))
+    assert not [event for event in record.events if event.type == "verdict"]
+
+
 def test_presiding_judge_comes_from_the_judgment_header_with_a_span(tmp_path):
     record = load_case(write_case(tmp_path / "case"))
     assert record.meta.presiding_judge == "Ilena Varda"

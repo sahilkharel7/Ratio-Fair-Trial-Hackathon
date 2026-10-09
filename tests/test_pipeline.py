@@ -9,7 +9,7 @@ from ratio.config import load_config
 from ratio.extraction.build import load_case
 from ratio.llm import CacheMiss
 from ratio.paths import DEMO_CASE_DIR
-from ratio.pipeline import demo_llm, ingest, make_llm, read_demo_manifest
+from ratio.pipeline import demo_llm, ingest, make_llm, model_documents, read_demo_manifest
 
 CONFIG = load_config()
 
@@ -32,8 +32,7 @@ def test_demo_cache_manifest_matches_the_current_demo_documents():
     manifest = read_demo_manifest()
     assert manifest is not None, "run `python -m ratio build-demo-cache` once with Ollama running"
     assert manifest.synthetic
-    current = {doc.id: doc.sha256 for doc in load_case(DEMO_CASE_DIR).documents}
-    assert manifest.documents == current, "demo documents changed: rebuild the demo cache"
+    assert manifest.documents == model_documents(load_case(DEMO_CASE_DIR)), "demo documents changed: rebuild the demo cache"
 
 
 def test_demo_case_replays_completely_from_the_committed_cache():
@@ -80,7 +79,7 @@ def test_a_reuse_pair_whose_flag_fails_provenance_is_dropped_with_it(monkeypatch
     monkeypatch.setattr(
         reuse, "run", lambda rec, ctx: ReuseResult(judgment_doc_id=judgment.id, indictment_doc_id=None, pairs=(pair,), flags=(flag,))
     )
-    ctx = AnalysisContext(llm=FakeLLM(lambda *_: {"labels": []}), embedder=FakeEmbedder(), config=CONFIG)
+    ctx = AnalysisContext(llm=FakeLLM(lambda *_, **__: {"labels": [], "arguments": []}), embedder=FakeEmbedder(), config=CONFIG)
     analysis = analyze(record, ctx)
     assert analysis.reuse.flags == () and analysis.reuse.pairs == ()
     assert analysis.dropped_flags == 1 and analysis.dropped_reasons[0].startswith("reuse/reasoning_reuse")
@@ -103,6 +102,8 @@ def test_a_finding_whose_source_fails_the_check_loses_its_colour_and_status():
     forged = record.model_copy(update={"events": tuple(forged_events)})
 
     def no_labels(system, user, schema, purpose):
+        if purpose == "steelman":
+            return {"arguments": []}
         return {"labels": []} if purpose == "labels" else {"note": "", "responding": []}
 
     analysis = analyze(forged, AnalysisContext(llm=FakeLLM(no_labels), embedder=FakeEmbedder(), config=CONFIG))

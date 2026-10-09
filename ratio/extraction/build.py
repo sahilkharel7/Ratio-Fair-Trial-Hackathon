@@ -1,12 +1,15 @@
 """Build the deterministic part of a case record, with no model involved:
 documents, metadata, observations (one per note sentence), passages of court documents,
-statute citations, hearing events from note headers, and hand-coded rulings.
+statute citations, hearing events from note headers, the verdict date from a judgment's caption
+("Delivered on 14 July 2025"), detention orders and their extension events (extraction/orders.py),
+and hand-coded rulings.
 The LLM layer adds events and arguments on top of this record.
 """
 
 from __future__ import annotations
 
 import datetime as dt
+import re
 from collections.abc import Mapping
 from pathlib import Path
 
@@ -17,10 +20,13 @@ from ratio.extraction.loader import (
     build_rulings,
     read_case_folder,
 )
-from ratio.extraction.segment import Segment, find_citations, segment_document
+from ratio.extraction.dates import find_written_dates, parse_date_text
+from ratio.extraction.orders import extension_events, read_orders
+from ratio.extraction.segment import Segment, caption_lines, find_citations, segment_document
 from ratio.schema import CaseRecord, Citation, Document, Event, Observation, Passage, SourceSpan, stable_id
 
 OBSERVATION_SOURCES = frozenset({"monitoring_note", "transcript"})
+_DELIVERY_LINE = re.compile(r"(?:delivered(?: on)?:?|date of judgment:?|date:)\s", re.IGNORECASE)  # a judgment caption line that dates it
 
 
 def _span(doc: Document, start: int, end: int) -> SourceSpan:
@@ -62,19 +68,47 @@ def _hearing_event(doc: Document) -> Event | None:
     )
 
 
+def _verdict_event(doc: Document) -> Event | None:
+    """The verdict date from a judgment's caption line ("Delivered on 14 July 2025", "Date: ..."),
+    with that line as the source, so the date is always shown with the text that gives it."""
+    if doc.type != "judgment":
+        return None
+    for start, end in caption_lines(doc.text):
+        dates = find_written_dates(doc.text, start, end)
+        parsed = parse_date_text(doc.text[slice(*dates[0])]) if len(dates) == 1 else None
+        if parsed is None or parsed.precision != "date" or not _DELIVERY_LINE.match(doc.text, start):
+            continue
+        line, date_span = _span(doc, start, end), _span(doc, *dates[0])
+        return Event(
+            id=stable_id(doc.id, start, "verdict"),
+            type="verdict",
+            span=line,
+            quote_span=line,
+            date_span=date_span,
+            date_text=date_span.text,
+            parsed_date=parsed.value,
+            precision=parsed.precision,
+        )
+    return None
+
+
+def header_events(doc: Document) -> tuple[Event, ...]:
+    """Events read from a document's header, with no model: a note's hearing date, a judgment's verdict date."""
+    event = _hearing_event(doc) if doc.type in OBSERVATION_SOURCES else _verdict_event(doc)
+    return (event,) if event is not None else ()
+
+
 def build_base_record(manifest: CaseManifest, files: Mapping[str, bytes]) -> CaseRecord:
     documents = build_documents(manifest, files)
     observations: list[Observation] = []
     passages: list[Passage] = []
     citations: list[Citation] = []
-    hearings: list[Event] = []
+    built_events: list[Event] = []  # hearings from note headers, the verdict from a judgment caption
     for doc in documents:
+        built_events.extend(header_events(doc))
         segments = segment_document(doc.text)
         if doc.type in OBSERVATION_SOURCES:
             observations.extend(_observation(doc, seg) for seg in segments if seg.kind == "body")
-            hearing = _hearing_event(doc)
-            if hearing is not None:
-                hearings.append(hearing)
         else:
             passages.extend(_passage(doc, index, seg) for index, seg in enumerate(segments))
             citations.extend(
@@ -82,14 +116,16 @@ def build_base_record(manifest: CaseManifest, files: Mapping[str, bytes]) -> Cas
                 for s, e in find_citations(doc.text)
             )
     rulings_data = files.get(manifest.rulings) if manifest.rulings else None
+    orders = read_orders(documents)
     return CaseRecord(
         meta=build_meta(manifest, documents),
         documents=documents,
-        events=tuple(hearings),
+        events=(*built_events, *extension_events(orders, documents)),
         observations=tuple(observations),
         citations=tuple(citations),
         passages=tuple(passages),
         rulings=build_rulings(manifest, documents, rulings_data),
+        orders=orders,
     )
 
 

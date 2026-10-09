@@ -8,6 +8,17 @@ import React, {
 import { createRoot } from "react-dom/client";
 import "./styles.css";
 import "./workspace.css";
+import "./legal-workflows.css";
+import {
+  Renewals,
+  Jurisprudence,
+  StateReplies,
+  Review,
+  LegalContext,
+  StateReply,
+  FindingActions,
+} from "./legal-workflows.jsx";
+import { allFindings, currentReviews } from "./workflow.mjs";
 import {
   Icon,
   ResearchBar,
@@ -24,8 +35,12 @@ const navigation = [
   ["/", "Case overview"],
   ["/coverage", "Rights coverage"],
   ["/timeline", "Procedural timeline"],
+  ["/renewals", "Detention renewals"],
   ["/reuse", "Reasoning comparison"],
   ["/judges", "Judicial history"],
+  ["/jurisprudence", "Jurisprudence"],
+  ["/state-replies", "Possible State replies"],
+  ["/review", "Review & report"],
 ];
 // Match Python's displayed percentages, including ties rounded to the even digit.
 const percent = (value) => {
@@ -47,7 +62,7 @@ const points = (text, start, end) =>
   Array.from(text).slice(start, end).join("");
 const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 const flags = (analysis) =>
-  [analysis.absence, analysis.clock, analysis.reuse].flatMap(
+  [analysis.absence, analysis.clock, analysis.renewal, analysis.reuse].flatMap(
     (module) => module?.flags || [],
   );
 
@@ -58,9 +73,10 @@ function Badge({ status, messages }) {
           "evidence_of_compliance",
           "within_benchmark",
           "addressed_argument",
+          "review_accepted",
         ].includes(status)
       ? "positive"
-      : /review|unaddressed|verbatim/.test(status)
+      : /review|unaddressed|verbatim|repeated|order_gap|paraphrase/.test(status)
         ? "review"
         : "neutral";
   return (
@@ -125,46 +141,26 @@ function Evidence({ items = [], heading = "" }) {
             </cite>
             “{item.span.text}”
           </blockquote>
-          <button onClick={() => openSource(item.span, heading)}>Source</button>
+          <button
+            aria-label={`View source: ${documents[item.span.doc_id]?.title}, passage ${index + 1}`}
+            onClick={() => openSource(item.span, heading)}
+          >
+            View source
+          </button>
         </div>
       ))}
     </div>
   );
 }
 
-function download(data, workingFile) {
-  const blob = new Blob(
-    [
-      JSON.stringify(
-        {
-          synthetic: true,
-          record: data.record,
-          analysis: data.analysis,
-          working_file: workingFile,
-        },
-        null,
-        2,
-      ),
-    ],
-    { type: "application/json" },
-  );
-  const url = URL.createObjectURL(blob),
-    link = document.createElement("a");
-  link.href = url;
-  link.download = "ratio-synthetic-demo-review.json";
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
 function Overview({ data, navigate, onAbout }) {
   const { record, analysis } = data;
-  const { saved, notes } = useContext(Source);
   return (
     <>
       <MatterHeader
         data={data}
         navigate={navigate}
-        download={() => download(data, { saved, notes })}
+        download={() => navigate("/review")}
       />
       <div className="overview-lead">
         <div>
@@ -185,8 +181,8 @@ function Overview({ data, navigate, onAbout }) {
           ],
           [
             "Findings to review",
-            flags(analysis).length,
-            "Linked to supporting passages",
+            allFindings(data).length,
+            "Case findings and judge review prompts",
             "review",
           ],
           [
@@ -230,12 +226,17 @@ function Overview({ data, navigate, onAbout }) {
                   "Monitoring notes",
                   "Four hearings in the record",
                 ],
+                [
+                  "detention_order",
+                  "Detention orders",
+                  "Three original orders and their grounds",
+                ],
               ].map(([type, title, note]) => (
                 <button
                   key={type}
                   onClick={() =>
                     navigate(
-                      `/research?q=${encodeURIComponent(type === "monitoring_note" ? "Monitoring" : title)}&scope=documents`,
+                      `/research?q=${encodeURIComponent(type === "monitoring_note" ? "Monitoring" : type === "detention_order" ? "detention" : title)}&scope=documents`,
                     )
                   }
                 >
@@ -269,7 +270,7 @@ function Overview({ data, navigate, onAbout }) {
   );
 }
 
-function Coverage({ data, selectedId }) {
+function Coverage({ data, selectedId, navigate }) {
   const { absence } = data.analysis;
   const [selected, setSelected] = useState(
     absence.assessments.some((a) => a.rubric_id === selectedId)
@@ -343,6 +344,14 @@ function Coverage({ data, selectedId }) {
               <>
                 <p>{flag.message}</p>
                 <Evidence items={flag.evidence} heading={flag.standard_label} />
+                <LegalContext data={data} flag={flag} />
+                <StateReply
+                  data={data}
+                  flag={flag}
+                  context={Source}
+                  Evidence={Evidence}
+                />
+                <FindingActions data={data} flag={flag} navigate={navigate} />
                 {flag.model_note && (
                   <details>
                     <summary>Model note (unverified)</summary>
@@ -379,6 +388,7 @@ function Coverage({ data, selectedId }) {
                   Possibly relevant, not counted as evidence:
                 </p>
                 <Evidence items={a.follow_up?.context} heading="Context" />
+                <LegalContext data={data} question={a.rubric_id} />
               </>
             )}
             <h4>Coverage by part</h4>
@@ -489,7 +499,7 @@ function TimelineChart({ data }) {
     </div>
   );
 }
-function Timeline({ data }) {
+function Timeline({ data, navigate }) {
   const clock = data.analysis.clock;
   return (
     <>
@@ -551,6 +561,22 @@ function Timeline({ data }) {
                   <details open={i.status === "exceeds_benchmark"}>
                     <summary>Sources ({i.evidence.length})</summary>
                     <Evidence items={i.evidence} heading={benchmark.name} />
+                    {flag && (
+                      <>
+                        <LegalContext data={data} flag={flag} />
+                        <StateReply
+                          data={data}
+                          flag={flag}
+                          context={Source}
+                          Evidence={Evidence}
+                        />
+                        <FindingActions
+                          data={data}
+                          flag={flag}
+                          navigate={navigate}
+                        />
+                      </>
+                    )}
                   </details>
                 </article>
               );
@@ -587,7 +613,7 @@ function Timeline({ data }) {
   );
 }
 
-function Reasoning({ data }) {
+function Reasoning({ data, navigate }) {
   const reuse = data.analysis.reuse;
   const [whole, setWhole] = useState(false);
   const matchFlags = reuse.flags.filter(
@@ -681,6 +707,14 @@ function Reasoning({ data }) {
                 items={f.evidence}
                 heading={`Matched passage ${index + 1}`}
               />
+              <LegalContext data={data} flag={f} />
+              <StateReply
+                data={data}
+                flag={f}
+                context={Source}
+                Evidence={Evidence}
+              />
+              <FindingActions data={data} flag={f} navigate={navigate} />
             </article>
           ))}
         </div>
@@ -704,7 +738,24 @@ function Reasoning({ data }) {
                 heading="Defence argument"
               />
               {a.flag_id && (
-                <p>{reuse.flags.find((f) => f.id === a.flag_id)?.message}</p>
+                <>
+                  <p>{reuse.flags.find((f) => f.id === a.flag_id)?.message}</p>
+                  <LegalContext
+                    data={data}
+                    flag={reuse.flags.find((f) => f.id === a.flag_id)}
+                  />
+                  <StateReply
+                    data={data}
+                    flag={reuse.flags.find((f) => f.id === a.flag_id)}
+                    context={Source}
+                    Evidence={Evidence}
+                  />
+                  <FindingActions
+                    data={data}
+                    flag={reuse.flags.find((f) => f.id === a.flag_id)}
+                    navigate={navigate}
+                  />
+                </>
               )}
               {a.responding.length > 0 && (
                 <>
@@ -1110,7 +1161,7 @@ function AboutDialog({ open, onClose }) {
       <pre>streamlit run app/main.py</pre>
       <p>Legal conclusions remain with the reviewing lawyer.</p>
       <a
-        href="https://github.com/sahilkharel7/Ratio-Fair-Trial-Hackathon/tree/codex/vercel-preview"
+        href="https://github.com/sahilkharel7/Ratio-Fair-Trial-Hackathon/tree/codex/combined-legal-workspace"
         target="_blank"
         rel="noreferrer"
       >
@@ -1123,7 +1174,12 @@ function useStored(key, initial) {
   const [value, setValue] = useState(() => {
     try {
       const raw = localStorage.getItem(key);
-      return raw ? JSON.parse(raw) : initial;
+      const parsed = raw ? JSON.parse(raw) : initial;
+      if (Array.isArray(initial))
+        return Array.isArray(parsed) ? parsed : initial;
+      return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+        ? parsed
+        : initial;
     } catch {
       return initial;
     }
@@ -1150,7 +1206,12 @@ function App() {
     [toast, setToast] = useState("");
   const [saved, setSaved, saveFailed] = useStored("ratio-demo-saved-v1", []),
     [recent, setRecent, historyFailed] = useStored("ratio-demo-history-v1", []),
-    [notes, setNotes, noteFailed] = useStored("ratio-demo-notes-v1", {});
+    [notes, setNotes, noteFailed] = useStored("ratio-demo-notes-v1", {}),
+    [reviews, setReviews, reviewFailed] = useStored(
+      "ratio-demo-reviews-v1",
+      [],
+    ),
+    [missed, setMissed, missedFailed] = useStored("ratio-demo-missed-v1", []);
   const route = location.split("?")[0],
     params = new URLSearchParams(location.split("?")[1] || ""),
     query = params.get("q") || "";
@@ -1233,6 +1294,17 @@ function App() {
     recent,
     notes,
     setNotes,
+    reviews,
+    missed,
+    setMissed,
+    saveReview: (review) => {
+      setReviews((previous) => [...previous, review]);
+      setToast(
+        review.decision === "reopened"
+          ? "Finding reopened; its history is retained."
+          : "Demo review decision saved in this browser.",
+      );
+    },
     notify: setToast,
     isSaved: (doc, span) => saved.some((s) => s.key === sourceKey(doc, span)),
     toggleSaved: (doc, span) => {
@@ -1252,7 +1324,17 @@ function App() {
       );
     },
   };
-  const navIcons = ["grid", "scale", "timeline", "compare", "scale"];
+  const navIcons = [
+    "grid",
+    "scale",
+    "timeline",
+    "file",
+    "compare",
+    "scale",
+    "bookmark",
+    "compare",
+    "check",
+  ];
   return (
     <Source.Provider value={context}>
       <a className="skip-link" href="#main">
@@ -1427,7 +1509,11 @@ function App() {
           <span aria-hidden="true">/</span>
           <strong>{pageName}</strong>
         </div>
-        {(saveFailed || historyFailed || noteFailed) && (
+        {(saveFailed ||
+          historyFailed ||
+          noteFailed ||
+          reviewFailed ||
+          missedFailed) && (
           <p className="warning" role="status">
             Browser storage is unavailable. Your saved sources and notes will
             last only for this session.
@@ -1452,13 +1538,53 @@ function App() {
                 onAbout={() => setAbout(true)}
               />
             ) : route === "/coverage" ? (
-              <Coverage data={data} selectedId={params.get("guarantee")} />
+              <Coverage
+                data={data}
+                selectedId={params.get("guarantee")}
+                navigate={navigate}
+              />
             ) : route === "/timeline" ? (
-              <Timeline data={data} />
+              <Timeline data={data} navigate={navigate} />
             ) : route === "/reuse" ? (
-              <Reasoning data={data} />
+              <Reasoning data={data} navigate={navigate} />
             ) : route === "/judges" ? (
               <Judges data={data} />
+            ) : route === "/renewals" ? (
+              <Renewals
+                data={data}
+                context={Source}
+                Evidence={Evidence}
+                Badge={Badge}
+                navigate={navigate}
+              />
+            ) : route === "/jurisprudence" ? (
+              <Jurisprudence
+                key={params.get("finding") || "all"}
+                data={data}
+                context={Source}
+                Evidence={Evidence}
+                Badge={Badge}
+                navigate={navigate}
+                selectedId={params.get("finding")}
+              />
+            ) : route === "/state-replies" ? (
+              <StateReplies
+                data={data}
+                context={Source}
+                Evidence={Evidence}
+                Badge={Badge}
+                navigate={navigate}
+              />
+            ) : route === "/review" ? (
+              <Review
+                key={params.get("finding") || "all"}
+                data={data}
+                context={Source}
+                Evidence={Evidence}
+                Badge={Badge}
+                navigate={navigate}
+                selectedId={params.get("finding")}
+              />
             ) : route === "/research" ? (
               <Research
                 data={data}

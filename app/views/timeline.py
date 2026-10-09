@@ -5,63 +5,62 @@ from __future__ import annotations
 
 import streamlit as st
 
-from ratio.config import Benchmark
-from ratio.display import duration_text, md_escape
-from ratio.messages import render
-from ratio.results import ClockResult, Interval
-from ratio_ui import session, style, widgets
+from ratio.display import md_escape
+from ratio.jurisprudence import for_finding
+from ratio.report import interval_citation, interval_text
+from ratio.results import ClockResult, TimelineEvent
+from ratio_ui import session, widgets
 from ratio_ui.session import LoadedCase
 
+# Vega-Lite needs its colours in the spec. Each one has at least 3:1 contrast on the light and the dark
+# theme background (WCAG 1.4.11),
+# and red stays reserved for an interval longer than the confirmed benchmark.
 STATUS_COLOURS = {
-    "exceeds_benchmark": "#a8353c",
-    "may_exceed": "#896324",
-    "needs_review": "#896324",
-    "within_benchmark": "#32684c",
-    "measured": "#8995a3",
-    "cannot_compute": "#8995a3",
+    "exceeds_benchmark": "#c0392b",
+    "may_exceed": "#d97706",
+    "needs_review": "#d97706",
+    "within_benchmark": "#2e7d32",
+    "measured": "#64748b",
+    "cannot_compute": "#64748b",
 }
-EVENT_COLOUR = "#28587d"
+EVENT_COLOUR = "#2563eb"
+DATE_FORMAT = "%-d %B %Y"  # d3 time format: "4 March 2025"
 
 
-def _interval_text(interval: Interval, benchmark: Benchmark, clock: ClockResult) -> str:
-    messages = session.config().messages
-    names = messages.event_labels
-    flag = next((f for f in clock.flags if f.id == interval.flag_id), None)
-    if flag is not None:
-        return flag.message
-    if interval.min_hours is None or interval.max_hours is None:
-        return f"{names[benchmark.from_event]} to {names[benchmark.to_event]}: cannot be measured. {interval.note}".strip()
-    duration = duration_text(interval.min_hours, interval.max_hours)
-    if interval.status == "measured":
-        return render(messages, "clock_measured", from_label=names[benchmark.from_event], to_label=names[benchmark.to_event], duration=duration)
-    return f"{names[benchmark.from_event]} to {names[benchmark.to_event]}: {duration}, within the {benchmark.threshold_hours:g}-hour benchmark."
-
-
-def _citation(interval: Interval, benchmark: Benchmark, clock: ClockResult) -> str:
-    flag = next((f for f in clock.flags if f.id == interval.flag_id), None)
-    if flag is not None and flag.citation:
-        return flag.citation
-    source = session.config().benchmarks.sources[benchmark.citation.instrument]
-    return f"{benchmark.provision}; {source.symbol}, para. {benchmark.citation.paras}"
+def _when(event: TimelineEvent) -> str:
+    """The event's date written out, no more precise than its source: "4 March 2025, 22:10", "March 2025"."""
+    if event.date is None:
+        return "Undated"
+    if event.precision == "year":
+        return str(event.date.year)
+    if event.precision == "month":
+        return f"{event.date:%B %Y}"
+    day = f"{event.date.day} {event.date:%B %Y}"
+    return f"{day}, {event.date:%H:%M}" if event.precision == "datetime" else day
 
 
 def _intervals(loaded: LoadedCase, clock: ClockResult) -> None:
-    benchmarks = {b.id: b for b in session.config().benchmarks.benchmarks}
-    names = session.config().messages.event_labels
+    cfg = session.config()
+    benchmarks = {b.id: b for b in cfg.benchmarks.benchmarks}
     for interval in sorted(clock.intervals, key=lambda i: i.status != "exceeds_benchmark"):
         benchmark = benchmarks[interval.benchmark_id]
-        with style.panel(f"interval-{interval.id}"):
-            st.markdown(f"**{names[benchmark.from_event]} → {names[benchmark.to_event]}** · {md_escape(benchmark.provision)}")
+        with st.container(border=True):
+            st.markdown(f"**{md_escape(benchmark.name)}** · {md_escape(benchmark.provision)}")
             with st.container(horizontal=True):
                 widgets.badge(interval.status)
                 widgets.badge(interval.review_status)
-            st.markdown(md_escape(_interval_text(interval, benchmark, clock)))
-            st.caption(md_escape(_citation(interval, benchmark, clock)))
+            st.markdown(md_escape(interval_text(interval, benchmark, clock.flags, cfg.messages)))
+            st.caption(md_escape(interval_citation(interval, benchmark, clock.flags, cfg.benchmarks)))
             if benchmark.note:
                 st.caption(md_escape(benchmark.note))
             if interval.evidence:
                 with st.expander(f"Sources ({len(interval.evidence)})", expanded=interval.status == "exceeds_benchmark"):
                     widgets.evidence(loaded.record, interval.evidence, key=f"interval-{interval.id}", heading=benchmark.name)
+            flag = next((f for f in clock.flags if f.id == interval.flag_id), None)
+            if flag is not None:
+                widgets.jurisprudence(for_finding(flag, cfg.jurisprudence))
+                if loaded.analysis.steelman is not None:
+                    widgets.state_reply(loaded.record, loaded.analysis.steelman.for_flag(flag.id), key=f"state-{flag.id}")
 
 
 def _chart(clock: ClockResult) -> None:
@@ -86,29 +85,25 @@ def _chart(clock: ClockResult) -> None:
     ]
     scale = {"domain": [name for name, _ in legend], "range": [colour for _, colour in legend]}
     y = {"field": "row", "type": "nominal", "sort": order, "title": None, "axis": {"labelLimit": 260}}
-    tooltip = [{"field": "row", "title": "Item"}, {"field": "kind", "title": "Status"}, {"field": "detail", "title": "Detail"}]
+    tooltip = [{"field": "row", "title": "Event or benchmark"}, {"field": "kind", "title": "Status"}, {"field": "detail", "title": "Review"}]
+    bar_dates = [{"field": "start", "type": "temporal", "title": "From", "format": DATE_FORMAT},
+                 {"field": "end", "type": "temporal", "title": "To", "format": DATE_FORMAT}]  # fmt: skip
+    point_date = [{"field": "date", "type": "temporal", "title": "Date", "format": DATE_FORMAT}]
     spec = {
         "height": 30 * len(order) + 40,
-        "background": "#ffffff",
-        "config": {
-            "font": "Arial",
-            "view": {"stroke": None},
-            "axis": {"labelColor": "#5e6875", "labelFontSize": 11, "gridColor": "#eef0f3", "domainColor": "#dce0e5", "labelPadding": 8},
-            "legend": {"labelColor": "#5e6875", "labelFontSize": 11, "padding": 16},
-        },
         "layer": [
             {
                 "data": {"values": bars},
                 "mark": {"type": "rule", "strokeWidth": 8, "strokeCap": "round"},
                 "encoding": {"y": y, "x": {"field": "start", "type": "temporal", "title": None}, "x2": {"field": "end"},
                              "color": {"field": "kind", "type": "nominal", "scale": scale, "legend": {"title": None, "orient": "bottom"}},
-                             "tooltip": tooltip},
+                             "tooltip": tooltip + bar_dates},
             },
             {
                 "data": {"values": points},
                 "mark": {"type": "point", "filled": True, "size": 90},
                 "encoding": {"y": y, "x": {"field": "date", "type": "temporal", "title": None},
-                             "color": {"field": "kind", "type": "nominal", "scale": scale}, "tooltip": tooltip},
+                             "color": {"field": "kind", "type": "nominal", "scale": scale}, "tooltip": tooltip + point_date},
             },
         ],
     }  # fmt: skip
@@ -118,10 +113,10 @@ def _chart(clock: ClockResult) -> None:
 def _events(loaded: LoadedCase, clock: ClockResult) -> None:
     names = session.config().messages.event_labels
     for event in sorted(clock.timeline, key=lambda e: (e.date is None, e.date)):
-        when = event.date.date().isoformat() if event.date else "undated"
-        with st.expander(f"{when} · {names.get(event.type, event.type)} · {widgets.label('timeline_' + event.state)} · {len(event.mentions)} source(s)"):
+        sources = f"{len(event.mentions)} source" + ("" if len(event.mentions) == 1 else "s")
+        with st.expander(f"{_when(event)} · {names.get(event.type, event.type)} · {widgets.label('timeline_' + event.state)} · {sources}"):
             if event.review_reasons:
-                st.caption(md_escape("; ".join(event.review_reasons)))
+                st.caption(md_escape("Check before relying on this event: " + "; ".join(event.review_reasons) + "."))
             widgets.evidence(loaded.record, event.mentions, key=f"event-{event.id}", heading=names.get(event.type, event.type))
 
 
@@ -129,16 +124,22 @@ loaded = widgets.require_case()
 clock = loaded.analysis.clock
 widgets.header(loaded, "Procedural timeline", "events from every document, measured against cited benchmarks")
 st.markdown(
-    "Intervals are coloured only against a **confirmed** benchmark: General Comment 35's 48 hours to bring a "
-    "detainee before a judge. Other benchmarks are cited and measured, never coloured, until legal review confirms them."
+    "Only one benchmark is confirmed: General Comment 35's 48 hours to bring a detainee before a judge. An interval "
+    f"longer than that is labelled **{widgets.label('exceeds_benchmark')}** and shown in red. The other benchmarks are "
+    f"cited and measured but never shown in red, and stay labelled **{widgets.label('needs_legal_review')}** until "
+    "legal review confirms them."
 )
 if clock is None or not clock.timeline:
     st.info("No dated events were found in this case.")
     st.stop()
-style.section("Chronology", "Events and measured intervals from the source record. Hover for status details.")
-with style.panel("chronology"):
-    _chart(clock)
-style.section("Benchmark review", "Confirmed benchmarks appear first. Each interval includes the source dates and its citation.")
+st.header("Intervals measured against benchmarks")
 _intervals(loaded, clock)
-style.section("Event record", "Open an event to read every source mention and any date conflicts.")
+st.header("Chart of events and intervals")
+st.caption(
+    "Points are events and bars are the intervals above, coloured by the status named in the legend. "
+    "Every date and status in the chart is also written out in the lists on this page."
+)
+_chart(clock)
+st.header("Events in date order")
+st.caption("Each event brings together every mention of it in the documents. Open an event to read its sources.")
 _events(loaded, clock)

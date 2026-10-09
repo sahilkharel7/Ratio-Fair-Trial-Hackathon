@@ -1,0 +1,89 @@
+{
+  "key": "ab5bf1248958b52054de3bf350738d52aab4410ce5a39dd5722c6aa7385e8f9a",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "labels",
+  "response": {
+    "labels": [
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The defendant's first language is not relevant to the charge being communicated in a language he understands.",
+        "observation": "O1 (2025-06-02): According to the case file and to his counsel, Mr. Venn's first language is Ostric; he grew up in the Ostric-speaking north of the country."
+      },
+      {
+        "indicator_id": "a_charge_communicated",
+        "label": "supports",
+        "note": "The charge was read out to the defendant.",
+        "observation": "O2 (2025-06-02): The presiding judge read out the charge under Article 214(2) of the Penal Code."
+      },
+      {
+        "indicator_id": "a_charge_communicated",
+        "label": "supports",
+        "note": "The defendant confirmed receiving the indictment, indicating he was informed promptly.",
+        "observation": "O3 (2025-06-02): Mr. Venn confirmed that he had received the indictment on 4 March 2025."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The delay in receiving the case file is unrelated to the language of the charge.",
+        "observation": "O4 (2025-06-02): Ms. Brask told the court that she had received the 900-page case file only three days before this hearing and asked for an adjournment of two weeks to prepare the defence."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The statement made by the defendant is unrelated to the language of the charge.",
+        "observation": "O5 (2025-06-02): Mr. Venn chose to make a statement, in which he denied the charge and said that his articles were based on documents given to him by employees of the Ministry of Water."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The openness of the courtroom is unrelated to the language of the charge.",
+        "observation": "O6 (2025-06-16): The courtroom was open to the public."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The argument about the evidence's admissibility is unrelated to the language of the charge.",
+        "observation": "O7 (2025-06-16): Defence counsel argued that the messages presented by the prosecution had been extracted from Mr. Venn's mobile telephone, which police seized at his home on 14 February 2025 without a judicial warrant, and asked the court to exclude them as evidence."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The prosecutor's reply is unrelated to the language of the charge.",
+        "observation": "O8 (2025-06-16): The prosecutor replied that the seizure was lawful because the telephone was found during the arrest."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The judge's statement is unrelated to the language of the charge.",
+        "observation": "O9 (2025-06-16): The presiding judge said that the court would rule on the request later."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The order to leave the courtroom is unrelated to the language of the charge.",
+        "observation": "O10 (2025-06-30): At the prosecution's request, the presiding judge ordered the public and journalists to leave the courtroom during the testimony of a police investigator, citing national security."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The request for witnesses is unrelated to the language of the charge.",
+        "observation": "O11 (2025-06-30): Defence counsel asked the court to hear two witnesses, both editors at Mirevo Today, who had attended the editorial meeting at which the articles were approved."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The openness of the courtroom is unrelated to the language of the charge.",
+        "observation": "O12 (2025-07-14): The courtroom was open to the public."
+      },
+      {
+        "indicator_id": "",
+        "label": "unrelated",
+        "note": "The request for a sentence is unrelated to the language of the charge.",
+        "observation": "O13 (2025-07-14): The prosecutor asked for a sentence of five years' imprisonment."
+      }
+    ]
+  },
+  "schema": "LabelReply",
+  "synthetic": true
+}

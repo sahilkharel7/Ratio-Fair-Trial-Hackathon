@@ -58,3 +58,19 @@ def test_registry_edge_cases_are_present(seed):
     judges = {(c["judge"], c.get("court", "Mirevo")) for c in seed["cases"]}
     assert ("I. Varda", "Mirevo") in judges
     assert ("Ilena Varda", "Port Elsin Regional Court") in judges
+
+
+def test_an_upload_gets_the_synthetic_history_only_when_it_is_synthetic_and_from_a_history_court():
+    from ratio.history import history_for, load_history
+    from ratio.testing import make_record
+
+    history = load_history()
+    upload = make_record([("note.txt", "monitoring_note", "Hearing date: 16 June 2025\n\nThe hearing began.")])
+
+    def with_meta(**changes):
+        return upload.model_copy(update={"meta": upload.meta.model_copy(update=changes)})
+
+    same_court = with_meta(court="Mirevo District Court, Criminal Chamber")
+    assert history_for(same_court, history) == history
+    assert history_for(with_meta(court="Tarsen Regional Criminal Court"), history) == ()
+    assert history_for(with_meta(court="Mirevo District Court, Criminal Chamber", synthetic=False), history) == ()

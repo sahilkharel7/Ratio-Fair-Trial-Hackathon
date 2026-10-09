@@ -24,7 +24,7 @@ from urllib.parse import urlsplit
 from pydantic import BaseModel, ValidationError
 
 from ratio.config import LLMSettings
-from ratio.context import estimated_tokens, system_with_schema
+from ratio.context import ModelReplyError, estimated_tokens, system_with_schema
 from ratio.netguard import is_loopback_host
 
 T = TypeVar("T", bound=BaseModel)
@@ -35,6 +35,8 @@ _PROMPT_FIX = {
     "extraction": "lower extraction.chunk_chars in ratio/config/settings.yaml",
     "labels": "lower absence.max_shortlist or absence.per_hearing_top_k in ratio/config/settings.yaml",
     "argument_check": "lower reuse.argument_max_passages in ratio/config/settings.yaml",
+    "steelman": "lower steelman.top_k_passages in ratio/config/settings.yaml",
+    "steelman_check": "shorten the ground's requires text in ratio/config/steelman.yaml",
 }
 
 
@@ -60,7 +62,7 @@ class ModelNotAvailable(LLMError):
     """The configured model has not been pulled."""
 
 
-class LLMResponseError(LLMError):
+class LLMResponseError(LLMError, ModelReplyError):
     """The model's reply was truncated or did not match the schema."""
 
 
@@ -96,7 +98,8 @@ def read_timeout(settings: LLMSettings, num_predict: int) -> float:
 
 def request_options(settings: LLMSettings, purpose: str) -> dict:
     budgets = settings.num_predict
-    num_predict = {"extraction": budgets.extraction, "labels": budgets.labels, "argument_check": budgets.argument_check}
+    num_predict = {"extraction": budgets.extraction, "labels": budgets.labels, "argument_check": budgets.argument_check, "steelman": budgets.steelman,
+                   "steelman_check": budgets.steelman_check}  # fmt: skip
     if purpose not in num_predict:
         raise ValueError(f"unknown LLM purpose {purpose!r}")
     return {

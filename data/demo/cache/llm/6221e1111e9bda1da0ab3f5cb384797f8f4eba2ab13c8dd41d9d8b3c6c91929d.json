@@ -1,0 +1,11 @@
+{
+  "key": "6221e1111e9bda1da0ab3f5cb384797f8f4eba2ab13c8dd41d9d8b3c6c91929d",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman_check",
+  "response": {
+    "note": "Lists various forms of evidence presented.",
+    "shows": true
+  },
+  "schema": "GroundCheck",
+  "synthetic": true
+}

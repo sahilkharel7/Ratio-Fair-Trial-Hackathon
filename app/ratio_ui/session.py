@@ -11,12 +11,13 @@ import streamlit as st
 from ratio.config import RatioConfig, default_config
 from ratio.embeddings import MiniLMEmbedder
 from ratio.extraction.build import build_base_record, load_case
-from ratio.extraction.loader import CaseManifest
-from ratio.history import load_all_alias_decisions, load_history
+from ratio.extraction.loader import CaseManifest, LoaderError
+from ratio.feedback import case_findings
+from ratio.history import history_for, load_all_alias_decisions, load_history
 from ratio.paths import DEMO_CASE_DIR
 from ratio.pipeline import analyze_judges, demo_llm, make_llm, process
 from ratio.results import CaseAnalysis, JudgeReport
-from ratio.schema import CaseRecord
+from ratio.schema import CaseRecord, Flag
 from ratio.store import CaseStore
 
 CASE_KEY = "ratio_case_id"
@@ -61,10 +62,11 @@ def _save(record: CaseRecord, analysis: CaseAnalysis) -> str:
     return record.case_id
 
 
-def seed_history() -> int:
-    """The synthetic judicial history behind the judge page: coded rulings only, no model involved."""
+def seed_history(records: tuple[CaseRecord, ...] | None = None) -> int:
+    """The synthetic judicial history behind the judge page (all of it by default): coded rulings
+    only, no model involved."""
     cases = store()
-    records = load_history()
+    records = load_history() if records is None else records
     for record in records:
         cases.save_case(record)
     return len(records)
@@ -87,14 +89,30 @@ def judge_report() -> JudgeReport:
     return analyze_judges(records, analyses, load_all_alias_decisions(), config())
 
 
+def judge_report_or_none() -> JudgeReport | None:
+    """The judge report, or None when the registry cannot be built (the judge page explains why)."""
+    try:
+        return judge_report()
+    except LoaderError:
+        return None
+
+
+def findings(loaded: LoadedCase) -> tuple[Flag, ...]:
+    """Every finding shown for the case: its own, then the patterns of its presiding judge."""
+    return case_findings(loaded.analysis, judge_report_or_none()) if loaded.analysis is not None else ()
+
+
 def open_case(case_id: str) -> None:
     store().set_last_case(case_id)
     st.session_state[CASE_KEY] = case_id
 
 
 def analyze_upload(manifest: CaseManifest, files: dict[str, bytes], progress: Progress | None = None) -> str:
-    """An uploaded case, read by the live local model (its replies are cached under data/cache)."""
+    """An uploaded case, read by the live local model (its replies are cached under data/cache). A
+    synthetic case from the court of the synthetic history gets that history, as the demo does."""
     cfg = config()
     base = build_base_record(manifest, files)
     record, analysis, _ = process(base, make_llm(cfg, mode="live"), cfg, embedder=embedder(), progress=progress)
+    if record.meta.synthetic:  # before saving, so a history case can never replace the upload
+        seed_history(history_for(record, load_history()))
     return _save(record, analysis)

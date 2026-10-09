@@ -2,8 +2,8 @@
   "synthetic": true,
   "model": "qwen2.5:7b-instruct",
   "ollama_version": "0.35.0",
-  "built_at": "2026-10-09T15:28:31+00:00",
-  "entries": 17,
+  "built_at": "2026-10-09T17:10:54+00:00",
+  "entries": 42,
   "documents": {
     "venn-2025/notes/hearing_1.txt": "7e50a64e9b83582689f42b2182d9610bfef2aab29d66c726e7633b1c079b2a6e",
     "venn-2025/notes/hearing_2.txt": "9c3c59839da9f6545a668b1acd2be0cac240b21a5038d47e4a1184db8b545d5d",

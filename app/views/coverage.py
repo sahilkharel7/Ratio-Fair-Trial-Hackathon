@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import streamlit as st
 
-from ratio.display import md_escape
+from ratio.display import guarantee_badge, md_escape
+from ratio.jurisprudence import for_finding, for_follow_up
 from ratio.messages import render
 from ratio.results import GuaranteeAssessment
-from ratio_ui import session, style, widgets
+from ratio_ui import session, widgets
 from ratio_ui.session import LoadedCase
 
 SELECTED = "ratio_coverage_item"
@@ -15,15 +16,14 @@ SELECTED = "ratio_coverage_item"
 
 def _grid(assessments: tuple[GuaranteeAssessment, ...]) -> None:
     for assessment in assessments:
-        with style.panel(f"guarantee-{assessment.rubric_id}"):
+        with st.container(border=True):
             st.markdown(f"**{md_escape(assessment.provision)}**  \n{md_escape(assessment.name)}")
             # status and button at their natural width: fixed columns cut them to "O…" on a laptop screen
             with st.container(horizontal=True, horizontal_alignment="distribute", vertical_alignment="center"):
-                widgets.badge(assessment.status)
-                selected = st.session_state.get(SELECTED, assessments[0].rubric_id) == assessment.rubric_id
-                if st.button("Selected" if selected else "Review", key=f"open-{assessment.rubric_id}", type="primary" if selected else "secondary"):
+                widgets.badge(guarantee_badge(assessment))
+                # the label names the guarantee: a screen reader lists the seven buttons by label alone
+                if st.button(f"Open {assessment.provision.removeprefix('ICCPR Art. ')}", key=f"open-{assessment.rubric_id}"):
                     st.session_state[SELECTED] = assessment.rubric_id
-                    st.rerun()
 
 
 def _parts(assessment: GuaranteeAssessment) -> None:
@@ -36,6 +36,7 @@ def _parts(assessment: GuaranteeAssessment) -> None:
         }
         for part in assessment.parts
     ]
+    st.subheader("Parts of this guarantee")
     st.dataframe(rows, hide_index=True)
 
 
@@ -48,9 +49,9 @@ def _uncovered(record, part) -> str:
 def _details(loaded: LoadedCase, assessment: GuaranteeAssessment) -> None:
     record, absence = loaded.record, loaded.analysis.absence
     messages = session.config().messages
-    st.subheader(f"{assessment.provision}: {assessment.name}")
+    st.header(f"{assessment.provision}: {assessment.name}")
     with st.container(horizontal=True):
-        widgets.badge(assessment.status)
+        widgets.badge(guarantee_badge(assessment))
         widgets.badge(assessment.review_status)
     st.caption(md_escape(assessment.citation))
     flag = next((f for f in absence.flags if f.id == assessment.flag_id), None)
@@ -58,18 +59,24 @@ def _details(loaded: LoadedCase, assessment: GuaranteeAssessment) -> None:
         st.markdown(md_escape(flag.message))
         widgets.evidence(record, flag.evidence, key=f"flag-{assessment.rubric_id}", heading=flag.standard_label)
         widgets.model_note(flag.model_note)
+        widgets.jurisprudence(for_finding(flag, session.config().jurisprudence))
+        if loaded.analysis.steelman is not None:
+            widgets.state_reply(record, loaded.analysis.steelman.for_flag(flag.id), key=f"state-{flag.id}")
     elif assessment.follow_up is not None:
         follow_up = assessment.follow_up
         text = render(messages, "absence_follow_up", provision=assessment.provision, name=assessment.name, question=follow_up.question)
         st.info(md_escape(text))
         uncovered = [_uncovered(loaded.record, part) for part in assessment.parts if part.required and part.status == "no_evidence"]
         if assessment.unlabelled_notes:
-            uncovered.append(f"{assessment.unlabelled_notes} shortlisted notes were not labelled by the model")
+            count = assessment.unlabelled_notes
+            sentences = "1 possibly relevant sentence" if count == 1 else f"{count} possibly relevant sentences"
+            uncovered.append(f"{sentences} in the notes that the local model did not classify")
         if uncovered:
             st.markdown("Not covered by the notes:\n" + "\n".join(f"- {md_escape(item)}" for item in uncovered))
         if follow_up.context:
-            st.caption("Possibly relevant, not counted as evidence:")
+            st.caption("Possibly relevant passages, not counted as evidence:")
             widgets.evidence(record, follow_up.context, key=f"context-{assessment.rubric_id}", heading="Context")
+        widgets.jurisprudence(for_follow_up(follow_up, session.config().jurisprudence))
     _parts(assessment)
 
 
@@ -77,25 +84,19 @@ loaded = widgets.require_case()
 absence = loaded.analysis.absence
 widgets.header(loaded, "Rights coverage", "ICCPR Art. 14(3)(a) to (g) against the monitoring notes")
 st.markdown(
-    "Each guarantee is marked **evidence of compliance**, **evidence of violation**, or **no evidence**, "
-    "which becomes a follow-up question for the monitor rather than a finding. Open a guarantee to see the notes it rests on."
+    "Ratio reads the monitoring notes against each guarantee of ICCPR Art. 14(3). Each guarantee shows one of "
+    "three results: **evidence of compliance**, **evidence of violation**, or **no evidence: follow-up**. "
+    "No evidence is not a finding: it becomes a follow-up question for the monitor. "
+    "Open a guarantee to see the passages it rests on."
 )
 if absence is None or not absence.assessments:
     st.info("This case has no monitoring notes to read.")
     st.stop()
-counts = st.columns(3)
-statuses = [a.status for a in absence.assessments]
-with counts[0]:
-    style.metric("Evidence of violation", statuses.count("evidence_of_violation"), "Review the contrary monitoring notes", "review")
-with counts[1]:
-    style.metric("Evidence of compliance", statuses.count("evidence_of_compliance"), "Supported by the monitoring record", "positive")
-with counts[2]:
-    style.metric("Monitor follow-ups", statuses.count("no_evidence"), "No evidence recorded; follow up with the monitor")
-style.section("Guarantee review", "Select a guarantee to inspect its evidence and the parts covered by the record.")
 grid_column, detail_column = st.columns([5, 7], gap="large")
 with grid_column:
+    st.header("Guarantees")
     _grid(absence.assessments)
 selected_id = st.session_state.get(SELECTED, absence.assessments[0].rubric_id)
 selected = next((a for a in absence.assessments if a.rubric_id == selected_id), absence.assessments[0])
-with detail_column, style.panel("guarantee-detail"):
+with detail_column, st.container(border=True):
     _details(loaded, selected)

@@ -6,18 +6,20 @@ from __future__ import annotations
 import streamlit as st
 
 from ratio.display import Mark, marked_html, md_escape, percent, reuse_marks
+from ratio.jurisprudence import for_finding
 from ratio.modules.reuse import by_passage
 from ratio.results import ArgumentCheck, ReuseResult
 from ratio.schema import CaseRecord, Evidence, Flag, SourceSpan
-from ratio_ui import style, widgets
+from ratio_ui import session, widgets
 
 PANEL_HEIGHT = 560
 LEGEND = (
-    '<div class="ratio-legend"><mark class="ratio-verbatim">verbatim</mark>'
+    '<div class="ratio-legend">Highlights: <mark class="ratio-verbatim">verbatim</mark>'
     '<mark class="ratio-paraphrase">close paraphrase</mark>'
-    '<mark class="ratio-charge">restates the charge</mark>'
-    '<span class="ratio-excluded">greyed text</span><span class="ratio-tag">charge recital</span> '
-    "is quotation or not reasoning, with the reason · the same number marks both sides of a match</div>"
+    '<mark class="ratio-charge">restates the charge</mark> '
+    '<span class="ratio-excluded">Greyed text</span><span class="ratio-tag">charge recital</span> '
+    "is quotation or other text that is not reasoning; its tag gives the reason. The same number marks both "
+    "sides of a match, and the list under Matched passages states in words what kind of match each number is.</div>"
 )
 VIEWS = ("Court's reasoning", "Whole documents")
 
@@ -26,17 +28,18 @@ def _metrics(reuse: ReuseResult) -> None:
     def share(chars: int) -> float | None:
         return chars / reuse.reasoning_chars if reuse.reasoning_chars and reuse.score is not None else None
 
-    with st.container(key="ratio-metric-grid-reuse"):
-        columns = st.columns(4)
-        with columns[0]:
-            style.metric("Traceable reasoning", percent(reuse.score), "Share matching indictment text")
-        with columns[1]:
-            style.metric("Verbatim", percent(share(reuse.verbatim_chars)), "Word-for-word matches")
-        with columns[2]:
-            style.metric("Close paraphrase", percent(share(reuse.paraphrase_chars)), "Similar wording in the reasoning")
-        with columns[3]:
-            style.metric("Unanswered arguments", sum(check.flag_id is not None for check in reuse.arguments), "Defence arguments with no response found")
-    st.caption("Percentages measure characters of the court's own reasoning, with quotations excluded.")
+    columns = st.columns(4)
+    columns[0].metric(
+        "Traceable to the indictment", percent(reuse.score),
+        help="Share of the characters of the court's own reasoning that match indictment text, after quotation is excluded.",
+    )  # fmt: skip
+    columns[1].metric("Verbatim", percent(share(reuse.verbatim_chars)))
+    columns[2].metric("Close paraphrase", percent(share(reuse.paraphrase_chars)))
+    columns[3].metric("No response found", sum(check.flag_id is not None for check in reuse.arguments))  # short: fits at 125% zoom
+    st.caption(
+        "Each percentage is a share of the court's own reasoning, counted in characters, after quotation is excluded. "
+        "No response found counts the defence arguments in the monitoring notes that the reasoning does not answer, as far as Ratio could find."
+    )
     if reuse.score is None and reuse.score_note:
         st.caption(f"No score: {md_escape(reuse.score_note)}.")
     if reuse.charge_wording_chars:
@@ -59,7 +62,7 @@ def _panel(record: CaseRecord, doc_id: str, marks: list[Mark], spans: list[Sourc
     document = record.document(doc_id)
     start, end = _window(record, doc_id, spans, whole)
     st.markdown(f"**{md_escape(document.title)}**")
-    with style.panel(f"comparison-{doc_id}", height=PANEL_HEIGHT):
+    with st.container(height=PANEL_HEIGHT, border=True):
         st.html(marked_html(document.text[start:end], marks, offset=start))
 
 
@@ -84,26 +87,35 @@ def _side_by_side(record: CaseRecord, reuse: ReuseResult, numbers: dict[str, str
         _panel(record, doc_id, reuse_marks(reuse, numbers, doc_id, widgets.label), pairs, whole)
 
 
+def _state_reply(record: CaseRecord, flag: Flag) -> None:
+    replies = session.current_case().analysis.steelman
+    widgets.state_reply(record, replies.for_flag(flag.id) if replies else None, key=f"state-{flag.id}")
+
+
 def _match(record: CaseRecord, flag: Flag, number: str) -> None:
-    with style.panel(f"match-{flag.id}"):
+    with st.container(border=True):
         heading, status = st.columns([8, 3], vertical_alignment="center")
         heading.markdown(f"**{number}.** {md_escape(flag.message)}")
         with status:
             widgets.badge(flag.status)
         widgets.evidence(record, flag.evidence, key=f"match-{flag.id}", heading=f"Matched passage {number}")
+        widgets.jurisprudence(for_finding(flag, session.config().jurisprudence))
+        _state_reply(record, flag)
 
 
 def _argument(record: CaseRecord, reuse: ReuseResult, check: ArgumentCheck) -> None:
     flag = next((f for f in reuse.flags if f.id == check.flag_id), None)
-    with style.panel(f"argument-{check.argument_id}"):
+    with st.container(border=True):
         widgets.badge("unchecked_argument" if not check.checked else "addressed_argument" if check.addressed else "unaddressed_argument")
         widgets.evidence(record, [Evidence(role="argument", span=check.argument)], key=f"argument-{check.argument_id}", heading="Defence argument")
         if flag is not None:
             st.markdown(md_escape(flag.message))
+            widgets.jurisprudence(for_finding(flag, session.config().jurisprudence))
+            _state_reply(record, flag)
         if not check.checked:
-            st.caption("The model's answer did not name any passage, so this argument was not checked.")
+            st.caption("The local model's answer did not name any passage, so this argument was not checked.")
         if check.responding:
-            st.caption(f"Answered in the reasoning ({check.passages_checked} of {check.passages_total} passages checked):")
+            st.caption(f"Response found in the reasoning ({check.passages_checked} of {check.passages_total} passages checked):")
             answers = [Evidence(role="judgment", span=span) for span in check.responding]
             widgets.evidence(record, answers, key=f"answer-{check.argument_id}", heading="Response in the judgment")
         widgets.model_note(check.model_note)
@@ -124,16 +136,16 @@ matches = {flag_id: pairs for flag_id, pairs in by_passage(reuse.pairs).items()}
 numbers = {flag_id: str(n) for n, flag_id in enumerate(matches, start=1)}
 flags = {flag.id: flag for flag in reuse.flags}
 _metrics(reuse)
-style.section("Document comparison", "Read the court's reasoning alongside the prosecution's indictment. Match numbers connect both documents.")
+st.header("The reasoning beside the indictment")
 _side_by_side(record, reuse, numbers)
-st.subheader("Matched passages")
+st.header("Matched passages")
 if not matches:
     st.caption("No passage of the reasoning matches the indictment.")
 for flag_id in matches:
     if flag_id in flags:
         _match(record, flags[flag_id], numbers[flag_id])
-st.subheader("Defence arguments from the notes")
+st.header("Defence arguments in the monitoring notes")
 if not reuse.arguments:
-    st.caption("No defence arguments were found in the notes.")
+    st.caption("No defence arguments were found in the monitoring notes.")
 for check in reuse.arguments:
     _argument(record, reuse, check)

@@ -1,0 +1,11 @@
+{
+  "key": "1eb7de45ace1375f63ac848ded511414e08ec9a49f77def53af557a59a5b5fe0",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman_check",
+  "response": {
+    "note": "Courtroom access restricted.",
+    "shows": false
+  },
+  "schema": "GroundCheck",
+  "synthetic": true
+}

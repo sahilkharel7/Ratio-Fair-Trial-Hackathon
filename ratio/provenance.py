@@ -6,7 +6,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 
-from ratio.results import AbsenceResult, ClockResult, DataNote, Descriptive, Indicator, JudgeReport, ReuseResult
+from ratio.results import AbsenceResult, ClockResult, DataNote, Descriptive, Indicator, JudgeReport, RenewalResult, ReuseResult
 from ratio.schema import CaseRecord, Flag, FollowUp, SourceSpan
 
 DocResolver = Callable[[str], str | None]
@@ -122,6 +122,21 @@ def check_reuse(result: ReuseResult, resolve: DocResolver, dropped: list[str]) -
             "arguments": arguments,
         }
     )
+
+
+def check_renewal(result: RenewalResult, resolve: DocResolver, dropped: list[str]) -> RenewalResult:
+    """An order whose flag fails the check loses its flag and its pairs, and its repetition is not
+    measured; a gap goes with its flag. Every pair and span shown is checked."""
+    flags, kept = _kept(result.flags, resolve, dropped)
+    orders = []
+    for order in result.orders:
+        pairs = tuple(p for p in order.pairs if span_is_valid(p.later, resolve) and span_is_valid(p.earlier, resolve))
+        update: dict = {"pairs": pairs, "excluded": _valid(order.excluded, resolve)}
+        if order.flag_id is not None and order.flag_id not in kept:
+            update |= {"flag_id": None, "pairs": (), "share_repeated": None, "repeated_chars": 0}
+        orders.append(order.model_copy(update=update))
+    gaps = tuple(gap for gap in result.gaps if gap.flag_id in kept)
+    return result.model_copy(update={"flags": flags, "orders": tuple(orders), "gaps": gaps})
 
 
 # --- the judge profiles: rates rest on coded rulings across cases -----------------------------

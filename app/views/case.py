@@ -14,6 +14,8 @@ from ratio.embeddings import EmbeddingModelMissing
 from ratio.extraction.loader import LoaderError, read_uploaded_files
 from ratio.llm import LLMError
 from ratio.pipeline import run_note_live
+from ratio.feedback import current
+from ratio.report import draft_report
 from ratio.schema import Evidence, SourceSpan
 from ratio_ui import session, style, viewer, widgets
 from ratio_ui.session import LoadedCase
@@ -41,7 +43,7 @@ def _demo_card() -> None:
         st.subheader("Republic of Calderra v. Daro Venn")
         st.markdown(
             "Explore a complete **synthetic** trial record: four hearing notes, an indictment, "
-            "and a judgment. Review the findings and the exact passages behind them."
+            "a judgment and three detention orders. Review each finding against its exact source."
         )
         st.caption("Recorded analysis · Works offline · No running model required")
         if st.button("Load the demo case", type="primary", key="load_demo"):
@@ -151,6 +153,45 @@ def _judge_link(loaded: LoadedCase) -> None:
     st.page_link("views/judges.py", label="Review judicial history →")
 
 
+def _count(number: int, noun: str) -> str:
+    return f"{number} {noun}" if number == 1 else f"{number} {noun}s"
+
+
+def _review_link(loaded: LoadedCase) -> None:
+    flags = session.findings(loaded)
+    decided = current(session.store().reviews(loaded.record.case_id))
+    reviewed = sum(flag.id in decided for flag in flags)
+    st.page_link("views/review.py", label=f"Review: {reviewed} of {len(flags)} findings reviewed by a lawyer")
+
+
+def _renewal_link(analysis) -> None:
+    renewal = analysis.renewal
+    if renewal is None or not renewal.orders:
+        return
+    repeated = sum(flag.status == "repeated_grounds" for flag in renewal.flags)
+    st.page_link(
+        "views/renewal.py",
+        label=f"Detention renewals: {_count(len(renewal.orders), 'detention order')}, {repeated} with grounds repeating "
+        f"earlier orders, {_count(len(renewal.gaps), 'gap')} between orders",
+    )
+
+
+def _export(loaded: LoadedCase) -> None:
+    """The findings as a Markdown report draft, built here and downloaded from this computer's own server."""
+    cases, case_id = session.store(), loaded.record.case_id
+    history = [record for record in cases.all_records() if record.case_id != case_id]
+    report = draft_report(
+        loaded.record, loaded.analysis, session.judge_report_or_none(), session.config(),
+        history=history, reviews=cases.reviews(case_id), missed=cases.missed_issues(case_id),
+    )  # fmt: skip
+    st.download_button(
+        "Download report draft (.md)", data=report, file_name=f"{loaded.record.case_id}-report-draft.md",
+        mime="text/markdown", key="export_report",
+    )  # fmt: skip
+    st.caption("An editable text file: every finding, with the passage it rests on quoted word for word. It is saved on this computer.")
+
+
+
 def _summary(loaded: LoadedCase) -> None:
     record, analysis = loaded.record, loaded.analysis
     st.html(
@@ -177,6 +218,15 @@ def _summary(loaded: LoadedCase) -> None:
             style.metric("Procedural events", len(events), "Distinct dated events, excluding hearings")
     style.section("Review workstreams", "Move from the overview to the evidence behind each result.")
     _findings(loaded)
+    style.section("Complete the legal review", "Compare continued detention, test possible replies, and record your own decisions.")
+    context_column, review_column = st.columns(2)
+    with context_column, style.panel("renewal-context"):
+        _renewal_link(analysis)
+        st.page_link("views/steelman.py", label="Inspect possible State replies →")
+    with review_column, style.panel("review-and-research"):
+        _review_link(loaded)
+        st.page_link("views/jurisprudence.py", label="Research linked jurisprudence →")
+    _export(loaded)
     with st.expander("Analysis record and method"):
         mode = "answers replayed from the recorded cache" if analysis.llm_mode == "replay" else "run live on this computer"
         st.markdown(

@@ -42,13 +42,32 @@ finding, and unverified model-note labels.
 
 ## Persistence and verification
 
-The three versioned `ratio-demo-*` local-storage keys hold the working file,
-notes, and 30 recent unique activities. Storage failure is disclosed in the UI;
-the session state remains usable. Export review produces JSON, including local
+The five versioned `ratio-demo-*` local-storage keys hold the working file,
+notes, 30 recent unique activities, review history and missed issues. Storage failure is disclosed in the UI;
+the session state remains usable. Review exports a Markdown draft and a JSON worksheet, including local
 notes and saved sources. There is no collaboration or cloud note storage.
 
 Run `npm test` and `npm run build`. The tests check the synthetic bundle, every
-evidence span, preserved results, quoted searches, and Unicode offsets. Browser
+evidence span, preserved renewal/reply/jurisprudence outputs, quoted searches,
+Unicode offsets, review validation, reopening and safe report text. Browser
 QA covers source highlights, saved passage/note persistence, copy feedback,
 specific guarantee links, desktop views, and a 390px mobile iframe with no page
 overflow. The temporary responsive test harness is not deployed.
+
+## Combined legal workflows
+
+`legal-workflows.jsx` adds the original pipeline's detention renewal comparisons,
+linked jurisprudence and possible State replies, together with a browser demo
+review interface. `workflow.mjs` handles only the demonstration decisions, audit
+history, validation and downloads; it does not calculate legal findings or scores.
+`legal-workflows.css` extends the shared primitives. `scripts/export_web_demo.py`
+produces the static source marks, standard-based reference selections and the
+original Python report. Browser edits are shown in an explicit worksheet appended
+to that report, preserving the recorded analysis as well as the reviewer wording.
+
+The English wording guard removes invisible characters, applies NFKC and the
+Python-exported Latin/Greek/Cyrillic transliteration map before applying the
+existing block list. Full authoritative review validation remains in the offline
+Python application. Judge prompts carry the case-selection caveat wherever their
+rates appear. Neither browser decisions nor model replies silently replace a
+recorded finding.
