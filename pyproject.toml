@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77.0.3"]  # 77 reads the SPDX license expression below
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,6 +7,7 @@ name = "ratio"
 version = "0.1.0"
 description = "Ratio: offline fair-trial monitoring analysis (FairTrial x AI Hackathon, Track 2 prototype)"
 readme = "README.md"
+license = "Apache-2.0"
 requires-python = ">=3.11"
 authors = [
   { name = "Komal Neupane" },

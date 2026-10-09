@@ -164,3 +164,25 @@ def test_corrupt_config_raises_a_clear_error(tmp_path):
     (broken / "benchmarks.yaml").write_text("benchmarks: [ {id: x} ]\n", encoding="utf-8")
     with pytest.raises(ConfigError, match="benchmarks.yaml"):
         load_config(broken)
+
+
+def test_a_key_written_twice_in_a_config_file_is_refused(tmp_path):
+    broken = tmp_path / "config"
+    shutil.copytree(CONFIG_DIR, broken)
+    messages = broken / "messages.yaml"
+    text = messages.read_text(encoding="utf-8")
+    messages.write_text(text.replace('  role_ruling: "Coded ruling"\n', '  role_ruling: "Coded ruling"\n  role_ruling: "Ruling"\n', 1), encoding="utf-8")
+    with pytest.raises(ConfigError, match="messages.yaml.*duplicate key 'role_ruling'"):
+        load_config(broken)
+
+
+def test_a_coded_ruling_is_labelled_as_one(config):
+    assert config.messages.labels["role_ruling"] == "Coded ruling"
+
+
+def test_a_key_that_overrides_a_merged_mapping_is_still_allowed(tmp_path):
+    from ratio.config import _read_yaml
+
+    path = tmp_path / "merge.yaml"
+    path.write_text("base: &base {a: 1, b: 2}\nderived:\n  <<: *base\n  b: 3\n", encoding="utf-8")
+    assert _read_yaml(path)["derived"] == {"a": 1, "b": 3}

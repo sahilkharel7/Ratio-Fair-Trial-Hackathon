@@ -53,6 +53,8 @@ def test_case_page_summarises_the_demo_without_errors(app):
     assert any("SYNTHETIC DATA" in body for body in html_bodies(app))
     links = [link.proto.label for link in app.get("page_link")]
     assert any(label.startswith("Judge profile: Ilena Varda, 1 pattern that warrants review (9 cases, 3 indicators") for label in links)
+    [documents] = [frame.value for frame in app.dataframe if "Hearing date" in frame.value.columns]
+    assert list(documents["Hearing date"]) == ["2025-06-02", "2025-06-16", "2025-06-30", "2025-07-14", "", ""]  # no "None"
 
 
 @pytest.mark.parametrize("page", PAGES)

@@ -1,6 +1,6 @@
 # Ratio
 
-Ratio turns a trial's monitoring record into a draft legal evaluation that a lawyer can check line by line. We built it for the FairTrial x AI Hackathon (Track 2: Observation to Legal Evaluation), run by Columbia Law School's Human Rights Institute with the TrialWatch project.
+Ratio reads a trial's monitoring record and gives the reviewing lawyer findings to check line by line, each linked to the sentence it rests on. The legal evaluation stays with the lawyer. We built it for the FairTrial x AI Hackathon (Track 2: Observation to Legal Evaluation), run by Columbia Law School's Human Rights Institute with the TrialWatch project.
 
 It runs four checks against the international fair-trial standards (ICCPR Articles 9 and 14):
 
@@ -19,7 +19,7 @@ The name comes from *ratio decidendi*, the reasoning behind a decision. Ratio's 
 
 ## The problem
 
-TrialWatch lawyers spend most of their review time reconstructing what happened before they can judge whether it was fair. Monitors write long, unstructured notes, and court documents arrive in mixed formats. Three things make the review slow and inconsistent:
+TrialWatch lawyers review large volumes of monitoring notes, transcripts and court documents, and the hackathon's Track 2 brief calls that review a bottleneck. Before judging whether a trial was fair, a lawyer has to reconstruct what happened from that record: the notes are long and unstructured, and the documents arrive in mixed formats. Three things make the review slow and inconsistent:
 
 - **Violations hide in omissions.** A missing interpreter or late access to counsel never appears as a sentence in the notes. A reviewer has to notice what isn't there.
 - **Delay is arithmetic buried in prose.** Deciding whether detention or trial delay was excessive means pulling dates from scattered entries and comparing them by hand.
@@ -61,7 +61,7 @@ The four modules read only the case record, never raw text, so each can be built
 
 ## Setup
 
-You need a Mac with Apple Silicon, Python 3.11, about 8 GB of free disk space, and 16 GB of memory for the live model. The locked setup targets macOS. On Linux it would also install NVIDIA's closed-source CUDA libraries, several GB more, and it is untested. Do the setup once, while online. After that, Ratio needs no network.
+You need a Mac with Apple Silicon, Python 3.11, about 8 GB of free disk space, and 16 GB of memory for the live model. The locked setup targets macOS. On Linux it would also install closed-source libraries (NVIDIA's CUDA, and Intel's MKL inside PyTorch on x86-64 computers), several GB more, and it is untested. Do the setup once, while online. After that, Ratio needs no network.
 
 ```bash
 git clone https://github.com/sahilkharel7/Ratio-Fair-Trial-Hackathon.git
@@ -81,8 +81,9 @@ brew install ollama
 brew services start ollama
 ollama pull qwen2.5:7b-instruct
 
-# Stop the Ollama server from contacting ollama.com
-echo '{"disable_ollama_cloud": true}' > ~/.ollama/server.json
+# Stop the Ollama server from contacting ollama.com: this adds "disable_ollama_cloud": true to
+# ~/.ollama/server.json, creating the file if needed and keeping any other settings in it
+python3 -c 'import json, pathlib; p = pathlib.Path.home() / ".ollama" / "server.json"; s = json.loads(p.read_text()) if p.exists() else {}; s["disable_ollama_cloud"] = True; p.parent.mkdir(exist_ok=True); p.write_text(json.dumps(s, indent=2) + "\n")'
 brew services restart ollama
 
 # Check that everything is ready
@@ -143,7 +144,7 @@ It prints the results and writes `eval/out/report.json`. It exits with an error 
 | Findings that point to an exact source span | 11 of 11, none dropped |
 | Judge pattern indicators that point to exact source spans | 1 of 1 |
 
-These results are **in-sample**: the team wrote both the case and the expected outputs. They show that the pipeline works end to end, not how well it generalises. The proposal's main metric, recall against published TrialWatch reports, has not been measured yet.
+These results are **in-sample**: the team wrote both the case and the expected outputs. They show that the pipeline works end to end, not how well it generalises. The main metric in our hackathon proposal (not published), recall against published TrialWatch reports, has not been measured yet.
 
 Tests:
 
@@ -159,7 +160,7 @@ pytest --cov --cov-report=term-missing     # coverage of the ratio package
 |---|---|---|
 | **Runs offline, on this computer.** No cloud services, no third-party APIs, no telemetry. | The model client only talks to Ollama on 127.0.0.1 and refuses cloud-hosted models. A network guard blocks every other connection in the app, the command line, the evaluation and the tests. Hugging Face runs in offline mode, and the embedding model loads from `models/`. Streamlit runs with usage statistics off, on 127.0.0.1 only, with no error-page links and no web fonts or remote themes. The app refuses to start if any of these settings is not in effect. | The full pipeline runs under the network guard. A global Streamlit config that tries to override the settings is ignored. The browser checks found every request going to 127.0.0.1. `python -m ratio preflight` checks these settings, any `STREAMLIT_*` environment variables that would override them, and whether the running Ollama server (or its settings file) has its cloud features disabled. |
 | **Provenance on everything.** | The model returns exact quotes, and Ratio locates each one in the source text; quotes it can't find are dropped. A finding must carry at least one source span (document id, start, end, exact text). Before anything is stored or shown, every span is re-read from its document, and a finding whose span does not match is dropped. | The evaluation reports provenance before and after this check and fails on any unsourced finding. App tests check that every piece of evidence on every page has a button that opens its source. |
-| **No verdicts about people.** | Messages come from fixed templates (`ratio/config/messages.yaml`). Model notes appear only under "Model note (unverified)", after words that characterise a person are removed. Judge indicators say "pattern that warrants review" only when the confidence interval for the difference from the baseline excludes zero, with the significance level divided across the indicators shown. Otherwise they say the judge is not distinguishable from the baseline at this sample size. Every rate shows n and a 95% Wilson interval. Indicators are hidden below 5 cases. The baseline is the same court and charge type only. Rulings are coded by people, never by the model. A name counts for a judge only at the same court, and doubtful names wait for a person to decide. | Known-value tests for the Wilson and Newcombe intervals. App tests check the judge page for blocked terms and for the fixed note, n and intervals. |
+| **No verdicts about people.** | The messages of findings and the labels come from fixed templates (`ratio/config/messages.yaml`). Model notes appear only under "Model note (unverified)", after words that characterise a person are removed. Judge indicators say "pattern that warrants review" only when the confidence interval for the difference from the baseline excludes zero, with the significance level divided across the indicators shown. Otherwise they say the judge is not distinguishable from the baseline at this sample size. Every rate shows n and a 95% Wilson interval. Indicators are hidden below 5 cases. The baseline is the same court and charge type only. Rulings are coded by people, never by the model. A name counts for a judge only at the same court, and doubtful names wait for a person to decide. | Known-value tests for the Wilson and Newcombe intervals. App tests check the judge page for blocked terms and for the fixed note, n and intervals. |
 | **Public or synthetic data only.** | Every synthetic text file starts with a `SYNTHETIC:` line, and every YAML and JSON file declares `synthetic: true`. Public material must cite where it was published. Uploading requires a declaration. A SYNTHETIC banner appears on every page and in the source viewer. | Every demo data file is checked for the marker. App tests check the banner on every page. |
 | **No invented legal thresholds.** | Only one benchmark is confirmed: General Comment 35's 48 hours to bring a detainee before a judge (para. 33). Every other benchmark has a citation and no threshold, is marked "needs legal review", and is measured but never coloured. Only confirmed benchmarks can be marked as exceeded. | Config tests check that only the 48-hour benchmark is confirmed and that an unconfirmed benchmark is never coloured. |
 
@@ -198,7 +199,7 @@ No real monitoring notes and no published TrialWatch reports are in this reposit
   - A judge whose surname is also a title word (for example "Justice") waits for a person to confirm the name.
 - **The recorded demo answers match exact prompts.** In the demo, one similarity comparison that selects notes for the model is decided by a margin of 0.00009. On a computer whose arithmetic differs slightly (another operating system or processor), that selection could change, and with it one prompt; the replay would then stop with "no cached labels reply for this request". `python -m ratio preflight` detects this and prints the command that records the missing answer with Ollama running.
 - **Platforms:** tested on macOS with Apple Silicon. PyTorch no longer publishes wheels for Intel Macs.
-- **Not built yet** (stretch goals in the proposal):
+- **Not built yet** (stretch goals in our hackathon proposal):
   - the detention-renewal mode, which compares successive extension orders;
   - a report draft export;
   - the steelman-the-state agent;
@@ -225,7 +226,12 @@ eval/             evaluation script
 scripts/          one-time model download and the history generator
 tests/
 docs/             demo script and screenshots
+site/             a static page about Ratio for a public link (optional; see "Project page")
 ```
+
+## Project page
+
+`site/` holds a static page about Ratio that the team can deploy on Vercel for a public link (see [site/README.md](site/README.md)). It describes the project and shows the screenshots. It runs no app, no scripts and no analysis, and it loads nothing from other sites; Vercel keeps its usual request logs. Ratio itself still runs only on your own computer.
 
 ## Team
 
@@ -233,4 +239,29 @@ Komal Neupane, Sahil Kharel, Hardik Kafle, Emeric Chang.
 
 ## License
 
-The team has not chosen a license yet. One thing to weigh when choosing: a dependency, unidecode, is licensed GPL-2.0-or-later.
+Ratio's own code, synthetic data and documentation are licensed under the [Apache License 2.0](LICENSE). Copyright 2026 Komal Neupane, Sahil Kharel, Hardik Kafle and Emeric Chang.
+
+`ratio/config/` quotes the ICCPR and passages from the UN Human Rights Committee's General Comments No. 32 and No. 35, with their citations. Those texts belong to the United Nations, and the Apache license does not cover them.
+
+### Third-party software
+
+This repository contains no third-party code. The setup steps download Ratio's dependencies from PyPI, the embedding model from Hugging Face and the language model from Ollama's library, each under its own license.
+
+- **unidecode is licensed under the GNU GPL (version 2 or later).** Ratio uses it to match names and words written with accents or with look-alike letters from other alphabets, and almost every part of Ratio loads it.
+  - Installing, using and changing Ratio, and copying it within your own organisation, create no obligations. The simplest way to share Ratio is to send the link to this repository.
+  - If you give people Ratio *together with* its installed dependencies (a container, a disk image, a packaged app or a prepared laptop), the Free Software Foundation's view is that they form one program. That program must be passed on under the GNU GPL version 3, with its complete source code. Ratio's Apache license allows this.
+  - The Foundation counts copies given to contractors, such as external monitors, as passing Ratio on.
+  - Separate programs on the same computer, such as Ollama and its model, are not affected.
+- **Other copyleft parts.**
+  - certifi, tqdm, hf-xet, setuptools, Pillow and SciPy contain code under the Mozilla Public License, the GNU Lesser GPL, or the GPL with the GCC Runtime Library Exception. On some platforms NumPy, scikit-learn and PyTorch do too.
+  - Streamlit's built-in fonts are under the SIL Open Font License.
+  - Pass these licenses, and the source code they require, on with any bundle.
+  - Everything else uses permissive licenses such as MIT, BSD and Apache 2.0.
+- **Closed-source parts outside macOS.** On macOS, which the setup targets, everything Ratio installs is open source. Elsewhere:
+  - On Linux, PyTorch's standard build installs NVIDIA's CUDA libraries: the `nvidia-*` and `cuda-*` packages, NVIDIA tools inside `triton`, and, on ARM computers, NVIDIA math libraries inside PyTorch itself.
+  - On x86-64 Linux and Windows, PyTorch contains Intel's closed-source MKL library, even in its CPU-only build.
+  - Ratio does not need a GPU, so PyTorch's CPU-only build leaves out NVIDIA's libraries. On ARM Linux that build is entirely open source.
+  - A GPL bundle for x86-64 Linux or Windows would need a PyTorch built without MKL.
+- **Models.** [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) and [Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) (`qwen2.5:7b-instruct` in Ollama) are licensed under Apache 2.0, and Ollama under MIT. If you set `RATIO_MODEL` to another model, check its license: some models, including other sizes of Qwen2.5, are not open source.
+
+This is a summary, not legal advice.

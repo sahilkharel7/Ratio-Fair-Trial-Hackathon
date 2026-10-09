@@ -1,5 +1,5 @@
-# Every message Ratio shows comes from these templates, so the wording can be reviewed in one
-# place. Hard rule 3: no verdicts about people. Templates describe what the record shows and leave
+# The messages of Ratio's findings and the labels it shows come from these templates, so the
+# wording can be reviewed in one place. Hard rule 3: no verdicts about people. Templates describe what the record shows and leave
 # conclusions to the reviewing lawyer.
 version: 1
 
@@ -72,7 +72,6 @@ labels:
   role_judgment: "Judgment"
   role_indictment: "Indictment"
   role_argument: "Defence argument"
-  role_ruling: "Ruling"
 
 # Event names shown on the timeline (roles, never the names of people).
 event_labels:

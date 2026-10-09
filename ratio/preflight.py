@@ -324,7 +324,7 @@ def ollama_cloud(
     config: RatioConfig, server_json: Path = OLLAMA_SERVER_JSON, client_factory: Callable[..., OllamaClient] = OllamaClient
 ) -> Check:
     """Asks the running Ollama server first (it reads its settings when it starts), then the settings file."""
-    fix = f"echo '{{\"disable_ollama_cloud\": true}}' > {_shown(server_json)}, then brew services restart ollama"
+    fix = f"Add \"disable_ollama_cloud\": true to {_shown(server_json)} (create the file if it is missing), then brew services restart ollama"
     reported = _reported_cloud(config, client_factory)
     if reported is True:
         return Check(CLOUD, "ok", "Disabled, as the running Ollama server reports")

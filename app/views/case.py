@@ -132,7 +132,10 @@ def _summary(loaded: LoadedCase) -> None:
         f"Model: {md_escape(analysis.llm_model or 'none')} ({mode})."
     )
     _findings(loaded)
-    rows = [{"Document": d.title, "Type": d.type.replace("_", " "), "Date": d.date, "Characters": len(d.text)} for d in record.documents]
+    rows = [
+        {"Document": d.title, "Type": d.type.replace("_", " "), "Hearing date": d.date.isoformat() if d.date else "", "Characters": len(d.text)}
+        for d in record.documents
+    ]  # only monitoring notes carry a hearing date; the others show an empty cell, not "None"
     st.dataframe(rows, hide_index=True)
 
 

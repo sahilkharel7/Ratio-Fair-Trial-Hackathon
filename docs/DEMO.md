@@ -1,6 +1,6 @@
 # Ratio demo script (3 minutes)
 
-The live demo follows the six steps in the proposal: from the case record to the source line behind each finding. Everything on screen is the **synthetic** demo case *Republic of Calderra v. Daro Venn*.
+The live demo follows the six demo steps in our hackathon proposal (not published): from the case record to the source line behind each finding. Everything on screen is the **synthetic** demo case *Republic of Calderra v. Daro Venn*.
 
 Measured on 8 October 2026 (MacBook with Apple Silicon):
 
