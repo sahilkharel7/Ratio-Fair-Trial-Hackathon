@@ -53,7 +53,7 @@ def _row(evidence: Evidence, where: str, key: str, heading: str) -> None:
 
 
 def _indicator(profile: JudgeProfile, indicator: Indicator, key: str) -> None:
-    with st.container(border=True):
+    with style.panel(f"indicator-{key}"):
         title, status = st.columns([8, 3], vertical_alignment="center")
         title.markdown(f"**{md_escape(indicator.label)}**")
         with status:
@@ -84,7 +84,7 @@ def _indicator(profile: JudgeProfile, indicator: Indicator, key: str) -> None:
 
 
 def _descriptive(item: Descriptive, titles: dict[str, str], key: str) -> None:
-    with st.container(border=True):
+    with style.panel(f"descriptive-{key}"):
         title, status = st.columns([8, 3], vertical_alignment="center")
         title.markdown(f"**{md_escape(item.label)}**")
         if not item.shown:
@@ -224,6 +224,7 @@ waiting = [c for c in report.manual_confirmations if c.synthetic == synthetic]
 notes = [note for note in report.notes if note.synthetic in (None, synthetic)]
 if synthetic:
     style.banner(_notes()["synthetic_banner"])
+style.eyebrow("Cross-case analysis")
 st.title("Judge profile")
 st.warning(_notes()["selection_bias"])
 if len(kinds) > 1:

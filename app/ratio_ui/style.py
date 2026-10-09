@@ -1,17 +1,13 @@
-"""Stylesheet and the SYNTHETIC banner. Bundled fonts only: the app never fetches anything.
-
-Colours live in .streamlit/config.toml. The few set here sit on their own background (marks, the
-banner), so they read the same in the light and the dark theme; each text colour meets WCAG AA, and
-no mark is told apart by colour alone (each has its own underline).
-"""
+"""Stylesheet and the SYNTHETIC banner. System fonts only: the app never fetches anything."""
 
 from __future__ import annotations
 
 import html
+from pathlib import Path
 
 import streamlit as st
 
-CSS = """
+DOCUMENT_CSS = """
 .ratio-doc { white-space: pre-wrap; font-family: "Source Serif", Georgia, serif; font-size: 1rem; line-height: 1.7; }
 mark.ratio-span, mark.ratio-verbatim, mark.ratio-paraphrase, mark.ratio-charge { color: #0F172A; padding: 0 2px; border-radius: 2px; }
 mark.ratio-span { background: #FDE68A; box-shadow: 0 0 0 2px #B45309; }
@@ -42,6 +38,10 @@ sup.ratio-label { font-family: "Source Sans", system-ui, sans-serif; font-size: 
 }
 """
 
+# A single stylesheet owns the application tokens and the Streamlit adapter.
+# System fonts keep the research workspace fully usable offline.
+CSS = Path(__file__).with_name("theme.css").read_text(encoding="utf-8") + DOCUMENT_CSS
+
 
 def inject() -> None:
     st.html(f"<style>{CSS}</style>")
@@ -49,6 +49,68 @@ def inject() -> None:
 
 def banner(text: str) -> None:
     st.html(f'<div class="ratio-banner">{html.escape(text)}</div>')
+
+
+def eyebrow(text: str) -> None:
+    st.html(f'<div class="ratio-eyebrow">{html.escape(text)}</div>')
+
+
+def section(title: str, caption: str = "") -> None:
+    st.subheader(title)
+    if caption:
+        st.caption(caption)
+
+
+def panel(key: str, *, height: int | str = "content"):
+    """Native container with a stable styling hook, rather than framework classes."""
+    return st.container(border=True, height=height, key=f"ratio-panel-{key}")
+
+
+def metric(label: str, value: str | int, note: str, tone: str = "neutral") -> None:
+    """Compact summary with an explicit label; colour never carries meaning alone."""
+    if tone not in {"neutral", "review", "positive"}:
+        tone = "neutral"
+    st.html(
+        f'<div class="ratio-metric ratio-metric--{tone}">'
+        f'<div class="ratio-metric-label">{html.escape(label)}</div>'
+        f'<div class="ratio-metric-value">{html.escape(str(value))}</div>'
+        f'<div class="ratio-metric-note">{html.escape(note)}</div></div>'
+    )
+
+
+def masthead() -> None:
+    st.html(
+        '<div class="ratio-masthead"><span>TRIAL REVIEW WORKSPACE</span>'
+        '<span class="ratio-local"><i aria-hidden="true"></i> Offline · On this computer</span></div>'
+    )
+
+
+def sidebar(active: str = "") -> None:
+    """Persistent navigation. Native page links retain active and keyboard states."""
+    with st.sidebar:
+        st.html(
+            '<div class="ratio-brand"><span class="ratio-monogram" aria-hidden="true">r.</span>'
+            '<div><span class="ratio-wordmark">ratio</span><span class="ratio-brand-caption">FAIR TRIAL ANALYSIS</span></div></div>'
+        )
+        eyebrow("Review workspace")
+        links = (
+            ("", "case", "Case overview"),
+            ("coverage", "coverage", "Rights coverage"),
+            ("timeline", "timeline", "Procedural timeline"),
+            ("reuse", "reuse", "Reasoning comparison"),
+            ("judges", "judges", "Judicial history"),
+        )
+        for route, name, title in links:
+            with st.container(key=f"ratio-nav-{name}"):
+                st.page_link(f"views/{name}.py", label=title)
+            if route == active:
+                st.html(f'<style>.st-key-ratio-nav-{name} a {{background: var(--ratio-accent-soft) !important; border-left-color: var(--ratio-accent) !important; color: var(--ratio-accent) !important;}}</style>')
+        st.html(
+            '<div class="ratio-sidebar-note"><div class="ratio-eyebrow">BUILT FOR THE RECORD</div>'
+            '<p>From observation to evidence.<br>Every finding, back to its source.</p>'
+            '<div class="ratio-sidebar-rule"></div><p>ICCPR Articles 9 &amp; 14</p>'
+            '<small>Analysis supports your review.<br>Legal conclusions remain yours.</small></div>'
+        )
 
 
 def offline_note(text: str) -> None:

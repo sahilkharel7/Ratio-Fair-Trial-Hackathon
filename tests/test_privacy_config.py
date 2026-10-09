@@ -15,7 +15,10 @@ from ratio.paths import REPO_ROOT
 PROJECT_CONFIG = REPO_ROOT / ".streamlit" / "config.toml"
 SCRIPT_CONFIG = REPO_ROOT / "app" / ".streamlit" / "config.toml"
 PROBE = """
-import json, streamlit.config as c
+import json, sys, streamlit.config as c
+# The probe deliberately runs outside the checkout; test this source tree without depending on
+# an editable-install finder (some bundled Python runtimes do not execute .pth import hooks).
+sys.path.insert(0, {repo!r})
 from ratio import netguard
 netguard.install()  # a theme file fetched from a URL would fail loudly here
 c._main_script_path = {script!r}
@@ -48,7 +51,7 @@ def test_settings_apply_when_launched_from_another_folder_with_a_hostile_global_
     )
     elsewhere = tmp_path / "elsewhere"
     elsewhere.mkdir()
-    probe = PROBE.format(script=str(REPO_ROOT / "app" / "main.py"))
+    probe = PROBE.format(script=str(REPO_ROOT / "app" / "main.py"), repo=str(REPO_ROOT))
     env = {**os.environ, "HOME": str(home)}
     out = subprocess.run([sys.executable, "-c", probe], cwd=elsewhere, env=env, capture_output=True, text=True, check=True)
     effective = json.loads(out.stdout.strip().splitlines()[-1])

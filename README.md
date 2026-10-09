@@ -16,7 +16,7 @@ Every finding links to the exact sentence it rests on: click it and the source d
 
 The name comes from *ratio decidendi*, the reasoning behind a decision. Ratio's central question is whether the court did its own reasoning.
 
-![The rights coverage grid of the synthetic demo case, with the follow-up question for the interpreter guarantee open](docs/screenshots/02-coverage.png)
+![The Ratio case overview, with matter details, source summaries, and evidence-led review workstreams for the synthetic demo](docs/screenshots/08-case-redesign.jpg)
 
 ## The problem
 
@@ -121,6 +121,21 @@ The other pages are:
 - **Review**: the reviewing lawyer accepts, rewords or rejects each finding (a reason is required to reword or reject) and records issues Ratio did not flag. Decisions are saved on this computer, append-only, and survive a re-analysis of the case. They appear in the report draft, where a reworded finding shows the lawyer's wording with Ratio's kept in the annex.
 
 Any evidence button opens the source viewer. Once a case is loaded, the Case page's **Download report draft (.md)** button saves its findings as an editable Markdown draft: each finding is numbered, and its exact source text is quoted in an annex with the document and line it comes from.
+
+The **Case overview** leads with the current matter, review summaries, and searchable
+source documents. Use **Open document** to read an original document; when a search
+term is found in its text, the reader opens that exact passage. Imports and live
+model checks are available below the record. The shared interface components,
+design tokens, and design references are documented in [docs/INTERFACE.md](docs/INTERFACE.md).
+
+The **[hosted React preview](https://ratio-trial-review-preview.vercel.app)** brings the same
+recorded synthetic pipeline outputs into a legal research workspace: unified search,
+source reading, saved passages, detention-order comparisons, jurisprudence, possible
+State replies, and a browser review worksheet. It does not accept uploads or run a
+model. Demo decisions stay in browser storage; the offline Python application retains
+SQLite review history and generates reports with the lawyer's decisions applied.
+See [web/README.md](web/README.md) for building the preview and
+[docs/COMBINED-WORKSPACE.md](docs/COMBINED-WORKSPACE.md) for the integration choices.
 
 **Live demo:** follow [docs/DEMO.md](docs/DEMO.md), a three-minute script with fallback screenshots.
 

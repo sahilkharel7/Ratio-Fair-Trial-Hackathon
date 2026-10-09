@@ -64,11 +64,13 @@ def require_case() -> LoadedCase:
 
 
 def header(loaded: LoadedCase, title: str, caption: str) -> None:
+    style.eyebrow("Case analysis")
+    st.title(title)
     if loaded.record.meta.synthetic:
         style.banner(session.config().messages.notes["synthetic_banner"])
-    st.title(title)
     meta = loaded.record.meta
-    st.caption(f"{md_escape(meta.title)} · {md_escape(meta.court)} · {caption}")
+    st.caption(f"{md_escape(meta.title)} · {md_escape(meta.court)}")
+    st.caption(caption[0].upper() + caption[1:] if caption else "")
 
 
 def _document_title(record: CaseRecord, span: SourceSpan) -> str:

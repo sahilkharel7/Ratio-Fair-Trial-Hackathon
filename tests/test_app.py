@@ -53,10 +53,37 @@ def test_case_page_summarises_the_demo_without_errors(app):
     assert any("13 findings" in m.value for m in app.markdown)
     assert any("SYNTHETIC DATA" in body for body in html_bodies(app))
     links = [link.proto.label for link in app.get("page_link")]
-    assert any(label.startswith("Judge profile: Ilena Varda, 1 pattern that warrants review (9 cases, 3 indicators") for label in links)
+    assert "Review judicial history →" in links
+    assert any("Ilena Varda · 9 cases · 1 pattern that warrants review" in body for body in html_bodies(app))
     [documents] = [frame.value for frame in app.dataframe if "Hearing date" in frame.value.columns]
     assert list(documents["Hearing date"]) == ["2025-06-02", "2025-06-16", "2025-06-30", "2025-07-14", "", "", "", "", ""]  # no "None"
     assert app.download_button(key="export_report").label == "Download report draft (.md)"
+
+
+def test_document_search_opens_an_exact_match_and_handles_no_results(app):
+    app.switch_page("views/case.py").run()
+    app.text_input(key="document_search").set_value("Venn").run()
+    assert not app.exception
+    app.button(key="open_document").click().run()
+    assert any("exact match" in caption.value for caption in app.caption)
+    assert any('<mark class="ratio-span">Venn</mark>' in body for body in html_bodies(app))
+    # Regex punctuation is literal user input, and an empty result has no stale
+    # document opener. Returning to the overview restores the complete record.
+    app.text_input(key="document_search").set_value(".*[not in the record]").run()
+    assert not app.exception
+    assert any("No source documents match" in item.value for item in app.info)
+    assert not any(button.key == "open_document" for button in app.button)
+    app.text_input(key="document_search").set_value("").run()
+    assert not app.exception
+
+
+def test_document_reader_shows_original_text_with_the_data_notice(app):
+    app.switch_page("views/case.py").run()
+    app.button(key="open_document").click().run()
+    assert not app.exception
+    assert any("Original source text" in caption.value for caption in app.caption)
+    assert any("SYNTHETIC DATA" in body for body in html_bodies(app))
+    assert any('class="ratio-doc"' in body and "Hearing date:" in body for body in html_bodies(app))
 
 
 @pytest.mark.parametrize("page", PAGES)
