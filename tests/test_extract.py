@@ -10,7 +10,7 @@ from ratio.extraction.build import load_case
 from ratio.extraction.extract import extract_record
 from ratio.extraction.prompts import ChunkExtraction
 from ratio.paths import DEMO_CASE_DIR
-from ratio.testing import FakeLLM
+from ratio.testing import FakeLLM, make_record
 
 SETTINGS = load_config().settings.extraction
 
@@ -104,6 +104,60 @@ def test_announcement_without_an_argument_verb_is_not_an_argument(extracted):
     _, record, report, _ = extracted
     assert not any("appeal" in a.text for a in record.arguments)
     assert any("no argument verb" in reason for reason in report.dropped)
+
+
+CLOSING = (
+    "Defence counsel argued two points. First, four of the six posts were written by other people. "
+    "The defendant cannot be convicted for them. Second, the two posts he wrote were opinions.\n\n"
+    "First, the judge thanked the parties.\n\n"
+    "Defence counsel objected to the exhibit. First, the clerk read out the exhibit list.\n\n"
+    'The prosecutor argued three points. "First, the posts were false," she said.\n\n'
+    "Defence counsel argued that the exhibit was late. The judge gave two reasons. First, the exhibit was filed in time."
+)
+
+
+def note_arguments(body: str, *quotes: str):
+    """The arguments kept from one monitoring note when the model names ``quotes`` as defence arguments."""
+    record = make_record([("note.txt", "monitoring_note", f"Hearing date: 1 July 2026\n\n{body}")])
+
+    def respond(system, user, schema, purpose):
+        return {"events": [], "arguments": [{"party": "defense", "quote": quote} for quote in quotes]}
+
+    extracted, report = extract_record(record, FakeLLM(respond), SETTINGS)
+    return sorted(a.text for a in extracted.arguments), report
+
+
+def test_numbered_points_after_an_argument_verb_in_the_same_paragraph_are_arguments():
+    texts, _ = note_arguments(CLOSING, "First, four of the six posts were written by other people", "Second, the two posts he wrote were opinions")
+    assert texts == ["First, four of the six posts were written by other people.", "Second, the two posts he wrote were opinions."]
+
+
+def test_a_numbered_point_in_a_paragraph_without_an_argument_verb_is_dropped():
+    texts, report = note_arguments(CLOSING, "First, the judge thanked the parties")
+    assert texts == []
+    assert any("no argument verb" in reason for reason in report.dropped)
+
+
+def test_a_numbered_point_needs_a_list_announced_with_the_argument_verb():
+    # "objected to the exhibit" announces no points, so this "First," does not start an argument list.
+    texts, _ = note_arguments(CLOSING, "First, the clerk read out the exhibit list")
+    assert texts == []
+
+
+def test_the_argument_verb_and_the_announced_list_must_be_in_the_same_sentence():
+    # The judge, not counsel, announced these reasons.
+    texts, _ = note_arguments(CLOSING, "First, the exhibit was filed in time")
+    assert texts == []
+
+
+def test_a_numbered_point_inside_quotation_marks_is_recognised():
+    texts, _ = note_arguments(CLOSING, "First, the posts were false")
+    assert texts == ['"First, the posts were false," she said.']
+
+
+def test_an_unnumbered_sentence_still_needs_its_own_argument_verb():
+    texts, _ = note_arguments(CLOSING, "The defendant cannot be convicted for them")
+    assert texts == []
 
 
 def test_exact_quote_becomes_a_sentence_span_with_a_code_parsed_date(extracted):

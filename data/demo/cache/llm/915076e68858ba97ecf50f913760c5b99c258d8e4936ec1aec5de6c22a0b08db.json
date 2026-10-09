@@ -1,5 +1,5 @@
 {
-  "key": "f8e44aa3dec744e747fa401fcfb3b8d6386792b3c94a1f37ca12230cf7b89a5e",
+  "key": "915076e68858ba97ecf50f913760c5b99c258d8e4936ec1aec5de6c22a0b08db",
   "model": "qwen2.5:7b-instruct",
   "purpose": "labels",
   "response": {
@@ -13,13 +13,13 @@
       {
         "indicator_id": "",
         "label": "unrelated",
-        "note": "The seizure of the phone and the exclusion request are not related to the examination of witnesses.",
+        "note": "Seizure of evidence and judicial warrant are not related to the examination of witnesses.",
         "observation": "O2 (2025-06-16): Defence counsel argued that the messages presented by the prosecution had been extracted from Mr. Venn's mobile telephone, which police seized at his home on 14 February 2025 without a judicial warrant, and asked the court to exclude them as evidence."
       },
       {
         "indicator_id": "e_defence_witnesses_heard",
         "label": "supports",
-        "note": "The presence of the defence counsel indicates that the defence was present to hear witnesses.",
+        "note": "The presence of defence counsel indicates that the defence was able to participate.",
         "observation": "O3 (2025-06-30): Defence counsel Lena Brask was present."
       },
       {
@@ -31,13 +31,13 @@
       {
         "indicator_id": "",
         "label": "unrelated",
-        "note": "The testimony about the telephone analysis is not related to the examination of witnesses.",
+        "note": "The admission of the public and the testimony of a police investigator are not related to the examination of witnesses.",
         "observation": "O5 (2025-06-30): When the public was readmitted, a second police investigator testified about the analysis of the telephone."
       },
       {
         "indicator_id": "e_defence_witnesses_heard",
         "label": "supports",
-        "note": "The questioning by the defence counsel indicates that the defence was able to question witnesses.",
+        "note": "The questioning by defence counsel indicates that the defence was able to question witnesses.",
         "observation": "O6 (2025-06-30): Ms. Brask questioned him about how the messages had been extracted."
       }
     ]

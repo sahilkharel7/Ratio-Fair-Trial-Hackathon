@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Literal
 
 import yaml
-from pydantic import Field, ValidationError, model_validator
+from pydantic import Field, ValidationError, field_validator, model_validator
 
 from ratio.paths import CONFIG_DIR
 from ratio.schema import EventType, Frozen, ReviewStatus
@@ -38,12 +38,28 @@ class CitationRef(Frozen):
 
 # --- rubric.yaml ----------------------------------------------------------------------------
 
+_KEYWORD = re.compile(r"[a-z0-9 -]*[a-z0-9][a-z0-9 -]*")
+
+
+def _plain(keywords: tuple[str, ...]) -> tuple[str, ...]:
+    """Keywords are matched in lowercase text whose punctuation is read as spaces (absence.py), so a
+    keyword with capitals or punctuation would never match."""
+    wrong = [keyword for keyword in keywords if not _KEYWORD.fullmatch(keyword) or "  " in keyword]
+    if wrong:
+        raise ValueError(f"keywords may hold only lowercase ASCII letters, digits, single spaces and hyphens: {wrong}")
+    return keywords
+
 
 class RubricIndicator(Frozen):
     id: str
     text: str
     covers_all_hearings: bool = False
     keywords: tuple[str, ...] = ()  # context indicators: a note is shown as context only if it mentions one
+
+    @field_validator("keywords")
+    @classmethod
+    def _plain_keywords(cls, keywords: tuple[str, ...]) -> tuple[str, ...]:
+        return _plain(keywords)
 
 
 class RubricPart(Frozen):
@@ -54,6 +70,11 @@ class RubricPart(Frozen):
     keywords: tuple[str, ...] = ()
     compliance: tuple[RubricIndicator, ...] = Field(min_length=1)
     violation: tuple[RubricIndicator, ...] = Field(min_length=1)
+
+    @field_validator("keywords")
+    @classmethod
+    def _plain_keywords(cls, keywords: tuple[str, ...]) -> tuple[str, ...]:
+        return _plain(keywords)
 
 
 class RubricItem(Frozen):
@@ -210,6 +231,8 @@ class ExtractionSettings(Frozen):
     fuzzy_min_quote_chars: int = Field(gt=0)
     fuzzy_threshold: float = Field(gt=0, le=100)
     argument_markers: tuple[str, ...] = Field(min_length=1)
+    argument_continuations: tuple[str, ...] = ()
+    argument_list_nouns: tuple[str, ...] = ()
 
 
 class AbsenceSettings(Frozen):

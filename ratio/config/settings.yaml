@@ -37,6 +37,20 @@ extraction:
     - "insisted that"
     - "claimed that"
     - "asserted that"
+  # A sentence that opens with one of these words continues an argument announced earlier in the
+  # same paragraph, by an argument verb and a count of one of argument_list_nouns ("Counsel argued
+  # two points. First, ... Second, ..."), so it is kept too. Without the count it is dropped.
+  argument_continuations:
+    - "first,"
+    - "firstly,"
+    - "second,"
+    - "secondly,"
+    - "third,"
+    - "thirdly,"
+    - "fourth,"
+    - "finally,"
+    - "lastly,"
+  argument_list_nouns: ["points", "arguments", "grounds", "reasons", "issues", "objections", "submissions"]
 
 absence:
   # Shortlists are built per rubric part: the top notes overall for case-level parts, and the

@@ -10,6 +10,7 @@ Anything that cannot be located is dropped and counted in the report.
 from __future__ import annotations
 
 import datetime as dt
+import functools
 import re
 import sys
 from collections.abc import Callable, Iterable
@@ -30,10 +31,12 @@ from ratio.extraction.prompts import (
 )
 from ratio.extraction.segment import sentence_spans
 from ratio.llm import LLMResponseError, PromptTooLong
-from ratio.schema import Argument, CaseRecord, Document, Event, SourceSpan, stable_id
+from ratio.schema import PARAGRAPH_BREAK, Argument, CaseRecord, Document, Event, SourceSpan, stable_id
 
 ProgressCallback = Callable[[str, int, int], None]
 _DATE_SEPARATORS = re.compile(r"\s+(?:and|or|to|until)\s+|[,;&]")
+_OPENING_MARKS = " \t\"'“‘«(["  # a numbered point may open inside a quotation or a bracket
+_LIST_COUNT = r"(?:\d+|two|three|four|five|six|several)"  # "one point" needs no "First,"
 
 
 @dataclass(frozen=True)
@@ -195,6 +198,27 @@ def _event(
     return events
 
 
+@functools.cache
+def _list_announcement(nouns: tuple[str, ...]) -> re.Pattern[str]:
+    """'two points', 'three main grounds': a count, at most one more word, then a list noun."""
+    return re.compile(rf"(?<![\w-]){_LIST_COUNT}\s+(?:[a-z-]+\s+)?(?:{'|'.join(map(re.escape, nouns))})\b")
+
+
+def _argued(doc: Document, sentence: SourceSpan, settings: ExtractionSettings) -> bool:
+    """The sentence has an argument verb, or opens with "First," (and the like) in a paragraph where an
+    earlier sentence has one and announces a list: "Counsel argued two points. First, ... Second, ..."."""
+    text = sentence.text.lower()
+    if any(marker in text for marker in settings.argument_markers):
+        return True
+    if not settings.argument_list_nouns or not text.lstrip(_OPENING_MARKS).startswith(settings.argument_continuations):
+        return False
+    breaks = [found.end() for found in PARAGRAPH_BREAK.finditer(doc.text, 0, sentence.start)]
+    paragraph_start = breaks[-1] if breaks else 0
+    announcement = _list_announcement(settings.argument_list_nouns)
+    earlier = (doc.text[s:e].lower() for s, e in sentence_spans(doc.text) if paragraph_start <= s and e <= sentence.start)
+    return any(announcement.search(text) and any(m in text for m in settings.argument_markers) for text in earlier)
+
+
 def _argument(doc: Document, chunk: Chunk, item: ModelArgument, used: set, settings: ExtractionSettings) -> Argument | str:
     if doc.type not in OBSERVATION_SOURCES:
         return f"{doc.path}: argument ignored (arguments are taken from monitoring notes only)"
@@ -202,7 +226,7 @@ def _argument(doc: Document, chunk: Chunk, item: ModelArgument, used: set, setti
     if located is None:
         return f"{doc.path}: argument quote not found in source: {item.quote[:60]!r}"
     sentence = _span(doc, *sentence_bounds(doc.text, located.start, located.end))
-    if not any(marker in sentence.text.lower() for marker in settings.argument_markers):
+    if not _argued(doc, sentence, settings):
         return f"{doc.path}: argument dropped (no argument verb such as 'argued'): {sentence.text[:60]!r}"
     used.add((located.start, located.end))
     return Argument(

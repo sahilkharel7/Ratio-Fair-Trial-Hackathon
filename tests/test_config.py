@@ -10,6 +10,8 @@ from ratio.config import (
     Benchmark,
     ConfigError,
     RateDef,
+    RubricIndicator,
+    RubricPart,
     load_config,
 )
 from ratio.paths import CONFIG_DIR
@@ -31,6 +33,17 @@ class TestRubric:
             assert item.review_status == "needs_legal_review"
             assert item.follow_up.strip()
             assert item.parts
+
+    @pytest.mark.parametrize("keyword", ["Witness", "witness.", "witness's", "", "   ", "case  file", "témoin"])
+    def test_keywords_are_lowercase_words_spaces_and_hyphens(self, config, keyword):
+        part = config.rubric_item("iccpr_14_3_e").parts[0].model_dump()
+        with pytest.raises(ValidationError, match="keywords"):
+            RubricPart.model_validate({**part, "keywords": [keyword]})
+
+    def test_context_keywords_are_checked_the_same_way(self, config):
+        context = config.rubric_item("iccpr_14_3_f").context[0].model_dump()
+        with pytest.raises(ValidationError, match="keywords"):
+            RubricIndicator.model_validate({**context, "keywords": ["Language"]})
 
     def test_paragraphs_match_the_verified_gc32_mapping(self, config):
         verified = {"a": "31", "b": "32-34", "c": "35", "d": "36-38", "e": "39", "f": "40", "g": "41"}

@@ -16,10 +16,9 @@ import functools
 import re
 from dataclasses import dataclass
 
-from ratio.schema import PassageKind
+from ratio.schema import PARAGRAPH_BREAK, PassageKind
 
 _LINE = re.compile(r"[^\n]+")
-_BLANK_LINE = re.compile(r"\n[ \t]*\n")
 _NUMBERING = re.compile(r"^(?:(?P<roman>[IVXLC]+)\.|(?P<decimal>\d+(?:\.\d+)+)\.?|(?P<digit>\d+)\.|(?P<letter>[A-Z])\.|(?P<paren>\([a-z0-9]{1,4}\)))\s+(?=\S)")
 _SIGNATURE = re.compile(r"^\(signed\)|^signed[:,]", re.IGNORECASE)
 _LABEL_LINE = re.compile(r"^[A-Z][A-Za-z .()/-]{0,40}:\s+\S")
@@ -161,7 +160,7 @@ def _list_items(text: str, start: int, end: int) -> list[tuple[int, int]]:
 
 
 def _blocks(text: str) -> list[tuple[int, int]]:
-    bounds = [0, *(m.start() for m in _BLANK_LINE.finditer(text)), len(text)]
+    bounds = [0, *(m.start() for m in PARAGRAPH_BREAK.finditer(text)), len(text)]
     spans = (_trim(text, a, b) for a, b in zip(bounds, bounds[1:]))
     return [(s, e) for s, e in spans if e > s]
 

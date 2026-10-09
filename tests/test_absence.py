@@ -289,6 +289,50 @@ def test_a_guarantee_is_not_compliant_while_notes_stay_unlabelled():
     assert assessment(result, "iccpr_14_3_e").status == "evidence_of_violation"  # a contradiction still counts
 
 
+# Only notes with a part keyword reach the model, so these tests check the rubric's keywords.
+KEYWORDS_ONLY = CONFIG.model_copy(
+    update={"settings": CONFIG.settings.model_copy(update={"absence": CONFIG.settings.absence.model_copy(update={"shortlist_min_similarity": 1.01})})}
+)
+
+
+def one_note(text: str):
+    return make_record([("note.txt", "monitoring_note", f"Hearing date: 9 June 2026\n\n{text}")])
+
+
+def test_a_refused_defence_expert_is_a_refused_defence_witness():
+    record = one_note("The judge denied the defence request to call a forensic expert.")
+    rules = [(r"call a forensic expert", "contradicts", "e_defence_witnesses_refused")]
+    result, _ = run(record=record, responder=careful_reader(rules), config=KEYWORDS_ONLY)
+    assert assessment(result, "iccpr_14_3_e").status == "evidence_of_violation"
+
+
+def test_a_statement_signed_after_a_promise_reaches_the_compulsion_check():
+    record = one_note("He told her he signed it after an officer promised he could go home that night.")
+    rules = [(r"signed it after an officer promised", "contradicts", "g_compelled")]
+    result, _ = run(record=record, responder=careful_reader(rules), config=KEYWORDS_ONLY)
+    assert assessment(result, "iccpr_14_3_g").status == "evidence_of_violation"
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Signed after a night without sleep, it was read out in court.",
+        'He said it came after a "promise" of release.',
+        "He said he was ill–treated in custody.",  # an en dash typed for the hyphen
+        "He said he was ill-\ntreated in custody.",  # a word broken at the end of a line
+    ],
+)
+def test_a_keyword_matches_at_the_start_of_a_sentence_and_after_a_quote_mark(text):
+    rules = [(re.escape(text[:15]), "contradicts", "g_compelled")]
+    result, _ = run(record=one_note(text), responder=careful_reader(rules), config=KEYWORDS_ONLY)
+    assert assessment(result, "iccpr_14_3_g").status == "evidence_of_violation"
+
+
+def test_a_keyword_matches_only_at_the_start_of_a_word():
+    _, llm = run(record=one_note("The report was inexpert and torturous to read."), config=KEYWORDS_ONLY)
+    assert not any("inexpert" in call.user for call in llm.calls)
+
+
 def test_a_label_is_not_grounded_by_a_sentence_from_another_paragraph():
     # The note before "read out the charge" (another paragraph) says the first language is Ostric.
     rules = [(r"read out the charge", "supports", "a_charge_in_understood_language")]

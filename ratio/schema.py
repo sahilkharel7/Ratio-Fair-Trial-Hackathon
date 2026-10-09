@@ -10,11 +10,13 @@ from __future__ import annotations
 
 import hashlib
 import datetime as dt
+import re
 from typing import Literal, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 DocType = Literal["monitoring_note", "indictment", "judgment", "detention_order", "transcript"]
+PARAGRAPH_BREAK = re.compile(r"\n[ \t]*\n")  # a blank line separates paragraphs in Document.text
 EventType = Literal[
     "arrest",
     "first_appearance",

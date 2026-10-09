@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import datetime as dt
 import re
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 
 import numpy as np
 
@@ -29,13 +29,15 @@ from ratio.embeddings import cosine_matrix
 from ratio.messages import filter_model_note, render
 from ratio.modules.absence_prompts import LABEL_SYSTEM, LabelReply, ObservationLabel, label_user_prompt
 from ratio.results import AbsenceResult, GuaranteeAssessment, GuaranteeStatus, LabeledObservation, PartAssessment
-from ratio.schema import CaseRecord, Evidence, Flag, FollowUp, Observation, stable_id
+from ratio.schema import PARAGRAPH_BREAK, CaseRecord, Evidence, Flag, FollowUp, Observation, stable_id
 
 MAX_CONTEXT_NOTES = 1
 LABELS_PER_BATCH = 30  # a reply with 30 labels fits the labels token budget with room to spare
 ASK_ROUNDS = 2  # the model is asked once more about notes it left out of its reply
 _OBSERVATION_ID = re.compile(r"\bO\d+\b")
-_PARAGRAPH_BREAK = re.compile(r"\n[ \t]*\n")
+_NOT_A_WORD_CHARACTER = re.compile(r"[^\w\s-]")
+_HYPHENS = str.maketrans(dict.fromkeys("\u2010\u2011\u2013", "-"))  # hyphen, non-breaking hyphen, en dash
+_LINE_END_HYPHEN = re.compile(r"-[ \t]*\n\s*")  # "cross-" at the end of a line, "examined" on the next
 
 HearingKey = dt.date | str  # a note's hearing date, or the note's document id when it has none
 
@@ -59,6 +61,14 @@ def _citation(config: RatioConfig, item: RubricItem) -> str:
     return f"{item.provision}; {source.symbol}, para. {item.citation.paras}"
 
 
+def _mentions(text: str, keywords: Iterable[str]) -> bool:
+    """Rubric keywords are matched in lowercase text with punctuation read as spaces and a space at
+    each end, so a keyword's leading or trailing space marks the start or end of a word."""
+    joined = _LINE_END_HYPHEN.sub("-", text.lower().translate(_HYPHENS))
+    padded = f" {' '.join(_NOT_A_WORD_CHARACTER.sub(' ', joined).split())} "
+    return any(keyword in padded for keyword in keywords)
+
+
 def _top(indices, similarity: np.ndarray, k: int, floor: float) -> list[int]:
     ranked = sorted(indices, key=lambda i: (-float(similarity[i]), i))
     return [i for i in ranked[:k] if similarity[i] >= floor]
@@ -74,7 +84,7 @@ def _shortlist(
     for part in item.parts:
         queries = [f"{item.name}: {part.label}"] + [i.text for i in part.compliance + part.violation]
         similarity = cosine_matrix(vectors, ctx.embedder.encode(queries)).max(axis=1)
-        keyword_hits = {i for i, obs in enumerate(observations) if any(k in obs.text.lower() for k in part.keywords)}
+        keyword_hits = {i for i, obs in enumerate(observations) if _mentions(obs.text, part.keywords)}
         chosen = set(keyword_hits)
         if part.scope == "per_hearing":
             for key in keys:
@@ -109,7 +119,7 @@ def _same_paragraph(previous: dict[str, str], observations: tuple[Observation, .
     for before, current in zip(observations, observations[1:]):
         if current.id in previous:
             gap = record.document(current.span.doc_id).text[before.span.end : current.span.start]
-            if not _PARAGRAPH_BREAK.search(gap):
+            if not PARAGRAPH_BREAK.search(gap):
                 kept[current.id] = previous[current.id]
     return kept
 
@@ -120,11 +130,11 @@ def _grounded(part: RubricPart, indicator: RubricIndicator, obs: Observation, be
     or the indicator claims something about every hearing."""
     if not part.keywords:
         return True
-    if any(keyword in obs.text.lower() for keyword in part.keywords):
+    if _mentions(obs.text, part.keywords):
         return True
     if indicator.covers_all_hearings:
         return False
-    return any(keyword in before.lower() for keyword in part.keywords if keyword not in context_words)
+    return _mentions(before, [keyword for keyword in part.keywords if keyword not in context_words])
 
 
 def _batches(item: RubricItem, shortlist: list[Observation], previous: dict[str, str], ctx: AnalysisContext) -> list[list[Observation]]:
@@ -231,7 +241,7 @@ def _label(
 def _mentions_context(item: RubricItem, obs: Observation) -> bool:
     """A context note must mention what the context is about (e.g. a language), not only resemble it."""
     keywords = [keyword for indicator in item.context for keyword in indicator.keywords]
-    return not keywords or any(keyword in obs.text.lower() for keyword in keywords)
+    return not keywords or _mentions(obs.text, keywords)
 
 
 def _context(item: RubricItem, observations, vectors, labels, ctx: AnalysisContext) -> tuple[Evidence, ...]:

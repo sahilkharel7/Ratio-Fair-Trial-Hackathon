@@ -1,5 +1,5 @@
 {
-  "key": "e70d4e2bdfced5ef4ef6e928614f37e94609c1ee8d3e562b4bdcf3860e96a9d8",
+  "key": "3f22e12f815d01b08e1db7d3a02bfda30acaf54b40d3fab0ceadc041791c1d93",
   "model": "qwen2.5:7b-instruct",
   "purpose": "labels",
   "response": {
@@ -11,15 +11,15 @@
         "observation": "O1 (2025-06-02): The presiding judge refused the request and ordered the trial to continue."
       },
       {
-        "indicator_id": "e_prosecution_witnesses_examined",
+        "indicator_id": "e_defence_witnesses_examined",
         "label": "supports",
         "note": "The defense cross-examined witnesses, supporting the indicator.",
         "observation": "O3 (2025-06-16): Ms. Brask cross-examined both witnesses about who had prepared the audit."
       },
       {
-        "indicator_id": "e_defence_witnesses_heard",
+        "indicator_id": "e_defence_witnesses_refused",
         "label": "contradicts",
-        "note": "The court refused to hear the defense's requested witnesses, contradicting the indicator.",
+        "note": "The judge refused the defense's request to hear witnesses, contradicting the indicator.",
         "observation": "O9 (2025-06-30): Defence counsel asked the court to hear two witnesses, both editors at Mirevo Today, who had attended the editorial meeting at which the articles were approved."
       },
       {

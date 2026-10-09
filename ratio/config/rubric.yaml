@@ -7,6 +7,8 @@
 # never count as evidence either way. Keywords say what a part is about: notes containing one are
 # always shortlisted for that part (embeddings rank the rest), and a model label counts only if
 # the note or the sentence before it mentions one of them (a grounding check on the model).
+# Keywords are matched in lowercase text with punctuation read as spaces; a leading or trailing
+# space marks the start or end of a word (" signed" matches "Signed" but not "assigned").
 #
 # Status rules (ratio/modules/absence.py):
 #   any required or optional part contradicted        -> evidence of violation
@@ -150,7 +152,7 @@ items:
         label: "Examine the prosecution's witnesses"
         required: true
         scope: case
-        keywords: ["witness", "cross-exam", "questioned"]
+        keywords: ["witness", " expert", "cross-exam", "questioned"]
         compliance:
           - {id: e_prosecution_witnesses_examined, text: "The defence questioned or cross-examined the prosecution witnesses"}
         violation:
@@ -159,11 +161,11 @@ items:
         label: "Call defence witnesses on the same terms"
         required: false
         scope: case
-        keywords: ["witness"]
+        keywords: ["witness", " expert"]
         compliance:
           - {id: e_defence_witnesses_heard, text: "Witnesses requested by the defence were heard"}
         violation:
-          - {id: e_defence_witnesses_refused, text: "The court refused to hear witnesses requested by the defence while prosecution witnesses were heard"}
+          - {id: e_defence_witnesses_refused, text: "The court refused to hear witnesses or experts requested by the defence while prosecution witnesses were heard"}
     follow_up: "Could the defence question the prosecution's witnesses and call its own witnesses?"
 
   - id: iccpr_14_3_f
@@ -199,7 +201,7 @@ items:
         label: "No compulsion to testify or confess"
         required: true
         scope: case
-        keywords: ["silent", "silence", "confess", "statement", "pressure", "coerc"]
+        keywords: ["silent", "silence", "confess", "statement", "pressure", "coerc", " signed", " promis", "threat", " torture", " torturing", "ill-treat", " beaten"]
         compliance:
           - {id: g_silence_respected, text: "The defendant was told of the right to remain silent, or chose freely whether to testify"}
         violation:

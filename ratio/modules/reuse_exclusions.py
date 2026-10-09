@@ -23,10 +23,9 @@ from dataclasses import dataclass
 
 from ratio.config import ReuseSettings
 from ratio.results import ExclusionReason
-from ratio.schema import Citation, Passage
+from ratio.schema import PARAGRAPH_BREAK, Citation, Passage
 
 _NUMBERING = re.compile(r"^\s*(?:[IVXLC]+|\d+(?:\.\d+)*|[A-Z]|\([a-z0-9]{1,4}\))[.)]?\s+")
-_PARAGRAPH_BREAK = re.compile(r"\n[ \t]*\n")
 _QUOTATION = re.compile(r"[\"“”«»„]|(?:^|[\s(:])[‘'](?=\w)")
 _QUOTED_OPENING = re.compile(r"^(?:[\"“«„‘']|\([a-z0-9]{1,4}\)\s)", re.IGNORECASE)
 _INTRODUCES_QUOTE = re.compile(r"(?::|\bas follows:?)\s*[\"“«„‘']?$", re.IGNORECASE)
@@ -110,7 +109,7 @@ def is_statute_quote(passage: Passage, citations: Sequence[Citation], rules: Pas
 
 
 def _paragraph_break(text: str, previous: Passage | None, passage: Passage) -> bool:
-    return previous is None or bool(_PARAGRAPH_BREAK.search(text, previous.span.end, passage.span.start))
+    return previous is None or bool(PARAGRAPH_BREAK.search(text, previous.span.end, passage.span.start))
 
 
 @dataclass
