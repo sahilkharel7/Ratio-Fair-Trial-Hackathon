@@ -1,0 +1,11 @@
+{
+  "key": "3c401aa48e8f2f30dd8148a8dc0d83e1ccbe7a766a068f659f018e305eaa9971",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman_check",
+  "response": {
+    "note": "Monitor left during hearing.",
+    "shows": true
+  },
+  "schema": "GroundCheck",
+  "synthetic": true
+}

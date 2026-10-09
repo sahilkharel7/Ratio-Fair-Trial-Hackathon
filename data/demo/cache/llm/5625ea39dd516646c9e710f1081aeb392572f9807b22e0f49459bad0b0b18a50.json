@@ -1,0 +1,11 @@
+{
+  "key": "5625ea39dd516646c9e710f1081aeb392572f9807b22e0f49459bad0b0b18a50",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman_check",
+  "response": {
+    "note": "Extends detention to a future date.",
+    "shows": false
+  },
+  "schema": "GroundCheck",
+  "synthetic": true
+}

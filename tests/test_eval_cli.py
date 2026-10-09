@@ -20,6 +20,9 @@ def test_eval_replays_the_demo_with_full_provenance_and_recall(tmp_path, monkeyp
     assert report["provenance"]["before_enforcement"] == 1.0
     assert report["flags"]["missed"] == [] and report["flags"]["violations"] == []
     assert report["synthetic"] and report["in_sample"] and report["replayed"]
+    steel = report["steelman"]
+    assert steel["findings_contested"] == 11 and steel["kept_with_exact_quotes"] == 1.0 and steel["unusable_answers"] == 0
+    assert "State's strongest reply (model-generated): 11 findings contested" in out
     judges = report["judges"]
     assert judges["provenance"]["shown_with_exact_spans"] == 1.0 and judges["provenance"]["flags_dropped"] == 0
     assert len(judges["patterns"]) == 1 and judges["patterns"][0].startswith("Pattern that warrants review: ")

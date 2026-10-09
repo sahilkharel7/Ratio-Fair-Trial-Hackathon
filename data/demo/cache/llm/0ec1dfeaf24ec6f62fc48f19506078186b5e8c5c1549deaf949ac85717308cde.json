@@ -1,0 +1,11 @@
+{
+  "key": "0ec1dfeaf24ec6f62fc48f19506078186b5e8c5c1549deaf949ac85717308cde",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman_check",
+  "response": {
+    "note": "Judge admitted messages without reasons.",
+    "shows": false
+  },
+  "schema": "GroundCheck",
+  "synthetic": true
+}

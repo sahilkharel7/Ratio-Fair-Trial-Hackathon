@@ -14,6 +14,8 @@ llm:
     extraction: 1500
     labels: 3000
     argument_check: 400
+    steelman: 700
+    steelman_check: 200
 
 extraction:
   chunk_chars: 2500
@@ -233,6 +235,18 @@ judges:
   ambiguous_floor: 75
   date_tolerance_days: 1825  # heuristic: a name seen at the same court more than 5 years apart needs confirmation
   title_words: [judge, justice, the, hon, honourable, honorable, mr, mrs, ms, miss, dr, presiding, his, her, honour, honor, lord, lady, sir, dame, madam, magistrate, chief]
+
+renewal:
+  # An order is flagged when this share of its grounds (the court's reasoning, after quoted law, the
+  # prosecutor's request and the operative part are left out) repeats earlier orders in the case,
+  # word for word or as a close paraphrase. The matching itself uses the reuse settings above.
+  repeated_share: 0.6
+
+steelman:
+  # The State's strongest reply to each adverse finding (ratio/modules/steelman.py): the record passages
+  # most similar to the finding are numbered for the model, which may argue only from them.
+  top_k_passages: 8
+  max_arguments: 3
 
 ui:
   context_chars: 600

@@ -5,10 +5,10 @@ from __future__ import annotations
 
 import streamlit as st
 
-from ratio.config import Benchmark
-from ratio.display import duration_text, md_escape
-from ratio.messages import render
-from ratio.results import ClockResult, Interval
+from ratio.display import md_escape
+from ratio.jurisprudence import for_finding
+from ratio.report import interval_citation, interval_text
+from ratio.results import ClockResult
 from ratio_ui import session, widgets
 from ratio_ui.session import LoadedCase
 
@@ -23,31 +23,10 @@ STATUS_COLOURS = {
 EVENT_COLOUR = "#1f4e79"
 
 
-def _interval_text(interval: Interval, benchmark: Benchmark, clock: ClockResult) -> str:
-    messages = session.config().messages
-    names = messages.event_labels
-    flag = next((f for f in clock.flags if f.id == interval.flag_id), None)
-    if flag is not None:
-        return flag.message
-    if interval.min_hours is None or interval.max_hours is None:
-        return f"{names[benchmark.from_event]} to {names[benchmark.to_event]}: cannot be measured. {interval.note}".strip()
-    duration = duration_text(interval.min_hours, interval.max_hours)
-    if interval.status == "measured":
-        return render(messages, "clock_measured", from_label=names[benchmark.from_event], to_label=names[benchmark.to_event], duration=duration)
-    return f"{names[benchmark.from_event]} to {names[benchmark.to_event]}: {duration}, within the {benchmark.threshold_hours:g}-hour benchmark."
-
-
-def _citation(interval: Interval, benchmark: Benchmark, clock: ClockResult) -> str:
-    flag = next((f for f in clock.flags if f.id == interval.flag_id), None)
-    if flag is not None and flag.citation:
-        return flag.citation
-    source = session.config().benchmarks.sources[benchmark.citation.instrument]
-    return f"{benchmark.provision}; {source.symbol}, para. {benchmark.citation.paras}"
-
-
 def _intervals(loaded: LoadedCase, clock: ClockResult) -> None:
-    benchmarks = {b.id: b for b in session.config().benchmarks.benchmarks}
-    names = session.config().messages.event_labels
+    cfg = session.config()
+    benchmarks = {b.id: b for b in cfg.benchmarks.benchmarks}
+    names = cfg.messages.event_labels
     for interval in sorted(clock.intervals, key=lambda i: i.status != "exceeds_benchmark"):
         benchmark = benchmarks[interval.benchmark_id]
         with st.container(border=True):
@@ -55,13 +34,18 @@ def _intervals(loaded: LoadedCase, clock: ClockResult) -> None:
             with st.container(horizontal=True):
                 widgets.badge(interval.status)
                 widgets.badge(interval.review_status)
-            st.markdown(md_escape(_interval_text(interval, benchmark, clock)))
-            st.caption(md_escape(_citation(interval, benchmark, clock)))
+            st.markdown(md_escape(interval_text(interval, benchmark, clock.flags, cfg.messages)))
+            st.caption(md_escape(interval_citation(interval, benchmark, clock.flags, cfg.benchmarks)))
             if benchmark.note:
                 st.caption(md_escape(benchmark.note))
             if interval.evidence:
                 with st.expander(f"Sources ({len(interval.evidence)})", expanded=interval.status == "exceeds_benchmark"):
                     widgets.evidence(loaded.record, interval.evidence, key=f"interval-{interval.id}", heading=benchmark.name)
+            flag = next((f for f in clock.flags if f.id == interval.flag_id), None)
+            if flag is not None:
+                widgets.jurisprudence(for_finding(flag, cfg.jurisprudence))
+                if loaded.analysis.steelman is not None:
+                    widgets.state_reply(loaded.record, loaded.analysis.steelman.for_flag(flag.id), key=f"state-{flag.id}")
 
 
 def _chart(clock: ClockResult) -> None:

@@ -1,0 +1,29 @@
+{
+  "key": "eec2e21e017d43fee7d341b9275827588befec0cc931881f1c5541d9e30eff06",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman",
+  "response": {
+    "arguments": [
+      {
+        "argument": "The defence did not request an adjournment.",
+        "ground": "no_adjournment_request",
+        "passage": "E1",
+        "quote": "Ms. Brask told the court that she had received the 900-page case file only three days before this hearing and asked for an adjournment of two weeks to prepare the defence."
+      },
+      {
+        "argument": "The time and facilities were adequate for the proceedings.",
+        "ground": "time_adequate",
+        "passage": "E5",
+        "quote": "Reading the judgment took about forty minutes."
+      },
+      {
+        "argument": "The record does not show the full proceedings, including the defence's preparation.",
+        "ground": "record_incomplete",
+        "passage": "E2, E3, E4, E6",
+        "quote": "Defence counsel Lena Brask was present; Ms. Brask's objection was recorded; the defence announced an appeal."
+      }
+    ]
+  },
+  "schema": "SteelmanReply",
+  "synthetic": true
+}

@@ -20,11 +20,12 @@ from ratio.config import RatioConfig
 from ratio.context import AnalysisContext, Embedder
 from ratio.embeddings import MiniLMEmbedder
 from ratio.extraction.build import load_case
-from ratio.extraction.extract import ExtractionReport, extract_record
+from ratio.extraction.extract import READ_IN_CODE, ExtractionReport, extract_record
 from ratio.llm import CachedLLM, OllamaClient, ResponseCache, model_from_env
-from ratio.modules import absence, clock, judges, reuse
+from ratio import steelman
+from ratio.modules import absence, clock, judges, renewal, reuse
 from ratio.paths import DEMO_CACHE_DIR, DEMO_CASE_DIR, RUNTIME_CACHE_DIR
-from ratio.provenance import check_absence, check_clock, check_judges, check_reuse, resolver_for, valid_rulings
+from ratio.provenance import check_absence, check_clock, check_judges, check_renewal, check_reuse, resolver_for, valid_rulings
 from ratio.results import CaseAnalysis, DataNote, JudgeReport
 from ratio.schema import AliasDecision, Argument, CaseRecord, Event, Frozen
 
@@ -41,7 +42,12 @@ class DemoCacheManifest(Frozen):
     ollama_version: str
     built_at: str
     entries: int
-    documents: dict[str, str]
+    documents: dict[str, str]  # the documents the model read (detention orders are read in code), by hash
+
+
+def model_documents(record: CaseRecord) -> dict[str, str]:
+    """The documents whose text reaches the model, by hash: what the recorded demo answers depend on."""
+    return {doc.id: doc.sha256 for doc in record.documents if doc.type not in READ_IN_CODE}
 
 
 def make_llm(
@@ -100,11 +106,16 @@ def analyze(record: CaseRecord, ctx: AnalysisContext) -> CaseAnalysis:
     absence_result = check_absence(absence.run(record, ctx), resolve, dropped)
     clock_result = check_clock(clock.run(record, ctx), resolve, dropped)
     reuse_result = reuse.rescore(check_reuse(reuse.run(record, ctx), resolve, dropped))  # dropped pairs leave the score
+    renewal_result = check_renewal(renewal.run(record, ctx), resolve, dropped)
+    shown = tuple(f for result in (absence_result, clock_result, renewal_result, reuse_result) for f in result.flags)
+    steelman_result = steelman.check_steelman(steelman.run(record, shown, ctx), resolve)  # after the flags are final
     return CaseAnalysis(
         case_id=record.case_id,
         absence=absence_result,
         clock=clock_result,
         reuse=reuse_result,
+        renewal=renewal_result,
+        steelman=steelman_result,
         dropped_flags=len(dropped),
         dropped_reasons=tuple(dropped),
         llm_model=ctx.llm.model,
@@ -216,7 +227,7 @@ def build_demo_cache(config: RatioConfig, *, fresh: bool = False, progress: Prog
         ollama_version=version,
         built_at=dt.datetime.now(dt.UTC).isoformat(timespec="seconds"),
         entries=len(llm.used_keys),
-        documents={doc.id: doc.sha256 for doc in base.documents},
+        documents=model_documents(base),
     )
     DEMO_CACHE_MANIFEST.write_text(manifest.model_dump_json(indent=2) + "\n", encoding="utf-8")
     return manifest

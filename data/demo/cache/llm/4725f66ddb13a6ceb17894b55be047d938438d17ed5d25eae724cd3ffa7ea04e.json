@@ -1,0 +1,11 @@
+{
+  "key": "4725f66ddb13a6ceb17894b55be047d938438d17ed5d25eae724cd3ffa7ea04e",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman_check",
+  "response": {
+    "note": "Describes a meeting date.",
+    "shows": false
+  },
+  "schema": "GroundCheck",
+  "synthetic": true
+}

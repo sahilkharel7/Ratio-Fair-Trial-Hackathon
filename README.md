@@ -2,12 +2,13 @@
 
 Ratio reads a trial's monitoring record and gives the reviewing lawyer findings to check line by line, each linked to the sentence it rests on. The legal evaluation stays with the lawyer. We built it for the FairTrial AI Hackathon (Track 2: Observation to Legal Evaluation), run by Columbia Law School's Human Rights Institute with the TrialWatch project.
 
-It runs four checks against the international fair-trial standards (ICCPR Articles 9 and 14):
+It runs five checks against the international fair-trial standards (ICCPR Articles 9 and 14):
 
 | Module | Question it answers | What you see |
 |---|---|---|
 | Absence Detector | Which guarantees of ICCPR Art. 14(3)(a)–(g) have no evidence of compliance? | A rights coverage grid. Where the notes say nothing, a follow-up question for the monitor instead of a finding |
 | Procedural Clock | Were detention and trial delays excessive? | A timeline with measured intervals, red only where the one confirmed benchmark (48 hours to see a judge) is exceeded |
+| Detention renewals | When detention was extended, was it re-examined, and was every day covered by an order? | Each detention order beside the orders before it, with the share of its grounds that repeats them highlighted, and the whole days between one order's end date and the next order |
 | Reasoning Reuse Detector | Did the court reason independently of the prosecution? | The judgment beside the indictment, with copied and paraphrased passages highlighted, the share of the court's reasoning traceable to the indictment, and defence arguments the judgment never answers |
 | Judicial History Tracker | Do a judge's rulings across monitored cases show a pattern that warrants review? | A judge profile: rates with sample size and confidence intervals, compared with other judges of the same court and charge type |
 
@@ -28,12 +29,13 @@ TrialWatch lawyers review large volumes of monitoring notes, transcripts and cou
 ## How it works
 
 ```
-case folder: monitoring notes, indictment, judgment, case.yaml, rulings.yaml (optional)
+case folder: monitoring notes, indictment, judgment, detention orders (optional), case.yaml, rulings.yaml (optional)
    │
    ▼
 Extraction layer
    in code:          read and normalise the text; split it into sentences and passages with
-                     character offsets; citations; "Hearing date:" headers
+                     character offsets; citations; "Hearing date:" headers; each detention
+                     order's date and end date (orders are never sent to the model)
    local model:      dated events and party arguments, returned as exact quotes (Ollama,
                      structured JSON output, answers cached)
    alignment:        every quote is found in the source text (exact, then normalised, then
@@ -45,7 +47,8 @@ Extraction layer
 Case record: every item carries its source span (document id, start, end, exact text)
    │                                                            stored in SQLite
    ├─► Absence Detector ────┐
-   ├─► Procedural Clock ────┼─► provenance check: each span is re-read from its document,
+   ├─► Procedural Clock ────┤
+   ├─► Detention renewals ──┼─► provenance check: each span is re-read from its document,
    ├─► Reuse Detector ──────┘   and a finding whose span does not match is dropped
    └─► Judicial History Tracker (all stored cases, coded rulings)
                                     │
@@ -53,9 +56,9 @@ Case record: every item carries its source span (document id, start, end, exact 
                    Streamlit app on 127.0.0.1, and the evaluation script
 ```
 
-The four modules read only the case record, never raw text, so each can be built and tested on its own (a test enforces this). The model never does arithmetic, never grades a person, and never decides a status on its own:
+The modules read only the case record, never raw text, so each can be built and tested on its own (a test enforces this). The model never does arithmetic, never grades a person, and never decides a status on its own:
 
-- Intervals are computed in code.
+- Intervals are computed in code, and so are the dates of detention orders and the share of an order's grounds that repeats earlier orders.
 - The model's labels count only when they name the rubric indicator they rely on.
 - The judge statistics come from rulings coded by people.
 
@@ -110,10 +113,14 @@ The other pages are:
 
 - **Rights coverage**
 - **Timeline**
+- **Detention renewals**: the case's detention orders in date order. An order is flagged when at least 60% of its grounds repeat earlier orders (a setting, not a legal standard), and when the next order is dated more than a day after an order's end date. Quoted law, the prosecutor's request and the operative part are left out of the comparison.
 - **Reasoning reuse**
 - **Judge profile**
+- **State's reply**: for each finding the State would contest, the strongest reply the State could make, argued by the local model from the record so the lawyer can test the finding. The model is shown the record passages most similar to the finding and a reviewed list of grounds for its standard (`ratio/config/steelman.yaml`); General Comment wording backs the grounds that the Comments themselves recognise. Each argument must use one of those grounds and quote one passage exactly. An argument is dropped if its ground was not offered, its passage was not shown, its quote is not in that passage, it rests on the finding's own evidence where the ground needs other evidence, or a second short model check finds the quote does not show what the ground requires. Grounds left without an argument are listed as not supported by the record. The wording is the model's, shown as unverified after the block list; it is never a finding, and judge patterns get no reply.
+- **Jurisprudence**: for each finding and each question for the monitor, the paragraphs of General Comments 32 and 35, and the Committee decisions they cite, linked by the standard it concerns. The same entries appear next to each finding on the other pages and in the report draft's annex. They are chosen by standard and status, never by the case's facts or by a model, and whether one applies is for the reviewing lawyer.
+- **Review**: the reviewing lawyer accepts, rewords or rejects each finding (a reason is required to reword or reject) and records issues Ratio did not flag. Decisions are saved on this computer, append-only, and survive a re-analysis of the case. They appear in the report draft, where a reworded finding shows the lawyer's wording with Ratio's kept in the annex.
 
-Any evidence button opens the source viewer.
+Any evidence button opens the source viewer. Once a case is loaded, the Case page's **Download report draft (.md)** button saves its findings as an editable Markdown draft: each finding is numbered, and its exact source text is quoted in an annex with the document and line it comes from.
 
 **Live demo:** follow [docs/DEMO.md](docs/DEMO.md), a three-minute script with fallback screenshots.
 
@@ -124,6 +131,9 @@ python -m ratio preflight              # is this computer ready for the offline 
 python -m ratio ingest [CASE_DIR]      # build a case record (add --live to call the local model)
 python -m ratio build-demo-cache       # record the demo's model answers with Ollama
 python -m ratio check-ollama           # is the local model pulled and served on 127.0.0.1?
+python -m ratio report [CASE_DIR] -o report.md   # the case's findings as a Markdown report draft, with reviewers' decisions
+python -m ratio feedback [--json PATH]  # reviewers' decisions per module; --json exports every decision and missed issue
+python scripts/check_jurisprudence.py   # online: checks every quote and citation in the jurisprudence corpus against the UN documents
 ```
 
 ## Evaluation
@@ -131,18 +141,20 @@ python -m ratio check-ollama           # is the local model pulled and served on
 ```bash
 python -m eval.run_eval          # replays the recorded answers; about 4 seconds, no Ollama needed
 python -m eval.run_eval --live   # asks the local model wherever no answer is recorded
+python -m eval.run_eval --reviews   # also checks fresh findings against reviewers' saved decisions
 ```
 
-It prints the results and writes `eval/out/report.json`. It exits with an error if any finding, shown or dropped, lacked an exact source span. The current results on the demo case:
+It prints the results and writes `eval/out/report.json`. It exits with an error if any finding, shown or dropped, lacked an exact source span, and, with `--reviews`, if a finding a reviewer kept is no longer produced. The current results on the demo case:
 
 | Measure | Result |
 |---|---|
 | Events found, against the hand-checked timeline | 8 of 8 |
 | Dates correct, among the events found | 8 of 8 |
-| Expected outputs found (`data/demo/gold/expected_flags.json`: all 7 statuses, the 2 follow-up questions with their language context, and the 7 planted findings) | 16 of 16 |
-| Must-not-flag violations, out of 7 planted traps (an appearance before a prosecutor, a quoted statute, the recited charge, the prosecution's argument, the caption, the court's own reasoning on the same facts, and a defence argument the court did answer) | 0 |
-| Findings that point to an exact source span | 11 of 11, none dropped |
+| Expected outputs found (`data/demo/gold/expected_flags.json`: all 7 statuses, the 2 follow-up questions with their language context, and the 9 planted findings) | 18 of 18 |
+| Must-not-flag violations, out of 11 planted traps (an appearance before a prosecutor, a quoted statute, the recited charge, the prosecution's argument, the caption, the court's own reasoning on the same facts, a defence argument the court did answer, a renewal that adds new grounds, the law and the prosecutor's request repeated in every order, and a renewal made on the day the previous order ended) | 0 |
+| Findings that point to an exact source span | 13 of 13, none dropped |
 | Judge pattern indicators that point to exact source spans | 1 of 1 |
+| State's replies (model-generated): findings contested, arguments kept with exact quotes | 11 findings, 3 arguments kept (22 dropped by the checks), all 3 quoted exactly |
 
 These results are **in-sample**: the team wrote both the case and the expected outputs. They show that the pipeline works end to end, not how well it generalises. The main metric in our hackathon proposal (not published), recall against published TrialWatch reports, has not been measured yet.
 
@@ -168,11 +180,12 @@ On every judge page, above everything else: *TrialWatch monitors cases already s
 
 ## Data sources
 
-- **The demo case** (`data/demo/case`): *Republic of Calderra v. Daro Venn*. It is entirely synthetic: the country, court, people, minority language and laws are invented. It has four hearing notes, the indictment and the judgment, with planted issues:
+- **The demo case** (`data/demo/case`): *Republic of Calderra v. Daro Venn*. It is entirely synthetic: the country, court, people, minority language and laws are invented. It has four hearing notes, the indictment, the judgment and three detention orders, with planted issues:
   - no interpreter is ever mentioned, though the defendant's first language is a minority language;
   - the defendant first appears before a judge five days after arrest, after an earlier appearance before a prosecutor that does not stop the clock;
   - four judgment passages are copied from the indictment and one is lightly paraphrased;
-  - one defence argument is never answered.
+  - one defence argument is never answered;
+  - the third detention order repeats the second order's grounds word for word, three months later, and is dated a day after the second order ran out.
 - **Judicial history** (`data/demo/history`): 20 synthetic cases generated from `seed.yaml`: 19 from the demo case's court and one from another invented court. On the presiding judge's profile:
   - one indicator fires;
   - two show without a badge;
@@ -180,6 +193,7 @@ On every judge page, above everything else: *TrialWatch monitors cases already s
   - a name written with initials only waits for confirmation;
   - a judge with the same name at another court stays separate.
 - **Standards:** the ICCPR, and Human Rights Committee General Comments [No. 32](https://documents.un.org/doc/undoc/gen/g07/437/71/pdf/g0743771.pdf) (Article 14) and [No. 35](https://documents.un.org/doc/undoc/gen/g14/244/51/pdf/g1424451.pdf) (Article 9). Paragraph numbers were checked against the official UN documents. The rubric, benchmarks and ruling codes are in `ratio/config/`.
+- **Jurisprudence** (`ratio/config/jurisprudence.yaml`): 26 entries, either General Comment paragraphs in their own words or Committee decisions cited only for what a General Comment footnote cites them for (the footnote's own text), so nothing describes a decision's facts. `scripts/check_jurisprudence.py` checked every quote and citation, and the 8 General Comment quotes behind the State's-reply grounds in `ratio/config/steelman.yaml`, against the official PDFs on 2026-10-09. Decisions on the bias of individual judges are left out, so a judge pattern indicator is never shown next to one.
 - **Your own cases:** use public or synthetic material only. A case folder has a `case.yaml` listing its documents (.txt, .md or .pdf), with the type, court and charge type, and whether the material is synthetic or public (with the source). It can also have a `rulings.yaml` of coded rulings for the Judicial History Tracker. `data/demo/case` is a complete example.
 
 No real monitoring notes and no published TrialWatch reports are in this repository.
@@ -193,37 +207,36 @@ No real monitoring notes and no published TrialWatch reports are in this reposit
   - Every model output is checked against the source text, and dates are parsed in code, but an event the model misses is simply absent.
   - Reading a whole case live takes minutes.
 - **Reuse counting is conservative.** A judgment sentence that quotes the law and then applies it is excluded as a statute quotation, so any copying in it is not counted.
+- **Detention orders are read by fixed patterns.** An order's date must be on a "Date:", "Order date:" or "Dated:" caption line, and its end date must follow "until" in a sentence about detention, custody or remand. An order with neither is kept and reported as not measurable. A renewal for a fixed period with no end date written ("for two months") is not converted into a date.
+- **The jurisprudence corpus is small and chosen by standard.** It covers 16 paragraphs of General Comments 32 and 35 and 10 decisions they cite. An entry is linked to every finding on its standard, however different the facts, and the choice of which entries go with which standard needs legal review.
 - **The Judicial History Tracker runs on synthetic history only.**
   - Coded rulings must be written by hand.
   - TrialWatch's case selection makes the rates unrepresentative, as every judge page says.
   - A judge whose surname is also a title word (for example "Justice") waits for a person to confirm the name.
 - **The recorded demo answers match exact prompts.** In the demo, one similarity comparison that selects notes for the model is decided by a margin of 0.00009. On a computer whose arithmetic differs slightly (another operating system or processor), that selection could change, and with it one prompt; the replay would then stop with "no cached labels reply for this request". `python -m ratio preflight` detects this and prints the command that records the missing answer with Ollama running.
 - **Platforms:** tested on macOS with Apple Silicon. PyTorch no longer publishes wheels for Intel Macs.
-- **Not built yet** (stretch goals in our hackathon proposal):
-  - the detention-renewal mode, which compares successive extension orders;
-  - a report draft export;
-  - the steelman-the-state agent;
-  - the jurisprudence linker;
-  - a feedback loop from lawyers' corrections.
+- **The State's strongest reply is conservative and small-model.** The checks drop most of what a 7B model proposes (22 of 25 arguments on the demo), so a missing reply means the record passages shown supported no ground, not that the State has no answer. Ollama's answers can vary slightly between runs even at temperature 0; the demo replays the recorded ones.
 
 ## Project layout
 
 ```
 ratio/
   extraction/     reading, sentence splitting, chunking, model extraction, span alignment, dates
-  modules/        absence.py, clock.py, reuse.py, judges.py (with the exclusion rules, name registry and statistics)
+  modules/        absence.py, clock.py, renewal.py, reuse.py, judges.py (with the exclusion rules, name registry and statistics)
   config/         rubric.yaml, benchmarks.yaml, ruling_codes.yaml, standards.yaml, messages.yaml, settings.yaml
   schema.py       the case record (frozen pydantic models)
   results.py      module outputs
   provenance.py   every finding re-checked against its source text
   llm.py          local Ollama client with a replayable answer cache
   netguard.py     blocks every connection that does not stay on this computer
-  store.py        SQLite case store
+  store.py        SQLite case store, with reviewers' decisions
+  feedback.py     lawyers' corrections: the decision in force, per-module summary, regression check
   preflight.py    pre-demo checks
+  report.py       the Markdown report draft export
 app/              Streamlit app: main.py, views/ (one file per page), ratio_ui/ (source viewer, widgets, privacy check)
 data/demo/        synthetic demo case, expected outputs, judicial history, recorded model answers
 eval/             evaluation script
-scripts/          one-time model download and the history generator
+scripts/          one-time model download, the history generator, and the jurisprudence check
 tests/
 docs/             demo script and screenshots
 site/             a static page about Ratio for a public link (optional; see "Project page")

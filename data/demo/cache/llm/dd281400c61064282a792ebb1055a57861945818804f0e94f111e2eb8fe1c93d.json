@@ -1,0 +1,11 @@
+{
+  "key": "dd281400c61064282a792ebb1055a57861945818804f0e94f111e2eb8fe1c93d",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman_check",
+  "response": {
+    "note": "Defence requested witnesses.",
+    "shows": false
+  },
+  "schema": "GroundCheck",
+  "synthetic": true
+}

@@ -1,0 +1,11 @@
+{
+  "key": "bd9c3fe007e3ebf91c26dc4bd4da7ce1a397f492e476c9bc136e967210abf838",
+  "model": "qwen2.5:7b-instruct",
+  "purpose": "steelman_check",
+  "response": {
+    "note": "Describes prosecution's argument, not court's conclusion.",
+    "shows": false
+  },
+  "schema": "GroundCheck",
+  "synthetic": true
+}

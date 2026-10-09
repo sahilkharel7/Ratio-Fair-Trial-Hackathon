@@ -1,0 +1,255 @@
+# The jurisprudence linker's corpus: paragraphs of the Human Rights Committee's General Comments, and
+# the Committee's Views (decisions on individual communications) that those paragraphs cite.
+#
+# Every entry rests on an official document listed under `sources`, and nothing here was written from
+# memory:
+#   general_comment  `quote` is the paragraph's own words. Where a footnote marker or a page break falls
+#                    inside it, the elision is marked "…" and each segment is checked on its own.
+#   views            the decision is cited only for what the General Comment cites it for: `cited_as` is
+#                    the footnote's own text. Ratio says nothing about the decision's facts or reasoning.
+# scripts/check_jurisprudence.py downloads the sources and checks every quote and every `cited_as`
+# against them; run it after any change here. Last run: 2026-10-09, every entry found.
+#
+# An entry links to a finding by the standard the finding concerns (`standards`: rubric item, benchmark
+# or standard ids), optionally only for some of its statuses (`statuses`). A question for the monitor
+# (no evidence either way) links to General Comment paragraphs only. Selection is by standard, never by
+# the case's facts: whether an entry applies is for the reviewing lawyer. NEEDS LEGAL REVIEW: the team
+# chose which entries go with which standard.
+#
+# Deliberately left out: decisions on the bias of individual judges (e.g. GC32 footnote 34), so a judge
+# pattern indicator is never shown next to a decision that found a judge biased (hard rule 3).
+version: 1
+checked: "2026-10-09"
+
+sources:
+  gc32:
+    symbol: "CCPR/C/GC/32"
+    title: "Human Rights Committee, General Comment No. 32 (2007), Article 14"
+    url: "https://documents.un.org/doc/undoc/gen/g07/437/71/pdf/g0743771.pdf"
+  gc35:
+    symbol: "CCPR/C/GC/35"
+    title: "Human Rights Committee, General Comment No. 35 (2014), Article 9"
+    url: "https://documents.un.org/doc/undoc/gen/g14/244/51/pdf/g1424451.pdf"
+
+entries:
+  # --- ICCPR Art. 14(3)(a) to (g): the rights coverage grid ---------------------------------
+  - id: gc32_para31
+    kind: general_comment
+    source: gc32
+    pinpoint: "para. 31"
+    standards: [iccpr_14_3_a]
+    quote: "The right of all persons charged with a criminal offence to be informed promptly and in detail in a language which they understand of the nature and cause of criminal charges brought against them, enshrined in paragraph 3 (a), is the first of the minimum guarantees in criminal proceedings of article 14."
+
+  - id: gc32_para32
+    kind: general_comment
+    source: gc32
+    pinpoint: "para. 32"
+    standards: [iccpr_14_3_b]
+    quote: "There is an obligation to grant reasonable requests for adjournment, in particular, when the accused is charged with a serious criminal offence and additional time for preparation of the defence is needed."
+
+  - id: chan_v_guyana
+    kind: views
+    source: gc32
+    pinpoint: "footnote 68, to para. 32"
+    case: "Chan v. Guyana"
+    communication: "913/2000"
+    standards: [iccpr_14_3_b]
+    statuses: [evidence_of_violation]
+    cited_as: "No. 913/2000, Chan v. Guyana, para. 6.3"
+    note: "Cited for the obligation to grant reasonable requests for adjournment."
+
+  - id: phillip_v_trinidad_and_tobago
+    kind: views
+    source: gc32
+    pinpoint: "footnote 68, to para. 32"
+    case: "Phillip v. Trinidad and Tobago"
+    communication: "594/1992"
+    standards: [iccpr_14_3_b]
+    statuses: [evidence_of_violation]
+    cited_as: "No. 594/1992, Phillip v. Trinidad and Tobago, para. 7.2"
+    note: "Cited for the obligation to grant reasonable requests for adjournment."
+
+  - id: gc32_para33
+    kind: general_comment
+    source: gc32
+    pinpoint: "para. 33"
+    standards: [iccpr_14_3_b]
+    quote: "“Adequate facilities” must include access to documents and other evidence; this access must include all materials … that the prosecution plans to offer in court against the accused or that are exculpatory."
+
+  - id: gc32_para34
+    kind: general_comment
+    source: gc32
+    pinpoint: "para. 34"
+    standards: [iccpr_14_3_b, counsel_access]
+    quote: "The right to communicate with counsel requires that the accused is granted prompt access to counsel."
+
+  - id: gc32_para35
+    kind: general_comment
+    source: gc32
+    pinpoint: "para. 35"
+    standards: [iccpr_14_3_c, trial_undue_delay]
+    quote: "In cases where the accused are denied bail by the court, they must be tried as expeditiously as possible."
+
+  - id: sextus_v_trinidad_and_tobago
+    kind: views
+    source: gc32
+    pinpoint: "footnote 73, to para. 35"
+    case: "Sextus v. Trinidad and Tobago"
+    communication: "818/1998"
+    standards: [iccpr_14_3_c, trial_undue_delay]
+    cited_as: "Communication No. 818/1998, Sextus v. Trinidad and Tobago, para. 7.2."
+    note: "Cited for the requirement that an accused denied bail be tried as expeditiously as possible."
+
+  - id: gc32_para36
+    kind: general_comment
+    source: gc32
+    pinpoint: "para. 36"
+    standards: [iccpr_14_3_d]
+    quote: "First, the provision requires that accused persons are entitled to be present during their trial."
+
+  - id: gc32_para39
+    kind: general_comment
+    source: gc32
+    pinpoint: "para. 39"
+    standards: [iccpr_14_3_e]
+    quote: "a right to have witnesses admitted that are relevant for the defence, and to be given a proper opportunity to question and challenge witnesses against them at some stage of the proceedings."
+
+  - id: gc32_para40
+    kind: general_comment
+    source: gc32
+    pinpoint: "para. 40"
+    standards: [iccpr_14_3_f]
+    quote: "This right arises at all stages of the oral proceedings. It applies to aliens as well as to nationals. However, accused persons whose mother tongue differs from the official court language are, in … principle, not entitled to the free assistance of an interpreter if they know the official language sufficiently to defend themselves effectively."
+
+  - id: guesdon_v_france
+    kind: views
+    source: gc32
+    pinpoint: "footnote 86, to para. 40"
+    case: "Guesdon v. France"
+    communication: "219/1986"
+    standards: [iccpr_14_3_f]
+    statuses: [evidence_of_violation]
+    cited_as: "Communication No. 219/1986, Guesdon v. France, para. 10.2."
+    note: "Cited for the right to an interpreter as an aspect of fairness and equality of arms."
+
+  - id: gc32_para41
+    kind: general_comment
+    source: gc32
+    pinpoint: "para. 41"
+    standards: [iccpr_14_3_g]
+    quote: "This safeguard must be understood in terms of the absence of any direct or indirect physical or undue psychological pressure from the investigating authorities on the accused, with a view to obtaining a confession of guilt."
+
+  # --- ICCPR Art. 9(3): the Procedural Clock --------------------------------------------------
+  - id: gc35_para33
+    kind: general_comment
+    source: gc35
+    pinpoint: "para. 33"
+    standards: [gc35_48h]
+    quote: "In the view of the Committee, 48 hours is ordinarily sufficient to transport the individual and to prepare for the judicial hearing; … any delay longer than 48 hours must remain absolutely exceptional and be justified under the circumstances."
+
+  - id: teran_jijon_v_ecuador
+    kind: views
+    source: gc35
+    pinpoint: "footnote 96, to para. 33"
+    case: "Terán Jijón v. Ecuador"
+    communication: "277/1988"
+    standards: [gc35_48h]
+    statuses: [exceeds_benchmark]
+    cited_as: "277/1988, Terán Jijón v. Ecuador, para. 5.3 (five days not prompt)"
+    note: "Cited for delays that should not exceed a few days from the time of arrest: five days not prompt."
+
+  - id: freemantle_v_jamaica
+    kind: views
+    source: gc35
+    pinpoint: "footnote 96, to para. 33"
+    case: "Freemantle v. Jamaica"
+    communication: "625/1995"
+    standards: [gc35_48h]
+    statuses: [exceeds_benchmark]
+    cited_as: "625/1995, Freemantle v. Jamaica, para. 7.4 (four days not prompt)"
+    note: "Cited for delays that should not exceed a few days from the time of arrest: four days not prompt."
+
+  - id: kovsh_v_belarus
+    kind: views
+    source: gc35
+    pinpoint: "footnote 97, to para. 33"
+    case: "Kovsh v. Belarus"
+    communication: "1787/2008"
+    standards: [gc35_48h]
+    statuses: [exceeds_benchmark]
+    cited_as: "1787/2008, Kovsh v. Belarus, paras. 7.3–7.5."
+    note: "Cited for 48 hours being ordinarily sufficient to bring the detainee before a judge."
+
+  - id: gc35_para35
+    kind: general_comment
+    source: gc35
+    pinpoint: "para. 35"
+    standards: [counsel_access]
+    quote: "States parties should permit and facilitate access to counsel for detainees in criminal cases from the outset of their detention."
+
+  - id: gc35_para37
+    kind: general_comment
+    source: gc35
+    pinpoint: "para. 37"
+    standards: [pretrial_detention_length, renewal_review]
+    quote: "Persons who are not released pending trial must be tried as expeditiously as possible, to the extent consistent with their rights of defence. … When delays become necessary, the judge must reconsider alternatives to pretrial detention."
+
+  # --- ICCPR Art. 9(1) and 9(3): detention renewals ---------------------------------------------
+  - id: gc35_para38
+    kind: general_comment
+    source: gc35
+    pinpoint: "para. 38"
+    standards: [renewal_review]
+    quote: "Detention pending trial must be based on an individualized determination that it is reasonable and necessary taking into account all the circumstances, for such purposes as to prevent flight, interference with evidence or the recurrence of crime. … After an initial determination has been made that pretrial detention is necessary, there should be periodic re-examination of whether it continues to be reasonable and necessary in the light of possible alternatives."
+
+  - id: taright_v_algeria
+    kind: views
+    source: gc35
+    pinpoint: "footnote 122, to para. 38"
+    case: "Taright v. Algeria"
+    communication: "1085/2002"
+    standards: [renewal_review]
+    cited_as: "1085/2002, Taright v. Algeria, paras. 8.3–8.4."
+    note: "Cited for the periodic re-examination of whether pretrial detention continues to be reasonable and necessary."
+
+  - id: smantser_v_belarus
+    kind: views
+    source: gc35
+    pinpoint: "footnote 120, to para. 38"
+    case: "Smantser v. Belarus"
+    communication: "1178/2003"
+    standards: [renewal_review]
+    cited_as: "1178/2003, Smantser v. Belarus, para. 10.3."
+    note: "Cited for the duty of courts to examine whether alternatives to pretrial detention would render it unnecessary."
+
+  - id: gc35_para22
+    kind: general_comment
+    source: gc35
+    pinpoint: "para. 22"
+    standards: [renewal_gap]
+    quote: "The third sentence of paragraph 1 of article 9 provides that no one shall be deprived of liberty except on such grounds and in accordance with such procedure as are established by law. … Deprivation of liberty without such legal authorization is unlawful."
+
+  - id: mclawrence_v_jamaica
+    kind: views
+    source: gc35
+    pinpoint: "footnote 64, to para. 22"
+    case: "McLawrence v. Jamaica"
+    communication: "702/1996"
+    standards: [renewal_gap]
+    cited_as: "702/1996, McLawrence v. Jamaica, para. 5.5: “the principle of legality is violated if an individual is arrested or detained on grounds which are not clearly established in domestic legislation”."
+    note: "Quoted by General Comment No. 35 on the principle of legality."
+
+  # --- ICCPR Art. 14(1) and 14(5): the court's reasoning and the judge profile ------------------
+  - id: gc32_para21
+    kind: general_comment
+    source: gc32
+    pinpoint: "para. 21"
+    standards: [reasoning_reuse, judicial_pattern]
+    quote: "Second, the tribunal must also appear to a reasonable observer to be impartial."
+
+  - id: gc32_para49
+    kind: general_comment
+    source: gc32
+    pinpoint: "para. 49"
+    standards: [reasoning_reuse, unaddressed_defense_argument]
+    quote: "The right to have one’s conviction reviewed can only be exercised effectively if the convicted person is entitled to have access to a duly reasoned, written judgement of the trial court"
