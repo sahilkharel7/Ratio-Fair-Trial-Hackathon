@@ -212,10 +212,6 @@ class ExtractionSettings(Frozen):
     argument_markers: tuple[str, ...] = Field(min_length=1)
 
 
-class EmbeddingSettings(Frozen):
-    model_dir: str
-
-
 class AbsenceSettings(Frozen):
     shortlist_top_k: int = Field(gt=0)
     per_hearing_top_k: int = Field(gt=0)
@@ -296,7 +292,6 @@ class Settings(Frozen):
     version: int
     llm: LLMSettings
     extraction: ExtractionSettings
-    embeddings: EmbeddingSettings
     absence: AbsenceSettings
     reuse: ReuseSettings
     judges: JudgeSettings

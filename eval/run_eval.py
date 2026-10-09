@@ -88,6 +88,7 @@ def _print_flags(recall: FlagRecall, prov: dict[str, float | int]) -> None:
     print(f"  expected outputs found {len(recall.found)}/{len(recall.found) + len(recall.missed)} = {recall.recall:.0%}")
     for item in recall.missed:
         print(f"  missed expected output: {item}")
+    print(f"  must-not-flag violations {len(recall.violations)}")
     for item in recall.violations:
         print(f"  must-not-flag violation: {item}")
 

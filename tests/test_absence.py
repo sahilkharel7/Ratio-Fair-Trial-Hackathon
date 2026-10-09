@@ -209,7 +209,7 @@ def test_charge_follow_up_shows_the_language_fact_not_a_merely_similar_note():
     ]  # "the court would rule on the request later" scores higher with MiniLM but mentions no language
 
 
-# --- review fixes: undated notes, the shortlist cap, context facts, skipped notes, grounding ---------
+# --- edge cases: undated notes, the shortlist cap, context facts, skipped notes, grounding ---------
 
 
 def undated(record: CaseRecord) -> CaseRecord:

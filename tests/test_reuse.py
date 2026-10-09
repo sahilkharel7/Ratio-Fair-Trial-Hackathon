@@ -287,7 +287,7 @@ def test_long_reasoning_is_narrowed_to_the_most_similar_passages():
     assert "the Court notes that the amendment entered into force" in retroactivity
 
 
-# --- review fixes: union containment, block quotes, the charge's wording, recall, all indictments ---
+# --- edge cases: union containment, block quotes, the charge's wording, recall, all indictments ---
 
 FACTS = (
     "The articles were shared more than 40,000 times within three days and caused public alarm in the northern districts. "
@@ -380,7 +380,7 @@ def test_every_indictment_is_compared():
     assert result.indictment_doc_ids == ("test-case/indictment.txt", "test-case/amended.txt")
 
 
-# --- review fixes: the court's answer, judgments without reasoning, readable replies, budgets -------
+# --- edge cases: the court's answer, judgments without reasoning, readable replies, budgets -------
 
 NOTE = "Hearing date: 2 May 2024\n\nDefence counsel argued that the telephone was seized without a judicial warrant.\n"
 

@@ -38,9 +38,6 @@ extraction:
     - "claimed that"
     - "asserted that"
 
-embeddings:
-  model_dir: "models/all-MiniLM-L6-v2"
-
 absence:
   # Shortlists are built per rubric part: the top notes overall for case-level parts, and the
   # top notes of every monitored hearing for per-hearing parts (so no hearing is skipped).

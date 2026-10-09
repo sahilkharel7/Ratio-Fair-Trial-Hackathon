@@ -1,6 +1,6 @@
 # Ratio demo script (3 minutes)
 
-The live demo follows the six demo steps in our hackathon proposal (not published): from the case record to the source line behind each finding. Everything on screen is the **synthetic** demo case *Republic of Calderra v. Daro Venn*.
+The live demo has six steps: from the case record to the source line behind each finding. Everything on screen is the **synthetic** demo case *Republic of Calderra v. Daro Venn*.
 
 Measured on 8 October 2026 (MacBook with Apple Silicon):
 
@@ -51,7 +51,7 @@ Tip: the Case page's summary links to each page, so you can click through in ord
 | What you see | What to do |
 |---|---|
 | The app does not start, or a page is blank | Switch to the screenshots, in the order of the steps above: `01-case.png`, then `07-live-note.png` if you show the live step, then `02-coverage.png` to `06-source.png` (with `04b-reuse-excluded.png` after `04-reuse.png`) |
-| "Load the demo case" shows **Stopped** and "no cached labels reply for this request (replay-only mode …)" | This laptop computes one similarity slightly differently (see the README's limitations). Use the screenshots now. After the demo, run `python -m ratio preflight` with Ollama running and use the command it prints |
+| "Load the demo case" shows **Stopped** and "no cached labels reply for this request (replay-only mode …)" | This laptop computes one similarity slightly differently (see the [README's limitations](../README.md#limitations)). Use the screenshots now. After the demo, run `python -m ratio preflight` with Ollama running and use the command it prints |
 | The live-note step says "The local model is not available" | Say "the rest of the demo runs without it" and move on. This is by design |
 | A page says to load a case first | Go to **Case** and click **Load the demo case** |
 | "Ratio will not start because these privacy settings are not in effect" | The app was started with changed settings. Run `git checkout -- .streamlit app/.streamlit` and start it again from the repository root |
@@ -74,11 +74,11 @@ The line and character numbers in the source viewer count positions in the text 
 
 | File | Shows |
 |---|---|
-| `screenshots/01-case.png` | The demo case loaded: 11 findings, each linked to its source |
-| `screenshots/02-coverage.png` | The coverage grid, with the interpreter follow-up question open |
-| `screenshots/03-timeline.png` | The red interval: 4 to 6 days from arrest to the first appearance before a judge, against GC35's 48 hours |
-| `screenshots/04-reuse.png` | The reuse score and the side-by-side view |
-| `screenshots/04b-reuse-excluded.png` | Whole documents: the recited charge, the parties' arguments and the statute quote greyed out, each tagged with the reason |
-| `screenshots/05-judge.png` | The judge profile: the selection-bias note and the pattern that warrants review, with n and intervals |
-| `screenshots/06-source.png` | The source viewer: the indictment sentence highlighted, with its line and characters in the text Ratio read |
-| `screenshots/07-live-note.png` | The live model's answer, the same as the recorded one |
+| [`screenshots/01-case.png`](screenshots/01-case.png) | The demo case loaded: 11 findings, each linked to its source |
+| [`screenshots/02-coverage.png`](screenshots/02-coverage.png) | The coverage grid, with the interpreter follow-up question open |
+| [`screenshots/03-timeline.png`](screenshots/03-timeline.png) | The red interval: 4 to 6 days from arrest to the first appearance before a judge, against GC35's 48 hours |
+| [`screenshots/04-reuse.png`](screenshots/04-reuse.png) | The reuse score and the side-by-side view |
+| [`screenshots/04b-reuse-excluded.png`](screenshots/04b-reuse-excluded.png) | Whole documents: the recited charge, the parties' arguments and the statute quote greyed out, each tagged with the reason |
+| [`screenshots/05-judge.png`](screenshots/05-judge.png) | The judge profile: the selection-bias note and the pattern that warrants review, with n and intervals |
+| [`screenshots/06-source.png`](screenshots/06-source.png) | The source viewer: the indictment sentence highlighted, with its line and characters in the text Ratio read |
+| [`screenshots/07-live-note.png`](screenshots/07-live-note.png) | The live model's answer, the same as the recorded one |

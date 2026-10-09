@@ -124,7 +124,7 @@ def test_a_judgment_without_headings_is_all_reasoning_except_caption_and_signatu
     }
 
 
-# --- review fixes: real-world wording of court voice, party positions, recitals and headings --------
+# --- edge cases: real-world wording of court voice, party positions, recitals and headings --------
 
 ASSESSMENT = "V. ASSESSMENT OF THE COURT\n\n"
 

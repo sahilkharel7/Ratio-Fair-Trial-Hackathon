@@ -1,5 +1,5 @@
 """Wilson intervals for one rate and Newcombe's hybrid score interval for a difference of two rates,
-checked against published values and the decision cases pinned in the build plan."""
+checked against published values and pinned decision cases."""
 
 import pytest
 

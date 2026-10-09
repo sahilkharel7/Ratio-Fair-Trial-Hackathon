@@ -82,7 +82,7 @@ class TestBenchmarks:
 
     def test_other_benchmarks_are_cited_but_have_no_threshold(self, config):
         others = [b for b in config.benchmarks.benchmarks if b.id != "gc35_48h"]
-        assert len(others) >= 2  # proposal deliverable: three cited benchmarks in total
+        assert len(others) >= 2  # three cited benchmarks in total
         for benchmark in others:
             assert benchmark.review_status == "needs_legal_review"
             assert benchmark.threshold_hours is None

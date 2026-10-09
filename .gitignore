@@ -20,7 +20,13 @@ data/uploads/
 # Eval output
 eval/out/
 
-# OS / editor
+# OS / editor / local tools
 .DS_Store
+.claude/
+.env
+.env.*
+.coverage.*
+.ruff_cache/
+.mypy_cache/
 .idea/
 .vscode/
