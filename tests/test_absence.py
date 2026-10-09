@@ -416,3 +416,29 @@ def test_a_rubric_item_needs_a_required_part():
     item["parts"] = [{**part, "required": False} for part in item["parts"]]
     with pytest.raises(ValidationError, match="required"):
         RubricItem.model_validate(item)
+
+
+def test_an_answer_cut_off_at_the_length_limit_is_asked_again_in_halves():
+    from ratio.llm import LLMResponseError
+
+    def short_replies_only(system, user, schema, purpose):
+        if len(observations_in(user)) > 2:  # a long batch overflows the reply budget
+            raise LLMResponseError("model output was truncated (done_reason='length')")
+        return careful_reader()(system, user, schema, purpose)
+
+    result, _ = run(responder=short_replies_only)
+    assert statuses(result) == EXPECTED
+    assert all(a.unlabelled_notes == 0 for a in result.assessments)
+
+
+def test_a_note_whose_answer_is_always_cut_off_stays_unlabelled_instead_of_stopping_the_case():
+    from ratio.llm import LLMResponseError
+
+    def never_for_the_dock(system, user, schema, purpose):
+        if any("dock" in text for text in observations_in(user).values()):
+            raise LLMResponseError("model output was truncated (done_reason='length')")
+        return careful_reader()(system, user, schema, purpose)
+
+    result, _ = run(responder=never_for_the_dock)
+    assert sum(a.unlabelled_notes for a in result.assessments) > 0
+    assert all(a.status != "evidence_of_compliance" or a.unlabelled_notes == 0 for a in result.assessments)

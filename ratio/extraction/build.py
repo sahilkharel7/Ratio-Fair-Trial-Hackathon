@@ -26,7 +26,7 @@ from ratio.extraction.segment import Segment, caption_lines, find_citations, seg
 from ratio.schema import CaseRecord, Citation, Document, Event, Observation, Passage, SourceSpan, stable_id
 
 OBSERVATION_SOURCES = frozenset({"monitoring_note", "transcript"})
-_DELIVERY_LINE = re.compile(r"(?:delivered on|date of judgment:?|date:)\s", re.IGNORECASE)  # a judgment caption line that dates it
+_DELIVERY_LINE = re.compile(r"(?:delivered(?: on)?:?|date of judgment:?|date:)\s", re.IGNORECASE)  # a judgment caption line that dates it
 
 
 def _span(doc: Document, start: int, end: int) -> SourceSpan:

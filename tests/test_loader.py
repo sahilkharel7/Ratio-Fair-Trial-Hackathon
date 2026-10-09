@@ -67,7 +67,7 @@ def test_hearing_date_header_sets_document_date_and_observations(tmp_path):
     assert len(hearings) == 1 and hearings[0].precision == "date"
 
 
-@pytest.mark.parametrize("line", ["Delivered on 22 September 2025", "Date: 22 September 2025"])
+@pytest.mark.parametrize("line", ["Delivered on 22 September 2025", "Date: 22 September 2025", "Delivered: 22 September 2025"])
 def test_the_judgment_caption_date_is_the_verdict_with_the_caption_line_as_its_source(tmp_path, line):
     judgment = JUDGMENT.replace("JUDGMENT\n", f"JUDGMENT\n{line}\n")
     record = load_case(write_case(tmp_path / "case", judgment=judgment))

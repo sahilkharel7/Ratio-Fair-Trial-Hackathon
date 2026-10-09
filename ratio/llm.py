@@ -24,7 +24,7 @@ from urllib.parse import urlsplit
 from pydantic import BaseModel, ValidationError
 
 from ratio.config import LLMSettings
-from ratio.context import estimated_tokens, system_with_schema
+from ratio.context import ModelReplyError, estimated_tokens, system_with_schema
 from ratio.netguard import is_loopback_host
 
 T = TypeVar("T", bound=BaseModel)
@@ -62,7 +62,7 @@ class ModelNotAvailable(LLMError):
     """The configured model has not been pulled."""
 
 
-class LLMResponseError(LLMError):
+class LLMResponseError(LLMError, ModelReplyError):
     """The model's reply was truncated or did not match the schema."""
 
 

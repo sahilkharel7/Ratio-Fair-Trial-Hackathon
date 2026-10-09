@@ -24,7 +24,7 @@ from collections.abc import Iterable, Sequence
 import numpy as np
 
 from ratio.config import RatioConfig, RubricIndicator, RubricItem, RubricPart
-from ratio.context import AnalysisContext, estimated_tokens, system_with_schema
+from ratio.context import AnalysisContext, ModelReplyError, estimated_tokens, system_with_schema
 from ratio.embeddings import cosine_matrix
 from ratio.messages import filter_model_note, render
 from ratio.modules.absence_prompts import LABEL_SYSTEM, LabelReply, ObservationLabel, label_user_prompt
@@ -159,7 +159,13 @@ def _batches(item: RubricItem, shortlist: list[Observation], previous: dict[str,
 def _ask(item: RubricItem, batch: list[Observation], previous: dict[str, str], ctx: AnalysisContext) -> list[tuple[Observation, ObservationLabel]]:
     numbered = [(f"O{n}", obs) for n, obs in enumerate(batch, start=1)]
     prompt = label_user_prompt(item, [(obs_id, obs, previous.get(obs.id)) for obs_id, obs in numbered])
-    reply = ctx.llm.complete_json(system=LABEL_SYSTEM, user=prompt, schema=LabelReply, purpose="labels")
+    try:
+        reply = ctx.llm.complete_json(system=LABEL_SYSTEM, user=prompt, schema=LabelReply, purpose="labels")
+    except ModelReplyError:  # e.g. long notes overflow the reply limit: ask about each half on its own
+        if len(batch) == 1:
+            return []  # the note stays unlabelled, so its guarantee is never marked compliant without it
+        half = len(batch) // 2
+        return _ask(item, batch[:half], previous, ctx) + _ask(item, batch[half:], previous, ctx)
     answers = []
     for entry in reply.labels:
         obs = _answered(entry.observation, numbered)
