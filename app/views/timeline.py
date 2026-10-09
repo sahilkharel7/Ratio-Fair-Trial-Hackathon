@@ -9,18 +9,18 @@ from ratio.config import Benchmark
 from ratio.display import duration_text, md_escape
 from ratio.messages import render
 from ratio.results import ClockResult, Interval
-from ratio_ui import session, widgets
+from ratio_ui import session, style, widgets
 from ratio_ui.session import LoadedCase
 
 STATUS_COLOURS = {
-    "exceeds_benchmark": "#c0392b",
-    "may_exceed": "#e67e22",
-    "needs_review": "#e67e22",
-    "within_benchmark": "#2e7d32",
-    "measured": "#9aa5b1",
-    "cannot_compute": "#9aa5b1",
+    "exceeds_benchmark": "#a8353c",
+    "may_exceed": "#896324",
+    "needs_review": "#896324",
+    "within_benchmark": "#32684c",
+    "measured": "#8995a3",
+    "cannot_compute": "#8995a3",
 }
-EVENT_COLOUR = "#1f4e79"
+EVENT_COLOUR = "#28587d"
 
 
 def _interval_text(interval: Interval, benchmark: Benchmark, clock: ClockResult) -> str:
@@ -50,7 +50,7 @@ def _intervals(loaded: LoadedCase, clock: ClockResult) -> None:
     names = session.config().messages.event_labels
     for interval in sorted(clock.intervals, key=lambda i: i.status != "exceeds_benchmark"):
         benchmark = benchmarks[interval.benchmark_id]
-        with st.container(border=True):
+        with style.panel(f"interval-{interval.id}"):
             st.markdown(f"**{names[benchmark.from_event]} → {names[benchmark.to_event]}** · {md_escape(benchmark.provision)}")
             with st.container(horizontal=True):
                 widgets.badge(interval.status)
@@ -89,6 +89,13 @@ def _chart(clock: ClockResult) -> None:
     tooltip = [{"field": "row", "title": "Item"}, {"field": "kind", "title": "Status"}, {"field": "detail", "title": "Detail"}]
     spec = {
         "height": 30 * len(order) + 40,
+        "background": "#ffffff",
+        "config": {
+            "font": "Arial",
+            "view": {"stroke": None},
+            "axis": {"labelColor": "#5e6875", "labelFontSize": 11, "gridColor": "#eef0f3", "domainColor": "#dce0e5", "labelPadding": 8},
+            "legend": {"labelColor": "#5e6875", "labelFontSize": 11, "padding": 16},
+        },
         "layer": [
             {
                 "data": {"values": bars},
@@ -128,8 +135,10 @@ st.markdown(
 if clock is None or not clock.timeline:
     st.info("No dated events were found in this case.")
     st.stop()
+style.section("Chronology", "Events and measured intervals from the source record. Hover for status details.")
+with style.panel("chronology"):
+    _chart(clock)
+style.section("Benchmark review", "Confirmed benchmarks appear first. Each interval includes the source dates and its citation.")
 _intervals(loaded, clock)
-st.subheader("Timeline")
-_chart(clock)
-st.subheader("Events")
+style.section("Event record", "Open an event to read every source mention and any date conflicts.")
 _events(loaded, clock)

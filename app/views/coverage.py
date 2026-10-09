@@ -7,7 +7,7 @@ import streamlit as st
 from ratio.display import md_escape
 from ratio.messages import render
 from ratio.results import GuaranteeAssessment
-from ratio_ui import session, widgets
+from ratio_ui import session, style, widgets
 from ratio_ui.session import LoadedCase
 
 SELECTED = "ratio_coverage_item"
@@ -15,13 +15,15 @@ SELECTED = "ratio_coverage_item"
 
 def _grid(assessments: tuple[GuaranteeAssessment, ...]) -> None:
     for assessment in assessments:
-        with st.container(border=True):
+        with style.panel(f"guarantee-{assessment.rubric_id}"):
             st.markdown(f"**{md_escape(assessment.provision)}**  \n{md_escape(assessment.name)}")
             # status and button at their natural width: fixed columns cut them to "O…" on a laptop screen
             with st.container(horizontal=True, horizontal_alignment="distribute", vertical_alignment="center"):
                 widgets.badge(assessment.status)
-                if st.button("Open", key=f"open-{assessment.rubric_id}"):
+                selected = st.session_state.get(SELECTED, assessments[0].rubric_id) == assessment.rubric_id
+                if st.button("Selected" if selected else "Review", key=f"open-{assessment.rubric_id}", type="primary" if selected else "secondary"):
                     st.session_state[SELECTED] = assessment.rubric_id
+                    st.rerun()
 
 
 def _parts(assessment: GuaranteeAssessment) -> None:
@@ -81,10 +83,19 @@ st.markdown(
 if absence is None or not absence.assessments:
     st.info("This case has no monitoring notes to read.")
     st.stop()
+counts = st.columns(3)
+statuses = [a.status for a in absence.assessments]
+with counts[0]:
+    style.metric("Evidence of violation", statuses.count("evidence_of_violation"), "Review the contrary monitoring notes", "review")
+with counts[1]:
+    style.metric("Evidence of compliance", statuses.count("evidence_of_compliance"), "Supported by the monitoring record", "positive")
+with counts[2]:
+    style.metric("Monitor follow-ups", statuses.count("no_evidence"), "No evidence recorded; follow up with the monitor")
+style.section("Guarantee review", "Select a guarantee to inspect its evidence and the parts covered by the record.")
 grid_column, detail_column = st.columns([5, 7], gap="large")
 with grid_column:
     _grid(absence.assessments)
 selected_id = st.session_state.get(SELECTED, absence.assessments[0].rubric_id)
 selected = next((a for a in absence.assessments if a.rubric_id == selected_id), absence.assessments[0])
-with detail_column, st.container(border=True):
+with detail_column, style.panel("guarantee-detail"):
     _details(loaded, selected)

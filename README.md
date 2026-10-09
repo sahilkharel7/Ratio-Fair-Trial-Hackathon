@@ -15,7 +15,7 @@ Every finding links to the exact sentence it rests on: click it and the source d
 
 The name comes from *ratio decidendi*, the reasoning behind a decision. Ratio's central question is whether the court did its own reasoning.
 
-![The rights coverage grid of the synthetic demo case, with the follow-up question for the interpreter guarantee open](docs/screenshots/02-coverage.png)
+![The Ratio case overview, with matter details, source summaries, and evidence-led review workstreams for the synthetic demo](docs/screenshots/08-case-redesign.jpg)
 
 ## The problem
 
@@ -114,6 +114,12 @@ The other pages are:
 - **Judge profile**
 
 Any evidence button opens the source viewer.
+
+The **Case overview** leads with the current matter, review summaries, and searchable
+source documents. Use **Open document** to read an original document; when a search
+term is found in its text, the reader opens that exact passage. Imports and live
+model checks are available below the record. The shared interface components,
+design tokens, and design references are documented in [docs/INTERFACE.md](docs/INTERFACE.md).
 
 **Live demo:** follow [docs/DEMO.md](docs/DEMO.md), a three-minute script with fallback screenshots.
 

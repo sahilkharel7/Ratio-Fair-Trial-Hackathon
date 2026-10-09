@@ -14,6 +14,18 @@ from ratio.schema import CaseRecord, Document, SourceSpan
 from ratio_ui import session, style
 
 
+@st.dialog("Source document", width="large")
+def show_document(record: CaseRecord, doc_id: str) -> None:
+    """Read an imported document without manufacturing an evidence span."""
+    document = record.document(doc_id)
+    if record.meta.synthetic:
+        style.banner(session.config().messages.notes["synthetic_banner"])
+    st.subheader(md_escape(document.title))
+    st.caption(f"{document.type.replace('_', ' ').title()} · {len(document.text):,} characters · Original source text")
+    with style.panel("source-document", height=560):
+        st.html(marked_html(document.text, []))
+
+
 def _document(span: SourceSpan, record: CaseRecord | None) -> tuple[CaseRecord, Document] | None:
     owner = record if record is not None and record.case_id == span.case_id else session.store().load_case(span.case_id)
     if owner is None:

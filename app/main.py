@@ -18,7 +18,7 @@ import streamlit as st  # noqa: E402
 from ratio import netguard  # noqa: E402
 from ratio_ui import privacy, style  # noqa: E402
 
-st.set_page_config(page_title="Ratio", page_icon="⚖️", layout="wide")
+st.set_page_config(page_title="Ratio · Trial review", page_icon="⚖️", layout="wide")
 netguard.install()  # any connection that is not to this computer now fails loudly
 
 problems = privacy.problems()
@@ -38,4 +38,7 @@ pages = [
     st.Page("views/reuse.py", title="Reasoning reuse"),
     st.Page("views/judges.py", title="Judge profile"),
 ]
-st.navigation(pages).run()
+navigation = st.navigation(pages, position="hidden")
+style.sidebar(navigation.url_path)
+style.masthead()
+navigation.run()

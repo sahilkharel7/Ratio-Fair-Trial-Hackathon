@@ -22,8 +22,12 @@ showErrorLinks = false
 
 [theme]
 base = "light"  # set here, so a theme file named by URL in another config is never fetched
-# A calm accent: red is reserved for the one confirmed benchmark that is exceeded.
-primaryColor = "#2f6fb0"
+# Burgundy identifies actions; evidence statuses retain their own semantic colours.
+primaryColor = "#9b283e"
+backgroundColor = "#f5f6f8"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#1f2c3d"
+borderColor = "#dce0e5"
 # The fonts bundled with Streamlit, set here for every theme section, so a font from a global
 # config (which could name a web address) can never be fetched by the browser.
 font = "sans-serif"
@@ -32,26 +36,51 @@ codeFont = "monospace"
 fontFaces = []
 
 [theme.sidebar]
+primaryColor = "#9b283e"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f5f6f8"
+textColor = "#1f2c3d"
+borderColor = "#dce0e5"
 font = "sans-serif"
 headingFont = "sans-serif"
 codeFont = "monospace"
 
 [theme.light]
+primaryColor = "#9b283e"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f5f6f8"
+textColor = "#1f2c3d"
+borderColor = "#dce0e5"
 font = "sans-serif"
 headingFont = "sans-serif"
 codeFont = "monospace"
 
 [theme.light.sidebar]
+primaryColor = "#9b283e"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f5f6f8"
+textColor = "#1f2c3d"
+borderColor = "#dce0e5"
 font = "sans-serif"
 headingFont = "sans-serif"
 codeFont = "monospace"
 
 [theme.dark]
+primaryColor = "#9b283e"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f5f6f8"
+textColor = "#1f2c3d"
+borderColor = "#dce0e5"
 font = "sans-serif"
 headingFont = "sans-serif"
 codeFont = "monospace"
 
 [theme.dark.sidebar]
+primaryColor = "#9b283e"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f5f6f8"
+textColor = "#1f2c3d"
+borderColor = "#dce0e5"
 font = "sans-serif"
 headingFont = "sans-serif"
 codeFont = "monospace"

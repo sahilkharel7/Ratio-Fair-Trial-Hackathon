@@ -3,6 +3,9 @@ through the live local model."""
 
 from __future__ import annotations
 
+import html
+import re
+
 import streamlit as st
 from pydantic import ValidationError
 
@@ -11,8 +14,8 @@ from ratio.embeddings import EmbeddingModelMissing
 from ratio.extraction.loader import LoaderError, read_uploaded_files
 from ratio.llm import LLMError
 from ratio.pipeline import run_note_live
-from ratio.schema import Evidence
-from ratio_ui import session, style, widgets
+from ratio.schema import Evidence, SourceSpan
+from ratio_ui import session, style, viewer, widgets
 from ratio_ui.session import LoadedCase
 
 LIVE_KEY = "ratio_live_note"
@@ -33,13 +36,14 @@ def _run(title: str, action) -> None:
 
 
 def _demo_card() -> None:
-    with st.container(border=True):
-        st.subheader("Demo case")
+    with style.panel("sample-matter"):
+        style.eyebrow("Sample matter")
+        st.subheader("Republic of Calderra v. Daro Venn")
         st.markdown(
-            "*Republic of Calderra v. Daro Venn*, a **synthetic** case: four hearing notes, the indictment "
-            "and the judgment. The local model's answers are replayed from a recorded cache, so this works "
-            "with Ollama stopped and the network off."
+            "Explore a complete **synthetic** trial record: four hearing notes, an indictment, "
+            "and a judgment. Review the findings and the exact passages behind them."
         )
+        st.caption("Recorded analysis · Works offline · No running model required")
         if st.button("Load the demo case", type="primary", key="load_demo"):
             _run("Loading the demo case", lambda progress: session.load_demo(progress=progress))
 
@@ -64,11 +68,12 @@ def _upload_form(files: dict[str, bytes]) -> None:
 
 
 def _upload_card() -> None:
-    with st.container(border=True):
-        st.subheader("Your case folder")
+    with style.panel("import-matter"):
+        style.eyebrow("New matter")
+        st.subheader("Import a case record")
         st.markdown(
-            "A folder with `case.yaml`, the monitoring notes, the indictment and the judgment (.txt, .md or .pdf). "
-            "Public or synthetic material only. The local model reads it; nothing leaves this computer."
+            "Select a case folder containing `case.yaml` and its supporting documents. "
+            "Use public or synthetic material; analysis runs on this computer."
         )
         files = st.file_uploader(
             "Case folder", accept_multiple_files="directory", type=["yaml", "yml", "txt", "md", "pdf"],
@@ -78,24 +83,46 @@ def _upload_card() -> None:
             _upload_form({file.name: file.getvalue() for file in files})
 
 
+def _workstream(title: str, value: str | int, description: str, page: str, link: str) -> None:
+    with style.panel(page.split("/")[-1].split(".")[0]):
+        st.html(
+            '<div class="ratio-workstream">'
+            f'<span class="ratio-workstream-title">{html.escape(title)}</span>'
+            f'<span class="ratio-workstream-number">{html.escape(str(value))}</span></div>'
+            f'<div class="ratio-workstream-description">{html.escape(description)}</div>'
+        )
+        st.page_link(page, label=link)
+
+
 def _findings(loaded: LoadedCase) -> None:
     analysis = loaded.analysis
     absence, clock, reuse = analysis.absence, analysis.clock, analysis.reuse
     statuses = [a.status for a in absence.assessments] if absence else []
     red = [i for i in clock.intervals if i.status == "exceeds_benchmark"] if clock else []
     unanswered = [c for c in reuse.arguments if not c.addressed] if reuse else []
-    st.page_link(
-        "views/coverage.py",
-        label=f"Rights coverage: {statuses.count('evidence_of_violation')} with evidence of violation, "
-        f"{statuses.count('evidence_of_compliance')} with evidence of compliance, {statuses.count('no_evidence')} follow-up questions",
-    )
-    st.page_link("views/timeline.py", label=f"Timeline: {len(red)} interval longer than a confirmed benchmark")
-    st.page_link(
-        "views/reuse.py",
-        label=f"Reasoning reuse: {percent(reuse.score if reuse else None)} of the reasoning traceable to the indictment; "
-        f"{len(unanswered)} defence argument without a response",
-    )
-    _judge_link(loaded)
+    left, right = st.columns(2, gap="medium")
+    with left:
+        _workstream(
+            "Rights coverage", len(statuses),
+            f"{statuses.count('evidence_of_violation')} with evidence of violation · "
+            f"{statuses.count('evidence_of_compliance')} with evidence of compliance · "
+            f"{statuses.count('no_evidence')} follow-up questions",
+            "views/coverage.py", "Review rights coverage →",
+        )
+        _workstream(
+            "Reasoning comparison", percent(reuse.score if reuse else None),
+            f"Of the court's reasoning traceable to the indictment. "
+            f"{len(unanswered)} defence {'argument' if len(unanswered) == 1 else 'arguments'} without a response.",
+            "views/reuse.py", "Compare judgment and indictment →",
+        )
+    with right:
+        _workstream(
+            "Procedural timeline", len(red),
+            "Intervals longer than a confirmed benchmark. Other intervals are measured for legal review.",
+            "views/timeline.py", "Review chronology and benchmarks →",
+        )
+        with style.panel("judicial-history"):
+            _judge_link(loaded)
 
 
 def _judge_link(loaded: LoadedCase) -> None:
@@ -103,40 +130,95 @@ def _judge_link(loaded: LoadedCase) -> None:
     try:
         report = session.judge_report()
     except LoaderError:
-        return  # the judge page explains the problem
+        st.html('<div class="ratio-workstream-title">Judicial history</div>')
+        st.caption("The judge registry needs attention. Open judicial history to review the details.")
+        st.page_link("views/judges.py", label="Review judicial history →")
+        return
     profile = next((p for p in report.profiles if loaded.record.case_id in p.case_ids), None)
     if profile is not None:
         patterns = len(profile.flags)
         found = "1 pattern that warrants review" if patterns == 1 else f"{patterns} patterns that warrant review"
         cases = "1 case" if len(profile.case_ids) == 1 else f"{len(profile.case_ids)} cases"
-        compared = "1 indicator" if profile.k_compared == 1 else f"{profile.k_compared} indicators"
-        st.page_link("views/judges.py", label=f"Judge profile: {md_escape(profile.display_name)}, {found} ({cases}, {compared} compared)")
+        st.html(
+            '<div class="ratio-workstream"><span class="ratio-workstream-title">Judicial history</span>'
+            f'<span class="ratio-workstream-number">{len(profile.case_ids)}</span></div>'
+            f'<div class="ratio-workstream-description">{html.escape(profile.display_name)} · '
+            f'{html.escape(cases)} · {html.escape(found)}.</div>'
+        )
+    else:
+        st.html('<div class="ratio-workstream-title">Judicial history</div>')
+        st.caption("No coded history for this case's judge. Review the registry and available profiles.")
+    st.page_link("views/judges.py", label="Review judicial history →")
 
 
 def _summary(loaded: LoadedCase) -> None:
     record, analysis = loaded.record, loaded.analysis
-    st.divider()
-    st.subheader(md_escape(record.meta.title))
-    judge = f" · Presiding judge: {md_escape(record.meta.presiding_judge)}" if record.meta.presiding_judge else ""
-    st.caption(f"{md_escape(record.meta.court)} · {md_escape(record.meta.charge_type)}{judge}")
-    columns = st.columns(4)
-    columns[0].metric("Documents", len(record.documents))
-    columns[1].metric("Note sentences", len(record.observations))
-    columns[2].metric("Dated events", sum(e.type != "hearing" for e in record.events))
-    columns[3].metric("Party arguments", len(record.arguments))
-    flags = analysis.all_flags()
-    mode = "answers replayed from the recorded cache" if analysis.llm_mode == "replay" else "run live on this computer"
-    st.markdown(
-        f"**{len(flags)} findings**, each linked to the exact text it rests on. "
-        f"{analysis.dropped_flags} dropped because their source text could not be found. "
-        f"Model: {md_escape(analysis.llm_model or 'none')} ({mode})."
+    st.html(
+        '<div class="ratio-matter"><div class="ratio-eyebrow">CURRENT MATTER</div>'
+        f'<h2 class="ratio-matter-title">{html.escape(record.meta.title)}</h2>'
+        '<div class="ratio-matter-meta">'
+        f'<span><strong>Court</strong> &nbsp; {html.escape(record.meta.court)}</span>'
+        f'<span><strong>Charge</strong> &nbsp; {html.escape(record.meta.charge_type)}</span>'
+        + (f'<span><strong>Presiding judge</strong> &nbsp; {html.escape(record.meta.presiding_judge)}</span>' if record.meta.presiding_judge else "")
+        + '</div></div>'
     )
+    flags = analysis.all_flags()
+    follow_ups = len(analysis.absence.follow_ups) if analysis.absence else 0
+    with st.container(key="ratio-metric-grid"):
+        columns = st.columns(4)
+        with columns[0]:
+            style.metric("Source documents", len(record.documents), f"{len(record.observations)} monitoring note sentences")
+        with columns[1]:
+            style.metric("Findings to review", len(flags), "Each linked to its exact source")
+        with columns[2]:
+            style.metric("Monitor follow-ups", follow_ups, "Gaps in the monitoring record", "review")
+        with columns[3]:
+            events = [e for e in analysis.clock.timeline if e.type != "hearing" and e.date is not None] if analysis.clock else []
+            style.metric("Procedural events", len(events), "Distinct dated events, excluding hearings")
+    style.section("Review workstreams", "Move from the overview to the evidence behind each result.")
     _findings(loaded)
+    with st.expander("Analysis record and method"):
+        mode = "answers replayed from the recorded cache" if analysis.llm_mode == "replay" else "run live on this computer"
+        st.markdown(
+            f"**{len(flags)} findings**, each linked to the exact text it rests on. "
+            f"{analysis.dropped_flags} dropped because their source text could not be found. "
+            f"Model: {md_escape(analysis.llm_model or 'none')} ({mode})."
+        )
+        st.caption("Findings support legal review. The reviewing lawyer evaluates their legal significance.")
+    _documents(loaded)
+
+
+def _documents(loaded: LoadedCase) -> None:
+    record = loaded.record
+    style.section("Source documents", "Search the record or open a document to read its full text.")
+    query = st.text_input("Search source documents", placeholder="Search titles or exact words in the record…", key="document_search")
+    # Literal, case-insensitive matching. Offsets are taken from the original text,
+    # so Unicode case conversion cannot change the source span's character positions.
+    pattern = re.compile(re.escape(query), re.IGNORECASE) if query.strip() else None
+    documents = [d for d in record.documents if pattern is None or pattern.search(d.title) or pattern.search(d.text)]
+    if not documents:
+        st.info("No source documents match this search. Try a shorter phrase or a document title.")
+        return
+    if pattern:
+        st.caption(f"{len(documents)} of {len(record.documents)} documents match. Search uses exact words, not semantic similarity.")
     rows = [
         {"Document": d.title, "Type": d.type.replace("_", " "), "Hearing date": d.date.isoformat() if d.date else "", "Characters": len(d.text)}
-        for d in record.documents
+        for d in documents
     ]  # only monitoring notes carry a hearing date; the others show an empty cell, not "None"
-    st.dataframe(rows, hide_index=True)
+    st.dataframe(rows, hide_index=True, width="stretch")
+    select, action = st.columns([5, 1], vertical_alignment="bottom")
+    with select:
+        titles = {d.id: d.title for d in documents}
+        doc_id = st.selectbox("Document to read", list(titles), format_func=titles.get, key="read_document")
+    with action:
+        if st.button("Open document", key="open_document", width="stretch"):
+            doc = record.document(doc_id)
+            match = pattern.search(doc.text) if pattern else None
+            if match:
+                span = SourceSpan(doc_id=doc.id, start=match.start(), end=match.end(), text=match.group())
+                viewer.show_source(span, record, "Search result")
+            else:
+                viewer.show_document(record, doc_id)
 
 
 def _live_note(loaded: LoadedCase) -> None:
@@ -162,19 +244,33 @@ def _live_note(loaded: LoadedCase) -> None:
         widgets.evidence(record, items, key="live")
 
 
+def _intake() -> None:
+    demo_column, upload_column = st.columns(2, gap="medium")
+    with demo_column:
+        _demo_card()
+    with upload_column:
+        _upload_card()
+
+
 loaded = session.current_case()
-if loaded is not None and loaded.record.meta.synthetic:
-    style.banner(session.config().messages.notes["synthetic_banner"])
-st.title("Ratio")
-st.markdown(
-    "Offline analysis of trial-monitoring records for a reviewing lawyer. Every finding links to the exact "
-    "text it rests on, and nothing leaves this computer."
-)
-demo_column, upload_column = st.columns(2, gap="large")
-with demo_column:
-    _demo_card()
-with upload_column:
-    _upload_card()
+st.title("Case overview")
 if loaded is not None and loaded.analysis is not None:
+    if loaded.record.meta.synthetic:
+        style.banner(session.config().messages.notes["synthetic_banner"])
     _summary(loaded)
-    _live_note(loaded)
+    with st.expander("Open or import another matter"):
+        _intake()
+    with st.expander("Run a live model check"):
+        _live_note(loaded)
+else:
+    st.html('<div class="ratio-intro">A considered review starts with a clear record. '
+            'Bring the chronology, fair-trial guarantees, and judicial reasoning into one evidence-led workspace.</div>')
+    _intake()
+    st.html(
+        '<div class="ratio-process">'
+        '<div class="ratio-process-item"><strong>01 &nbsp; Assemble the record</strong>Hearing notes, indictment, and judgment in one matter.</div>'
+        '<div class="ratio-process-item"><strong>02 &nbsp; Review the findings</strong>Coverage, chronology, and reasoning against cited standards.</div>'
+        '<div class="ratio-process-item"><strong>03 &nbsp; Return to the source</strong>Read every relevant passage in its original context.</div></div>'
+    )
+    st.html('<div class="ratio-review-note">Designed for the reviewing lawyer. '
+            'Analysis runs locally; every finding links to the record. Legal conclusions remain yours.</div>')
