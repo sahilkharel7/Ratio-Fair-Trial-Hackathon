@@ -35,11 +35,11 @@ Turning monitoring notes into a fairness report is slow. The notes are long and 
 
 ## Fit with TrialWatch's infrastructure
 
-Ratio runs on one laptop (a Mac with Apple Silicon, 16 GB of memory, about 8 GB of free disk), with no separate server and no cloud account for case data. A one-time online setup installs Python 3.11 packages, Ollama with an open Qwen2.5 model and a small embedding model, and builds the workspace with Node.js. Ratio's code is Apache-2.0; on macOS everything it installs is open source.
+Ratio runs on one laptop (a Mac with Apple Silicon, 16 GB of memory, about 8 GB of free disk), with no separate server and no cloud account for case data. A one-time online setup installs Python 3.11 packages, Ollama with two open Qwen2.5 models (7B, and 1.5B for the workspace's reading aids and comparisons) and a small embedding model, and builds the workspace with Node.js. Ratio's code is Apache-2.0; on macOS everything it installs is open source.
 
 ## Evidence and limitations
 
-On the synthetic demo case, the evaluation (run on 10 October 2026) found 18 of 18 expected outputs, 0 violations of 11 must-not-flag traps, all 8 events of the hand-checked timeline with correct dates, and exact source spans for all 13 findings. 1,672 automated tests pass.
+On the synthetic demo case, the evaluation (run on 10 October 2026) found 18 of 18 expected outputs, 0 violations of 11 must-not-flag traps, all 8 events of the hand-checked timeline with correct dates, and exact source spans for all 13 findings. 1,676 automated tests pass.
 
 - The evaluation is in-sample: the team wrote the case and its expected outputs. Recall on published TrialWatch reports is not yet measured. One local run on a real public trial exposed two bugs, since fixed.
 - English only; scanned pages are read with on-device OCR, which can misread poor scans.

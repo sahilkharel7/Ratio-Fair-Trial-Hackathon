@@ -12,6 +12,7 @@ from pydantic import Field, create_model
 
 from ratio.config import default_config
 from ratio.llm import OllamaClient
+from ratio.messages import filter_model_note
 
 
 def comparisons(library, research, case_id):
@@ -19,7 +20,7 @@ def comparisons(library, research, case_id):
     if record is None:
         raise KeyError("Case not found")
     fingerprint = hashlib.sha256(
-        (record.model_dump_json() + str(research.path.stat().st_mtime_ns)).encode()
+        (record.model_dump_json() + str(research.path.stat().st_mtime_ns) + "|block-filtered").encode()
     ).hexdigest()
     with library.connect() as c:
         c.execute(
@@ -110,6 +111,7 @@ def comparisons(library, research, case_id):
         purpose="local_reference_comparison",
     )
     mapped = {h["document"]["id"]: h for h in refs}
+    block = default_config().messages.block_list  # hard rule 3: no words that characterise a person
     items = []
     for item in answer.comparisons:
         hit = mapped[item.reference_id]
@@ -123,8 +125,8 @@ def comparisons(library, research, case_id):
                     "end": hit["end"],
                     "text": hit["text"],
                 },
-                "similarity": item.similarity,
-                "limits": item.limits,
+                "similarity": filter_model_note(item.similarity, block),
+                "limits": filter_model_note(item.limits, block),
             }
         )
     result = {

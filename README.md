@@ -447,7 +447,7 @@ This repository contains no third-party code, except the Unidecode character tab
   - Streamlit's built-in fonts are under the SIL Open Font License.
   - Pass these licenses, and the source code they require, on with any bundle.
   - Everything else uses permissive licenses such as MIT, BSD and Apache 2.0.
-- **Closed-source parts outside macOS.** On macOS, which the setup targets, everything Ratio installs is open source. Elsewhere:
+- **Closed-source parts outside macOS.** On macOS, which the setup targets, everything Ratio installs is open source. On-device OCR (`ratio/vision_ocr.swift`) calls Apple's closed-source Vision framework, which ships with macOS and is not installed or redistributed by Ratio; it is compiled with the Swift command line tools that Homebrew already requires (`xcode-select --install`), and `RATIO_OCR=0` turns it off. Elsewhere:
   - On Linux, PyTorch's standard build installs NVIDIA's closed-source CUDA libraries: most of the `nvidia-*` packages (brought in by the `cuda-toolkit` metapackage), NVIDIA tools inside `triton`, and, on ARM computers, NVIDIA math libraries inside PyTorch itself.
   - On x86-64 Linux and Windows, PyTorch contains Intel's closed-source MKL library, even in its CPU-only build.
   - Ratio does not need a GPU, so PyTorch's CPU-only build leaves out NVIDIA's libraries. On ARM Linux that build is entirely open source.

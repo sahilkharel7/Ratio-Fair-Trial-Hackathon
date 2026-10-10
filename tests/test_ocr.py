@@ -41,6 +41,21 @@ def test_without_ocr_a_scanned_pdf_has_no_text(monkeypatch):
     assert decode_document("scan.pdf", scanned_pdf(["SYNTHETIC: fictional case.", SENTENCE])).strip() == ""
 
 
+def test_an_ocr_helper_that_cannot_run_leaves_the_page_unread(monkeypatch):
+    import ratio.ocr
+
+    def broken():
+        raise PermissionError("helper is not executable")
+
+    monkeypatch.setenv("RATIO_OCR", "1")
+    monkeypatch.setattr(ratio.ocr, "_helper", broken)
+    ratio.ocr._ocr_cached.cache_clear()
+    with pytest.raises(ratio.ocr.OCRUnavailable):
+        ratio.ocr.ocr_pages(b"%PDF-1.4 unique bytes for this test")
+    assert decode_document("scan.pdf", scanned_pdf(["SYNTHETIC: a page that stays unread."])).strip() == ""
+    ratio.ocr._ocr_cached.cache_clear()
+
+
 def test_a_scanned_upload_is_staged_with_its_recognised_text(tmp_path, monkeypatch):
     monkeypatch.setenv("RATIO_OCR", "1")
     library = LibraryStore(CaseStore(tmp_path / "cases.db"))

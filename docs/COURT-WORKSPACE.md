@@ -59,8 +59,10 @@ disposable SQLite file using committed synthetic inputs, not the user's database
 `LibraryStore.stage()` saves up to 100 PDF/TXT/MD originals (5 MB each, 50 MB per
 batch) in SQLite with hashes, provenance, extraction status and assignment state.
 Textless/unreadable documents are retained with a problem and cannot silently
-become analysed cases. OCR is not fabricated; supply an extracted text version or
-use a future OCR adapter.
+become analysed cases. Scanned pages without a text layer are first read with
+on-device OCR on macOS (Vision, `ratio/ocr.py`; `RATIO_OCR=0` turns it off). A file
+that still yields no text keeps the problem "No text extracted, even with on-device
+OCR"; add an extracted text version before analysis.
 
 The user groups files belonging to one case and confirms their document types.
 `LibraryStore.import_manifest(CaseManifest, {path: staged_file_id})` reuses the

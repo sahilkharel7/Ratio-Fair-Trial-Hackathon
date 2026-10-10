@@ -306,6 +306,8 @@ def handler_for(library: LibraryStore, dist: Path, research=None, briefs=None):
                         {"error": "Request exceeds the upload limit."}, 413
                     )
                 body = json.loads(self.rfile.read(length))
+                if not isinstance(body, dict):
+                    return self.reply({"error": "Send a JSON object."}, 400)
                 path = urlsplit(self.path).path
                 if path.startswith("/api/cases/") and path.endswith("/brief"):
                     if briefs is None:
@@ -346,7 +348,10 @@ def handler_for(library: LibraryStore, dist: Path, research=None, briefs=None):
                     from ratio.case_chat import ask
 
                     case_id = unquote(path.removeprefix("/api/cases/").removesuffix("/chat"))
-                    return self.reply(ask(library, research, case_id, body.get("question")))
+                    try:
+                        return self.reply(ask(library, research, case_id, body.get("question")))
+                    except KeyError:
+                        return self.reply({"error": "Case not found."}, 404)
                 if path == "/api/intake":
                     files = body["files"]
                     if len(files) != len({f["name"] for f in files}):

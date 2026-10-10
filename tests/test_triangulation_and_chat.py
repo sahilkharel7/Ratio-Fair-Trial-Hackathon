@@ -165,6 +165,52 @@ def test_chat_refuses_unsupported_and_uncited_answers(library):
         ask(library, FakeResearch(), "sorin-2025", "x" * 501, llm=unsupported)
 
 
+BLOCKED = "The biased judge lied and was corrupt."
+
+
+class RudeLLM(SchemaLLM):
+    """Replies in words that characterise a person (hard rule 3 must remove them)."""
+
+    def complete_json(self, *, system, user, schema, purpose):
+        payload = json.loads(user)
+        if purpose == "triangulation":
+            planted = next(p for p in payload["past_case_passages"] if p["case"].startswith("Planted v. Burden"))
+            fact = {"case_passage": payload["open_case_passages"][0]["id"], "reference_passage": planted["id"],
+                    "fact": BLOCKED, "why_relevant": BLOCKED, "comparison": "similar", "explanation": BLOCKED}
+            return schema.model_validate({"facts": [fact]})
+        return schema.model_validate({"supported": True, "answer": BLOCKED, "citations": [payload["passages"][0]["id"]]})
+
+
+def test_model_text_never_shows_words_that_characterise_a_person(library):
+    fact = triangulate(library, FakeResearch(), "sorin-2025", "14(2)", llm=RudeLLM())["similar_cases"][0]["facts"][0]
+    reply = ask(library, FakeResearch(), "sorin-2025", "Who had to prove what?", llm=RudeLLM())
+    for text in (fact["fact"], fact["why_relevant"], fact["explanation"], reply["answer"]):
+        assert "biased" not in text and "corrupt" not in text
+
+
+def test_a_reply_that_fails_the_schema_is_a_refusal_not_an_outage(library):
+    from ratio.llm import LLMResponseError
+
+    class Garbled:
+        def complete_json(self, **kwargs):
+            raise LLMResponseError("citations ['c99'] are not allowed")
+
+    reply = ask(library, FakeResearch(), "sorin-2025", "Who had to prove what?", llm=Garbled())
+    assert reply["answer"] == REFUSAL and not reply["citations"]
+
+
+def test_a_very_long_sentence_is_cut_into_bounded_passages():
+    from types import SimpleNamespace
+
+    from ratio.triangulation import PASSAGE_CHARS, case_passages
+
+    text = "\n".join(f"line {i} of an OCR page without full stops" for i in range(400))
+    record = SimpleNamespace(documents=[SimpleNamespace(id="scan.pdf", title="Scan", text=text)])
+    passages = case_passages(record)
+    assert passages and all(len(p["text"]) <= PASSAGE_CHARS for p in passages)
+    assert all(p["text"] == text[p["start"]: p["end"]] for p in passages)
+
+
 def test_chat_talks_only_to_the_local_ollama_server(library):
     requests = []
 

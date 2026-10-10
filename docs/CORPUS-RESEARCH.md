@@ -11,7 +11,9 @@ One team build on 2026-10-10 contained 43 documents and 5,260 paragraph vectors:
 | Working Group on Arbitrary Detention opinions | 11 | Arbitrary detention review; an opinion is not a court judgment |
 | TrialWatch monitoring reports | 23 | Context and factual comparisons; a monitor assessment is not a judicial finding |
 
-Forty documents from the source list in `corpus_builder/sources.yaml` downloaded successfully. One listed Lopez Mendoza/Tintori Parra PDF returned 404 and is absent. The three new court judgments were downloaded from official UN reproductions after HUDOC's PDF conversion endpoint returned 403. The issuing court remains the ECHR; hosting on a UN website does not turn a judgment into a UN decision. Downloads preserve original PDF bytes and raw/text checksums.
+The versioned snapshot in `public-references/` (installed with `python scripts/install_public_references.py`) holds 49 documents: the same sources plus the six official UN presumption-of-innocence decisions listed under `local_files` in `corpus_builder/sources.yaml`, so 12 Committee decisions.
+
+In that build, forty documents from the source list in `corpus_builder/sources.yaml` downloaded successfully. One listed Lopez Mendoza/Tintori Parra PDF returned 404 and is absent. The three new court judgments were downloaded from official UN reproductions after HUDOC's PDF conversion endpoint returned 403. The issuing court remains the ECHR; hosting on a UN website does not turn a judgment into a UN decision. Downloads preserve original PDF bytes and raw/text checksums.
 
 ## Focus for the demonstration
 
