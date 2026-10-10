@@ -175,3 +175,13 @@ def test_statutory_liability_in_a_review_judgment_is_not_an_imposed_sentence():
     assert not [p for p in focus.penalties if p.stage == "imposed"]
     assert penalty_summary(focus, "statutory")["label"] == "Up to 6 months imprisonment"
     check_spans(record, focus)
+
+
+def test_wrapped_charge_keeps_exact_source_characters():
+    record = make_record(
+        [("indictment.txt", "indictment", "The accused is charged\nwith robbery.")]
+    )
+    focus = screen(record)
+    assert focus.charge == "robbery"
+    assert focus.charge_span is not None
+    check_spans(record, focus)

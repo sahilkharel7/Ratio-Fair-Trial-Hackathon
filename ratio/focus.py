@@ -366,7 +366,7 @@ def screen(record: CaseRecord, *, defendant: str | None = None) -> FocusRecord:
     if charge_span:
         charge = (
             re.search(
-                r"\bcharged with\s+(.+)", charge_span.text, re.IGNORECASE | re.DOTALL
+                r"\bcharged\s+with\s+(.+)", charge_span.text, re.IGNORECASE | re.DOTALL
             )
             .group(1)
             .strip()
