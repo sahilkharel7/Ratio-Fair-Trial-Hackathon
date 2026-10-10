@@ -72,14 +72,14 @@ def _case_sources(record, question: str, embed) -> list[dict]:
         COSINE_WEIGHT * float(c) + WORD_WEIGHT * (len(asked & _words(p["text"])) / len(asked) if asked else 0.0)
         for c, p in zip(cosine, passages)
     ]
+    ranked = sorted(range(len(passages)), key=lambda i: (-score[i], i))
     chosen, per_document = [], {}
-    for i in sorted(range(len(passages)), key=lambda i: (-score[i], i)):
+    for i in ranked:  # first pass: spread across documents
         doc = passages[i]["doc_id"]
-        if per_document.get(doc, 0) < MAX_PER_DOCUMENT:
+        if per_document.get(doc, 0) < MAX_PER_DOCUMENT and len(chosen) < CASE_TOP:
             per_document[doc] = per_document.get(doc, 0) + 1
             chosen.append(i)
-        if len(chosen) == CASE_TOP:
-            break
+    chosen += [i for i in ranked if i not in chosen][: CASE_TOP - len(chosen)]  # then fill with the next best
     return [{"kind": "case", "document": passages[i]["document"], "span": source_span(passages[i])} for i in chosen]
 
 
@@ -130,6 +130,7 @@ def ask(library, research, case_id: str, question: str, *, llm=None) -> dict:
         return _reply(False, UNAVAILABLE, [])
     cited = list(dict.fromkeys(answer.citations))
     text = filter_model_note(answer.answer, default_config().messages.block_list)  # hard rule 3
-    if not answer.supported or not cited or text is None:
+    if not cited or text is None:
         return _reply(False, REFUSAL, [])
-    return _reply(True, _shorten(text), [sources[key] for key in cited][:MAX_CITATIONS])
+    # A cited answer the model marks as partial is still shown (as not fully supported), with its sources.
+    return _reply(bool(answer.supported), _shorten(text), [sources[key] for key in cited][:MAX_CITATIONS])

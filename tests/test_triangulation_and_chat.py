@@ -200,6 +200,13 @@ def test_a_reply_that_fails_the_checks_is_withheld_not_called_unsupported(librar
     assert reply["answer"] == UNCHECKED and not reply["citations"] and not reply["supported"]
 
 
+def test_a_cited_partial_answer_is_shown_as_not_fully_supported(library):
+    llm = SchemaLLM(chat=lambda p: {"supported": False, "answer": "The passages say a press conference was held, not what was said.",
+                                    "citations": [p["passages"][0]["id"]]})
+    reply = ask(library, FakeResearch(), "sorin-2025", "What was said at the press conference?", llm=llm)
+    assert not reply["supported"] and reply["answer"].startswith("The passages say") and reply["citations"]
+
+
 def test_long_answers_are_not_cut_mid_sentence(library):
     from ratio.case_chat import MAX_ANSWER_CHARS
 
@@ -215,6 +222,17 @@ def test_long_answers_are_not_cut_mid_sentence(library):
     reply = ask(library, FakeResearch(), "sorin-2025", "Who had to prove what?", llm=Long())
     assert seen["cap"] is None or seen["cap"] >= 2000  # the model is never stopped mid-sentence
     assert len(reply["answer"]) <= MAX_ANSWER_CHARS and reply["answer"].endswith((".", "…"))
+
+
+def test_a_single_judgment_still_gives_the_model_its_best_passages():
+    from types import SimpleNamespace
+
+    from ratio.case_chat import CASE_TOP, _case_sources
+
+    text = " ".join(f"Paragraph {i}: the minister said at a press conference that the applicant was guilty." for i in range(90))
+    record = SimpleNamespace(documents=[SimpleNamespace(id="judgment.txt", title="Judgment", text=text)])
+    sources = _case_sources(record, "What did the minister say?", embed)
+    assert len(sources) == CASE_TOP
 
 
 def test_broad_questions_see_passages_from_several_documents(library):
