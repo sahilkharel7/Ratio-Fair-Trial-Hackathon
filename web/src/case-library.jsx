@@ -3,6 +3,7 @@ import { AICaseBrief } from "./ai-brief.jsx";
 import { LocalComparisons } from "./local-comparisons.jsx";
 import { Triangulation } from "./triangulation.jsx";
 import { CaseChat } from "./case-chat.jsx";
+import { CaseFileActions } from "./case-actions.jsx";
 import { Icon } from "./workspace.jsx";
 import { firstMatch } from "./research.mjs";
 import { CourtJudgments } from "./court-library.jsx";
@@ -668,10 +669,15 @@ export function CaseReview({
             </span>
           </p>
         </div>
-        <button onClick={exportReport}>
-          <Icon name="download" />
-          Case worksheet
-        </button>
+        <div className="case-review-buttons">
+          <button onClick={exportReport}>
+            <Icon name="download" />
+            Case worksheet
+          </button>
+          {workspace.mode === "local_sqlite" && (
+            <CaseFileActions caseId={caseId} record={record} navigate={navigate} refresh={refresh} onUpdated={setPayload} />
+          )}
+        </div>
       </div>
       <section className="charge-panel">
         <p className="eyebrow">The charge</p>

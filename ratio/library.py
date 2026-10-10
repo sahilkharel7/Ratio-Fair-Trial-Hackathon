@@ -51,6 +51,13 @@ CREATE TABLE IF NOT EXISTS case_notes (
 """
 
 
+# Every table that holds rows for one case, cleared when the case is deleted (absent optional tables are skipped).
+CASE_TABLES = (
+    "matter_catalogue", "matter_files", "focus_reviews", "case_notes", "case_ai_briefs",
+    "local_comparisons", "analyses", "reviews", "missed_issues", "cases",
+)
+
+
 class FocusDecision(Frozen):
     case_id: str
     prompt_id: str
@@ -301,6 +308,82 @@ class LibraryStore:
                 (record.case_id,),
             )
         return record
+
+    def delete_case(self, case_id: str) -> None:
+        """Remove a case and everything stored for it on this computer; deleted bytes are overwritten."""
+        if self.cases.load_case(case_id) is None:
+            raise KeyError("Case not found.")
+        with self.connect() as conn:
+            conn.execute("PRAGMA secure_delete = ON")
+            present = {r[0] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+            for table in CASE_TABLES:
+                if table in present:
+                    conn.execute(f"DELETE FROM {table} WHERE case_id=?", (case_id,))  # noqa: S608 - fixed table names
+            conn.execute("DELETE FROM intake_files WHERE assigned_case_id=?", (case_id,))
+            conn.execute("DELETE FROM kv WHERE key='last_case' AND value=?", (case_id,))
+
+    def add_files(self, case_id: str, file_ids: list[str], doc_type: str = "monitoring_note"):
+        """Add staged files to a case made from uploads: it is rebuilt from all its original files, so the
+        existing documents keep their text and every earlier source span stays valid."""
+        record = self.cases.load_case(case_id)
+        if record is None:
+            raise KeyError("Case not found.")
+        if not file_ids or len(set(file_ids)) != len(file_ids):
+            raise LoaderError("Select each new file once.")
+        with self.connect() as conn:
+            existing = {r["path"]: r["intake_id"] for r in conn.execute("SELECT path,intake_id FROM matter_files WHERE case_id=?", (case_id,))}
+            catalogue = conn.execute("SELECT defendant FROM matter_catalogue WHERE case_id=?", (case_id,)).fetchone()
+            if {d.path for d in record.documents} != set(existing):
+                raise LoaderError("Files can be added only to cases created from uploaded documents; the example cases are read-only.")
+            new = {}
+            for file_id in file_ids:
+                row = conn.execute("SELECT * FROM intake_files WHERE id=? AND assigned_case_id IS NULL", (file_id,)).fetchone()
+                if row is None:
+                    raise LoaderError("A selected file is unavailable or already assigned to a case.")
+                if row["problem"]:
+                    raise LoaderError(f"{row['name']}: {row['problem']}")
+                if row["provenance"] != record.meta.data_provenance:
+                    raise LoaderError("New files must be declared like the case: confidential, public or synthetic.")
+                if row["name"] in existing or row["name"] in new:
+                    raise LoaderError(f"{row['name']}: the case already has a document with this name.")
+                new[row["name"]] = file_id
+            files = {
+                path: bytes(conn.execute("SELECT content FROM intake_files WHERE id=?", (intake_id,)).fetchone()["content"])
+                for path, intake_id in {**existing, **new}.items()
+            }
+        manifest = CaseManifest(
+            case_id=record.case_id,
+            title=record.meta.title,
+            court=record.meta.court,
+            charge_type=record.meta.charge_type,
+            data_provenance=record.meta.data_provenance,
+            synthetic=record.meta.synthetic,
+            source_note=record.meta.source_note,
+            documents=[
+                *({"path": d.path, "type": d.type, "title": d.title} for d in record.documents),
+                *({"path": name, "type": doc_type, "title": name} for name in new),
+            ],
+        )
+        rebuilt = build_base_record(manifest, files)
+        focus = screen(rebuilt, defendant=catalogue["defendant"] if catalogue else None)
+        now = datetime.now(UTC).isoformat()
+        with self.connect() as conn:
+            conn.execute("UPDATE cases SET record_json=?, updated_at=? WHERE case_id=?", (rebuilt.model_dump_json(), now, case_id))
+            conn.execute("DELETE FROM analyses WHERE case_id=?", (case_id,))  # it no longer covers every document
+            conn.execute(
+                "UPDATE matter_catalogue SET charge=?, focus_json=?, updated_at=? WHERE case_id=?",
+                (focus.charge, focus.model_dump_json(), now, case_id),
+            )
+            for file_id in new.values():
+                changed = conn.execute(
+                    "UPDATE intake_files SET assigned_case_id=? WHERE id=? AND assigned_case_id IS NULL", (case_id, file_id)
+                )
+                if changed.rowcount != 1:
+                    raise LoaderError("A selected file was assigned by another import; nothing was added.")
+            conn.executemany(
+                "INSERT INTO matter_files(case_id,path,intake_id) VALUES(?,?,?)", [(case_id, p, i) for p, i in new.items()]
+            )
+        return rebuilt
 
     def save_decision(self, decision: dict):
         stored = FocusDecision.model_validate(decision)

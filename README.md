@@ -73,8 +73,8 @@ cd Ratio-Fair-Trial-Hackathon
 # Python environment with the pinned dependencies (uv: https://docs.astral.sh/uv/)
 uv venv -p 3.11
 source .venv/bin/activate
-uv pip install -r requirements-lock.txt -e ".[dev]"
-# without uv: python3.11 -m venv .venv && source .venv/bin/activate && pip install -r requirements-lock.txt -e ".[dev]"
+uv pip install -r requirements-lock.txt -e ".[dev,pdf]"   # pdf: the one-page case brief
+# without uv: python3.11 -m venv .venv && source .venv/bin/activate && pip install -r requirements-lock.txt -e ".[dev,pdf]"
 
 # The embedding model (about 90 MB, saved in models/)
 python scripts/fetch_models.py
@@ -125,6 +125,9 @@ in that git-ignored database and are read only by the local model. Upload limits
 - **Compare with references locally:** on a case review with an Article 14(2) passage, the local model sets that
   passage beside the closest public references, each with its source. It uses `qwen2.5:1.5b` by default; starting
   the server with `RATIO_MODEL=qwen2.5:7b-instruct` gives clearer comparisons (about 11 seconds instead of 6).
+- **Manage a case:** on a case review, **Add files** adds more documents of a chosen type (the case is rebuilt
+  from all its originals, so earlier sources stay where they were), and **Delete case** removes the case and
+  everything stored for it on this computer. The example cases are read-only.
 - **Triangulation:** on a case review, pick a right (any listed; the demo focus is the presumption of innocence,
   ICCPR Art. 14(2) and General Comment 32, para. 30). Ratio ranks past public cases by the local MiniLM similarity
   of the passages on that right and by the right's indicators both cases mention, and shows the score; the local

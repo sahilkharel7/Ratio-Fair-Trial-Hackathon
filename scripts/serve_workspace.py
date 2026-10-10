@@ -344,6 +344,22 @@ def handler_for(library: LibraryStore, dist: Path, research=None, briefs=None):
                         {"batch_id": batch, "pending_files": library.pending_files()},
                         201,
                     )
+                if path.startswith("/api/cases/") and path.endswith("/delete"):
+                    case_id = unquote(path.removeprefix("/api/cases/").removesuffix("/delete"))
+                    if body.get("confirm") is not True:
+                        return self.reply({"error": "Confirm the deletion."}, 400)
+                    try:
+                        library.delete_case(case_id)
+                    except KeyError:
+                        return self.reply({"error": "Case not found."}, 404)
+                    return self.reply({"deleted": case_id, "cases": library.list()})
+                if path.startswith("/api/cases/") and path.endswith("/files"):
+                    case_id = unquote(path.removeprefix("/api/cases/").removesuffix("/files"))
+                    try:
+                        library.add_files(case_id, body.get("file_ids") or [], body.get("type", "monitoring_note"))
+                    except KeyError:
+                        return self.reply({"error": "Case not found."}, 404)
+                    return self.reply(case_payload(library, case_id), 201)
                 if path.startswith("/api/cases/") and path.endswith("/chat"):
                     from ratio.case_chat import ask
 
