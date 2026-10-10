@@ -1,8 +1,8 @@
-"""Offline coordination of an explicitly enabled public-document Groq demo worker.
+"""Offline coordination of local Ollama case reading aids.
 
 The normal application network guard remains installed. A fixed worker receives
-only the selected public/synthetic case sources through stdin, never the database
-or notes. Keys and HTTP clients stay in that worker.
+case sources through stdin, never the database path or reviewer working notes.
+The case worker has no cloud fallback and does not use cloud API credentials.
 """
 
 from __future__ import annotations

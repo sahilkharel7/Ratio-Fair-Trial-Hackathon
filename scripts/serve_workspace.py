@@ -2,8 +2,8 @@
 
 Build with npm --prefix web run build, then run this script. --demo adds the three
 synthetic matters without overwriting existing cases. The default server remains
-offline. --groq-demo explicitly enables a separate online worker for selected
-public/synthetic source excerpts. Original runtime files never enter the public exporter.
+offline. --local-ai enables an Ollama worker for case source excerpts; the legacy
+--groq-demo flag is a local-only alias. Runtime files never enter the public exporter.
 """
 
 from __future__ import annotations
@@ -195,7 +195,7 @@ def handler_for(library: LibraryStore, dist: Path, research=None, briefs=None):
                     if briefs is None:
                         return self.reply(
                             {
-                                "error": "Start the local server with --local-ai to enable public-case drafts."
+                                "error": "Start the local server with --local-ai to enable local case reading aids."
                             },
                             400,
                         )
@@ -297,7 +297,7 @@ def handler_for(library: LibraryStore, dist: Path, research=None, briefs=None):
                     if briefs is None:
                         return self.reply(
                             {
-                                "error": "Public-case AI drafts are not enabled in this server."
+                            "error": "Local case reading aids are not enabled in this server."
                             },
                             400,
                         )

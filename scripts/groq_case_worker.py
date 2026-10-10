@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Online worker for explicitly requested briefs of public/synthetic demo cases."""
+"""Local Ollama case worker; historical filename retained for compatibility."""
 
 from __future__ import annotations
 

@@ -111,8 +111,9 @@ python scripts/serve_workspace.py --demo            # adds the three synthetic e
 Open http://127.0.0.1:8503. This is the interface we present: a court-filtered case collection, a focused
 presumption-of-innocence review (charge, requested penalty, sentence and quoted law, each with its checked source),
 international decisions and source research. It serves the built app with a loopback-only API on this computer and
-uses `data/ratio.db` (`--db PATH` picks another database). `--groq-demo` is off by default; it enables online drafts
-for public or synthetic sources only. Upload limits and the adapter contract are in
+uses `data/ratio.db` (`--db PATH` picks another database). `--local-ai` enables local Ollama reading aids.
+All case workspace content stays local; `--groq-demo` is now a deprecated local-only alias. Cloud models may
+process explicitly designated public legal references only. Upload limits and the adapter contract are in
 [docs/COURT-WORKSPACE.md](docs/COURT-WORKSPACE.md).
 
 ### The full analysis app
