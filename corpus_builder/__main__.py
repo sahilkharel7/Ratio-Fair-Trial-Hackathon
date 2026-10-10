@@ -28,10 +28,16 @@ from pydantic import BaseModel, ValidationError
 
 from corpus_builder.extract import CloudModelRefused, GeminiSetupError
 from corpus_builder.fetch import fetch_all
+from corpus_builder.groq import GroqSetupError
 from corpus_builder.normalize import normalize_all
 from corpus_builder.sources import load_sources
 from corpus_builder.store import BuildStore
-from ratio.config import ConfigError, FactPatternTaxonomy, PrecedentSettings, default_config
+from ratio.config import (
+    ConfigError,
+    FactPatternTaxonomy,
+    PrecedentSettings,
+    default_config,
+)
 from ratio.paths import build_db_path, corpus_db_path
 
 WORK_TABLES = ("raw", "documents", "extractions", "verified", "vectors")
@@ -74,6 +80,9 @@ def _extract(args: argparse.Namespace) -> int:
         if not args.model_id:
             raise CliError("pass --model-id with the Gemini model to use (GeminiLLM.list_models() lists them)")
         llm = extract.GeminiLLM(args.model_id)
+    elif args.model == "groq":
+        from corpus_builder.groq import GroqLLM
+        llm = GroqLLM(args.model_id)
     else:
         llm = extract.OllamaLLM(model=args.model_id) if args.model_id else extract.OllamaLLM()
     report = extract.extract_all(_store(args), _taxonomy(), llm, only=args.only)
@@ -148,7 +157,7 @@ def _restore(args: argparse.Namespace) -> int:
 def _status(args: argparse.Namespace) -> int:
     store = _store(args)
     with closing(sqlite3.connect(store.path)) as db:
-        counts = {table: db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0] for table in WORK_TABLES}  # noqa: S608 - fixed names
+        counts = {table: db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0] for table in WORK_TABLES}
         fetched = dict(db.execute("SELECT source_id, COUNT(*) FROM raw GROUP BY source_id").fetchall())
         documents = dict(
             db.execute("SELECT r.source_id, COUNT(*) FROM documents d JOIN raw r ON r.url = d.raw_url GROUP BY r.source_id").fetchall()
@@ -264,11 +273,15 @@ def _collection_build(args: argparse.Namespace, col: object) -> int:
     chosen = [c for c in col.list_collections() if args.name is None or c.slug == col.collection_slug(args.name)]
     if not chosen:
         raise CliError("no such collection; add one with: python -m corpus_builder collection add FOLDER --name NAME")
-    if args.model == "gemini" and any(c.private for c in chosen):
-        raise CliError("a private collection is read only by the local model; drop --model gemini")
+    if args.model in {"gemini", "groq"} and any(c.private for c in chosen):
+        raise CliError("a private collection is read only by the local model; use --model ollama")
     if args.model == "gemini" and not args.model_id:
         raise CliError("--model gemini needs --model-id")
-    llm = extract.GeminiLLM(args.model_id) if args.model == "gemini" else extract.OllamaLLM()
+    if args.model == "groq":
+        from corpus_builder.groq import GroqLLM
+        llm = GroqLLM(args.model_id)
+    else:
+        llm = extract.GeminiLLM(args.model_id) if args.model == "gemini" else extract.OllamaLLM()
     settings = default_config().settings.precedents
 
     def index(path: Path | None) -> int | None:
@@ -303,7 +316,7 @@ def build_parser() -> argparse.ArgumentParser:
     fetch.add_argument("--limit", type=_positive_int, help="at most this many new downloads per source")
     step("normalize", _normalize, "turn downloads into document text")
     extract = step("extract", _extract, "extract fact patterns with quotes")
-    extract.add_argument("--model", choices=("gemini", "ollama"), default="gemini")
+    extract.add_argument("--model", choices=("gemini", "groq", "ollama"), default="gemini")
     extract.add_argument("--model-id", help="the model id (required for gemini)")
     extract.add_argument("--only", help="only this precedent id")
     step("verify", _verify, "keep only verbatim quotes")
@@ -327,7 +340,7 @@ def build_parser() -> argparse.ArgumentParser:
     coll.add_argument("--name", help="the collection's name, e.g. Indonesia")
     coll.add_argument("--region", help="add: the region it covers")
     coll.add_argument("--public", action="store_true", help="add: public material (default: private, read only by the local model)")
-    coll.add_argument("--model", choices=("ollama", "gemini"), default="ollama", help="build: gemini is refused for a private collection")
+    coll.add_argument("--model", choices=("ollama", "gemini", "groq"), default="ollama", help="build: cloud models are refused for a private collection")
     coll.add_argument("--model-id", help="build: the Gemini model id")
     coll.add_argument("--no-index", action="store_true", help="build: do not load the corpus into OpenSearch (one index serves one corpus file)")
     step("status", _status, "what each step has done")
@@ -346,7 +359,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     try:
         return args.handler(args)
-    except (CliError, ConfigError, CloudModelRefused, GeminiSetupError) as exc:
+    except (CliError, ConfigError, CloudModelRefused, GeminiSetupError, GroqSetupError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
 

@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
+import { AICaseBrief } from "./ai-brief.jsx";
 import { Icon } from "./workspace.jsx";
 import { firstMatch } from "./research.mjs";
 import { CourtJudgments } from "./court-library.jsx";
@@ -712,6 +713,9 @@ export function CaseReview({
           </div>
         ))}
       </details>
+      {workspace.mode === "local_sqlite" && workspace.ai_briefs?.enabled && (
+        <AICaseBrief key={caseId} caseId={caseId} openSource={openSource} />
+      )}
       <div className="focus-case-grid">
         <div>
           <section className="innocence-section">

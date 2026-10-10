@@ -1,8 +1,9 @@
 """Serve the built React case workspace with a persistent, loopback-only SQLite API.
 
 Build with npm --prefix web run build, then run this script. --demo adds the three
-synthetic matters without overwriting existing cases. Runtime documents never go
-to Vercel, a cloud model, or the public demo exporter.
+synthetic matters without overwriting existing cases. The default server remains
+offline. --groq-demo explicitly enables a separate online worker for selected
+public/synthetic source excerpts. Original runtime files never enter the public exporter.
 """
 
 from __future__ import annotations
@@ -32,7 +33,7 @@ from ratio.workspace import case_payload, focus_report, seed_collection
 MAX_REQUEST = 70_000_000
 
 
-def handler_for(library: LibraryStore, dist: Path, research=None):
+def handler_for(library: LibraryStore, dist: Path, research=None, briefs=None):
     research = research or CorpusResearch()
 
     class Handler(SimpleHTTPRequestHandler):
@@ -166,6 +167,7 @@ def handler_for(library: LibraryStore, dist: Path, research=None):
                         "cases": library.list(),
                         "pending_files": library.pending_files(),
                         "outcomes": registry(),
+                        "ai_briefs": briefs.info() if briefs else {"enabled": False},
                         "limits": {
                             "max_files": 100,
                             "max_file_bytes": 5_000_000,
@@ -177,6 +179,38 @@ def handler_for(library: LibraryStore, dist: Path, research=None):
                 remainder = path.removeprefix("/api/cases/")
                 parts = remainder.split("/")
                 case_id = parts[0]
+                if len(parts) == 2 and parts[1] in {"brief", "brief.pdf"}:
+                    if briefs is None:
+                        return self.reply(
+                            {
+                                "error": "Start the local server with --groq-demo to enable public-case drafts."
+                            },
+                            400,
+                        )
+                    try:
+                        if parts[1] == "brief":
+                            return self.reply(briefs.get(case_id))
+                        raw = briefs.pdf(case_id)
+                    except (KeyError, ValueError):
+                        return self.reply(
+                            {"error": "A verified case brief is unavailable."}, 404
+                        )
+                    if raw is None:
+                        return self.reply(
+                            {"error": "Generate the case brief before downloading."},
+                            404,
+                        )
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/pdf")
+                    self.send_header(
+                        "Content-Disposition",
+                        'attachment; filename="case-brief-draft.pdf"',
+                    )
+                    self.send_header("Content-Length", str(len(raw)))
+                    self.send_header("Cache-Control", "no-store")
+                    self.end_headers()
+                    self.wfile.write(raw)
+                    return
                 if len(parts) == 1:
                     payload = case_payload(library, case_id)
                     return (
@@ -247,6 +281,20 @@ def handler_for(library: LibraryStore, dist: Path, research=None):
                     )
                 body = json.loads(self.rfile.read(length))
                 path = urlsplit(self.path).path
+                if path.startswith("/api/cases/") and path.endswith("/brief"):
+                    if briefs is None:
+                        return self.reply(
+                            {
+                                "error": "Public-case AI drafts are not enabled in this server."
+                            },
+                            400,
+                        )
+                    case_id = unquote(
+                        path.removeprefix("/api/cases/").removesuffix("/brief")
+                    )
+                    return self.reply(
+                        briefs.start(case_id, force=body.get("force") is True), 202
+                    )
                 if path.startswith("/api/precedents/") and path.endswith("/stage"):
                     original = research.original_pdf(
                         unquote(
@@ -323,15 +371,27 @@ def main():
     parser.add_argument("--port", type=int, default=8503)
     parser.add_argument("--db", type=Path)
     parser.add_argument("--demo", action="store_true")
+    parser.add_argument(
+        "--groq-demo",
+        action="store_true",
+        help="Explicitly enable Groq drafts for public/synthetic sources through a separate online worker",
+    )
     args = parser.parse_args()
     dist = ROOT / "web" / "dist"
     if not (dist / "index.html").is_file():
         parser.error("Build the interface first: npm --prefix web run build")
     netguard.install()
     library = LibraryStore(CaseStore(args.db))
+    briefs = None
+    if args.groq_demo:
+        from ratio.demo_briefs import DemoBriefService
+
+        briefs = DemoBriefService(library)
     if args.demo:
         seed_collection(library)
-    server = ThreadingHTTPServer(("127.0.0.1", args.port), handler_for(library, dist))
+    server = ThreadingHTTPServer(
+        ("127.0.0.1", args.port), handler_for(library, dist, briefs=briefs)
+    )
     print(
         f"Ratio case workspace: http://127.0.0.1:{args.port} (persistent local SQLite)",
         flush=True,
@@ -342,6 +402,8 @@ def main():
         pass
     finally:
         server.server_close()
+        if briefs:
+            briefs.close()
 
 
 if __name__ == "__main__":

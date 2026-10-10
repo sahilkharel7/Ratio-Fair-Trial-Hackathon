@@ -41,7 +41,9 @@ dev = [
 # app never installs or imports it: only public documents are ever sent to the cloud model.
 corpus = [
   "google-genai==2.29.0",
+  "httpx==0.28.1",  # Groq public-source maintainer worker
 ]
+demo = ["httpx==0.28.1", "reportlab==4.4.9"]  # explicitly enabled public-source Groq demo
 
 [tool.setuptools.packages.find]
 include = ["ratio*", "corpus_builder*"]

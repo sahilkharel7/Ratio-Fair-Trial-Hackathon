@@ -123,7 +123,8 @@ def render(doc, draft, method):
             para("RATIO  /  CASE READING SHEET", "label"),
             para(doc.title, "title"),
             para(
-                f"{doc.body} | {doc.symbol or doc.id} | {doc.state or 'State not recorded'} | {doc.year or 'Undated'}",
+                getattr(doc, "case_header", None)
+                or f"{doc.body} | {doc.symbol or doc.id} | {doc.state or 'State not recorded'} | {doc.year or 'Undated'}",
                 "note",
             ),
             HRFlowable(width="100%", thickness=1, color=colors.HexColor("#8e773e")),
@@ -198,13 +199,34 @@ def build(doc, directory, *, llm=None, curated=None):
             raise ValueError(
                 "Source exceeds the full-document limit; do not silently truncate it."
             )
+        text = doc.text
+        if getattr(llm, "model", "").startswith("groq:"):
+            from scripts.groq_case_worker import excerpts
+
+            text = json.dumps(
+                excerpts(
+                    [
+                        {
+                            "id": doc.id,
+                            "title": doc.title,
+                            "type": doc.kind,
+                            "text": doc.text,
+                        }
+                    ]
+                ),
+                ensure_ascii=False,
+            )
         draft = llm.complete_json(
             system=SYSTEM,
-            user="<document>" + doc.text + "</document>",
+            user="<document>" + text + "</document>",
             schema=BriefDraft,
             purpose="public_case_brief",
         )
-        method = "Gemini draft | source quotes checked; legal review required"
+        method = (
+            "Groq draft from selected excerpts"
+            if getattr(llm, "model", "").startswith("groq:")
+            else "Gemini draft"
+        ) + " | source quotes checked; legal review required"
     else:
         draft = extractive(doc)
         method = (
@@ -237,11 +259,16 @@ def main():
         help="Explicitly opt into Gemini for public documents; reads GEMINI_API_KEY from ignored .env",
     )
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--provider", choices=("gemini", "groq"), default="gemini")
     args = parser.parse_args()
     index = SqlitePrecedentIndex(corpus_db_path())
     curated = json.loads((ROOT / "ratio/config/court_briefs.json").read_text())
     llm = None
-    if args.model_id:
+    if args.provider == "groq":
+        from corpus_builder.groq import GroqLLM
+
+        llm = GroqLLM(args.model_id)
+    elif args.model_id:
         from corpus_builder.extract import GeminiLLM
 
         llm = GeminiLLM(args.model_id)
