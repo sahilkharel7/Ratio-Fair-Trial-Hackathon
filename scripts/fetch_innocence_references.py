@@ -11,7 +11,6 @@ import time
 from datetime import UTC, datetime
 from pathlib import Path
 from urllib.parse import quote, urlsplit
-from corpus_builder.sources import REFUSED_HOSTS
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -19,6 +18,7 @@ import httpx
 from pypdf import PdfReader
 
 from corpus_builder.normalize import clean_text
+from corpus_builder.sources import REFUSED_HOSTS
 from corpus_builder.store import BuildStore, RawItem
 from ratio.precedent_schema import PrecedentDoc
 
@@ -77,7 +77,12 @@ def main():
             )
             try:
                 if urlsplit(url).hostname in REFUSED_HOSTS:
-                    report.append({"id": id, "status": "metadata only; automatic access disallowed; use configured local copies"})
+                    report.append(
+                        {
+                            "id": id,
+                            "status": "metadata only; automatic access disallowed; use configured local copies",
+                        }
+                    )
                     continue
                 response = client.get(url)
                 response.raise_for_status()

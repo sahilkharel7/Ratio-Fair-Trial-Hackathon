@@ -219,7 +219,10 @@ class DemoBriefService:
                 "model": self._model,
                 "sources": [
                     {"id": d.id, "title": d.title, "type": d.type, "text": d.text}
-                    for d in sorted(record.documents, key=lambda d: {"judgment": 0, "indictment": 1}.get(d.type, 2))
+                    for d in sorted(
+                        record.documents,
+                        key=lambda d: {"judgment": 0, "indictment": 1}.get(d.type, 2),
+                    )
                 ],
             }
             response = self._runner(payload)

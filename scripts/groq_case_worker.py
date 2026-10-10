@@ -103,7 +103,10 @@ def generate(payload, *, llm=None):
 
         netguard.install()
         llm = OllamaLLM(payload.get("model", "qwen2.5:1.5b"), timeout_s=120)
-    sources = sorted(payload["sources"], key=lambda d: {"judgment":0,"indictment":1}.get(d["type"],2))
+    sources = sorted(
+        payload["sources"],
+        key=lambda d: {"judgment": 0, "indictment": 1}.get(d["type"], 2),
+    )
     if not 1 <= len(sources) <= 100 or sum(len(s["text"]) for s in sources) > 1_000_000:
         raise ValueError("Demo source set exceeds its input bound.")
     selected = excerpts(sources)
@@ -167,7 +170,9 @@ def generate(payload, *, llm=None):
         sections.append(
             {
                 "label": "Selected source passage",
-                "summary": "Source excerpt: " + chosen["text"][:240] + (" [...]" if len(chosen["text"]) > 240 else ""),
+                "summary": "Source excerpt: "
+                + chosen["text"][:240]
+                + (" [...]" if len(chosen["text"]) > 240 else ""),
                 "doc_id": chosen["doc_id"],
                 "quote": chosen["text"],
                 "source_start": chosen["source_start"],
