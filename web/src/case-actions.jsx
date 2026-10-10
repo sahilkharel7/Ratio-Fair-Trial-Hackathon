@@ -12,7 +12,9 @@ const TYPES = [
 // Add more documents to a stored case, or delete it with everything saved for it on this computer.
 export function CaseFileActions({ caseId, record, navigate, refresh, onUpdated }) {
   const input = useRef(null);
-  const [type, setType] = useState("monitoring_note"),
+  const [type, setType] = useState(() =>
+      record.documents?.length && record.documents.every((d) => d.type === "judgment") ? "judgment" : "monitoring_note",
+    ),
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState("");
   async function addFiles(e) {
@@ -63,13 +65,16 @@ export function CaseFileActions({ caseId, record, navigate, refresh, onUpdated }
   }
   return (
     <div className="case-file-actions">
-      <select aria-label="Type of the documents to add" value={type} onChange={(e) => setType(e.target.value)}>
-        {TYPES.map(([value, label]) => (
-          <option key={value} value={value}>
-            {label}
-          </option>
-        ))}
-      </select>
+      <label className="case-file-type">
+        Add as
+        <select value={type} onChange={(e) => setType(e.target.value)}>
+          {TYPES.map(([value, label]) => (
+            <option key={value} value={value}>
+              {label}
+            </option>
+          ))}
+        </select>
+      </label>
       <button disabled={busy} onClick={() => input.current?.click()}>
         {busy ? "Working…" : "Add files"}
       </button>

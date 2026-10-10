@@ -12,6 +12,18 @@
   align-items: center;
   gap: 8px;
 }
+.case-file-type {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.case-file-actions .case-file-type select {
+  width: auto;
+  min-width: 0;
+  max-width: 190px;
+}
 .case-file-actions .caption {
   flex-basis: 100%;
   text-align: right;
