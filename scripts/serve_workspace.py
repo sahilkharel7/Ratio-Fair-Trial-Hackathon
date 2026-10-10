@@ -2,8 +2,8 @@
 
 Build with npm --prefix web ci && npm --prefix web run build, then run this script. --demo adds the three
 synthetic matters without overwriting existing cases. The default server remains
-offline. --groq-demo explicitly enables a separate online worker for selected
-public/synthetic source excerpts. Original runtime files never enter the public exporter.
+offline. --local-ai enables an Ollama worker for case source excerpts; the legacy
+--groq-demo flag is a local-only alias. Runtime files never enter the public exporter.
 """
 
 from __future__ import annotations
@@ -179,11 +179,23 @@ def handler_for(library: LibraryStore, dist: Path, research=None, briefs=None):
                 remainder = path.removeprefix("/api/cases/")
                 parts = remainder.split("/")
                 case_id = parts[0]
+                if len(parts) == 2 and parts[1] == "comparisons":
+                    from ratio.local_comparisons import comparisons
+
+                    try:
+                        return self.reply(comparisons(library, research, case_id))
+                    except Exception:  # noqa: BLE001 - retrieval/model failure must return no interpretation
+                        return self.reply(
+                            {
+                                "comparisons": [],
+                                "note": "Local comparison unavailable. No interpretation was generated; check Ollama and the saved references.",
+                            }
+                        )
                 if len(parts) == 2 and parts[1] in {"brief", "brief.pdf"}:
                     if briefs is None:
                         return self.reply(
                             {
-                                "error": "Start the local server with --groq-demo to enable public-case drafts."
+                                "error": "Start the local server with --local-ai to enable local case reading aids."
                             },
                             400,
                         )
@@ -285,7 +297,7 @@ def handler_for(library: LibraryStore, dist: Path, research=None, briefs=None):
                     if briefs is None:
                         return self.reply(
                             {
-                                "error": "Public-case AI drafts are not enabled in this server."
+                            "error": "Local case reading aids are not enabled in this server."
                             },
                             400,
                         )
@@ -328,7 +340,7 @@ def handler_for(library: LibraryStore, dist: Path, research=None, briefs=None):
                     }
                     batch = library.stage(
                         raw,
-                        provenance=body["provenance"],
+                        provenance=body.get("provenance", "private"),
                         source_note=body.get("source_note", ""),
                     )
                     return self.reply(
@@ -372,9 +384,14 @@ def main():
     parser.add_argument("--db", type=Path)
     parser.add_argument("--demo", action="store_true")
     parser.add_argument(
+        "--local-ai",
+        action="store_true",
+        help="Enable local Ollama case reading aids; never falls back to cloud",
+    )
+    parser.add_argument(
         "--groq-demo",
         action="store_true",
-        help="Explicitly enable Groq drafts for public/synthetic sources through a separate online worker",
+        help="Deprecated alias for --local-ai; case content always uses local Ollama",
     )
     args = parser.parse_args()
     dist = ROOT / "web" / "dist"
@@ -383,7 +400,7 @@ def main():
     netguard.install()
     library = LibraryStore(CaseStore(args.db))
     briefs = None
-    if args.groq_demo:
+    if args.local_ai or args.groq_demo:
         from ratio.demo_briefs import DemoBriefService
 
         briefs = DemoBriefService(library)

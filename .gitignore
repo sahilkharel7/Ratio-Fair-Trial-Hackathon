@@ -17,6 +17,7 @@ data/ratio.db-*
 data/alias_decisions.yaml
 data/cache/
 data/uploads/
+data/real-demo/
 # The precedent corpus: real public documents, built locally, never committed
 data/corpus/
 

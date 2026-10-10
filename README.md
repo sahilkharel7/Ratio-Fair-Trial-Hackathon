@@ -1,6 +1,6 @@
 # Ratio
 
-For the optional public-source AI demo, follow [the local Groq setup](docs/GROQ-DEMO.md). Start the React server with `--groq-demo` to draft source-linked case briefs using the configured Groq key; the default server remains offline.
+For the optional public-source AI demo, follow [the local Groq setup](docs/GROQ-DEMO.md). Start the React server with `--local-ai`. Cases always use local Ollama; configured cloud models are restricted to explicitly public legal references.
 
 For a fresh upload demonstration, [the separate real-case PDF pack](docs/DEMO-UPLOAD-PACK.md) contains three original court judgments kept out of the installed collection. Run `.venv/bin/python scripts/fetch_demo_pack.py` to download the originals and create a ZIP locally.
 
@@ -111,8 +111,9 @@ python scripts/serve_workspace.py --demo            # adds the three synthetic e
 Open http://127.0.0.1:8503. This is the interface we present: a court-filtered case collection, a focused
 presumption-of-innocence review (charge, requested penalty, sentence and quoted law, each with its checked source),
 international decisions and source research. It serves the built app with a loopback-only API on this computer and
-uses `data/ratio.db` (`--db PATH` picks another database). `--groq-demo` is off by default; it enables online drafts
-for public or synthetic sources only. Upload limits and the adapter contract are in
+uses `data/ratio.db` (`--db PATH` picks another database). `--local-ai` enables local Ollama reading aids.
+All case workspace content stays local; `--groq-demo` is now a deprecated local-only alias. Cloud models may
+process explicitly designated public legal references only. Upload limits and the adapter contract are in
 [docs/COURT-WORKSPACE.md](docs/COURT-WORKSPACE.md).
 
 ### The full analysis app

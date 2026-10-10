@@ -137,7 +137,7 @@ def test_worker_refuses_private_input_before_model_or_renderer():
         def complete_json(self, **kwargs):
             pytest.fail("Private text reached the cloud")
 
-    with pytest.raises(ValueError, match="Private"):
+    with pytest.raises(ValueError, match="local case"):
         worker.generate({"provenance": "private"}, llm=Cloud())
 
 
@@ -162,6 +162,7 @@ def test_excerpt_selection_is_bounded_and_preserves_original_characters():
 def test_model_selects_source_passages_without_writing_quotations(monkeypatch):
     text = "Opening heading.\n\n" + QUOTE
     payload = {
+        "source_role": "case_workspace",
         "provenance": "synthetic",
         "title": "Synthetic test",
         "court": "Test court",
@@ -214,7 +215,8 @@ def test_model_cannot_select_an_invented_source_passage(monkeypatch):
     with pytest.raises(ValueError):
         worker.generate(
             {
-                "provenance": "synthetic",
+                "source_role": "case_workspace",
+        "provenance": "synthetic",
                 "title": "Test",
                 "court": "Test",
                 "sources": [

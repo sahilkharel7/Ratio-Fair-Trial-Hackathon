@@ -1,8 +1,8 @@
-"""Offline coordination of an explicitly enabled public-document Groq demo worker.
+"""Offline coordination of local Ollama case reading aids.
 
 The normal application network guard remains installed. A fixed worker receives
-only the selected public/synthetic case sources through stdin, never the database
-or notes. Keys and HTTP clients stay in that worker.
+case sources through stdin, never the database path or reviewer working notes.
+The case worker has no cloud fallback and does not use cloud API credentials.
 """
 
 from __future__ import annotations
@@ -23,8 +23,8 @@ from pydantic import Field
 from ratio.case_briefs import BriefDraft, BriefSection
 from ratio.paths import REPO_ROOT
 
-VERSION = "groq-case-brief-v3"
-MODEL = "openai/gpt-oss-120b"
+VERSION = "local-case-brief-v1"
+MODEL = "qwen2.5:1.5b"
 
 
 class CaseBriefSection(BriefSection):
@@ -82,9 +82,9 @@ class DemoBriefService:
             max_workers=1, thread_name_prefix="public-demo-brief"
         )
         self._capacity, self._lock = threading.BoundedSemaphore(3), threading.Lock()
-        self._model = os.environ.get("GROQ_MODEL", MODEL)
-        if self._model not in {MODEL, "openai/gpt-oss-20b"}:
-            raise ValueError("Unsupported Groq demo model.")
+        self._model = os.environ.get("RATIO_MODEL", MODEL)
+        if "cloud" in self._model.lower():
+            raise ValueError("Case work requires a local Ollama model.")
         with library.connect() as conn:
             conn.execute("""CREATE TABLE IF NOT EXISTS case_ai_briefs (
                 case_id TEXT PRIMARY KEY, fingerprint TEXT NOT NULL, status TEXT NOT NULL,
@@ -97,19 +97,17 @@ class DemoBriefService:
     def info(self):
         return {
             "enabled": True,
-            "provider": "Groq",
+            "provider": "Ollama",
             "model": self._model,
-            "scope": "Only confirmed public records and synthetic examples; selected source excerpts are sent to Groq.",
+            "scope": "Case workspace content is processed locally with Ollama. There is no cloud fallback.",
         }
 
     def _record(self, case_id):
         record = self.library.cases.load_case(case_id)
         if record is None:
             raise KeyError("Case not found.")
-        if record.meta.data_provenance not in {"public", "synthetic"}:
-            raise ValueError("Private records cannot be sent to Groq.")
-        if not record.documents or len(record.documents) > 20:
-            raise ValueError("A demo brief supports 1–20 source documents per case.")
+        if not record.documents or len(record.documents) > 100:
+            raise ValueError("A case brief supports 1–100 source documents per case.")
         return record
 
     def _fingerprint(self, record):
@@ -173,7 +171,7 @@ class DemoBriefService:
                             case_id,
                             self._fingerprint(record),
                             "queued",
-                            "Groq draft from selected source excerpts · legal review required",
+                            "Local Ollama draft from selected source excerpts · legal review required",
                             None,
                             None,
                             "",
@@ -198,7 +196,7 @@ class DemoBriefService:
         )
         if result.returncode or len(result.stdout) > 4_000_000:
             raise ValueError(
-                "The demo worker could not complete the draft. Check Groq configuration and retry."
+                "The local worker could not complete the draft. Check Ollama and retry; cloud fallback is disabled."
             )
         response = json.loads(result.stdout)
         if response.get("error"):
@@ -213,6 +211,7 @@ class DemoBriefService:
                     (record.case_id,),
                 )
             payload = {
+                "source_role": "case_workspace",
                 "provenance": record.meta.data_provenance,
                 "title": record.meta.title,
                 "court": record.meta.court,
@@ -220,7 +219,10 @@ class DemoBriefService:
                 "model": self._model,
                 "sources": [
                     {"id": d.id, "title": d.title, "type": d.type, "text": d.text}
-                    for d in record.documents
+                    for d in sorted(
+                        record.documents,
+                        key=lambda d: {"judgment": 0, "indictment": 1}.get(d.type, 2),
+                    )
                 ],
             }
             response = self._runner(payload)

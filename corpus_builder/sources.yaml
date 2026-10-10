@@ -330,3 +330,54 @@ sources:
         title: "Salabiaku v. France"
         state: France
         year: 1988
+
+  - id: ccpr_innocence
+    kind: ccpr_views
+    name: Official UN presumption-of-innocence decisions
+    body: UN Human Rights Committee
+    attribution: Official United Nations full decision, identified through OHCHR JURIS
+      / UN document symbol; preserve attribution.
+    terms_url: https://www.ohchr.org/en/copyright
+    terms_checked: '2026-10-10'
+    terms_summary: Attributed copies of official decisions for research; originals retained.
+      UN download hosts are not crawled; register supplied local copies only.
+    allowed_prefixes:
+    - https://juris.ohchr.org/
+    min_interval_s: 3
+    local_files:
+    - path: ccpr-1520-2006.pdf
+      url: https://documents.un.org/api/symbol/access?l=en&s=CCPR%2FC%2F98%2FD%2F1520%2F2006&t=pdf
+      symbol: CCPR/C/98/D/1520/2006
+      title: Mwamba v. Zambia
+      state: Zambia
+      year: 2010
+    - path: ccpr-1870-2009.pdf
+      url: https://documents.un.org/api/symbol/access?l=en&s=CCPR%2FC%2F99%2FD%2F1870%2F2009&t=pdf
+      symbol: CCPR/C/99/D/1870/2009
+      title: Sobhraj v. Nepal
+      state: Nepal
+      year: 2010
+    - path: ccpr-2526-2015.pdf
+      url: https://documents.un.org/api/symbol/access?l=en&s=CCPR%2FC%2F130%2FD%2F2526%2F2015&t=pdf
+      symbol: CCPR/C/130/D/2526/2015
+      title: Mirzakhodzhaev v. Kyrgyzstan
+      state: Kyrgyzstan
+      year: 2020
+    - path: ccpr-3124-2018.pdf
+      url: https://documents.un.org/api/symbol/access?l=en&s=CCPR%2FC%2F133%2FD%2F3124%2F2018&t=pdf
+      symbol: CCPR/C/133/D/3124/2018
+      title: G.B. v. Latvia
+      state: Latvia
+      year: 2021
+    - path: ccpr-770-1997.pdf
+      url: https://documents.un.org/api/symbol/access?l=en&s=CCPR%2FC%2F69%2FD%2F770%2F1997&t=pdf
+      symbol: CCPR/C/69/D/770/1997
+      title: Gridin v. Russian Federation
+      state: Russian Federation
+      year: 2000
+    - path: ccpr-964-2001.pdf
+      url: https://documents.un.org/api/symbol/access?l=en&s=CCPR%2FC%2F81%2FD%2F964%2F2001&t=pdf
+      symbol: CCPR/C/81/D/964/2001
+      title: Saidov v. Tajikistan
+      state: Tajikistan
+      year: 2004

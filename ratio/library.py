@@ -19,13 +19,13 @@ from typing import Literal
 
 from ratio.extraction.build import build_base_record
 from ratio.extraction.loader import (
+    MAX_DOCUMENT_BYTES,
     CaseManifest,
     LoaderError,
-    MAX_DOCUMENT_BYTES,
     _check_relative,
     decode_document,
 )
-from ratio.focus import FocusRecord, screen, penalty_summary
+from ratio.focus import FocusRecord, penalty_summary, screen
 from ratio.schema import CaseRecord, Frozen
 from ratio.store import CaseStore
 
@@ -136,6 +136,7 @@ class LibraryStore:
                     "defendant": row["defendant"],
                     "charge": row["charge"],
                     "synthetic": bool(row["synthetic"]),
+                    "data_provenance": record.meta.data_provenance,
                     "document_count": len(record.documents),
                     "has_analysis": row["analysis_json"] is not None,
                     "focus": focus.model_dump(mode="json"),
@@ -163,9 +164,9 @@ class LibraryStore:
         record = self.cases.load_case(case_id)
         return self.register(record) if record else None
 
-    def stage(self, files: dict[str, bytes], *, provenance: str, source_note: str = ""):
-        if provenance not in {"public", "synthetic"}:
-            raise LoaderError("Declare public or synthetic source material.")
+    def stage(self, files: dict[str, bytes], *, provenance: str = "private", source_note: str = ""):
+        if provenance not in {"public", "synthetic", "private"}:
+            raise LoaderError("Declare private, published or synthetic source material.")
         if provenance == "public" and not source_note.strip():
             raise LoaderError("Public documents need their publication source.")
         if (
