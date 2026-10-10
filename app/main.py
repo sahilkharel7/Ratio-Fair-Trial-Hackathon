@@ -18,7 +18,7 @@ import streamlit as st  # noqa: E402
 from ratio import netguard  # noqa: E402
 from ratio_ui import privacy, session, style  # noqa: E402
 
-st.set_page_config(page_title="Ratio", page_icon="⚖️", layout="wide")  # an emoji is drawn locally; a Material icon would be fetched online
+st.set_page_config(page_title="Ratio", page_icon=str(style.LOGO), layout="wide")  # the SVG is inlined; a Material icon would be fetched online
 netguard.install()  # any connection that is not to this computer now fails loudly
 
 problems = privacy.problems()
@@ -51,6 +51,7 @@ pages = [
 ]
 page = st.navigation(pages, position="hidden")
 with st.sidebar:
+    style.brand()
     st.page_link("views/case_collection.py",label="Case collection")
     st.page_link("views/focus.py",label="Case review · Presumption of innocence")
     with st.expander("Supporting analysis"):

@@ -41,6 +41,7 @@ sup.ratio-label { font-family: "Source Sans", system-ui, sans-serif; font-size: 
 # A single stylesheet owns the application tokens and the Streamlit adapter.
 # System fonts keep the research workspace fully usable offline.
 CSS = Path(__file__).with_name("theme.css").read_text(encoding="utf-8") + DOCUMENT_CSS
+LOGO = Path(__file__).with_name("logo.svg")  # the "r." mark, also the browser tab icon (inlined, never fetched)
 
 
 def inject() -> None:
@@ -85,32 +86,13 @@ def masthead() -> None:
     )
 
 
-def sidebar(active: str = "") -> None:
-    """Persistent navigation. Native page links retain active and keyboard states."""
-    with st.sidebar:
-        st.html(
-            '<div class="ratio-brand"><span class="ratio-monogram" aria-hidden="true">r.</span>'
-            '<div><span class="ratio-wordmark">ratio</span><span class="ratio-brand-caption">FAIR TRIAL ANALYSIS</span></div></div>'
-        )
-        eyebrow("Review workspace")
-        links = (
-            ("", "case", "Case overview"),
-            ("coverage", "coverage", "Rights coverage"),
-            ("timeline", "timeline", "Procedural timeline"),
-            ("reuse", "reuse", "Reasoning comparison"),
-            ("judges", "judges", "Judicial history"),
-        )
-        for route, name, title in links:
-            with st.container(key=f"ratio-nav-{name}"):
-                st.page_link(f"views/{name}.py", label=title)
-            if route == active:
-                st.html(f'<style>.st-key-ratio-nav-{name} a {{background: var(--ratio-accent-soft) !important; border-left-color: var(--ratio-accent) !important; color: var(--ratio-accent) !important;}}</style>')
-        st.html(
-            '<div class="ratio-sidebar-note"><div class="ratio-eyebrow">BUILT FOR THE RECORD</div>'
-            '<p>From observation to evidence.<br>Every finding, back to its source.</p>'
-            '<div class="ratio-sidebar-rule"></div><p>ICCPR Articles 9 &amp; 14</p>'
-            '<small>Analysis supports your review.<br>Legal conclusions remain yours.</small></div>'
-        )
+def brand() -> None:
+    """The Ratio logo at the top of the sidebar, as in the React workspace: the "r." mark and the wordmark."""
+    st.html(
+        '<div class="ratio-brand" role="img" aria-label="Ratio, legal research and review">'
+        '<span class="ratio-monogram" aria-hidden="true">r.</span>'
+        '<span class="ratio-wordmark" aria-hidden="true">ratio<small>LEGAL RESEARCH &amp; REVIEW</small></span></div>'
+    )
 
 
 def offline_note(text: str) -> None:

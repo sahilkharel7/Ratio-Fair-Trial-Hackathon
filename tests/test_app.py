@@ -49,6 +49,14 @@ def source_buttons(at: AppTest):
     return [button for button in at.button if button.label == "View source"]
 
 
+def test_the_sidebar_shows_the_ratio_logo_and_the_tab_uses_the_mark(app):
+    sidebar = [element.proto.body for element in app.sidebar.get("html")]
+    assert any('class="ratio-brand"' in body and "ratio<small>LEGAL RESEARCH &amp; REVIEW</small>" in body for body in sidebar)
+    from ratio_ui import style
+
+    assert style.LOGO.is_file() and style.LOGO.read_text(encoding="utf-8").lstrip().startswith("<svg")
+
+
 def test_case_page_summarises_the_demo_without_errors(app):
     assert not app.exception and not app.error
     assert any("13 findings" in m.value for m in app.markdown)

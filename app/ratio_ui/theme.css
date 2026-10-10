@@ -3,6 +3,11 @@
 :root { --ratio-accent: #9b283e; --ratio-accent-soft: #f7edf0; --ratio-link: #28587d;
  --ratio-border: #cbd5e1; --ratio-sans: Arial, Helvetica, sans-serif;
  --ratio-serif: Georgia, "Times New Roman", serif; --ratio-radius: 4px; }
+.ratio-brand { display: flex; align-items: center; gap: 12px; margin: 0 0 18px; }
+.ratio-monogram { display: grid; place-items: center; flex: none; width: 40px; height: 40px; background: var(--ratio-accent);
+ color: #fff; font: 32px/38px var(--ratio-serif); }
+.ratio-wordmark { display: flex; flex-direction: column; font: 34px/1 var(--ratio-serif); letter-spacing: -0.5px; }
+.ratio-wordmark small { font: 600 8px/1.4 var(--ratio-sans); letter-spacing: 1.6px; margin-top: 5px; opacity: .8; }
 .ratio-eyebrow { font: 600 10px/1.5 var(--ratio-sans); letter-spacing: 1.2px; text-transform: uppercase; opacity: .8; margin: 6px 0; }
 .ratio-masthead { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
  border-bottom: 1px solid var(--ratio-border); padding-bottom: 16px; font: 600 10px/1.5 var(--ratio-sans); letter-spacing: 1px; }
