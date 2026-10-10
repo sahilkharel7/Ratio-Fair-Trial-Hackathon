@@ -388,7 +388,8 @@ def test_ollama_posts_a_deterministic_schema_request_to_loopback():
     llm = OllamaLLM(post=post)
     schema = answer_schema(TAXONOMY)
     assert llm.complete_json(system="S", user="U", schema=schema, purpose="p").facets[0].facet_id == "gc35_48h"
-    ((url, body, _timeout),) = post.requests
+    (show, (url, body, _timeout)) = post.requests  # first the server says the model is local, then the question
+    assert show[:2] == ("http://127.0.0.1:11434/api/show", {"model": "qwen2.5:7b-instruct"})
     assert url == "http://127.0.0.1:11434/api/chat"
     assert body["model"] == "qwen2.5:7b-instruct" == llm.model
     assert body["format"] == schema.model_json_schema()

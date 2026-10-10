@@ -141,7 +141,7 @@ def analyze_upload(manifest: CaseManifest, files: dict[str, bytes], progress: Pr
 
 @dataclass(frozen=True)
 class SimilarCases:
-    """What one background computation found for a case: its fact patterns and the public cases linked
+    """What one background computation found for a case: its fact patterns and the past cases linked
     to them (both None when no corpus is installed), or the error that stopped it."""
 
     profile: CaseProfile | None = None
@@ -281,7 +281,7 @@ def _wait(key: str, job: _LinkJob, timeout: float) -> SimilarCases | None:
 
 
 def similar_cases(loaded: LoadedCase, timeout: float) -> SimilarCases | None:
-    """The case's fact patterns and the public cases sharing enough of them, best first, waiting at most
+    """The case's fact patterns and the past cases sharing enough of them, best first, waiting at most
     ``timeout`` seconds: None while they are still computing. Raises the error that stopped the
     computation (EmbeddingModelMissing when the local embedding model has not been downloaded)."""
     key, job = _similar_job(loaded)

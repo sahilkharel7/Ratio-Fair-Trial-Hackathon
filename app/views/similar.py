@@ -1,5 +1,6 @@
-"""Similar cases: public past cases (Views of the UN Human Rights Committee, opinions of the UN Working
-Group on Arbitrary Detention, TrialWatch reports) that share this case's fact patterns. Each shared
+"""Similar cases: past cases (Views of the UN Human Rights Committee, opinions of the UN Working Group on
+Arbitrary Detention, TrialWatch reports, and the collections uploaded on this computer) that share this
+case's fact patterns. Each shared
 pattern shows this case's passage beside the past case's, both opening their exact, checked source.
 A reading aid, never a finding and never a prediction: whether a precedent applies is for the
 reviewing lawyer."""
@@ -13,7 +14,10 @@ import streamlit as st
 from ratio.display import md_escape
 from ratio.embeddings import EmbeddingModelMissing
 from ratio.messages import render
+from ratio import precedents
 from ratio.precedent_schema import CaseProfile, CorpusMeta, PrecedentIndex, PrecedentLink, SharedFacet
+from ratio.precedents import WordingMatch
+from ratio.schema import Evidence
 from ratio_ui import session, viewer, widgets
 from ratio_ui.session import SimilarCases
 
@@ -110,7 +114,7 @@ def _computing() -> None:
 
 def _results(found: SimilarCases) -> None:
     _profile(found.profile or CaseProfile(case_id=loaded.record.case_id))
-    st.header("Public cases that share them")
+    st.header("Past cases that share them")
     links = found.links or ()
     if not links:
         st.caption(md_escape(render(cfg.messages, "similar_none", min_shared=session.precedent_settings().min_shared)))
@@ -118,21 +122,59 @@ def _results(found: SimilarCases) -> None:
         _card(link)
 
 
+def _wording_match(match: WordingMatch, number: int) -> None:
+    doc = match.precedent
+    with st.container(border=True):
+        st.subheader(md_escape(doc.title))
+        source, origin = widgets.label(f"precedent_{doc.kind}"), viewer.precedent_origin(doc)
+        st.markdown(f":blue-badge[{md_escape(source)}] :gray-badge[{md_escape(origin)}]")
+        paragraphs = _count(match.support, "paragraph")
+        st.caption(md_escape(f"{doc.body} · closeness of the best pair {match.cosine:.2f} · {paragraphs} of this case read close to it"))
+        case_column, precedent_column = st.columns(2, gap="medium")
+        with case_column:
+            st.caption(md_escape(widgets.label("similar_this_case")))
+            widgets.narrow_evidence(loaded.record, [Evidence(role="mention", span=match.case_passage)], key=f"wording-{number}-case", heading="Similar wording")
+        with precedent_column:
+            st.caption(md_escape(doc.body))
+            st.html(widgets.precedent_quote_html(widgets.label("library_passage"), match.precedent_passage, clip=False))
+            if st.button("View source", key=f"wording-{number}-precedent", help="Opens the passage, checked against its document"):
+                viewer.show_precedent(match.precedent_passage.span, doc, "Similar wording")
+
+
+def _wording(index: PrecedentIndex) -> None:
+    """Past cases whose paragraphs read closest to this case's own (computed once per case and corpus)."""
+    st.header(notes["similar_wording_heading"])
+    st.caption(md_escape(notes["similar_wording_intro"]))
+    key = f"similar-wording/{loaded.record.case_id}/{index.meta().built_at}"
+    if key not in st.session_state:
+        with st.spinner("Searching the library with this case's paragraphs"):
+            st.session_state[key] = precedents.similar_wording(loaded.record, index, session.embedder())
+    matches = st.session_state[key]
+    if not matches:
+        st.caption(md_escape(notes["similar_wording_none"]))
+    for number, match in enumerate(matches):
+        _wording_match(match, number)
+
+
 def _similar(index: PrecedentIndex, status: str) -> None:
     st.caption(md_escape(render(cfg.messages, "similar_status", status=status)))
-    with st.spinner("Comparing this case with the public cases"):  # computed once, then shared with the Case page
+    with st.spinner("Comparing this case with the past cases"):  # computed once, then shared with the Case page
         found = session.similar_cases(loaded, timeout=session.SIMILAR_PAGE_WAIT_SECONDS)
     if found is None:
         _computing()
     else:
         _results(found)
+    try:
+        _wording(index)
+    except Exception as exc:  # noqa: BLE001 - this section is optional: the rest of the page stays
+        _log.warning("Similar wording could not be shown", exc_info=exc)
     _corpus(index.meta())
 
 
 loaded = widgets.require_case()
 cfg = session.config()
 notes = cfg.messages.notes
-widgets.header(loaded, "Similar cases", "Public past cases that share this case's fact patterns")
+widgets.header(loaded, "Similar cases", "Past cases that share this case's fact patterns")
 st.markdown(md_escape(notes["similar_intro"]))
 st.caption(md_escape(notes["similar_caveat"]))
 try:

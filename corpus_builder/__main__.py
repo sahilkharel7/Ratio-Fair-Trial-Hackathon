@@ -6,10 +6,11 @@ The steps, in order. Each can be re-run: finished work is skipped or cached.
   normalize         turn each download into a document's text
   extract           ask the model for fact patterns, quoting the public text (GEMINI_API_KEY, or --model ollama)
   verify            keep only the quotes found verbatim in the text
-  embed             encode each verified fact quote's sentence with the local MiniLM model
+  embed             encode each verified fact quote's sentence, and every passage (for search), with the local MiniLM model
   build-db          write data/corpus/precedents.db, the file the app reads
   index-opensearch  load it into the optional OpenSearch index on 127.0.0.1
   snapshot/restore  save or install that index without crawling or a key
+  collection        add, list or build documents you upload (no crawling; a private one is read only by the local model)
   status            what each step has done so far
 """
 
@@ -25,12 +26,13 @@ from pathlib import Path
 
 from pydantic import BaseModel, ValidationError
 
+from corpus_builder.extract import CloudModelRefused, GeminiSetupError
 from corpus_builder.fetch import fetch_all
 from corpus_builder.normalize import normalize_all
 from corpus_builder.sources import load_sources
-from corpus_builder.store import BUILD_DB, BuildStore
+from corpus_builder.store import BuildStore
 from ratio.config import ConfigError, FactPatternTaxonomy, PrecedentSettings, default_config
-from ratio.paths import corpus_db_path
+from ratio.paths import build_db_path, corpus_db_path
 
 WORK_TABLES = ("raw", "documents", "extractions", "verified", "vectors")
 SNAPSHOT_NAME = "precedents"
@@ -53,8 +55,15 @@ def _fetch(args: argparse.Namespace) -> int:
     return 0
 
 
+def _all_sources() -> list:
+    """The crawled sources (sources.yaml) and the uploaded collections."""
+    from corpus_builder.collections import list_collections
+
+    return [*load_sources(), *list_collections()]
+
+
 def _normalize(args: argparse.Namespace) -> int:
-    _print_report(normalize_all(_store(args), load_sources()))
+    _print_report(normalize_all(_store(args), _all_sources()))
     return 0
 
 
@@ -67,7 +76,12 @@ def _extract(args: argparse.Namespace) -> int:
         llm = extract.GeminiLLM(args.model_id)
     else:
         llm = extract.OllamaLLM(model=args.model_id) if args.model_id else extract.OllamaLLM()
-    _print_report(extract.extract_all(_store(args), _taxonomy(), llm, only=args.only))
+    report = extract.extract_all(_store(args), _taxonomy(), llm, only=args.only)
+    _print_report(report)
+    if report.private_refused:
+        print(f"left out {len(report.private_refused)} private collection documents: {extract.PRIVATE_REFUSED} (--model ollama)")
+        if args.only:
+            raise CliError(f"{', '.join(report.private_refused)}: {extract.PRIVATE_REFUSED}; use --model ollama")
     return 0
 
 
@@ -82,7 +96,9 @@ def _embed(args: argparse.Namespace) -> int:
     from corpus_builder import embed
     from ratio.embeddings import MiniLMEmbedder
 
-    print(f"embedded {embed.embed_all(_store(args), MiniLMEmbedder())} fact quotes")
+    embedder = MiniLMEmbedder()
+    print(f"embedded {embed.embed_all(_store(args), embedder)} fact quotes")
+    print(f"embedded {embed.embed_passages(_store(args), embedder)} new passages (for search)")
     return 0
 
 
@@ -92,7 +108,7 @@ def _build_db(args: argparse.Namespace) -> int:
     store = _store(args)
     out = Path(args.out) if args.out else corpus_db_path()
     meta = build_db.build_db(
-        store, _taxonomy(), load_sources(), out, extraction_model=_extraction_models(store.path), prompt_sha=extract.PROMPT_SHA
+        store, _taxonomy(), _all_sources(), out, extraction_model=_extraction_models(store.path), prompt_sha=extract.PROMPT_SHA
     )
     print(f"wrote {out}")
     _print_report(meta)
@@ -104,7 +120,7 @@ def _index_opensearch(args: argparse.Namespace) -> int:
     from corpus_builder import opensearch
 
     count = opensearch.index_corpus(corpus_db_path(), settings.opensearch_url, settings.opensearch_index)
-    print(f"indexed {count} fact quotes into {settings.opensearch_index} at {settings.opensearch_url}")
+    print(f"indexed {count} fact quotes and passages into {settings.opensearch_index} at {settings.opensearch_url}")
     return 0
 
 
@@ -112,7 +128,10 @@ def _snapshot(args: argparse.Namespace) -> int:
     settings = _opensearch_settings(args.url)
     from corpus_builder import opensearch
 
-    opensearch.snapshot(settings.opensearch_url, args.name)
+    try:
+        opensearch.snapshot(settings.opensearch_url, args.name, include_private=args.include_private)
+    except ValueError as exc:
+        raise CliError(f"{exc}; pass --include-private only if the snapshot stays on this computer") from None
     print(f"snapshot {args.name} saved")
     return 0
 
@@ -201,12 +220,77 @@ def _one_line(item: object) -> str:
     return str(item)
 
 
+# --- collections: documents you upload, no crawling ------------------------------------------------
+
+
+def _collection(args: argparse.Namespace) -> int:
+    from corpus_builder import collections as col
+
+    try:
+        if args.action == "list":
+            for found in col.list_collections():
+                state = "private" if found.private else "public"
+                print(f"{found.slug}: {found.name} ({state}, {found.region or 'no region'}), {len(col.files_in(found))} files")
+            return 0
+        if args.action == "add":
+            return _collection_add(args, col)
+        return _collection_build(args, col)
+    except col.CollectionError as exc:
+        raise CliError(str(exc)) from None
+
+
+def _collection_add(args: argparse.Namespace, col: object) -> int:
+    if not args.folder or not args.name:
+        raise CliError("collection add needs a FOLDER and --name")
+    folder = Path(args.folder)
+    files = [path for path in sorted(folder.iterdir()) if path.is_file() and path.suffix.lower() in col.SUFFIXES] if folder.is_dir() else []
+    if not files:
+        raise CliError(f"no PDF, text or HTML files in {folder}")
+    found = col.create_collection(args.name, region=args.region or "", private=not args.public)
+    store = _store(args)
+    for path in files:
+        col.add_file(found, path.name, path.read_bytes(), store)
+    print(f"added {len(files)} files to {found.name} ({'public' if args.public else 'private'}); next: python -m corpus_builder collection build")
+    return 0
+
+
+def _collection_build(args: argparse.Namespace, col: object) -> int:
+    from corpus_builder import extract
+    from corpus_builder.opensearch import index_corpus
+    from ratio.config import default_config
+    from ratio.embeddings import MiniLMEmbedder
+    from ratio.precedent_opensearch import available
+
+    chosen = [c for c in col.list_collections() if args.name is None or c.slug == col.collection_slug(args.name)]
+    if not chosen:
+        raise CliError("no such collection; add one with: python -m corpus_builder collection add FOLDER --name NAME")
+    if args.model == "gemini" and any(c.private for c in chosen):
+        raise CliError("a private collection is read only by the local model; drop --model gemini")
+    if args.model == "gemini" and not args.model_id:
+        raise CliError("--model gemini needs --model-id")
+    llm = extract.GeminiLLM(args.model_id) if args.model == "gemini" else extract.OllamaLLM()
+    settings = default_config().settings.precedents
+
+    def index(path: Path | None) -> int | None:
+        if args.no_index or not available(settings.opensearch_url):
+            return None
+        return index_corpus(path or corpus_db_path(), settings.opensearch_url, settings.opensearch_index, taxonomy=_taxonomy())
+
+    report = col.build(_store(args), _taxonomy(), llm, MiniLMEmbedder(), collections=chosen, sources=load_sources(), index=index, progress=print)
+    _print_report(report.meta)
+    print(f"documents in the corpus from these collections: {len(report.documents)}; passages embedded: {report.passages}; "
+          f"OpenSearch: {report.indexed if report.indexed is not None else 'not running (the corpus file is used)'}")  # fmt: skip
+    for line in (*report.skipped, *report.failed):
+        print(f"  - {line}")
+    return 0
+
+
 # --- parser -------------------------------------------------------------------------------------
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m corpus_builder", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--work-db", default=str(BUILD_DB), help="the builder's work database (default: %(default)s)")
+    parser.add_argument("--work-db", default=str(build_db_path()), help="the builder's work database (default: %(default)s)")
     steps = parser.add_subparsers(dest="step", required=True)
 
     def step(name: str, handler: Callable[[argparse.Namespace], int], help_text: str) -> argparse.ArgumentParser:
@@ -223,7 +307,7 @@ def build_parser() -> argparse.ArgumentParser:
     extract.add_argument("--model-id", help="the model id (required for gemini)")
     extract.add_argument("--only", help="only this precedent id")
     step("verify", _verify, "keep only verbatim quotes")
-    step("embed", _embed, "embed verified fact quotes")
+    step("embed", _embed, "embed verified fact quotes and every passage (for search)")
     build = step("build-db", _build_db, "write precedents.db")
     build.add_argument("--out", help="where to write it (default: data/corpus/precedents.db, or RATIO_CORPUS_DB)")
     for name, handler, help_text in (
@@ -235,6 +319,17 @@ def build_parser() -> argparse.ArgumentParser:
         sub.add_argument("--url", help="OpenSearch on this computer (default: settings.yaml)")
         if name != "index-opensearch":
             sub.add_argument("--name", default=SNAPSHOT_NAME, help="snapshot name (default: %(default)s)")
+        if name == "snapshot":
+            sub.add_argument("--include-private", action="store_true", help="also when the corpus holds private collections")
+    coll = step("collection", _collection, "documents you upload (no crawling): add, list or build")
+    coll.add_argument("action", choices=("add", "list", "build"))
+    coll.add_argument("folder", nargs="?", help="add: the folder of PDF, text or HTML files")
+    coll.add_argument("--name", help="the collection's name, e.g. Indonesia")
+    coll.add_argument("--region", help="add: the region it covers")
+    coll.add_argument("--public", action="store_true", help="add: public material (default: private, read only by the local model)")
+    coll.add_argument("--model", choices=("ollama", "gemini"), default="ollama", help="build: gemini is refused for a private collection")
+    coll.add_argument("--model-id", help="build: the Gemini model id")
+    coll.add_argument("--no-index", action="store_true", help="build: do not load the corpus into OpenSearch (one index serves one corpus file)")
     step("status", _status, "what each step has done")
     return parser
 
@@ -251,7 +346,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     try:
         return args.handler(args)
-    except (CliError, ConfigError) as exc:
+    except (CliError, ConfigError, CloudModelRefused, GeminiSetupError) as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 2
 

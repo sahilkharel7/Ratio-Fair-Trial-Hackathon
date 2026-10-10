@@ -16,10 +16,10 @@ from pathlib import Path
 
 import numpy as np
 
-from ratio.paths import CORPUS_DIR
+from ratio.paths import CORPUS_DIR, build_db_path
 from ratio.precedent_schema import PrecedentDoc, PrecedentFacet
 
-BUILD_DB = CORPUS_DIR / "build.db"
+BUILD_DB = CORPUS_DIR / "build.db"  # the default; RATIO_BUILD_DB moves it (ratio.paths.build_db_path)
 RAW_DIR = CORPUS_DIR / "raw"
 
 _DDL = (
@@ -32,6 +32,9 @@ _DDL = (
         created_at TEXT NOT NULL)""",
     """CREATE TABLE IF NOT EXISTS verified (
         precedent_id TEXT PRIMARY KEY, facets_json TEXT NOT NULL, dropped INTEGER NOT NULL, cache_key TEXT NOT NULL)""",
+    """CREATE TABLE IF NOT EXISTS passages (
+        precedent_id TEXT NOT NULL, start INTEGER NOT NULL, end INTEGER NOT NULL, vec BLOB NOT NULL,
+        PRIMARY KEY (precedent_id, start, end))""",
     """CREATE TABLE IF NOT EXISTS vectors (
         precedent_id TEXT NOT NULL, facet_id TEXT NOT NULL, start INTEGER NOT NULL, end INTEGER NOT NULL,
         vec BLOB NOT NULL, PRIMARY KEY (precedent_id, facet_id, start, end))""",
@@ -53,8 +56,8 @@ class RawItem:
 
 
 class BuildStore:
-    def __init__(self, path: Path = BUILD_DB) -> None:
-        self.path = Path(path)
+    def __init__(self, path: Path | None = None) -> None:
+        self.path = Path(path) if path is not None else build_db_path()
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self._connect() as db:
             for statement in _DDL:
@@ -136,6 +139,34 @@ class BuildStore:
         blob = np.asarray(vec, dtype=np.float32).tobytes()
         with self._connect() as db:
             db.execute("INSERT OR REPLACE INTO vectors VALUES (?, ?, ?, ?, ?)", (precedent_id, facet_id, start, end, blob))
+
+    # --- passages: every paragraph of a document, for search -----------------------------------
+
+    def put_passages(self, precedent_id: str, rows: list[tuple[int, int, np.ndarray]]) -> None:
+        """Replace the document's paragraphs and their vectors."""
+        with self._connect() as db:
+            db.execute("DELETE FROM passages WHERE precedent_id = ?", (precedent_id,))
+            db.executemany(
+                "INSERT INTO passages VALUES (?, ?, ?, ?)",
+                [(precedent_id, start, end, np.asarray(vec, dtype=np.float32).tobytes()) for start, end, vec in rows],
+            )
+
+    def passage_cuts(self) -> dict[str, list[tuple[int, int]]]:
+        """Each document's stored passage spans, in order (without the vectors)."""
+        with self._connect() as db:
+            rows = db.execute("SELECT precedent_id, start, end FROM passages ORDER BY precedent_id, start").fetchall()
+        found: dict[str, list[tuple[int, int]]] = {}
+        for pid, start, end in rows:
+            found.setdefault(pid, []).append((start, end))
+        return found
+
+    def passages(self) -> dict[str, list[tuple[int, int, bytes]]]:
+        with self._connect() as db:
+            rows = db.execute("SELECT precedent_id, start, end, vec FROM passages ORDER BY precedent_id, start").fetchall()
+        found: dict[str, list[tuple[int, int, bytes]]] = {}
+        for pid, start, end, blob in rows:
+            found.setdefault(pid, []).append((start, end, blob))
+        return found
 
     def vectors(self) -> dict[tuple[str, str, int, int], np.ndarray]:
         with self._connect() as db:

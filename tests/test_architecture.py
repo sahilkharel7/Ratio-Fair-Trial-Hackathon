@@ -86,9 +86,30 @@ def _imports_any(path: Path, prefixes: tuple[str, ...]) -> list[str]:
     return [name for name in _imports(path) if any(name == bad or name.startswith(bad + ".") for bad in prefixes)]
 
 
+# The app may upload and read collections with the local model. It never constructs the cloud client, and the
+# cloud SDK is never loaded (see the probe below).
+APP_MAY_IMPORT = ("corpus_builder.collections", "corpus_builder.store")
+
+
 @pytest.mark.parametrize("path", RUNTIME_FILES, ids=lambda p: str(p.relative_to(REPO_ROOT)))
 def test_the_app_never_imports_the_builder_or_the_cloud_model(path: Path):
-    assert not _imports_any(path, ("google.genai", "google.generativeai", "corpus_builder")), path.name
+    allowed = APP_MAY_IMPORT if (REPO_ROOT / "app") in path.parents else ()
+    found = [
+        name for name in _imports_any(path, ("google.genai", "google.generativeai", "corpus_builder"))
+        if not any(name == ok or name.startswith(ok + ".") for ok in allowed)
+    ]  # fmt: skip
+    assert not found, path.name
+    assert "GeminiLLM" not in path.read_text(encoding="utf-8"), path.name
+
+
+def test_the_collections_module_is_installed_and_never_loads_the_cloud_sdk(tmp_path):
+    """Run outside the repository, as `streamlit run app/main.py` imports it: from the installed package."""
+    import sys
+
+    probe = "import sys, corpus_builder.collections; print(any(m.startswith('google.genai') for m in sys.modules))"
+    out = subprocess.run([sys.executable, "-c", probe], cwd=tmp_path, capture_output=True, text=True, check=False)
+    assert out.returncode == 0, f"corpus_builder is not installed; run `uv pip install -e .` ({out.stderr.strip().splitlines()[-1:]})"
+    assert out.stdout.strip().splitlines()[-1] == "False"
 
 
 @pytest.mark.parametrize("path", [*RUNTIME_FILES, *BUILDER_FILES], ids=lambda p: str(p.relative_to(REPO_ROOT)))

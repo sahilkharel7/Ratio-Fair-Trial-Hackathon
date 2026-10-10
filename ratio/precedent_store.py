@@ -12,9 +12,10 @@ never states (ALLOWED_FINDINGS: a TrialWatch report finds no violation) is dropp
 from __future__ import annotations
 
 import hashlib
+import re
 import sqlite3
 from collections import Counter, defaultdict
-from collections.abc import Collection, Iterator, Mapping, Sequence
+from collections.abc import Callable, Collection, Iterator, Mapping, Sequence
 from contextlib import closing
 from dataclasses import dataclass
 from pathlib import Path
@@ -33,6 +34,7 @@ from ratio.precedent_schema import (
     CorpusMeta,
     CorpusSource,
     FindingKind,
+    PassageHit,
     PrecedentDoc,
     PrecedentFacet,
     PrecedentKind,
@@ -45,6 +47,11 @@ from ratio.schema import SourceSpan
 BUILD_CHAIN = "python -m corpus_builder fetch, then normalize, extract, verify, embed and build-db"
 _FIX = f"while online: {BUILD_CHAIN} (see corpus_builder/)."
 _TEXT_SUFFIX = "/text"
+WORD_WEIGHT = 0.25  # in a search, how much the shared words count beside the meaning (the cosine)
+COSINE_DECIMALS = 4  # as in ratio/precedents.py: cosines are compared at this precision, where both backends agree
+CANDIDATES = 200  # passages re-scored for shared words, taken by cosine first
+_WORD = re.compile(r"[a-z][a-z'-]{2,}")
+_STOP = frozenset("the and for with that this from was were has have had are not but his her their its into who which been also".split())
 UNSTATED: FindingKind = "not_examined"  # valid for every kind of document, and never shown without a finding quote
 
 
@@ -59,6 +66,7 @@ class _Rows:
     facets: list[sqlite3.Row]
     quotes: list[sqlite3.Row]
     sources: list[sqlite3.Row]
+    passages: list[sqlite3.Row]
 
 
 def _refused(path: Path, problem: str) -> CorpusUnavailable:
@@ -77,6 +85,7 @@ def _read(path: Path) -> _Rows:
                 facets=db.execute("SELECT * FROM facets ORDER BY precedent_id, facet_id").fetchall(),
                 quotes=db.execute("SELECT * FROM quotes ORDER BY precedent_id, facet_id, role, start, end").fetchall(),
                 sources=db.execute("SELECT * FROM sources ORDER BY kind").fetchall(),
+                passages=db.execute("SELECT precedent_id, start, end, vec FROM passages ORDER BY precedent_id, start").fetchall(),
             )
     except sqlite3.Error as exc:
         raise _refused(path, f"cannot be read ({exc})") from exc
@@ -182,6 +191,19 @@ class SqlitePrecedentIndex:
         self._facts = {key: tuple(found) for key, found in facts.items()}
         self._facets = self._build_facets(rows.facets, findings, taxonomy)
         self._meta = self._build_meta(rows, taxonomy)
+        self._load_passages(rows.passages)
+
+    def _load_passages(self, rows: Sequence[sqlite3.Row]) -> None:
+        """The paragraphs a search reads: spans of texts that still match their checksum, with vectors."""
+        spans, vectors = [], []
+        for row in rows:
+            doc, vec = self._docs.get(row["precedent_id"]), _vector(row["vec"])
+            if doc is None or vec is None or doc.id in self._altered or not (0 <= row["start"] < row["end"] <= len(doc.text)):
+                continue
+            spans.append((doc.id, row["start"], row["end"]))
+            vectors.append(vec)
+        self._passage_spans = tuple(spans)
+        self._passage_vecs = np.stack(vectors).astype(np.float32) if vectors else np.zeros((0, EMBEDDING_DIM), dtype=np.float32)
 
     def _build_facets(
         self, rows: Sequence[sqlite3.Row], findings: Mapping[tuple[str, str], PrecedentQuote], taxonomy: FactPatternTaxonomy
@@ -253,6 +275,37 @@ class SqlitePrecedentIndex:
         doc = self._docs.get(pid)
         return None if doc is None or pid in self._altered else doc.text
 
+    def documents(self) -> Sequence[PrecedentDoc]:
+        return tuple(self._docs.values())
+
+    def passage_count(self) -> int:
+        return len(self._passage_spans)
+
+    def passage(self, precedent_id: str, start: int, end: int) -> PrecedentQuote | None:
+        """The stored paragraph at this span as a quote of its text, or None (a span the file does not hold)."""
+        doc = self._docs.get(precedent_id)
+        if doc is None or precedent_id in self._altered or not (0 <= start < end <= len(doc.text)):
+            return None
+        return PrecedentQuote(span=SourceSpan(doc_id=precedent_doc_id(precedent_id), start=start, end=end, text=doc.text[start:end]), match="exact")
+
+    def search_passages(
+        self, query: np.ndarray, *, words: str = "", k: int = 10, precedent_ids: Collection[str] | None = None
+    ) -> Sequence[PassageHit]:
+        """The paragraphs closest in meaning to the query vector, re-ranked by the share of the query's
+        words they contain; best first."""
+        if not self._passage_spans:
+            return ()
+        query = np.asarray(query, dtype=np.float32).ravel()
+        norm = float(np.linalg.norm(query))
+        if norm == 0:
+            return ()
+        cosines = np.clip(self._passage_vecs @ (query / norm), -1.0, 1.0)
+        if precedent_ids is not None:
+            allowed = set(precedent_ids)
+            cosines = np.where([pid in allowed for pid, _, _ in self._passage_spans], cosines, -2.0)
+        order = np.argsort(-cosines)[: max(k, CANDIDATES)]
+        return rank_passages([(self._passage_spans[i], float(cosines[i])) for i in order if cosines[i] > -2.0], self.passage, words, k)
+
     # --- for the OpenSearch backend and its builder --------------------------------------------
 
     def fact(self, precedent_id: str, facet_id: str, start: int, end: int) -> PrecedentQuote | None:
@@ -262,6 +315,11 @@ class SqlitePrecedentIndex:
                 return found.quote
         return None
 
+    def passage_vectors(self) -> Iterator[tuple[PrecedentDoc, int, int, np.ndarray]]:
+        """Every searchable paragraph with its precedent, span and vector (for the OpenSearch index)."""
+        for (pid, start, end), vec in zip(self._passage_spans, self._passage_vecs, strict=True):
+            yield self._docs[pid], start, end, vec
+
     def fact_vectors(self) -> Iterator[tuple[PrecedentDoc, str, PrecedentQuote, np.ndarray]]:
         """Every fact quote of a facet in the corpus that has a vector, with its precedent and facet id."""
         for pid, facets in self._facets.items():
@@ -269,3 +327,25 @@ class SqlitePrecedentIndex:
                 for found in self._facts[(pid, facet.facet_id)]:
                     if found.vec is not None:
                         yield self._docs[pid], facet.facet_id, found.quote, found.vec
+
+
+def query_words(words: str) -> frozenset[str]:
+    return frozenset(_WORD.findall(words.lower())) - _STOP
+
+
+def rank_passages(
+    found: Sequence[tuple[tuple[str, int, int], float]], quote: Callable[[str, int, int], PrecedentQuote | None], words: str, k: int
+) -> tuple[PassageHit, ...]:
+    """Score each (passage span, cosine): the cosine, plus WORD_WEIGHT times the share of the query's
+    words the passage holds; the best k, on a tie the earliest passage."""
+    wanted = query_words(words)
+    hits = []
+    for (pid, start, end), raw_cosine in found:
+        cosine = round(raw_cosine, COSINE_DECIMALS)  # where the two backends agree (float32 noise is about 1e-7)
+        found_quote = quote(pid, start, end)
+        if found_quote is None:
+            continue
+        share = len(wanted & set(_WORD.findall(found_quote.span.text.lower()))) / len(wanted) if wanted else 0.0
+        score = (1 - WORD_WEIGHT) * cosine + WORD_WEIGHT * share if wanted else cosine
+        hits.append(PassageHit(precedent_id=pid, quote=found_quote, cosine=round(cosine, 6), words=round(share, 6), score=round(score, 6)))
+    return tuple(sorted(hits, key=lambda h: (-h.score, h.precedent_id, h.quote.span.start))[:k])

@@ -32,3 +32,15 @@ def corpus_db_path() -> Path:
     """The built precedent corpus; RATIO_CORPUS_DB overrides the default (tests use a temp file)."""
     override = os.environ.get("RATIO_CORPUS_DB")
     return Path(override) if override else CORPUS_DIR / "precedents.db"
+
+
+def build_db_path() -> Path:
+    """The corpus builder's work database; RATIO_BUILD_DB overrides the default (tests use a temp file)."""
+    override = os.environ.get("RATIO_BUILD_DB")
+    return Path(override) if override else CORPUS_DIR / "build.db"
+
+
+def collections_dir() -> Path:
+    """Where uploaded collections are kept; RATIO_COLLECTIONS_DIR overrides the default (tests use a temp folder)."""
+    override = os.environ.get("RATIO_COLLECTIONS_DIR")
+    return Path(override) if override else CORPUS_DIR / "collections"

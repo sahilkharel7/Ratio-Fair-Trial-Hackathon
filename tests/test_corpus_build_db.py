@@ -154,7 +154,7 @@ def test_build_db_round_trips_through_the_ddl(embedded, tmp_path):
     out = tmp_path / "corpus" / "precedents.db"
     build(embedded, out)
     names = {row[0] for row in rows(out, "SELECT name FROM sqlite_master WHERE type = 'table'")}
-    assert names == {"meta", "documents", "facets", "quotes", "sources"}
+    assert names == {"meta", "documents", "facets", "quotes", "sources", "passages"}
     assert rows(out, "PRAGMA foreign_key_check") == []
 
     columns = [row[1] for row in rows(out, "PRAGMA table_info(documents)")]

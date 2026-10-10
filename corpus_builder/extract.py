@@ -29,7 +29,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, create_model
 from corpus_builder.store import BuildStore
 from ratio.config import FactPatternTaxonomy
 from ratio.paths import REPO_ROOT
-from ratio.precedent_schema import FindingKind, PrecedentDoc
+from ratio.precedent_schema import COLLECTION_PREFIX, FindingKind, PrecedentDoc
 from ratio.schema import Frozen
 
 log = logging.getLogger(__name__)
@@ -48,6 +48,8 @@ GEMINI_MAX_WAIT_S = 120.0  # a longer stated wait means a daily limit: give up i
 _RETRY_IN = re.compile(r"retry in ([0-9.]+)s", re.IGNORECASE)
 GEMINI_THINKING = "LOW"  # copying exact quotes needs little reasoning; deeper thinking only adds minutes
 OLLAMA_CHAT_URL = "http://127.0.0.1:11434/api/chat"  # loopback only, fixed
+OLLAMA_SHOW_URL = "http://127.0.0.1:11434/api/show"  # what the server says about a model: is it served from elsewhere?
+PRIVATE_REFUSED = "private collection: read only by the local model"
 OLLAMA_NUM_CTX = 32_768
 OLLAMA_WINDOW_CHARS = 60_000  # about 15k tokens, inside OLLAMA_NUM_CTX with room for the answer
 OLLAMA_TIMEOUT_S = 900.0
@@ -55,6 +57,10 @@ OLLAMA_TIMEOUT_S = 900.0
 
 class ExtractionFailed(RuntimeError):
     """The model gave no usable answer for one document; it is recorded and skipped."""
+
+
+class CloudModelRefused(RuntimeError):
+    """An Ollama model served by a cloud host: the builder reads private documents only with local models."""
 
 
 class GeminiSetupError(RuntimeError):
@@ -224,6 +230,7 @@ class ExtractReport(Frozen):
     extracted: tuple[str, ...] = ()
     cached: tuple[str, ...] = ()
     failed: tuple[tuple[str, str], ...] = ()  # (precedent id, reason)
+    private_refused: tuple[str, ...] = ()  # private collection documents a non-local model was not given
 
 
 def extract_document(doc: PrecedentDoc, llm: ExtractionLLM, taxonomy: FactPatternTaxonomy) -> Extraction:
@@ -243,17 +250,38 @@ def _wanted(only: str | Collection[str] | None) -> frozenset[str] | None:
     return frozenset({only} if isinstance(only, str) else only)
 
 
+def is_private(doc: PrecedentDoc) -> bool:
+    """Whether only the local model may read this document. Fails closed: an uploaded document counts as
+    private when it was stored as private, or when its collection is now private or no longer exists
+    (its stored flag may predate a collection deleted and re-created as private)."""
+    if doc.private:
+        return True
+    if not doc.url.startswith(COLLECTION_PREFIX):
+        return False
+    from corpus_builder.collections import load_collection  # collections imports this module
+
+    found = load_collection(doc.url.removeprefix(COLLECTION_PREFIX).split("/", 1)[0])
+    return found is None or found.private
+
+
 def extract_all(
     store: BuildStore, taxonomy: FactPatternTaxonomy, llm: ExtractionLLM, *, only: str | Collection[str] | None = None
 ) -> ExtractReport:
-    """Extract every stored document (or only those named) that has no cached answer yet."""
+    """Extract every stored document (or only those named) that has no cached answer yet. A private
+    collection's document goes only to the local model (OllamaLLM, which refuses cloud models); any
+    other model never sees it, whichever step or page asks."""
     wanted = _wanted(only)
     digest = schema_sha(taxonomy)
     extracted: list[str] = []
     cached: list[str] = []
     failed: list[tuple[str, str]] = []
+    refused: list[str] = []
     for doc in store.documents():
         if wanted is not None and doc.id not in wanted:
+            continue
+        if is_private(doc) and not isinstance(llm, OllamaLLM):
+            log.info("%s: %s; left out", doc.id, PRIVATE_REFUSED)
+            refused.append(doc.id)
             continue
         key = cache_key(text_sha256=doc.text_sha256, prompt_sha=PROMPT_SHA, schema_sha=digest, model=llm.model)
         if store.get_extraction(key) is not None:
@@ -267,7 +295,7 @@ def extract_all(
             continue
         store.put_extraction(key, doc.id, llm.model, answer.model_dump_json(), datetime.now(UTC).isoformat())
         extracted.append(doc.id)
-    return ExtractReport(extracted=tuple(extracted), cached=tuple(cached), failed=tuple(failed))
+    return ExtractReport(extracted=tuple(extracted), cached=tuple(cached), failed=tuple(failed), private_refused=tuple(refused))
 
 
 def _parse(schema: type[T], text: str | None, purpose: str) -> T:
@@ -356,7 +384,7 @@ class GeminiLLM:
         try:
             genai = importlib.import_module("google.genai")  # the [corpus] extra; never needed by the app
         except ImportError:
-            raise GeminiSetupError("google-genai is not installed: pip install -e '.[corpus]'") from None
+            raise GeminiSetupError("google-genai is not installed: uv pip install -e '.[corpus]' (without uv: pip install -e '.[corpus]')") from None
         try:
             self._client = genai.Client(api_key=key, http_options={"retry_options": {"attempts": GEMINI_ATTEMPTS}, "timeout": GEMINI_TIMEOUT_MS})
         except Exception as exc:  # noqa: BLE001 - any SDK error; its message is redacted
@@ -414,20 +442,38 @@ def _post_json(url: str, body: dict, timeout: float) -> dict:
 
 
 class OllamaLLM:
-    """A local model through Ollama on 127.0.0.1, with the answer schema as its output format."""
+    """A local model through Ollama on 127.0.0.1, with the answer schema as its output format.
+
+    Ollama can forward a model to a cloud host while the request itself goes to 127.0.0.1, so a cloud
+    model is refused by its name here and by the server's own description before the first question."""
 
     window_chars = OLLAMA_WINDOW_CHARS
 
     def __init__(self, model: str = "qwen2.5:7b-instruct", *, post: Post | None = None, timeout_s: float = OLLAMA_TIMEOUT_S) -> None:
+        if "cloud" in model.lower():
+            raise CloudModelRefused(f"model {model!r} looks like an Ollama cloud model; only local models may read documents here")
         self._model = model
         self._post = post or _post_json
         self._timeout_s = timeout_s
+        self._checked_local = False
 
     @property
     def model(self) -> str:
         return self._model
 
+    def check_local(self) -> None:
+        """Ask the server whether the model runs on this computer; raises CloudModelRefused if not."""
+        try:
+            info = self._post(OLLAMA_SHOW_URL, {"model": self._model}, self._timeout_s)
+        except (OSError, ValueError) as exc:
+            raise ExtractionFailed(f"Ollama could not describe model {self._model!r}: {exc}") from exc
+        if info.get("remote_host") or info.get("remote_model"):
+            raise CloudModelRefused(f"model {self._model!r} is served by an Ollama cloud host; only local models may read documents here")
+        self._checked_local = True
+
     def complete_json(self, *, system: str, user: str, schema: type[T], purpose: str) -> T:
+        if not self._checked_local:
+            self.check_local()
         body = {
             "model": self._model,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],

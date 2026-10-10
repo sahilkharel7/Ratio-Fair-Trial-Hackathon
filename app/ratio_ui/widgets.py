@@ -24,6 +24,7 @@ FINDINGS_SHOWN: Mapping[str, frozenset[str]] = {  # the outcomes each kind of so
     "ccpr_views": VIEWS_FINDINGS,
     "wgad_opinion": VIEWS_FINDINGS,
     "trialwatch_report": frozenset({"monitor_assessment", "not_examined"}),  # a monitor assesses, it finds no violation
+    "collection_document": frozenset({"monitor_assessment", "not_examined"}),
 }
 BADGE_COLORS = {
     "evidence_of_compliance": "green",
@@ -214,7 +215,7 @@ def similar_link(links: Sequence[PrecedentLink] | None) -> None:
         return
     try:
         count = len(links)
-        cases = "1 public case shares" if count == 1 else f"{count} public cases share"
+        cases = "1 past case shares" if count == 1 else f"{count} past cases share"
         min_shared = session.precedent_settings().min_shared
         st.page_link("views/similar.py", label=f"Similar cases: {cases} at least {min_shared} fact patterns")
     except Exception:  # noqa: BLE001 - an optional line: the Similar cases page shows what went wrong

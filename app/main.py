@@ -43,6 +43,7 @@ pages = [
     st.Page("views/judges.py", title="Judge profile"),
     st.Page("views/jurisprudence.py", title="Jurisprudence"),
     st.Page("views/similar.py", title="Similar cases"),
+    st.Page("views/library.py", title="Precedent library"),
     st.Page("views/steelman.py", title="State's reply"),
     st.Page("views/review.py", title="Review"),
 ]

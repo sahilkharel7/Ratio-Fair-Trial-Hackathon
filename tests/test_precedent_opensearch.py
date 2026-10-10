@@ -81,9 +81,16 @@ def test_the_mapping_is_one_document_per_fact_with_a_cosine_hnsw_vector():
     vec = MAPPING["properties"]["vec"]
     assert vec["dimension"] == 384
     assert vec["method"] == {"name": "hnsw", "engine": "lucene", "space_type": "cosinesimil"}
-    assert {name: MAPPING["properties"][name]["type"] for name in ("precedent_id", "facet_id", "kind", "start", "end", "text")} == {
-        "precedent_id": "keyword", "facet_id": "keyword", "kind": "keyword", "start": "integer", "end": "integer", "text": "text",
+    assert {name: MAPPING["properties"][name]["type"] for name in ("precedent_id", "facet_id", "role", "kind", "start", "end")} == {
+        "precedent_id": "keyword", "facet_id": "keyword", "role": "keyword", "kind": "keyword", "start": "integer", "end": "integer",
     }  # fmt: skip
+    assert "text" not in MAPPING["properties"]  # the text stays in the corpus file
+
+
+def test_no_document_text_goes_into_the_index(sqlite_index):
+    bodies = [line for line in builder._documents(sqlite_index, "ix") if "index" not in line]
+    assert bodies and all(set(body) <= {"precedent_id", "facet_id", "role", "kind", "start", "end", "vec"} for body in bodies)
+    assert {body["role"] for body in bodies} == {"fact", "passage"}
 
 
 def test_the_index_records_which_corpus_build_it_holds(sqlite_index):
@@ -222,7 +229,7 @@ def comparable(links):
 @running
 def test_both_backends_return_the_same_links(corpus, sqlite_index, taxonomy, alias):
     indexed = builder.index_corpus(corpus, URL, alias, taxonomy=taxonomy)
-    assert indexed == sum(1 for _ in sqlite_index.fact_vectors())
+    assert indexed == sum(1 for _ in sqlite_index.fact_vectors()) + sqlite_index.passage_count()
     search = OpenSearchPrecedentIndex(URL, alias, sqlite_index)
     search.check()
     for settings in (PrecedentSettings(), PrecedentSettings(min_shared=1), PrecedentSettings(top_k=2)):

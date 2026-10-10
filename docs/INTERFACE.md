@@ -21,7 +21,7 @@ fonts, images, scripts, or stylesheets are loaded by the app.
 
 ## Extending the offline interface
 
-Sahil's native nine-page navigation, light/dark palettes, bundled serif headings,
+Sahil's native page navigation, light/dark palettes, bundled serif headings,
 contrast settings, focus outlines, underlined links, print styles and distinct
 mark underlines remain in place. Both `.streamlit/config.toml` files must match.
 The offline app uses native controls, status badges and review forms.

@@ -43,6 +43,7 @@ FINDING_KINDS: Mapping[PrecedentKind, frozenset[FindingKind]] = {
     "ccpr_views": _RULED,
     "wgad_opinion": _RULED,
     "trialwatch_report": frozenset({"monitor_assessment", "not_examined"}),
+    "collection_document": frozenset({"monitor_assessment", "not_examined"}),
 }
 # The kind kept when the model's does not fit the document: valid for every kind, and never shown,
 # because the app labels a finding only next to its quote, and such a finding has none.

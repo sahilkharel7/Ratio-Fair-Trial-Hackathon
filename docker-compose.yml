@@ -2,9 +2,9 @@
 # file when it is not running). Start it with `docker compose up -d opensearch`.
 #
 # Loopback only: the port is published on 127.0.0.1, so nothing outside this computer can reach it.
-# The index holds only the public precedent corpus, the same data as data/corpus/precedents.db, so the
-# security plugin is off; turn it on (and set OPENSEARCH_INITIAL_ADMIN_PASSWORD) before publishing
-# the port to any network.
+# The index holds only ids, offsets and vectors of the documents in data/corpus/precedents.db (the
+# public corpus and any collections you uploaded), never their text, so the security plugin is off;
+# turn it on (and set OPENSEARCH_INITIAL_ADMIN_PASSWORD) before publishing the port to any network.
 services:
   opensearch:
     image: opensearchproject/opensearch:3.6.0@sha256:b5dd1512af2a99748c942cfbbd7f32162623336b210667d0fc6333c6321f171d

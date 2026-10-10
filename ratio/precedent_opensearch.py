@@ -18,8 +18,8 @@ import numpy as np
 
 from ratio.embeddings import EMBEDDING_DIM
 from ratio.netguard import is_loopback_host
-from ratio.precedent_schema import CorpusMeta, PrecedentDoc, PrecedentFacet, PrecedentQuote
-from ratio.precedent_store import CorpusUnavailable, SqlitePrecedentIndex
+from ratio.precedent_schema import CorpusMeta, PassageHit, PrecedentDoc, PrecedentFacet, PrecedentQuote
+from ratio.precedent_store import CANDIDATES, CorpusUnavailable, SqlitePrecedentIndex, rank_passages
 
 _log = logging.getLogger(__name__)
 
@@ -35,10 +35,10 @@ MAPPING: dict[str, Any] = {
     "properties": {
         "precedent_id": {"type": "keyword"},
         "facet_id": {"type": "keyword"},
+        "role": {"type": "keyword"},  # fact (a verified fact quote) or passage (a paragraph, for search)
         "kind": {"type": "keyword"},
         "start": {"type": "integer"},
-        "end": {"type": "integer"},
-        "text": {"type": "text"},
+        "end": {"type": "integer"},  # no text: it is read from the corpus file, so a private collection's never sits in the index
         "vec": {
             "type": "knn_vector",
             "dimension": EMBEDDING_DIM,
@@ -155,6 +155,43 @@ class OpenSearchPrecedentIndex:
     def text(self, doc_id: str) -> str | None:
         return self._sqlite.text(doc_id)
 
+    def documents(self) -> Sequence[PrecedentDoc]:
+        return self._sqlite.documents()
+
+    def search_passages(
+        self, query: np.ndarray, *, words: str = "", k: int = 10, precedent_ids: Collection[str] | None = None
+    ) -> Sequence[PassageHit]:
+        """The kNN search over paragraphs runs in OpenSearch; the file answers if it fails or holds none."""
+        try:
+            return self.search_passages_or_raise(query, words=words, k=k, precedent_ids=precedent_ids)
+        except request_errors() as exc:
+            _log.warning("OpenSearch passage search failed (%s); answering from the corpus file", exc)
+            return self._sqlite.search_passages(query, words=words, k=k, precedent_ids=precedent_ids)
+
+    def search_passages_or_raise(
+        self, query: np.ndarray, *, words: str = "", k: int = 10, precedent_ids: Collection[str] | None = None
+    ) -> Sequence[PassageHit]:
+        """OpenSearch's answer (the file's when the index holds no passage); raises what request_errors() names
+        when the search fails. Words re-rank many candidates; without them a few more than k are enough."""
+        size = max(k, CANDIDATES) if words.strip() else max(4 * k, MIN_K)
+        hits = self._passage_hits(query, size, precedent_ids)
+        found = [((h["_source"]["precedent_id"], h["_source"]["start"], h["_source"]["end"]), cosine_from_score(h["_score"])) for h in hits]
+        if not found:
+            return self._sqlite.search_passages(query, words=words, k=k, precedent_ids=precedent_ids)
+        return rank_passages(found, self._sqlite.passage, words, k)
+
+    def _passage_hits(self, query: np.ndarray, size: int, precedent_ids: Collection[str] | None) -> list[dict[str, Any]]:
+        filters: list[dict[str, Any]] = [{"term": {"role": "passage"}}]
+        if precedent_ids is not None:
+            filters.append({"terms": {"precedent_id": sorted(set(precedent_ids))}})
+        vector = np.asarray(query, dtype=np.float32).ravel().tolist()
+        body = {
+            "size": size,
+            "_source": ["precedent_id", "start", "end"],
+            "query": {"knn": {"vec": {"vector": vector, "k": size, "filter": {"bool": {"filter": filters}}}}},
+        }
+        return self.client().search(index=self.index, body=body)["hits"]["hits"]
+
     def nearest_facts(self, facet_id: str, query: np.ndarray, precedent_ids: Collection[str]) -> Mapping[str, tuple[PrecedentQuote, float]]:
         """For each precedent, its fact on this facet closest to the query; the file answers if the search fails."""
         return self.per_call().nearest_facts(facet_id, query, precedent_ids)
@@ -218,6 +255,21 @@ class OneCall:
 
     def text(self, doc_id: str) -> str | None:
         return self._sqlite.text(doc_id)
+
+    def documents(self) -> Sequence[PrecedentDoc]:
+        return self._sqlite.documents()
+
+    def search_passages(
+        self, query: np.ndarray, *, words: str = "", k: int = 10, precedent_ids: Collection[str] | None = None
+    ) -> Sequence[PassageHit]:
+        """OpenSearch's answer until a search fails; from then on, the file's."""
+        if not self.failed:
+            try:
+                return self._search.search_passages_or_raise(query, words=words, k=k, precedent_ids=precedent_ids)
+            except request_errors() as exc:
+                _log.warning("OpenSearch passage search failed (%s); answering the rest of this request from the corpus file", exc)
+                self.failed = True
+        return self._sqlite.search_passages(query, words=words, k=k, precedent_ids=precedent_ids)
 
     def nearest_facts(self, facet_id: str, query: np.ndarray, precedent_ids: Collection[str]) -> Mapping[str, tuple[PrecedentQuote, float]]:
         """OpenSearch's answer until a search fails; from then on, the file's."""
