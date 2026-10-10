@@ -2,6 +2,8 @@
 
 The live demo has six steps: from the case record to the source line behind each finding. Everything on screen is the **synthetic** demo case *Republic of Calderra v. Daro Venn*.
 
+The main interface is the court case workspace on port 8503 (see the README's [Run](../README.md#run) section): open it first to show the case collection and the presumption-of-innocence review. The scripted walkthrough below uses the full analysis app on port 8501, which holds the analysis pages.
+
 Measured on 8 October 2026 (MacBook with Apple Silicon):
 
 - Loading the demo took 3.5 seconds with Ollama stopped.
@@ -21,30 +23,37 @@ Measured on 8 October 2026 (MacBook with Apple Silicon):
    brew services start ollama
    ```
    Otherwise stop it (`brew services stop ollama`); the demo works without it.
-3. Turn Wi-Fi off.
-4. Start the app with an empty case store, so that "Load the demo case" is the first thing the audience sees:
+3. Build and start the court case workspace, the interface we present (`npm ci` needs the network, so do this before Wi-Fi goes off), and leave it running in its own terminal:
+   ```bash
+   npm --prefix web ci && npm --prefix web run build
+   rm -f /tmp/ratio-demo-ws.db
+   python scripts/serve_workspace.py --demo --db /tmp/ratio-demo-ws.db
+   ```
+   Open http://127.0.0.1:8503 in a full-screen browser window.
+4. Turn Wi-Fi off.
+5. Start the full analysis app with an empty case store, so that the **Case collection** page opens with no cases:
    ```bash
    rm -f /tmp/ratio-demo.db
    RATIO_DB=/tmp/ratio-demo.db streamlit run app/main.py
    ```
-5. Open http://127.0.0.1:8501 in a full-screen browser window and zoom to 125% for the projector.
-6. If you started Ollama, warm the model: click **Load the demo case**, then **Run this note live** once. Restart the app (step 4) to clear the screen.
-7. Open `docs/screenshots/` in a second window, in case you need the fallback.
+6. Open http://127.0.0.1:8501 in a full-screen browser window and zoom to 125% for the projector.
+7. If you started Ollama, warm the model: open **Supporting analysis → Full analysis record**, click **Load the demo case**, then **Run this note live** once. Restart the app (step 5) to clear the screen.
+8. Open `docs/screenshots/` in a second window, in case you need the fallback.
 
 ## The demo
 
 | Time | Step | Click | Say |
 |---|---|---|---|
-| 0:00 | **1. Case record** | **Case** page → **Load the demo case** (about 4 s) | "Four hearing notes, the indictment, the judgment and three detention orders become one case record: 46 note sentences, 16 dated events and 2 party arguments. That gives 13 findings, and each one is linked to the exact text it rests on. The model's answers are replayed from a recording, and this laptop is offline right now." |
+| 0:00 | **1. Case record** | **Supporting analysis → Full analysis record** → **Load the demo case** (about 4 s) | "Four hearing notes, the indictment, the judgment and three detention orders become one case record: 46 note sentences, 16 dated events and 2 party arguments. That gives 13 findings, and each one is linked to the exact text it rests on. The model's answers are replayed from a recording, and this laptop is offline right now." |
 | 0:25 | *(optional)* live model | **Run this note live** (about 11 s) | "To show that the recorded answers are real, the local model reads hearing 1 again now, on this laptop. It gives the same answer." |
 | 0:40 | **2. Rights coverage** | **Rights coverage** → **Open 14(3)(f)** on *ICCPR Art. 14(3)(f) Free assistance of an interpreter* | "Violations hide in omissions. No note ever mentions an interpreter. Ratio does not invent a finding. It gives the monitor a follow-up question, and next to it a note it does not count as evidence: the defendant's first language is Ostric." |
 | 1:05 | **3. Timeline** | **Timeline**, at the top: the red interval | "Dates are pulled from three documents and the interval is computed in code: 4 to 6 days from arrest to the first appearance before a judge. General Comment 35, paragraph 33, treats 48 hours as ordinarily sufficient. The appearance before the prosecutor the day after the arrest does not stop the clock: a prosecutor is not a judge. This is our only confirmed benchmark; the others are measured, cited and marked 'needs legal review', never coloured." |
-| 1:35 | **4. Reasoning reuse** | **Reasoning reuse**: the score and the side-by-side view, then **Whole documents** and scroll the judgment to sections II to IV | "60% of the court's own reasoning can be traced to the indictment: 48% word for word and 12% as a close paraphrase. The same number marks both sides of each match. Legitimate quotation doesn't count: the recited charge, the parties' arguments and the quoted statute are greyed out, each tagged with the reason, and excluded before scoring. One defence argument, about how the phone messages were extracted, gets no response in the judgment." |
-| 2:05 | **5. Judge profile** | **Judge profile** | "This note is always at the top: TrialWatch monitors cases already suspected of unfairness, so these rates are not representative. Detention at the first appearance is 9 of 9 cases against 4 of 10 for the other judges of the same court and charge type. It is a 'pattern that warrants review', never a verdict, and n and the intervals are always shown. Two indicators are not distinguishable from the baseline, and two are hidden because they have fewer than 5 cases. A name written only as 'I. Varda' waits for a person to confirm it." |
+| 1:35 | **4. Reasoning comparison** | **Reasoning comparison**: the score and the side-by-side view, then **Whole documents** and scroll the judgment to sections II to IV | "60% of the court's own reasoning can be traced to the indictment: 48% word for word and 12% as a close paraphrase. The same number marks both sides of each match. Legitimate quotation doesn't count: the recited charge, the parties' arguments and the quoted statute are greyed out, each tagged with the reason, and excluded before scoring. One defence argument, about how the phone messages were extracted, gets no response in the judgment." |
+| 2:05 | **5. Judicial history** | **Judicial history** | "This note is always at the top: TrialWatch monitors cases already suspected of unfairness, so these rates are not representative. Detention at the first appearance is 9 of 9 cases against 4 of 10 for the other judges of the same court and charge type. It is a 'pattern that warrants review', never a verdict, and n and the intervals are always shown. Two indicators are not distinguishable from the baseline, and two are hidden because they have fewer than 5 cases. A name written only as 'I. Varda' waits for a person to confirm it." |
 | 2:35 | **6. Source** | Any **View source** button, for example under the red interval on the **Timeline** | "Every finding opens its source: the document, the line and the exact characters, checked character for character against the text Ratio read. A finding without a source is dropped. This is the moment that earns trust." |
 | 3:00 | end | | |
 
-Tip: the Case page's summary links to each page, so you can click through in order from there.
+Tip: the Full analysis record page's summary links to each page, so you can click through in order from there.
 
 ## If something goes wrong
 
@@ -53,7 +62,7 @@ Tip: the Case page's summary links to each page, so you can click through in ord
 | The app does not start, or a page is blank | Switch to the screenshots, in the order of the steps above: `01-case.png`, then `07-live-note.png` if you show the live step, then `02-coverage.png` to `06-source.png` (with `04b-reuse-excluded.png` after `04-reuse.png`) |
 | "Load the demo case" shows **Stopped** and "no cached labels reply for this request (replay-only mode …)" | This laptop computes one similarity slightly differently (see the [README's limitations](../README.md#limitations)). Use the screenshots now. After the demo, run `python -m ratio preflight` with Ollama running and use the command it prints |
 | The live-note step says "The local model is not available" | Say "the rest of the demo runs without it" and move on. This is by design |
-| A page says to load a case first | Go to **Case** and click **Load the demo case** |
+| A page says to load a case first | Go to **Supporting analysis → Full analysis record** and click **Load the demo case** |
 | "Ratio will not start because these privacy settings are not in effect" | The app was started with changed settings. Run `git checkout -- .streamlit app/.streamlit` and start it again from the repository root |
 
 ## Proving it is offline (for questions)
@@ -61,7 +70,8 @@ Tip: the Case page's summary links to each page, so you can click through in ord
 With the app running:
 
 ```bash
-lsof -nP -iTCP -a -p "$(lsof -t -iTCP:8501 -sTCP:LISTEN)"
+lsof -nP -iTCP -a -p "$(lsof -t -iTCP:8501 -sTCP:LISTEN)"   # the full analysis app
+lsof -nP -iTCP -a -p "$(lsof -t -iTCP:8503 -sTCP:LISTEN)"   # the court case workspace
 ```
 
 Every line shows 127.0.0.1. During the live-note step you also see a connection to 127.0.0.1:11434, the local Ollama server.

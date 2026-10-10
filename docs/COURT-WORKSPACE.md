@@ -22,14 +22,11 @@ themselves establish a presumption-of-innocence violation.
 SQLite rather than treating the last case as the homepage. Synthetic judge-history
 records and past precedent documents do not automatically become active matters.
 
-**Precedent library** is Sahil's latest reference-collection implementation
+**Precedent library** is the reference-collection implementation
 (`app/views/library.py`, `corpus_builder/collections.py`). It accepts uploaded
 reference collections, reads private collections only with local Ollama, and
 searches checked paragraphs using the local embedding/index implementations.
 These reference files remain separate from active defendant case records.
-
-The integration includes both latest main pushes: `378cb33` (Similar cases) and
-`f820a0a` (Precedent library, uploaded collections and paragraph search).
 
 ## Actual React uploads with persistent SQLite
 
@@ -74,7 +71,7 @@ reused files, mismatched provenance and undeclared documents are refused.
 A bulk classifier can return that same manifest/file-id contract, or submit a
 validated CaseRecord to the existing store followed by `LibraryStore.register()`.
 It does not need to replace the analysis schema. This deliberately leaves document
-grouping and classification as a reviewed boundary while Sahil's bulk work evolves.
+grouping and classification as a reviewed boundary while bulk grouping evolves.
 
 Case assessments use an append-only `focus_reviews` table with the original prompt
 snapshot. A changed source cannot receive a stale assessment. Working notes and

@@ -21,7 +21,7 @@ fonts, images, scripts, or stylesheets are loaded by the app.
 
 ## Extending the offline interface
 
-Sahil's native page navigation, light/dark palettes, bundled serif headings,
+The native page navigation, light/dark palettes, bundled serif headings,
 contrast settings, focus outlines, underlined links, print styles and distinct
 mark underlines remain in place. Both `.streamlit/config.toml` files must match.
 The offline app uses native controls, status badges and review forms.
@@ -32,14 +32,13 @@ Use `widgets.header()` and `widgets.evidence()` for analysed-case pages, with
 matter summaries and workstreams while inheriting the native theme. Source readers
 retain exact-span checks. New views must be registered in `app/main.py`.
 
-## Framework decision
+## Two interfaces
 
-The current application is Streamlit. Upload ingestion, local analysis, SQLite
-state, multipage navigation, and source dialogs all use its Python session model.
-A React migration would require a separate local API and new upload, session,
-and evidence-dialog implementations. The combined version keeps those tested workflows and the latest analysis engine.
-A separate React preview in `web/` exports only the committed synthetic record; it
-provides browser-local demonstration reviews without moving case uploads to a cloud service.
+The React court case workspace in `web/` is the main interface: `scripts/serve_workspace.py`
+serves the built app with a loopback-only API over the same SQLite store (`ratio/library.py`,
+`ratio/workspace.py`), including uploads, original files and saved assessments. The Streamlit
+app keeps the full analysis pages, the Precedent library and the finding review. Without the
+local API, the React app opens only the committed synthetic examples.
 
 ## Verification
 
@@ -55,7 +54,7 @@ the native adapter; headless app tests do not validate browser layout.
 The default page is now `app/views/case_collection.py`, with SQLite-backed matters
 and staged PDF assignment. `app/views/focus.py` opens the selected record, source-backed
 charge and penalty statements, Article 14(2) screening prompts and reviewer notes.
-Supporting analysis contains the original pages and Sahil's Precedent library
+Supporting analysis contains the original pages and the Precedent library
 (`app/views/library.py`); the two libraries are intentionally different workflows.
 See [COURT-WORKSPACE.md](COURT-WORKSPACE.md) for API, ingestion and outcome-coding
 contracts, and [web/DESIGN.md](../web/DESIGN.md) for the React components.

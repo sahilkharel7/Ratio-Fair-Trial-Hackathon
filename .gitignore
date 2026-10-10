@@ -18,6 +18,11 @@ data/alias_decisions.yaml
 data/cache/
 data/uploads/
 data/real-demo/
+# Uploaded cases are confidential: any database, case-chat history or other runtime store under data/
+data/*.db
+data/*.db-*
+data/*.sqlite*
+data/chat/
 # The precedent corpus: real public documents, built locally, never committed
 data/corpus/
 
@@ -38,6 +43,5 @@ brag-output/
 .vscode/
 
 # Local generated legal reading sheets and PDF rendering intermediates
-output/pdf/
+output/
 tmp/pdfs/
-output/demo-upload-pack/

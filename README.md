@@ -1,10 +1,6 @@
 # Ratio
 
-For the optional public-source AI demo, follow [the local Groq setup](docs/GROQ-DEMO.md). Start the React server with `--local-ai`. Cases always use local Ollama; configured cloud models are restricted to explicitly public legal references.
-
-For a fresh upload demonstration, [the separate real-case PDF pack](docs/DEMO-UPLOAD-PACK.md) contains three original court judgments kept out of the installed collection. Run `.venv/bin/python scripts/fetch_demo_pack.py` to download the originals and create a ZIP locally.
-
-Ratio reads a trial's monitoring record and gives the reviewing lawyer findings to check line by line, each linked to the sentence it rests on. The legal evaluation stays with the lawyer. We built it for the FairTrial AI Hackathon (Track 2: Observation to Legal Evaluation), run by Columbia Law School's Human Rights Institute with the TrialWatch project.
+Ratio reads a trial's monitoring record and court documents and gives the reviewing lawyer findings to check line by line, each linked to the sentence it rests on. The legal evaluation stays with the lawyer. We built it for the FairTrial AI Hackathon (Track 2: Observation to Legal Evaluation), run by Columbia Law School's Human Rights Institute with the TrialWatch project.
 
 It runs five checks against the international fair-trial standards (ICCPR Articles 9 and 14):
 
@@ -16,11 +12,11 @@ It runs five checks against the international fair-trial standards (ICCPR Articl
 | Reasoning Reuse Detector | Did the court reason independently of the prosecution? | The judgment beside the indictment, with copied and paraphrased passages highlighted, the share of the court's reasoning traceable to the indictment, and defence arguments the judgment never answers |
 | Judicial History Tracker | Do a judge's rulings across monitored cases show a pattern that warrants review? | A judge profile: rates with sample size and confidence intervals, compared with other judges of the same court and charge type |
 
-Every finding links to the exact sentence it rests on: click it and the source document opens with that passage highlighted. Everything runs on one laptop with open-source software, and nothing is sent to another computer.
+Every finding links to the exact sentence it rests on: click it and the source document opens with that passage highlighted. Everything runs on one laptop with open-source software, and nothing from a case is sent to another computer. Two screens share one engine: the court case workspace, the main interface, and the full analysis app (see [Run](#run)). The written description for TrialWatch is in [SUBMISSION.md](SUBMISSION.md).
 
 The name comes from *ratio decidendi*, the reasoning behind a decision. Ratio's central question is whether the court did its own reasoning.
 
-![The Ratio case overview, with matter details, source summaries, and evidence-led review workstreams for the synthetic demo](docs/screenshots/08-case-redesign.jpg)
+![The Ratio court case workspace: the case review of the synthetic Daro Venn matter, with the charge and the requested, imposed and statutory penalties, each linked to its source](docs/screenshots/09-court-workspace.png)
 
 ## The problem
 
@@ -57,7 +53,7 @@ Case record: every item carries its source span (document id, start, end, exact 
    └─► Judicial History Tracker (all stored cases, coded rulings)
                                     │
                                     ▼
-                   Streamlit app on 127.0.0.1, and the evaluation script
+            full analysis app (Streamlit, 127.0.0.1:8501), and the evaluation script
 ```
 
 The modules read only the case record, never raw text, so each can be built and tested on its own (a test enforces this). The model never does arithmetic, never grades a person, and never decides a status on its own:
@@ -68,7 +64,7 @@ The modules read only the case record, never raw text, so each can be built and 
 
 ## Setup
 
-You need a Mac with Apple Silicon, Python 3.11, about 8 GB of free disk space, and 16 GB of memory for the live model. The locked setup targets macOS. On Linux it would also install closed-source libraries (NVIDIA's CUDA, and Intel's MKL inside PyTorch on x86-64 computers), several GB more, and it is untested. Do the setup once, while online. After that, Ratio needs no network.
+You need a Mac with Apple Silicon, [Homebrew](https://brew.sh), Python 3.11, Node.js 20.19+ or 22.12+ with npm (it builds the court case workspace), about 8 GB of free disk space, and 16 GB of memory for the live model. The locked setup targets macOS. On Linux it would also install closed-source libraries (NVIDIA's CUDA, and Intel's MKL inside PyTorch on x86-64 computers), several GB more, and it is untested. Do the setup once, while online. After that, Ratio needs no network.
 
 ```bash
 git clone https://github.com/sahilkharel7/Ratio-Fair-Trial-Hackathon.git
@@ -82,6 +78,10 @@ uv pip install -r requirements-lock.txt -e ".[dev]"
 
 # The embedding model (about 90 MB, saved in models/)
 python scripts/fetch_models.py
+
+# The court case workspace, the main interface (Node.js 20.19+ or 22.12+)
+brew install node
+npm --prefix web ci && npm --prefix web run build
 
 # The local language model (about 4.7 GB)
 brew install ollama
@@ -104,17 +104,23 @@ To use a different local model, set `RATIO_MODEL` (for example `RATIO_MODEL=mist
 ### Start here: the court case workspace (the main interface)
 
 ```bash
-npm --prefix web ci && npm --prefix web run build   # once, and after pulling changes to web/
+npm --prefix web ci && npm --prefix web run build   # done in Setup; again after pulling changes to web/
 python scripts/serve_workspace.py --demo            # adds the three synthetic example cases
 ```
 
 Open http://127.0.0.1:8503. This is the interface we present: a court-filtered case collection, a focused
 presumption-of-innocence review (charge, requested penalty, sentence and quoted law, each with its checked source),
 international decisions and source research. It serves the built app with a loopback-only API on this computer and
-uses `data/ratio.db` (`--db PATH` picks another database). `--local-ai` enables local Ollama reading aids.
-All case workspace content stays local; `--groq-demo` is now a deprecated local-only alias. Cloud models may
-process explicitly designated public legal references only. Upload limits and the adapter contract are in
+uses `data/ratio.db` (`--db PATH` picks another database). Uploaded documents are confidential by default: they stay
+in that git-ignored database and are read only by the local model. Upload limits and the adapter contract are in
 [docs/COURT-WORKSPACE.md](docs/COURT-WORKSPACE.md).
+
+- **Local reading aids:** `--local-ai` drafts source-linked reading aids for a case with local Ollama (a separate
+  worker under the same network guard, with no cloud fallback); `--groq-demo` is a deprecated alias for it. The
+  model routing is in [docs/GROQ-DEMO.md](docs/GROQ-DEMO.md).
+- **A fresh upload demonstration:** [the real-case PDF pack](docs/DEMO-UPLOAD-PACK.md) holds three public court
+  judgments kept out of the installed collection. `python scripts/fetch_demo_pack.py` downloads them (online) and
+  makes a ZIP to upload.
 
 ### The full analysis app
 
@@ -131,20 +137,20 @@ On the **Full analysis record** page you can:
 - **Upload your own case folder.** The local model reads it live, which takes a few minutes for a case of this size.
 - **Run one note live.** This shows that the recorded answers are real by comparing a fresh answer with the recorded one. It takes about 11 seconds with Ollama running.
 
-The other pages are:
+The app opens on **Case collection**, beside **Case review · Presumption of innocence**. The Full analysis record and these other pages are under **Supporting analysis** in the sidebar:
 
 - **Rights coverage**
 - **Timeline**
 - **Detention renewals**: the case's detention orders in date order. An order is flagged when at least 60% of its grounds repeat earlier orders (a setting, not a legal standard), and when the next order is dated more than a day after an order's end date. Quoted law, the prosecutor's request and the operative part are left out of the comparison.
-- **Reasoning reuse**
-- **Judge profile**
+- **Reasoning comparison**
+- **Judicial history**
 - **State's reply**: for each finding the State would contest, the strongest reply the State could make, argued by the local model from the record so the lawyer can test the finding. The model is shown the record passages most similar to the finding and a reviewed list of grounds for its standard (`ratio/config/steelman.yaml`); General Comment wording backs the grounds that the Comments themselves recognise. Each argument must use one of those grounds and quote one passage exactly. An argument is dropped if its ground was not offered, its passage was not shown, its quote is not in that passage, it rests on the finding's own evidence where the ground needs other evidence, or a second short model check finds the quote does not show what the ground requires. Grounds left without an argument are listed as not supported by the record. The wording is the model's, shown as unverified after the block list; it is never a finding, and judge patterns get no reply.
 - **Jurisprudence**: for each finding and each question for the monitor, the paragraphs of General Comments 32 and 35, and the Committee decisions they cite, linked by the standard it concerns. The same entries appear next to each finding on the other pages and in the report draft's annex. They are chosen by standard and status, never by the case's facts or by a model, and whether one applies is for the reviewing lawyer.
 - **Similar cases**: past cases that share this case's fact patterns, with this case's passage beside the past case's and what the deciding body said, in its own words. See [Similar cases](#similar-cases-optional) below.
 - **Precedent library**: search every paragraph of the library by the facts you type, and add your own collections of case documents; a private collection is read only by the local model. See [Your own collections](#your-own-collections-upload-a-regions-cases-no-crawling).
-- **Review**: the reviewing lawyer accepts, rewords or rejects each finding (a reason is required to reword or reject) and records issues Ratio did not flag. Decisions are saved on this computer, append-only, and survive a re-analysis of the case. They appear in the report draft, where a reworded finding shows the lawyer's wording with Ratio's kept in the annex.
+- **Full finding review**: the reviewing lawyer accepts, rewords or rejects each finding (a reason is required to reword or reject) and records issues Ratio did not flag. Decisions are saved on this computer, append-only, and survive a re-analysis of the case. They appear in the report draft, where a reworded finding shows the lawyer's wording with Ratio's kept in the annex.
 
-Any evidence button opens the source viewer. Once a case is loaded, the Case page's **Download report draft (.md)** button saves its findings as an editable Markdown draft: each finding is numbered, and its exact source text is quoted in an annex with the document and line it comes from.
+Any evidence button opens the source viewer. Once a case is loaded, the Full analysis record page's **Download report draft (.md)** button saves its findings as an editable Markdown draft: each finding is numbered, and its exact source text is quoted in an annex with the document and line it comes from.
 
 The **Case overview** leads with the current matter, review summaries, and searchable
 source documents. Use **Open document** to read an original document; when a search
@@ -152,16 +158,15 @@ term is found in its text, the reader opens that exact passage. Imports and live
 model checks are available below the record. The shared interface components,
 design tokens, and design references are documented in [docs/INTERFACE.md](docs/INTERFACE.md).
 
-The **[hosted React preview](https://ratio-trial-review-preview.vercel.app)** brings the same
-recorded synthetic pipeline outputs into a legal research workspace: unified search,
-source reading, saved passages, detention-order comparisons, jurisprudence, possible
-State replies, and a browser review worksheet. It does not accept uploads or run a
-model. Demo decisions stay in browser storage; the offline Python application retains
-SQLite review history and generates reports with the lawyer's decisions applied.
-See [web/README.md](web/README.md) for building the preview and
-[docs/COMBINED-WORKSPACE.md](docs/COMBINED-WORKSPACE.md) for the integration choices.
+The **[hosted preview](https://ratio-trial-review-preview.vercel.app)** is the same React workspace without
+the local server: it opens the three committed synthetic examples and their recorded pipeline outputs (unified
+search, source reading, saved passages, detention-order comparisons, jurisprudence, possible State replies and a
+browser review worksheet). It does not accept uploads or run a model, and demo decisions stay in browser storage;
+the offline Python application keeps the SQLite review history and writes reports with the lawyer's decisions
+applied. See [web/README.md](web/README.md) for building it.
 
-**Live demo:** follow [docs/DEMO.md](docs/DEMO.md), a three-minute script with fallback screenshots.
+**Live demo:** follow [docs/DEMO.md](docs/DEMO.md). It starts both interfaces before Wi-Fi goes off, then walks
+through the full analysis app in three minutes, with fallback screenshots.
 
 Command line:
 
@@ -176,7 +181,14 @@ python scripts/check_jurisprudence.py   # maintainers only, ONLINE: checks the j
 python -m corpus_builder status         # maintainers only: the Similar cases corpus build (see below)
 ```
 
-Two maintainer tools go online, besides the one-time `scripts/fetch_models.py`. `scripts/check_jurisprudence.py` is run by hand after editing `ratio/config/jurisprudence.yaml` or `steelman.yaml`, and downloads only from documents.un.org. `python -m corpus_builder` builds the Similar cases corpus from public documents (below). The app, the tests, the evaluation and the preflight never run either, and Ratio itself never downloads anything.
+Besides the one-time setup downloads (`scripts/fetch_models.py` and `npm --prefix web ci`), only these maintainer tools go online, and only when run by hand:
+
+- `scripts/check_jurisprudence.py`, after editing `ratio/config/jurisprudence.yaml` or `steelman.yaml`; it downloads only from documents.un.org.
+- `python -m corpus_builder`, which builds the Similar cases corpus from public documents (below).
+- `scripts/fetch_innocence_references.py` and `scripts/fetch_demo_pack.py`, which download official public decisions and the three judgments of the upload pack.
+- `scripts/build_case_briefs.py` and `scripts/build_innocence_aids.py`, which can ask Google Gemini or Groq for reading aids on public reference documents only, never on a workspace case.
+
+The app, the tests, the evaluation and the preflight run none of them, and neither interface ever sends case content to another computer.
 
 ## Similar cases (optional)
 
@@ -194,8 +206,8 @@ For each shared pattern it shows this case's passage beside the past case's, and
 - **No model at query time.** No model runs when a link is made, and no outcome rates or predictions are shown.
 
 **The boundary**
-- `python -m corpus_builder` is a maintainer tool that runs online. It downloads public documents from the sources in `corpus_builder/sources.yaml`, obeying each site's `robots.txt` and rate limits. It then sends **only that public text** to Google Gemini to extract the fact patterns. Gemini is the only cloud service involved, and only here, at build time.
-- The app never reads an API key, never calls Gemini and never sends case data anywhere.
+- `python -m corpus_builder` is a maintainer tool that runs online. It downloads public documents from the sources in `corpus_builder/sources.yaml`, obeying each site's `robots.txt` and rate limits. It then sends **only that public text** to Google Gemini (or to Groq with `--model groq`) to extract the fact patterns, at build time only.
+- The app never reads an API key, never calls a cloud model and never sends case data anywhere.
 - The built corpus lives in `data/corpus/` (git-ignored, never committed).
 - The app reads the corpus file, or the OpenSearch index built from it, on 127.0.0.1 only.
 
@@ -233,7 +245,24 @@ python -m corpus_builder collection list
 python -m corpus_builder collection build --name Indonesia   # local model; rebuilds the corpus file and, if running, OpenSearch
 ```
 
-A public collection may also be built with `--model gemini --model-id <id>`. A private one never is: every step that calls a model refuses to give a private document to anything but the local model, and refuses Ollama cloud models. Building a collection rebuilds the corpus file from `data/corpus/build.db`, so it needs that file next to `precedents.db` (it refuses rather than drop public documents). `--no-index` leaves OpenSearch alone, and `snapshot` refuses while the corpus holds a private collection, because a snapshot is meant to be copied to other computers.
+A public collection may also be built with `--model gemini --model-id <id>` or `--model groq`. A private one never is: every step that calls a model refuses to give a private document to anything but the local model, and refuses Ollama cloud models. Building a collection rebuilds the corpus file from `data/corpus/build.db`, so it needs that file next to `precedents.db` (it refuses rather than drop public documents). `--no-index` leaves OpenSearch alone, and `snapshot` refuses while the corpus holds a private collection, because a snapshot is meant to be copied to other computers.
+
+### Court judgments and local one-pagers
+
+The React homepage leads with original court judgments. International review keeps Human Rights Committee Views, Working Group opinions and monitoring reports labelled separately. Charges, prosecutor requests and imposed sentences are distinct. See [the corpus research notes](docs/CORPUS-RESEARCH.md) for the focus, case directories and local build instructions.
+
+```bash
+python -m corpus_builder fetch --source echr_judgments   # ONLINE
+python -m corpus_builder normalize
+python -m corpus_builder embed
+python -m corpus_builder build-db
+uv pip install -e ".[pdf]"                               # without uv: pip install -e ".[pdf]"
+python scripts/build_case_briefs.py
+npm --prefix web run build
+python scripts/serve_workspace.py --port 8503
+```
+
+The three editorial court summaries have checked source pinpoints and source hashes. Other references receive explicitly labelled extractive reading sheets until a model draft is generated and legally reviewed. Downloads refuse changed source text, invented supporting quotes and altered PDFs. No real corpus text is exported into the static preview.
 
 ## Evaluation
 
@@ -263,6 +292,7 @@ Tests:
 pytest                                     # every test except the 2 that call the local model; needs models/, not Ollama
 pytest -m live                             # only those 2: the local model reads a note again (start Ollama first)
 pytest --cov --cov-report=term-missing     # coverage of the ratio package
+npm --prefix web test                      # the court case workspace's tests (Node.js)
 ```
 
 ## Responsible AI safeguards
@@ -271,10 +301,10 @@ The code and its comments refer to these as hard rules 1 to 5.
 
 | Rule | How Ratio enforces it | How it is tested |
 |---|---|---|
-| **1. Runs offline, on this computer.** No cloud services, no third-party APIs, no telemetry. One exception, outside the app: the maintainer-only corpus builder sends public precedent documents, never case data, to Google Gemini at build time. | The model client only talks to Ollama on 127.0.0.1 and refuses cloud-hosted models. A network guard blocks every other connection in the app, the command line, the evaluation and the tests. Hugging Face runs in offline mode, and the embedding model loads from `models/`. Streamlit runs with usage statistics off, on 127.0.0.1 only, with no error-page links and no web fonts or remote themes. The app refuses to start if any of these settings is not in effect. | The full pipeline runs under the network guard. A global Streamlit config that tries to override the settings is ignored. The browser checks found every request going to 127.0.0.1. `python -m ratio preflight` checks these settings, any `STREAMLIT_*` environment variables that would override them, and whether the running Ollama server (or its settings file) has its cloud features disabled. |
+| **1. Runs offline, on this computer.** No cloud services, no third-party APIs, no telemetry. The only exceptions are outside the app: maintainer-only builders can send public documents, never case data, to Google Gemini or Groq (the corpus builder, and the reading-aid builders for public references). | The model client only talks to Ollama on 127.0.0.1 and refuses cloud-hosted models. A network guard blocks every other connection in the app, the command line, the evaluation and the tests. The workspace's `--local-ai` worker is a separate process that installs the same guard, talks only to Ollama and has no cloud fallback. Hugging Face runs in offline mode, and the embedding model loads from `models/`. Streamlit runs with usage statistics off, on 127.0.0.1 only, with no error-page links and no web fonts or remote themes. The app refuses to start if any of these settings is not in effect. | The full pipeline runs under the network guard. A global Streamlit config that tries to override the settings is ignored. The browser checks found every request going to 127.0.0.1. `python -m ratio preflight` checks these settings, any `STREAMLIT_*` environment variables that would override them, and whether the running Ollama server (or its settings file) has its cloud features disabled. `tests/test_demo_briefs.py` checks that the case worker refuses anything but a local case request before any model call. |
 | **2. Provenance on everything.** | The model returns exact quotes, and Ratio locates each one in the source text; quotes it can't find are dropped. A finding must carry at least one source span (document id, start, end, exact text). Before anything is stored or shown, every span is re-read from its document, and a finding whose span does not match is dropped. | The evaluation reports provenance before and after this check and fails on any unsourced finding. App tests check that every piece of evidence on every page has a button that opens its source. |
 | **3. No verdicts about people.** | The messages of findings, and the short status and evidence labels shown next to them, come from fixed templates (`ratio/config/messages.yaml`). Model notes appear only under "Model note (unverified)", after words that characterise a person are removed. Judge indicators say "pattern that warrants review" only when the confidence interval for the difference from the baseline excludes zero, with the significance level divided across the indicators shown. Otherwise they say the judge is not distinguishable from the baseline at this sample size. Every rate shows n and a 95% Wilson interval. Indicators are hidden below 5 cases. The baseline is the same court and charge type only. Rulings are coded by people, never by the model. A name counts for a judge only at the same court, and doubtful names wait for a person to decide. | Known-value tests for the Wilson and Newcombe intervals. App tests check the judge page for blocked terms and for the fixed note, n and intervals. |
-| **4. Public or synthetic data only.** | Every synthetic text file starts with a `SYNTHETIC:` line, and every YAML and JSON file declares `synthetic: true`. Public material must cite where it was published. Uploading a case requires a declaration; a Precedent library collection may hold private material, which is then read only by the local model and kept in the git-ignored `data/corpus/collections/`. A SYNTHETIC banner appears on every page and in the source viewer. | Every demo data file is checked for the marker. App tests check the banner on every page. |
+| **4. Confidential material stays on this computer; the repository holds only public or synthetic data.** | Every synthetic text file starts with a `SYNTHETIC:` line, and every YAML and JSON file declares `synthetic: true`. Public material must cite where it was published. Documents uploaded in the court case workspace are confidential (`private`) by default: they are kept only in the git-ignored database, read only by the local model and never exported to the static preview. A private Precedent library collection is likewise read only by the local model and kept in the git-ignored `data/corpus/collections/`. A SYNTHETIC banner appears on every page and in the source viewer. | Every demo data file is checked for the marker. App tests check the banner on every page. |
 | **5. No invented legal thresholds.** | Only one benchmark is confirmed: General Comment 35's 48 hours to bring a detainee before a judge (para. 33). Every other benchmark has a citation and no threshold, is marked "needs legal review", and is measured but never coloured. Only confirmed benchmarks can be marked as exceeded. | Config tests check that only the 48-hour benchmark is confirmed and that an unconfirmed benchmark is never coloured. |
 
 On every judge page, above everything else: *TrialWatch monitors cases already suspected of unfairness, so these rates are not representative.*
@@ -287,6 +317,7 @@ On every judge page, above everything else: *TrialWatch monitors cases already s
   - four judgment passages are copied from the indictment and one is lightly paraphrased;
   - one defence argument is never answered;
   - the third detention order repeats the second order's grounds word for word, three months later, and is dated a day after the second order ran out.
+- **Two focused matters** (`data/demo/focused`): synthetic, for the workspace's Article 14(2) review. In *v. Nadia Sorin* the judgment shifts the burden of proof to the accused; in *v. Luka Maren* the judge states the prosecution's burden correctly, a trap that must not be flagged. `scripts/serve_workspace.py --demo` loads them with the demo case.
 - **Judicial history** (`data/demo/history`): 20 synthetic cases generated from `seed.yaml`: 19 from the demo case's court and one from another invented court. On the presiding judge's profile:
   - one indicator fires;
   - two show without a badge;
@@ -295,15 +326,15 @@ On every judge page, above everything else: *TrialWatch monitors cases already s
   - a judge with the same name at another court stays separate.
 - **Standards:** the ICCPR, and Human Rights Committee General Comments [No. 32](https://documents.un.org/doc/undoc/gen/g07/437/71/pdf/g0743771.pdf) (Article 14) and [No. 35](https://documents.un.org/doc/undoc/gen/g14/244/51/pdf/g1424451.pdf) (Article 9). Paragraph numbers were checked against the official UN documents. The rubric, benchmarks and ruling codes are in `ratio/config/`.
 - **Jurisprudence** (`ratio/config/jurisprudence.yaml`): 26 entries, either General Comment paragraphs in their own words or Committee decisions cited only for what a General Comment footnote cites them for (the footnote's own text), so nothing describes a decision's facts. `scripts/check_jurisprudence.py` checked every quote and citation, and the 8 General Comment quotes behind the State's-reply grounds in `ratio/config/steelman.yaml`, against the official PDFs on 2026-10-09. Decisions on the bias of individual judges are left out, so a judge pattern indicator is never shown next to one.
-- **Your own cases:** use public or synthetic material only. A case folder has a `case.yaml` listing its documents (.txt, .md or .pdf), with the type, court and charge type, and whether the material is synthetic or public (with the source). It can also have a `rulings.yaml` of coded rulings for the Judicial History Tracker. `data/demo/case` is a complete example.
+- **Your own cases:** a case folder has a `case.yaml` listing its documents (.txt, .md or .pdf), with the type, court and charge type, and whether the material is synthetic, public (with the source) or private. Private material stays on this computer and is read only by the local model. It can also have a `rulings.yaml` of coded rulings for the Judicial History Tracker. `data/demo/case` is a complete example.
 
 - **Similar cases corpus** (built locally into the git-ignored `data/corpus/`, never committed). Source list: `corpus_builder/sources.yaml`.
-  - **What it holds:** 43 public documents installed locally on 2026-10-10: three ECHR judgments reproduced by official UN libraries, 23 TrialWatch fairness reports (cfj.org and hri.law.columbia.edu), 11 opinions of the UN Working Group on Arbitrary Detention (ohchr.org), and 6 UN Human Rights Committee Views (UN documents hosted by ccprcentre.org).
+  - **What it builds:** `corpus_builder/sources.yaml` lists 50 public documents: three ECHR judgments reproduced by official UN libraries, 23 TrialWatch fairness reports (cfj.org and hri.law.columbia.edu), 11 opinions of the UN Working Group on Arbitrary Detention (ohchr.org), and 13 UN Human Rights Committee Views: 7 hosted by ccprcentre.org, and 6 on the presumption of innocence from their official UN document links.
   - **Attribution:** every card in the app names its source, and every quote links to the passage in its document.
   - **Terms:** source attribution and the recorded terms check accompany each source. The local reader provides the saved original, full text and short source-linked reading aids. Real documents and generated PDFs remain in ignored local storage.
-  - **How it was collected:** each site's `robots.txt` was obeyed. documents.un.org disallows crawlers, so no document was taken from it.
+  - **How it was collected:** each crawled site's `robots.txt` was obeyed. documents.un.org disallows crawlers, so it is never crawled: `scripts/fetch_innocence_references.py` downloads six named Committee decisions from their official document links, two seconds apart, as `scripts/check_jurisprudence.py` does for the General Comments.
   - **Left out:** Pressing Charges, whose per-case data is not public and is "All Rights Reserved", and the TrialWatch India dataset, which is under NDA.
-  - **Extraction:** optional at build time, on public documents only. The installed corpus currently has paragraph vectors without model-extracted fact-pattern facets; phrase and meaning search work without a Gemini key. The runtime never loads the cloud SDK.
+  - **Extraction:** optional at build time, on public documents only. Without the extract and verify steps, phrase and meaning search still work from paragraph vectors, but fact-pattern links need them. The runtime never loads a cloud SDK.
 
 - **Collections you upload** stay in the git-ignored `data/corpus/collections/` and are never committed. Upload only material you may use; mark a collection private unless it is public.
 
@@ -332,29 +363,41 @@ No real monitoring notes and no published TrialWatch reports are in this reposit
 
 ```
 ratio/
-  extraction/     reading, sentence splitting, chunking, model extraction, span alignment, dates
+  extraction/     reading, sentence splitting, chunking, model extraction, span alignment, dates, detention orders
   modules/        absence.py, clock.py, renewal.py, reuse.py, judges.py (with the exclusion rules, name registry and statistics)
-  config/         rubric.yaml, benchmarks.yaml, ruling_codes.yaml, standards.yaml, messages.yaml, settings.yaml
+  config/         rubric, benchmarks, ruling codes, standards, messages, settings, fact patterns, jurisprudence,
+                  State's-reply grounds, innocence outcomes and court briefs
   schema.py       the case record (frozen pydantic models)
   results.py      module outputs
   provenance.py   every finding re-checked against its source text
   llm.py          local Ollama client with a replayable answer cache
   netguard.py     blocks every connection that does not stay on this computer
   store.py        SQLite case store, with reviewers' decisions
+  library.py      the court-scoped case collection and staged document intake, in the same SQLite file
+  workspace.py    case payloads and demo seeding shared by the workspace's API and Streamlit
+  focus.py        the Article 14(2) review worksheet: charge, requested, imposed and statutory penalties, screening prompts
+  outcomes.py     source-coded historical outcomes (no individual success prediction)
+  corpus_research.py, local_comparisons.py   wording search over the installed corpus, and local case comparisons
+  case_briefs.py, demo_briefs.py   verified one-page reading sheets, and the local Ollama reading-aid worker's coordinator
+  jurisprudence.py, steelman.py   linked General Comment paragraphs, and the State's strongest reply
   feedback.py     lawyers' corrections: the decision in force, per-module summary, regression check
   preflight.py    pre-demo checks
   report.py       the Markdown report draft export
   precedents.py   Similar cases: this case's fact patterns and the ranked links (no model at query time)
   precedent_store.py, precedent_opensearch.py   the corpus file (source of truth) and the optional OpenSearch index
-corpus_builder/   maintainer-only, online: fetch, normalize, extract (Gemini, public text only), verify, embed, build the corpus;
-                  collections.py (with store.py) reads uploaded collections with the local model: the only modules the app imports
-app/              Streamlit app: main.py, views/ (one file per page), ratio_ui/ (source viewer, widgets, privacy check)
-data/demo/        synthetic demo case, expected outputs, judicial history, recorded model answers
+corpus_builder/   maintainer-only, online: fetch, normalize, extract (Gemini or Groq for public text, Ollama otherwise),
+                  verify, embed, build the corpus; collections.py (with store.py) reads uploaded collections with the
+                  local model: the only modules the app imports
+app/              Streamlit full analysis app: main.py, views/ (one file per page), ratio_ui/ (source viewer, widgets, privacy check)
+data/demo/        synthetic demo case, two focused synthetic matters, expected outputs, judicial history, recorded model answers
 eval/             evaluation script
-scripts/          one-time model download, the history generator, the jurisprudence check, and the web preview's data export
+scripts/          serve_workspace.py (the workspace's loopback server) and groq_case_worker.py (its local Ollama worker,
+                  despite the name); maintainer tools: fetch_models.py, build_history.py, check_jurisprudence.py,
+                  export_web_demo.py, fetch_demo_pack.py, fetch_innocence_references.py, build_case_briefs.py,
+                  build_innocence_aids.py, import_real_demo.py (imports a real case into the git-ignored data/real-demo/)
 tests/
-docs/             demo script, screenshots, interface notes and the workspace merge notes
-web/              React preview of the recorded synthetic demo (static; see web/README.md)
+docs/             demo script and screenshots, interface notes, court workspace, corpus research, upload pack, model routing
+web/              the court case workspace, the main interface (React, built with npm; served by scripts/serve_workspace.py)
 ```
 
 ## Team
@@ -365,11 +408,11 @@ Komal Neupane, Sahil Kharel, Hardik Kafle, Emeric Chang.
 
 Ratio's own code, synthetic data and documentation are licensed under the [Apache License 2.0](LICENSE). Copyright 2026 Komal Neupane, Sahil Kharel, Hardik Kafle and Emeric Chang.
 
-`ratio/config/` quotes the ICCPR and passages from the UN Human Rights Committee's General Comments No. 32 and No. 35, with their citations. Those are United Nations texts, not the team's work, so the Apache license does not cover them.
+`ratio/config/` quotes the ICCPR and passages from the UN Human Rights Committee's General Comments No. 32 and No. 35, with their citations. Those are United Nations texts, not the team's work, so the Apache license does not cover them. `ratio/config/innocence_outcomes.json` quotes short excerpts of UN Human Rights Committee decisions, each with its official source URL, and `ratio/config/court_briefs.json` quotes short phrases from three European Court of Human Rights judgments (Allenet de Ribemont v. France, Daktaras v. Lithuania and Salabiaku v. France; sources in `corpus_builder/sources.yaml`). The Apache license does not cover those either.
 
 ### Third-party software
 
-This repository contains no third-party code. The setup steps download Ratio's dependencies from PyPI, the embedding model from Hugging Face and the language model from Ollama's library, each under its own license.
+This repository contains no third-party code, except the Unidecode character table in `web/public/demo.json` (below). The setup steps download Ratio's Python dependencies from PyPI, the court case workspace's dependencies from npm (pinned in `web/package-lock.json`), the embedding model from Hugging Face and the language model from Ollama's library, each under its own license.
 
 - **unidecode is licensed under the GNU GPL (version 2 or later).** Ratio uses it to match names and words written with accents or with look-alike letters from other alphabets, and almost every part of Ratio loads it.
   - Installing, using and changing Ratio, and copying it within your own organisation, create no obligations. The simplest way to share Ratio is to send the link to this repository.
@@ -387,22 +430,8 @@ This repository contains no third-party code. The setup steps download Ratio's d
   - Ratio does not need a GPU, so PyTorch's CPU-only build leaves out NVIDIA's libraries. On ARM Linux that build is entirely open source.
   - A GPL bundle for x86-64 Linux or Windows would need a PyTorch built without MKL.
 - **Models.** [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) and [Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) (`qwen2.5:7b-instruct` in Ollama) are licensed under Apache 2.0, and Ollama under MIT. If you set `RATIO_MODEL` to another model, check its license: some models, including other sizes of Qwen2.5, are not open source.
+- **The court case workspace.** Its build in `web/dist/` bundles React, React DOM and scheduler (MIT, Copyright Meta Platforms, Inc. and affiliates) and the Lato font from `@fontsource/lato` (SIL Open Font License 1.1). Their license texts are in `web/public/THIRD-PARTY-NOTICES.txt`, which is copied into every build; Vite and its tools only build the workspace and are not shipped in it.
+- **Unidecode character table.** `web/public/demo.json` contains `review_transliteration`, 1,824 character-to-ASCII mappings that `scripts/export_web_demo.py` exports from Unidecode so the browser's wording guard matches the Python one. They come from Unidecode's tables (Copyright 2001 Sean M. Burke; later additions Copyright 2025 Tomaž Šolc) under the GNU GPL version 2 or later, not the Apache license. The notice and license text are in `web/public/THIRD-PARTY-NOTICES.txt`.
+- **Optional services.** `docker compose up -d opensearch` pulls the OpenSearch 3.6.0 image (Apache 2.0). Google Gemini and Groq are online services under their providers' terms, used only by the maintainer builders and only for public documents.
 
 This is a summary, not legal advice.
-
-### Court judgments and local one-pagers
-
-The React homepage leads with original court judgments. International review keeps Human Rights Committee Views, Working Group opinions and monitoring reports labelled separately. Charges, prosecutor requests and imposed sentences are distinct. See [the corpus research notes](docs/CORPUS-RESEARCH.md) for the focus, case directories and local build instructions.
-
-```bash
-python -m corpus_builder fetch --source echr_judgments
-python -m corpus_builder normalize
-python -m corpus_builder embed
-python -m corpus_builder build-db
-pip install -e ".[pdf]"
-python scripts/build_case_briefs.py
-npm --prefix web run build
-python scripts/serve_workspace.py --port 8503
-```
-
-The three editorial court summaries have checked source pinpoints and source hashes. Other references receive explicitly labelled extractive reading sheets until a model draft is generated and legally reviewed. Downloads refuse changed source text, invented supporting quotes and altered PDFs. No real corpus text is exported into the static preview.
