@@ -102,6 +102,22 @@ def test_the_demo_cases_loaded_from_the_examples_are_read_only(library):
     assert library.pending_files()[0]["id"] == new_id  # nothing was assigned
 
 
+def test_a_saved_public_judgment_opens_as_an_active_case(library):
+    text = b"Synthetic Court of Testland. The applicant was charged with an invented offence. The court sat in public."
+    kwargs = dict(doc_id="court-testland-1/99", title="Applicant v. Testland (synthetic)",
+                  court="Synthetic Court of Testland", source_url="https://example.org/judgment",
+                  filename="court-testland-1-99.txt", content=text)
+
+    case_id = library.open_reference_case(**kwargs)
+
+    record = library.cases.load_case(case_id)
+    assert case_id == "court-testland-1-99" and record.meta.data_provenance == "public"
+    assert [d.type for d in record.documents] == ["judgment"]
+    assert library.focus(case_id).charge == "an invented offence"
+    assert library.open_reference_case(**kwargs) == case_id  # opening it again reuses the case
+    assert sum(c["case_id"] == case_id for c in library.list()) == 1
+
+
 def test_demo_seeding_skips_entries_that_are_not_case_folders(library, tmp_path, monkeypatch):
     import shutil
 

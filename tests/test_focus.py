@@ -177,6 +177,24 @@ def test_statutory_liability_in_a_review_judgment_is_not_an_imposed_sentence():
     check_spans(record, focus)
 
 
+def test_a_charge_written_as_accuse_for_violation_of_is_found():
+    """Philippine-style Information (SYNTHETIC: invented names and act)."""
+    record = make_record([("information.txt", "indictment",
+        "INFORMATION\nThe undersigned Prosecutor hereby accuse JUAN DELA PAZ and ANA REYES for violation of\n"
+        "Section 8(ii) of Republic Act No. 99999, otherwise known as the Invented Act, committed as follows:")])
+    focus = screen(record)
+    assert focus.charge == "violation of\nSection 8(ii) of Republic Act No. 99999"
+    check_spans(record, focus)
+
+
+def test_a_term_written_in_words_and_figures_is_one_imposed_sentence():
+    record = make_record([("decision.txt", "judgment",
+        "WHEREFORE, the accused is hereby sentenced to suffer the penalty of imprisonment of twelve (12) years.")])
+    focus = screen(record)
+    assert [(p.stage, p.label) for p in focus.penalties] == [("imposed", "12 years imprisonment")]
+    check_spans(record, focus)
+
+
 def test_wrapped_charge_keeps_exact_source_characters():
     record = make_record(
         [("indictment.txt", "indictment", "The accused is charged\nwith robbery.")]

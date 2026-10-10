@@ -197,6 +197,31 @@ def test_model_selects_source_passages_without_writing_quotations(monkeypatch):
     assert "stored text line" in section["pinpoint"]
 
 
+def test_a_passage_picked_twice_appears_once(monkeypatch):
+    text = "Opening heading.\n\n" + QUOTE
+    payload = {
+        "source_role": "case_workspace", "provenance": "synthetic", "title": "Synthetic test",
+        "court": "Test court", "source_note": "Synthetic test",
+        "sources": [{"id": "doc-1", "title": "Test source", "type": "judgment", "text": text}],
+    }
+
+    class Repeater:
+        def complete_json(self, *, user, schema, **kwargs):
+            first = json.loads(user)["passages"][0]["quote_id"]
+            section = {"label": "Charge", "summary": "Synthetic example only.", "quote_id": first}
+            return schema.model_validate({"sections": [section, dict(section)]})
+
+    monkeypatch.setattr(worker, "render", lambda *args: one_page_pdf())
+    assert len(worker.generate(payload, llm=Repeater())["sections"]) == 1
+
+
+def test_a_charge_sentence_beyond_the_caption_is_a_candidate():
+    caption = "REGIONAL COURT\nPEOPLE v. SYNTHETIC ACCUSED\n" + "Caption line.\n" * 60
+    text = caption + "The Prosecutor hereby accuse SYNTHETIC ACCUSED for violation of Section 1 of the Invented Act."
+    selected = worker.excerpts([{"id": "d", "title": "Information", "type": "indictment", "text": text}])
+    assert any("for violation of Section 1" in e["text"] for e in selected[0]["excerpts"])
+
+
 def test_model_cannot_select_an_invented_source_passage(monkeypatch):
     class Selector:
         def complete_json(self, *, schema, **kwargs):

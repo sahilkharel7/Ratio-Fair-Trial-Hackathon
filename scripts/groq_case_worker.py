@@ -45,9 +45,11 @@ def excerpts(sources, budget=9_000):
     selected, remaining = [], budget
     for source in sources:
         text = source["text"]
-        candidates = [(0, min(len(text), 500))]
+        candidates = []
         for pattern in (
             r"indicted|charged\s+with|charges\s+of",
+            r"\baccuse[sd]?\b.{0,250}?\b(?:of\s+the\s+crime\s+of|for)\s+viol(?:ation|\.)\s+of",
+            r"WHEREFORE|PREMISES\s+CONSIDERED|guilty\s+beyond\s+reasonable\s+doubt",
             r"there\s+(?:has|have)\s+(?:therefore\s+|accordingly\s+)?been\b.{0,100}\b(?:violation|breach)|holds\b.{0,120}\b(?:violation|breach)|court\s+(?:finds|concludes)\b.{0,120}\b(?:violation|breach)",
             r"FOR\s+THESE\s+REASONS",
             r"sentenced|sentence\s+imposed|reduced\b.{0,40}\bsentence|acquitted",
@@ -61,6 +63,7 @@ def excerpts(sources, budget=9_000):
                 candidates.append(
                     (max(0, match.start() - 200), min(len(text), match.end() + 800))
                 )
+        candidates.append((0, min(len(text), 500)))  # the caption, after the charge and decision passages
         candidates.append((max(0, len(text) - 900), len(text)))
         windows = []
         per_source = min(remaining, max(1_500, budget // len(sources)))
@@ -158,8 +161,11 @@ def generate(payload, *, llm=None):
         system=SYSTEM, user=user, schema=schema, purpose="demo_case_brief"
     )
     docs = {s["id"]: s for s in sources}
-    sections = []
+    sections, picked = [], set()
     for section in answer.sections:
+        if section.quote_id in picked:  # the model may pick one passage twice; show it once
+            continue
+        picked.add(section.quote_id)
         chosen = candidates[section.quote_id]
         text = docs[chosen["doc_id"]]["text"]
         if (

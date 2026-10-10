@@ -61,10 +61,22 @@ HUNDREDS = (
     r"(?:" + ONES + r")\s+hundred(?:\s+(?:and\s+)?(?:" + COMPOUND + "|" + SMALL + r"))?"
 )
 NUMBER = r"(?:\d+(?:\.\d+)?|" + HUNDREDS + "|" + COMPOUND + "|" + SMALL + r")"
+FIGURES = r"(?:\s*\(\d+(?:\.\d+)?\))?"  # "twelve (12) years": the number in words, then in figures
 DURATION = re.compile(
-    rf"(?<![\w-])(?P<lo>{NUMBER})(?:\s*(?:to|[-–])\s*(?P<hi>{NUMBER}))?(?P<half>\s+and\s+(?:a\s+)?half)?(?:\s+|-)(?P<unit>years?|months?|days?)\b",
+    rf"(?<![\w-])(?P<lo>{NUMBER}){FIGURES}(?:\s*(?:to|[-–])\s*(?P<hi>{NUMBER}){FIGURES})?(?P<half>\s+and\s+(?:a\s+)?half)?(?:\s+|-)(?P<unit>years?|months?|days?)\b",
     re.IGNORECASE,
 )
+# "hereby accuse X for violation of Section 8(ii) of Republic Act No. 10168, committed as follows" (Philippine Informations)
+ACCUSED_OF = r"\baccuse[sd]?\b.{0,250}?\b(?:of\s+the\s+crime\s+of|for)\s+(viol(?:ation|\.)\s+of\b.+?)(?=\s*(?:,|;|\bcommitted\b|\botherwise\b)|\.\s*$|$)"
+
+
+def _charge_text(text: str) -> str | None:
+    """The charge as worded in the passage: "charged with ...", or "accuse ... for violation of ..."."""
+    if found := re.search(r"\bcharged\s+with\s+(.+)", text, re.IGNORECASE | re.DOTALL):
+        return found.group(1).strip().rstrip(".")
+    if found := re.search(ACCUSED_OF, text, re.IGNORECASE | re.DOTALL):
+        return found.group(1).strip().rstrip(".")
+    return None
 
 
 class PenaltyStatement(Frozen):
@@ -142,6 +154,8 @@ def _penalty(doc_type: str, span: SourceSpan) -> PenaltyStatement | None:
         return None
     if re.search(r"\bprosecut\w*\b.{0,100}\b(request\w*|seek\w*|ask\w*)\b", lower):
         stage = "requested"
+    elif doc_type == "judgment" and re.search(r"\bsentenc\w*\b.{0,80}\bto suffer\b", lower):
+        stage = "imposed"  # "sentenced to suffer the penalty of ...": imposed, though it says "penalty of"
     elif re.search(
         r"shall be punished|is to be punished|punishable|liability to a sentence|liable to|maximum penalty|maximum sentence|statutory|penalty of",
         lower,
@@ -271,8 +285,9 @@ def screen(record: CaseRecord, *, defendant: str | None = None) -> FocusRecord:
         if (
             charge_span is None
             and doc.type in {"indictment", "judgment"}
-            and re.search(
-                r"(?:accused|defendant|charged person).{0,70}\bcharged with\b", text
+            and (
+                re.search(r"(?:accused|defendant|charged person|applicant|author).{0,70}\bcharged with\b", text)
+                or re.search(r"\baccuse[sd]?\b.{0,250}?\b(?:of the crime of|for) viol(?:ation|\.) of\b", text)
             )
             and not re.search(
                 r"not charged|no longer charged|previously charged|charges? (?:was|were) (?:dropped|withdrawn|dismissed)",
@@ -364,14 +379,7 @@ def screen(record: CaseRecord, *, defendant: str | None = None) -> FocusRecord:
     )
     charge = record.meta.charge_type
     if charge_span:
-        charge = (
-            re.search(
-                r"\bcharged\s+with\s+(.+)", charge_span.text, re.IGNORECASE | re.DOTALL
-            )
-            .group(1)
-            .strip()
-            .rstrip(".")
-        )
+        charge = _charge_text(charge_span.text) or charge
     return FocusRecord(
         case_id=record.case_id,
         defendant=name,

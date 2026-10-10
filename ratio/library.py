@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sqlite3
 import uuid
 from contextlib import contextmanager
@@ -308,6 +309,27 @@ class LibraryStore:
                 (record.case_id,),
             )
         return record
+
+    def open_reference_case(
+        self, *, doc_id: str, title: str, court: str, source_url: str, filename: str, content: bytes,
+        doc_type: str = "judgment",
+    ) -> str:
+        """Open a saved public reference document (a court judgment) as an active case; returns its case id.
+        It goes through the usual intake checks, and opening it again reuses the existing case."""
+        case_id = re.sub(r"[^a-z0-9._'-]+", "-", doc_id.lower()).strip("-._'")[:64]
+        if self.cases.load_case(case_id) is not None:
+            return case_id
+        batch = self.stage({filename: content}, provenance="public", source_note=source_url)
+        staged = next(f for f in self.pending_files() if f["batch_id"] == batch)
+        if staged["problem"]:
+            raise LoaderError(f"{filename}: {staged['problem']}")
+        manifest = CaseManifest(
+            case_id=case_id, title=title, court=court, charge_type="Not recorded", data_provenance="public",
+            synthetic=False, source_note=source_url,
+            documents=[{"path": filename, "type": doc_type, "title": title}],
+        )
+        self.import_manifest(manifest, {filename: staged["id"]})
+        return case_id
 
     def delete_case(self, case_id: str) -> None:
         """Remove a case and everything stored for it on this computer; deleted bytes are overwritten."""

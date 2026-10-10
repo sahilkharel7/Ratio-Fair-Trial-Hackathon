@@ -139,6 +139,18 @@ export function CourtJudgment({ id, navigate, onImport, refresh }) {
       active = false;
     };
   }, [id]);
+  async function openCase() {
+    setStaging(true);
+    setError("");
+    try {
+      const opened = await requestJSON(`/api/precedents/${encodeURIComponent(id)}/case`, {});
+      await refresh();
+      navigate(`/cases/${encodeURIComponent(opened.case_id)}`);
+    } catch (e) {
+      setError(e.message);
+      setStaging(false);
+    }
+  }
   async function stage() {
     setStaging(true);
     setError("");
@@ -227,6 +239,11 @@ export function CourtJudgment({ id, navigate, onImport, refresh }) {
           Confirm the defendant, court and document role when adding the
           original PDF.
         </p>
+        {doc.local_pdf && (
+          <button className="primary" disabled={staging} onClick={openCase}>
+            {staging ? "Opening…" : "Review as an active case"}
+          </button>
+        )}
         {doc.local_pdf && (
           <button disabled={staging} onClick={stage}>
             {staging ? "Adding original…" : "Add original to local case intake"}

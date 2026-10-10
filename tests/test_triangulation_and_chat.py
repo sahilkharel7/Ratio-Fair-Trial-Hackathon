@@ -188,7 +188,8 @@ def test_model_text_never_shows_words_that_characterise_a_person(library):
         assert "biased" not in text and "corrupt" not in text
 
 
-def test_a_reply_that_fails_the_schema_is_a_refusal_not_an_outage(library):
+def test_a_reply_that_fails_the_checks_is_withheld_not_called_unsupported(library):
+    from ratio.case_chat import UNCHECKED
     from ratio.llm import LLMResponseError
 
     class Garbled:
@@ -196,7 +197,37 @@ def test_a_reply_that_fails_the_schema_is_a_refusal_not_an_outage(library):
             raise LLMResponseError("citations ['c99'] are not allowed")
 
     reply = ask(library, FakeResearch(), "sorin-2025", "Who had to prove what?", llm=Garbled())
-    assert reply["answer"] == REFUSAL and not reply["citations"]
+    assert reply["answer"] == UNCHECKED and not reply["citations"] and not reply["supported"]
+
+
+def test_long_answers_are_not_cut_mid_sentence(library):
+    from ratio.case_chat import MAX_ANSWER_CHARS
+
+    sentence = "The accused had to prove that she did not organise the assembly. "
+    seen = {}
+
+    class Long(SchemaLLM):
+        def complete_json(self, *, system, user, schema, purpose):
+            seen["cap"] = schema.model_json_schema()["properties"]["answer"].get("maxLength")
+            first = json.loads(user)["passages"][0]["id"]
+            return schema.model_validate({"supported": True, "answer": sentence * 40, "citations": [first]})
+
+    reply = ask(library, FakeResearch(), "sorin-2025", "Who had to prove what?", llm=Long())
+    assert seen["cap"] is None or seen["cap"] >= 2000  # the model is never stopped mid-sentence
+    assert len(reply["answer"]) <= MAX_ANSWER_CHARS and reply["answer"].endswith((".", "…"))
+
+
+def test_broad_questions_see_passages_from_several_documents(library):
+    sent = {}
+
+    class Recorder(SchemaLLM):
+        def complete_json(self, *, system, user, schema, purpose):
+            sent["passages"] = json.loads(user)["passages"]
+            return schema.model_validate({"supported": False, "answer": "", "citations": []})
+
+    ask(library, FakeResearch(), "sorin-2025", "What is this case about?", llm=Recorder())
+    case_sources = {p["source"] for p in sent["passages"] if p["id"].startswith("c")}
+    assert len(case_sources) >= 2
 
 
 def test_a_very_long_sentence_is_cut_into_bounded_passages():

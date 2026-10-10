@@ -323,6 +323,18 @@ def handler_for(library: LibraryStore, dist: Path, research=None, briefs=None):
                     return self.reply(
                         briefs.start(case_id, force=body.get("force") is True), 202
                     )
+                if path.startswith("/api/precedents/") and path.endswith("/case"):
+                    original = research.original_pdf(
+                        unquote(path.removeprefix("/api/precedents/").removesuffix("/case"))
+                    )
+                    if original is None:
+                        return self.reply({"error": "Verified public PDF is unavailable on this computer."}, 404)
+                    doc, raw = original
+                    case_id = library.open_reference_case(
+                        doc_id=doc.id, title=doc.title, court=doc.body or "Court not recorded",
+                        source_url=doc.url, filename=doc.id + ".pdf", content=raw,
+                    )
+                    return self.reply({"case_id": case_id, **(case_payload(library, case_id) or {})}, 201)
                 if path.startswith("/api/precedents/") and path.endswith("/stage"):
                     original = research.original_pdf(
                         unquote(
