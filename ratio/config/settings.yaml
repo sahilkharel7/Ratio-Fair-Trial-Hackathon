@@ -17,6 +17,8 @@ llm:
     steelman: 700
     steelman_check: 200
     local_reference_comparison: 700  # up to 3 comparisons of two 320-character fields each, as JSON
+    triangulation: 1200  # up to 5 facts of four short fields each, as JSON
+    case_chat: 600  # one answer of at most 700 characters and its citations
 
 extraction:
   chunk_chars: 2500

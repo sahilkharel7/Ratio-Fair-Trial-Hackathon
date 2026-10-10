@@ -207,6 +207,20 @@ class CorpusResearch:
             "method": "Exact phrase, ignoring whitespace and letter case",
         }
 
+    def embed(self, texts):
+        """Normalised MiniLM vectors for local ranking, from the model meaning search already loads."""
+        from ratio.embeddings import EmbeddingModelMissing, MiniLMEmbedder
+
+        try:
+            with self._model_lock:
+                if self._embedder is None:
+                    self._embedder = MiniLMEmbedder()
+                return self._embedder.encode(list(texts))
+        except EmbeddingModelMissing as exc:
+            raise ValueError(
+                "This needs the local MiniLM model: run scripts/fetch_models.py."
+            ) from exc
+
     def _meaning(self, index, query, *, kind, state, limit):
         from ratio.embeddings import EmbeddingModelMissing, MiniLMEmbedder
 

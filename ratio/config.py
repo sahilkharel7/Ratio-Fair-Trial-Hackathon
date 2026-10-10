@@ -218,6 +218,8 @@ class NumPredict(Frozen):
     steelman: int = Field(default=700, gt=0)
     steelman_check: int = Field(default=200, gt=0)
     local_reference_comparison: int = Field(default=700, gt=0)
+    triangulation: int = Field(default=1200, gt=0)
+    case_chat: int = Field(default=600, gt=0)
 
 
 class LLMSettings(Frozen):

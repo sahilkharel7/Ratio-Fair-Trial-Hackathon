@@ -1,0 +1,86 @@
+/* Triangulation and the case chat: side-by-side source pairs, the pointer label, the local-only banner. */
+.triangulation-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin: 12px 0;
+}
+.triangulation-controls select {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.triangulation-pointer,
+.chat-banner {
+  border-left: 3px solid var(--accent);
+  background: var(--soft-bg);
+  padding: 10px 14px;
+  margin: 12px 0;
+  font-weight: 600;
+}
+.triangulation-fact {
+  border-top: 1px solid var(--soft-edge);
+  padding-top: 12px;
+  margin-top: 12px;
+}
+.triangulation-fact-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+}
+.triangulation-badge {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--soft-edge);
+}
+.triangulation-badge.similar {
+  background: #e8f5ee;
+}
+.triangulation-badge.different {
+  background: #fdf0e6;
+}
+.triangulation-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+.triangulation-side {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.triangulation-pair blockquote {
+  margin: 6px 0;
+  max-height: 220px;
+  overflow: auto;
+}
+.chat-turn {
+  margin: 12px 0;
+}
+.chat-answer {
+  border: 1px solid var(--soft-edge);
+  border-radius: var(--card-radius);
+  padding: 10px 14px;
+}
+.chat-answer.unsupported {
+  background: var(--soft-bg);
+}
+.chat-citations {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+.chat-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+.chat-form input {
+  flex: 1 1 280px;
+  min-width: 0;
+}

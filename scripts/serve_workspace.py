@@ -97,6 +97,10 @@ def handler_for(library: LibraryStore, dist: Path, research=None, briefs=None):
             params = parse_qs(urlsplit(self.path).query)
             if path == "/api/precedents":
                 return self.reply(research.catalogue())
+            if path == "/api/rights":
+                from ratio.triangulation import rights
+
+                return self.reply({"rights": rights()})
             if path == "/api/precedents/search":
                 try:
                     return self.reply(
@@ -191,6 +195,16 @@ def handler_for(library: LibraryStore, dist: Path, research=None, briefs=None):
                                 "note": "Local comparison unavailable. No interpretation was generated; check Ollama and the saved references.",
                             }
                         )
+                if len(parts) == 2 and parts[1] == "triangulation":
+                    from ratio.triangulation import triangulate
+
+                    try:
+                        right = params.get("right", ["14(2)"])[0]
+                        return self.reply(triangulate(library, research, case_id, right))
+                    except KeyError:
+                        return self.reply({"error": "Case not found."}, 404)
+                    except ValueError as exc:
+                        return self.reply({"error": str(exc)}, 400)
                 if len(parts) == 2 and parts[1] in {"brief", "brief.pdf"}:
                     if briefs is None:
                         return self.reply(
@@ -328,6 +342,11 @@ def handler_for(library: LibraryStore, dist: Path, research=None, briefs=None):
                         {"batch_id": batch, "pending_files": library.pending_files()},
                         201,
                     )
+                if path.startswith("/api/cases/") and path.endswith("/chat"):
+                    from ratio.case_chat import ask
+
+                    case_id = unquote(path.removeprefix("/api/cases/").removesuffix("/chat"))
+                    return self.reply(ask(library, research, case_id, body.get("question")))
                 if path == "/api/intake":
                     files = body["files"]
                     if len(files) != len({f["name"] for f in files}):

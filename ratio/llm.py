@@ -38,6 +38,8 @@ _PROMPT_FIX = {
     "steelman": "lower steelman.top_k_passages in ratio/config/settings.yaml",
     "steelman_check": "shorten the ground's requires text in ratio/config/steelman.yaml",
     "local_reference_comparison": "shorten the passages sent by ratio/local_comparisons.py",
+    "triangulation": "lower PASSAGE_CHARS or PASSAGES_PER_CASE in ratio/triangulation.py",
+    "case_chat": "lower CASE_TOP or REFERENCE_TOP in ratio/case_chat.py",
 }
 
 
@@ -101,7 +103,8 @@ def request_options(settings: LLMSettings, purpose: str) -> dict:
     budgets = settings.num_predict
     num_predict = {"extraction": budgets.extraction, "labels": budgets.labels, "argument_check": budgets.argument_check, "steelman": budgets.steelman,
                    "steelman_check": budgets.steelman_check,
-                   "local_reference_comparison": budgets.local_reference_comparison}  # fmt: skip
+                   "local_reference_comparison": budgets.local_reference_comparison,
+                   "triangulation": budgets.triangulation, "case_chat": budgets.case_chat}  # fmt: skip
     if purpose not in num_predict:
         raise ValueError(f"unknown LLM purpose {purpose!r}")
     return {
