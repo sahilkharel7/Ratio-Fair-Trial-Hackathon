@@ -13,23 +13,42 @@ Official resources consulted:
 - [Lexis search history and folders](https://www.lexisnexis.com/en-us/support/lexis/faqs/default.page)
 - [Westlaw Precision folders and search within folders](https://www.thomsonreuters.com/en-us/help/westlaw-precision/setup/folders-in-westlaw)
 
-The visual theme (`src/theme.css`, loaded last) is modelled on lexisnexis.com:
-Lato (bundled from `@fontsource/lato`, so nothing is fetched remotely), a white
-header with uppercase navigation, dark-navy headings in sentence case, a purple
-hero on the collection page, white cards with 8px corners and soft shadows, 4px
-buttons outlined in navy, and a pink-to-red gradient call to action. Quoted source
-text keeps a Georgia reading serif. `src/effects.mjs` adds the header shadow on
-scroll and sections that rise into view; with `theme.css` it supplies hover lifts
-and a typed page title, all disabled under `prefers-reduced-motion`. Ratio keeps
-its own name and mark. Status colors distinguish compliance, concerns, and unanswered review
-questions. No remote assets are required.
+## Visual design
 
-Readability floor: body text is 15px, and labels, metadata and badges are at
-least 12px (11px only for small counters). Text on light surfaces meets WCAG AA
-(4.5:1); use `var(--muted)` for secondary text rather than a lighter grey.
-Primary per-item actions (such as recording an assessment) look like buttons,
-not small disclosure text. Empty sections collapse to a one-line note that says
-how to fill them, so they never push the active work below the fold.
+The theme (`src/theme.css`, loaded last) is modelled on lexisnexis.com while
+keeping Ratio's own name and mark: Lato (bundled from `@fontsource/lato`, so no
+remote assets are required), a white header with uppercase navigation, dark-navy
+headings, a red to orange-red hero, cream surfaces, and soft rounded cards. Quoted
+source text keeps a Georgia reading serif. Status colours distinguish compliance,
+concerns and unanswered review questions.
+
+- **Simple first.** The main view shows the person, the charge, what is at stake
+  and the review. Further detail (penalty history, method notes, the supporting
+  analysis pages) sits behind expandable sections; "Supporting analysis" opens
+  automatically on its own pages. Safety caveats are always shown.
+- **Type.** Titles, labels and current navigation use heavy Lato (700 or 900) with
+  slightly tight tracking; body copy and sidebar links stay at regular weight.
+  Body text is at least 15px and labels at least 12px; text on light surfaces
+  meets WCAG AA (use `var(--muted)` for secondary text). Expandable sections use
+  a rounded chevron.
+- **Depth.** One warm elevation scale (`--elev-1`, `--elev-2`, `--elev-sm`,
+  `--elev-sm-hover`, `--elev-inset`): cards sit just above the canvas, fields and
+  quoted passages sit slightly into it, dialogs float highest. Use these tokens
+  for new surfaces.
+- **Interaction.** On hover, surfaces deepen their shadow and warm slightly but do
+  not move; the only movements are the sidebar item's short slide and the arrow on
+  a text link. Buttons press in with an inset shadow. Keyboard focus shows a soft
+  warm ring.
+- **Motion.** The collection hero greets by time of day, types its title with a
+  terminal cursor that blinks and then disappears, and counts up its key numbers
+  (`TypedTitle`, `CountUp` in `src/motion.jsx`). Case rows arrive in sequence,
+  cases needing attention carry a pulsing amber dot, and sections rise into view
+  (`src/effects.mjs`). All motion stops under `prefers-reduced-motion`.
+- **Layout.** On desktop the sidebar collapses to an icon rail (stored as
+  `ratio-ui-rail-v1`); link names remain as tooltips. The workspace status card at
+  the foot of the sidebar opens the About panel. Primary actions look like
+  buttons, and empty sections collapse to a one-line note that says how to fill
+  them.
 
 ## Extend the preview
 

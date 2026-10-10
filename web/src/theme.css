@@ -1,13 +1,21 @@
-/* Visual theme modelled on lexisnexis.com/en-us: a white header with uppercase
-   navigation, dark-navy Lato headings in sentence case, a purple hero, pale grey and
-   lavender surfaces, white cards with 8px corners and soft shadows, 4px buttons with a
-   pink-to-red gradient call to action, and quick motion. Ratio keeps its own name and
-   mark. Lato is bundled from @fontsource, so no remote fonts are loaded. Loaded last,
-   after the component stylesheets. */
+/* Ratio visual theme. Loaded after the component stylesheets.
+
+   A warm, light interface modelled on lexisnexis.com: Lato (bundled from @fontsource,
+   so no remote fonts are loaded), a white header with uppercase navigation, dark-navy
+   headings, a red to orange-red hero, cream surfaces, soft rounded cards on one warm
+   elevation scale, and quick motion that stops under prefers-reduced-motion. Ratio
+   keeps its own name and mark. Quoted source text keeps a Georgia reading serif.
+
+   Interaction rules, the same everywhere:
+   - Hover: surfaces deepen their shadow and warm slightly; nothing jumps. The only
+     hover movements are the sidebar item's short slide and the arrow on a text link.
+   - Click: buttons press in with an inset shadow.
+   - Keyboard focus: a soft warm ring offset from the element. */
 @import "@fontsource/lato/400.css";
 @import "@fontsource/lato/700.css";
 @import "@fontsource/lato/900.css";
 
+/* ---- Tokens ---- */
 :root {
   --ink: #00172e;
   --text: #455a64;
@@ -15,39 +23,95 @@
   --navy: #00172e;
   --accent: #d0151c;
   --accent-soft: #fdeeee;
-  --purple: #4b1590;
-  --lavender: #f5f4fb;
-  --link: #006ebb;
+  --deep: #9e1218;
+  --warm: #fdf2ee;
+  --link: #b23a12;
   --border: #dfe3e8;
-  --canvas: #f0f3f5;
+  --canvas: #f7f2ec;
+  --cream: #fbf8f4;
+  --amber: #e8812a;
+  --soft-bg: #fffdfa;
+  --soft-edge: #efe4d8;
   --sans: Lato, "Helvetica Neue", Arial, Helvetica, sans-serif;
-  /* titles move to Lato; quoted source text keeps a reading serif */
   --serif: Lato, "Helvetica Neue", Arial, Helvetica, sans-serif;
   --reading: Georgia, "Times New Roman", serif;
-  --card-radius: 8px;
-  --card-shadow:
-    0 1px 2px rgba(0, 23, 46, 0.12), 0 2px 6px 2px rgba(0, 23, 46, 0.06);
-  --card-shadow-hover:
-    0 2px 6px 2px rgba(0, 23, 46, 0.12), 0 1px 3px rgba(0, 23, 46, 0.24);
   --radius: 4px;
+  --card-radius: 14px;
+  /* elevation: resting cards, hovered cards, small raised controls, recessed fields */
+  --shadow-color: 120, 45, 15;
+  --elev-1: 0 1px 2px rgba(90, 40, 10, 0.05),
+    0 10px 28px -14px rgba(var(--shadow-color), 0.22);
+  --elev-2: 0 2px 4px rgba(90, 40, 10, 0.07),
+    0 18px 36px -14px rgba(var(--shadow-color), 0.32);
+  --elev-sm: 0 1px 2px rgba(90, 40, 10, 0.08),
+    0 4px 12px -6px rgba(var(--shadow-color), 0.28);
+  --elev-sm-hover: 0 2px 4px rgba(90, 40, 10, 0.1),
+    0 8px 18px -8px rgba(var(--shadow-color), 0.36);
+  --elev-inset: inset 0 1px 2px rgba(90, 40, 10, 0.07),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  --card-shadow: var(--elev-1);
+  --card-shadow-hover: var(--elev-2);
   color: var(--text);
 }
 
-/* Headings: dark navy, heavy, sentence case */
+/* ---- Type: heavy Lato for titles, labels and navigation; regular body copy ---- */
 h1,
 h2,
 h3 {
   color: var(--ink);
-  font-weight: 700;
-  letter-spacing: -0.2px;
+  font-weight: 900;
+  letter-spacing: -0.3px;
 }
 h1 {
-  font-weight: 900;
   letter-spacing: -0.5px;
 }
-.eyebrow {
-  letter-spacing: 0.8px;
+/* component headings that set their own font need the weight restated */
+.innocence-section h2,
+.collection-research-link h2,
+.compact-precedent > strong,
+.outcome-card h2 {
+  font-weight: 900;
+  letter-spacing: -0.3px;
+  color: var(--ink);
+}
+.charge-panel h2,
+.row-heading h3,
+.ledger-matter > a {
   font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--ink);
+}
+.ledger-matter > a:hover {
+  color: var(--link);
+}
+.stake-panel > strong,
+.ledger-stakes > strong {
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--ink);
+}
+.eyebrow,
+.side-label {
+  font-weight: 900;
+  letter-spacing: 0.7px;
+}
+label,
+summary,
+.case-status,
+.outcome-status,
+.workspace-breadcrumb strong {
+  font-weight: 700;
+}
+.workspace-breadcrumb strong {
+  color: var(--ink);
+}
+a {
+  font-weight: 700;
+  color: var(--link);
+}
+p a,
+li a {
+  font-weight: inherit;
 }
 
 /* Source passages and documents stay in a serif for long reading */
@@ -66,12 +130,39 @@ blockquote,
   font-family: var(--reading);
   color: var(--ink);
 }
+blockquote,
+.focus-prompt > blockquote {
+  background: #fbf5ee;
+  border-left: 3px solid #e3a37a;
+  border-radius: 0 10px 10px 0;
+  box-shadow: inset 0 1px 3px rgba(90, 40, 10, 0.07);
+}
+:is(.source-text, .result-excerpt, .ratio-doc, .reader-document) mark,
+mark {
+  background: #ffdcc7;
+  color: inherit;
+  box-shadow: 0 0 0 1px #f0b896;
+  border-radius: 3px;
+}
+::selection {
+  background: #ffd2b8;
+  color: var(--ink);
+}
 
-/* Header: white, uppercase navigation, red underline on the current page */
+/* ---- Header ---- */
 .product-header {
   background: #fff;
   color: var(--ink);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid #ece3d9;
+  box-shadow:
+    0 1px 0 var(--soft-edge),
+    0 8px 22px -16px rgba(var(--shadow-color), 0.3);
+  transition: box-shadow 0.3s ease-in-out;
+}
+.product-header.is-scrolled {
+  box-shadow:
+    0 1px 0 var(--soft-edge),
+    0 12px 28px -14px rgba(var(--shadow-color), 0.38);
 }
 .product-brand,
 .brand-mark {
@@ -105,44 +196,445 @@ blockquote,
 .header-tools button {
   color: var(--ink);
   font-weight: 700;
+  box-shadow: none !important;
 }
 .header-tools button:hover {
-  background: var(--lavender);
-  color: var(--purple);
+  background: var(--warm);
+  color: var(--deep);
 }
-.header-tools button:last-child {
-  background: var(--navy);
-  color: #fafbfc;
-  border-radius: var(--radius);
-}
-.collection-shell-band {
-  background: #fff;
+/* pages without the research bar use a shorter fixed header */
+:root[data-shell="compact"] {
+  --shell-height: 64px;
 }
 
-/* Buttons: 4px corners, bold; secondary buttons outlined in navy */
-button {
-  border-radius: var(--radius);
-  font-weight: 700;
+/* ---- Hero on the collection page ---- */
+.collection-heading {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  padding: 36px 40px;
+  border-radius: var(--card-radius);
+  color: #fff;
+  background: radial-gradient(
+      circle at 88% 120%,
+      rgba(255, 170, 110, 0.5),
+      transparent 45%
+    ),
+    linear-gradient(115deg, #5c0a0e 0%, var(--deep) 45%, #c6401a 100%);
+  box-shadow:
+    0 22px 44px -22px rgba(140, 25, 15, 0.6),
+    0 2px 6px rgba(90, 20, 10, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
-button:not(.primary):not(.text-action):not(.header-tools button) {
-  border: 2px solid var(--navy);
-  color: var(--navy);
-  background: #fff;
-}
-button:not(.primary):not(.text-action):hover {
-  background: var(--navy);
-  border-color: var(--navy);
+.collection-heading h1,
+.collection-heading .eyebrow,
+.collection-heading > div > p,
+.collection-heading > div > p:last-child {
   color: #fff;
 }
-.text-action,
-.text-action:hover {
-  border: 0 !important;
-  background: none !important;
-  color: var(--link) !important;
+.collection-heading h1 {
+  font-size: 40px;
+}
+.collection-heading > div > p:not(.eyebrow) {
+  font-size: 18px;
+  opacity: 0.92;
+}
+/* two slow drifting glows behind the banner */
+.collection-heading::before,
+.collection-heading::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.45;
+  pointer-events: none;
+}
+.collection-heading::before {
+  width: 360px;
+  height: 360px;
+  right: -80px;
+  top: -140px;
+  background: #e2622a;
+  animation: drift-a 16s ease-in-out infinite alternate;
+}
+.collection-heading::after {
+  width: 300px;
+  height: 300px;
+  left: 30%;
+  bottom: -200px;
+  background: #d93a2b;
+  animation: drift-b 20s ease-in-out infinite alternate;
+}
+@keyframes drift-a {
+  to {
+    transform: translate(-120px, 60px) scale(1.15);
+  }
+}
+@keyframes drift-b {
+  to {
+    transform: translate(140px, -50px) scale(0.9);
+  }
+}
+/* typed title: a solid cursor while typing, then a terminal blink before it goes
+   (see TypedTitle in motion.jsx) */
+.typed-title {
+  position: relative;
+}
+.typed-ghost {
+  visibility: hidden;
+}
+.terminal-cursor {
+  display: inline-block;
+  width: 3px;
+  height: 0.9em;
+  margin-left: 4px;
+  vertical-align: -0.08em;
+  background: currentColor;
+  animation: terminal-blink 1.06s steps(1, end) infinite;
+}
+.terminal-cursor.is-typing {
+  animation: none;
+}
+@keyframes terminal-blink {
+  50% {
+    opacity: 0;
+  }
+}
+/* the collection's key numbers */
+.hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  list-style: none;
+  margin: 22px 0 0;
+  padding: 0;
+}
+.hero-stats li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: rgba(60, 6, 10, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 6px 14px -8px rgba(40, 0, 0, 0.5);
+  transition: box-shadow 0.2s ease;
+  animation: rise-in 0.5s ease-out both;
+}
+.hero-stats li:hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 12px 24px -10px rgba(40, 0, 0, 0.6);
+}
+.hero-stats li:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.hero-stats li:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.hero-stats strong {
+  font-size: 26px;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+.hero-stats span {
+  font-size: 14px;
+  opacity: 0.92;
+}
+/* the call to action on the banner is white and lifts by its shadow alone */
+.collection-heading .primary {
+  background: #fff;
+  color: var(--deep);
+  box-shadow: 0 4px 12px -4px rgba(60, 5, 5, 0.45);
+}
+.collection-heading .primary:hover {
+  background: var(--warm);
+  color: var(--deep);
+  box-shadow: 0 12px 26px -8px rgba(60, 5, 5, 0.6);
+}
+
+/* ---- Surfaces: soft cards on the cream canvas ---- */
+.result-filters,
+.research-results,
+.outcome-summary,
+.empty,
+.matter-ledger,
+.charge-panel,
+.stake-panel,
+.focus-prompt,
+.rail-panel,
+.source-record,
+.court-library-empty,
+.search-result,
+.outcome-card,
+.court-cards > article {
+  background: var(--soft-bg);
+  border: 1px solid var(--soft-edge);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.22s ease;
+}
+.panel {
+  border-radius: var(--card-radius);
+  border-color: transparent;
+  box-shadow: var(--card-shadow);
+}
+.charge-panel {
+  border-left: 4px solid var(--accent);
+}
+.stake-panel:first-child {
+  border-top-color: var(--deep);
+}
+:is(
+    .charge-panel,
+    .focus-prompt,
+    .rail-panel,
+    .court-library-empty,
+    .empty,
+    .stake-panel,
+    .outcome-card,
+    .court-cards > article,
+    .search-result
+  ):hover {
+  box-shadow: var(--elev-2);
+}
+.focus-ribbon {
+  background: var(--warm);
+  color: var(--deep);
+  border: 1px solid #f6dccd;
+  border-radius: 999px;
+  box-shadow: var(--elev-sm);
+}
+.result-filters {
+  overflow: hidden;
+}
+.result-filters button,
+.result-filters a {
+  border-radius: 10px;
+}
+.result-filters [aria-pressed="true"],
+.result-filters .active {
+  background: var(--warm);
+  color: var(--accent);
+}
+
+/* Lists: a warm header strip, rows that tint on hover. Lists do not clip, so a
+   hovered row's shadow shows in full; the corners are rounded on the strips. */
+.matter-ledger,
+.research-results {
+  overflow: visible;
+}
+.ledger-heading,
+.research-results > :first-child {
+  background: linear-gradient(180deg, #fbf3ea, #fdf8f3);
+  border-bottom-color: var(--soft-edge);
+  border-radius: var(--card-radius) var(--card-radius) 0 0;
+}
+.ledger-heading {
+  box-shadow: inset 0 -1px 0 var(--soft-edge);
+}
+.ledger-row,
+.search-result + .search-result,
+.research-results .search-result {
+  border-color: #f1e8de;
+}
+.research-results .search-result {
+  border-radius: 0;
+  box-shadow: none;
+  border-left: 0;
+  border-right: 0;
+}
+.ledger-row:last-child,
+.research-results > :last-child {
+  border-bottom-left-radius: var(--card-radius);
+  border-bottom-right-radius: var(--card-radius);
+}
+.ledger-row,
+.source-record-row {
+  position: relative;
+  transition:
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+.source-record-row {
+  border-radius: 12px;
+}
+.ledger-row:hover,
+.source-record-row:hover,
+.research-results .search-result:hover {
+  z-index: 1;
+  background: #fffaf5;
+  box-shadow: var(--elev-sm);
+  border-radius: 12px;
+}
+/* case rows arrive one after another */
+.ledger-row {
+  animation: rise-in 0.45s ease-out both;
+}
+.ledger-row:nth-child(2) {
+  animation-delay: 0.06s;
+}
+.ledger-row:nth-child(3) {
+  animation-delay: 0.12s;
+}
+.ledger-row:nth-child(4) {
+  animation-delay: 0.18s;
+}
+.ledger-row:nth-child(n + 5) {
+  animation-delay: 0.24s;
+}
+
+/* International outcomes: figures in separate tinted bubbles */
+.outcome-summary {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  background: linear-gradient(135deg, #fff8f1, #fdf1ea);
+}
+.outcome-summary > * {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid #f3e6d9 !important;
+  border-radius: 12px;
+  box-shadow: var(--elev-sm);
+  transition: box-shadow 0.2s ease;
+}
+.outcome-summary > *:hover {
+  box-shadow: var(--elev-2);
+}
+.outcome-summary strong {
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  background: linear-gradient(90deg, var(--deep), #d2481c);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.outcome-summary strong small {
+  color: var(--muted);
+  -webkit-text-fill-color: var(--muted);
+}
+
+/* Status pills; a pulsing amber dot marks cases that need attention */
+.status,
+.badge,
+[class*="pill"] {
+  border-radius: 999px;
+}
+.case-status,
+.outcome-status,
+.status {
+  box-shadow:
+    0 1px 2px rgba(90, 40, 10, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+.case-status {
+  border-radius: 999px;
+  padding-left: 12px;
+  padding-right: 12px;
+}
+.case-status.attention {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #fff1e6;
+  border-color: #f3c9a5;
+  color: #8a3b0a;
+}
+.case-status.attention::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--amber);
+  box-shadow: 0 0 0 0 rgba(232, 129, 42, 0.6);
+  animation: pulse 1.8s ease-out infinite;
+}
+@keyframes pulse {
+  to {
+    box-shadow: 0 0 0 7px rgba(232, 129, 42, 0);
+  }
+}
+
+/* Expandable sections: a rounded chevron instead of the browser triangle */
+details:not(.focus-assessment) > summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+details:not(.focus-assessment) > summary::-webkit-details-marker {
+  display: none;
+}
+details:not(.focus-assessment) > summary::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  margin: 0 3px 0 2px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  border-radius: 1px;
+  transform: rotate(-45deg);
+  transition: transform 0.2s ease;
+  opacity: 0.75;
+}
+details:not(.focus-assessment)[open] > summary::before {
+  transform: rotate(45deg);
+}
+
+/* The main view stays simple; detail sits behind the existing disclosures */
+.ledger-status > small,
+.ledger-stakes > small,
+.focus-ribbon > span:last-child,
+.section-head .count-label,
+.global-search kbd {
+  display: none;
+}
+.focus-case-grid {
+  margin-top: 32px;
+}
+
+/* ---- Controls ---- */
+button,
+.primary,
+.case-save-notice {
+  border-radius: 10px;
+}
+button {
   font-weight: 700;
 }
+button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--warm);
+}
+/* raised at rest, higher on hover, pressed in on click (zero specificity, so any
+   component's own shadow wins) */
+button:where(:not(.text-action, .result-title, .search-browse, .rail-toggle)) {
+  box-shadow: var(--elev-sm);
+  transition:
+    box-shadow 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+button:where(
+    :not(.text-action, .result-title, .search-browse, .rail-toggle)
+  ):hover {
+  box-shadow: var(--elev-sm-hover);
+}
+button:where(
+    :not(.text-action, .result-title, .search-browse, .rail-toggle)
+  ):active {
+  box-shadow: inset 0 2px 4px rgba(90, 30, 10, 0.18);
+}
 .primary,
-button.primary,
 .case-save-notice,
 .focus-assessment form button[type="submit"] {
   background: linear-gradient(90deg, #c8174f 0, #c42700 100%);
@@ -152,162 +644,324 @@ button.primary,
   letter-spacing: 0.3px;
 }
 .primary:hover,
-button.primary:hover,
 .focus-assessment form button[type="submit"]:hover {
   background: linear-gradient(90deg, #a91343 0, #a32100 100%);
   color: #fff;
 }
+.primary {
+  box-shadow: 0 2px 8px rgba(160, 20, 30, 0.25);
+}
+.primary:hover {
+  box-shadow: 0 6px 16px rgba(160, 20, 30, 0.3);
+}
+/* text buttons read as links */
+.text-action,
+.text-action:hover,
+.result-title,
+.result-title:hover,
+.search-browse {
+  border: 0;
+  background: none;
+  color: var(--link);
+  font-weight: 700;
+}
+.result-title:hover,
+.text-action:hover {
+  text-decoration: underline;
+}
+/* tabs: no boxes, a red underline marks the current tab */
+.queue-tabs button,
+.workspace-tabs button {
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  background: none;
+}
+.queue-tabs button,
+.workspace-tabs button,
+.mobile-menu {
+  box-shadow: none !important;
+}
+.queue-tabs button.active,
+.workspace-tabs button.active {
+  border-bottom-color: var(--accent);
+  color: var(--ink);
+}
 .focus-assessment summary {
-  border: 2px solid var(--navy);
-  color: var(--navy);
+  border: 1px solid var(--accent);
+  color: var(--accent);
   border-radius: var(--radius);
   font-weight: 700;
 }
 .focus-assessment summary:hover {
-  background: var(--navy);
-  color: #fff;
+  background: var(--warm);
 }
 .focus-assessment[open] summary {
   border-color: transparent;
 }
+/* fields sit slightly into the page and glow warmly when focused */
 input,
 select,
 textarea {
-  border-radius: var(--radius);
+  border-radius: 10px;
+  border-color: #e6dacd;
+  background-color: #fffdfa;
+  box-shadow: var(--elev-inset);
+  transition:
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
 }
-a {
-  font-weight: 700;
+input:hover,
+select:hover,
+textarea:hover {
+  border-color: #dccbb9;
 }
-p a,
-li a {
-  font-weight: inherit;
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--amber);
+  box-shadow:
+    0 0 0 3px rgba(232, 129, 42, 0.2),
+    var(--elev-sm);
+  outline: none;
 }
-
-/* Purple hero on the collection page */
-.collection-heading {
-  background:
-    radial-gradient(circle at 85% 120%, rgba(190, 170, 255, 0.55), transparent 45%),
-    linear-gradient(115deg, #2c0a5e 0%, var(--purple) 45%, #6c2bc4 100%);
-  color: #fff;
-  padding: 36px 40px;
-  border-radius: var(--card-radius);
+.global-search {
+  border-radius: 12px;
+  box-shadow: var(--elev-sm);
 }
-.collection-heading h1,
-.collection-heading .eyebrow,
-.collection-heading > div > p,
-.collection-heading > div > p:last-child {
-  color: #fff;
-}
-.collection-heading > div > p:not(.eyebrow) {
-  font-size: 18px;
-  opacity: 0.92;
-}
-.collection-heading h1 {
-  font-size: 40px;
-  border-right-color: #fff !important;
-}
-
-/* Cards: white, rounded, soft shadow */
-.ledger,
-.charge-panel,
-.stake-panel,
-.focus-prompt,
-.rail-panel,
-.court-cards > article,
-.outcome-card,
-.source-record,
-.court-library-empty,
-.focus-ribbon,
-.search-result,
-.panel {
-  border-radius: var(--card-radius);
-  box-shadow: var(--card-shadow);
-  border-color: transparent;
-}
-.focus-ribbon {
-  background: var(--lavender);
-  color: var(--purple);
+.global-search input {
   box-shadow: none;
 }
-.court-library-empty {
-  border-left: 0;
+:is(a, button, summary):focus-visible {
+  outline: 2px solid rgba(178, 58, 18, 0.55);
+  outline-offset: 2px;
 }
-.charge-panel {
-  border-left: 4px solid var(--purple);
-}
-.stake-panel:first-child {
-  border-top-color: var(--purple);
-}
-
-/* Sidebar: white, lavender highlight with a purple bar on the current page */
-.sidebar {
-  background: #fff;
-}
-.sidebar nav a {
-  border-radius: var(--radius);
-  font-weight: 700;
-}
-.sidebar nav a[aria-current="page"] {
-  background: var(--lavender);
-  color: var(--purple);
-  box-shadow: inset 3px 0 0 var(--purple);
-}
-.sidebar nav a:hover {
-  background: var(--lavender);
-  color: var(--purple);
-}
-.status,
-.badge,
-[class*="pill"] {
-  border-radius: 999px;
-}
-
-/* ---- Motion, also modelled on lexisnexis.com/en-us: quick colour transitions,
-   cards that lift on hover, sections that rise into view and a typed page title.
-   Everything is switched off under prefers-reduced-motion. ---- */
+/* colour transitions on everything you can act on; arrows on text links nudge */
 a,
-button,
 summary,
-.product-nav a,
-.sidebar nav a {
+.product-nav a {
   transition:
     color 0.15s ease-in-out,
     background-color 0.15s ease-in-out,
     border-color 0.15s ease-in-out,
     box-shadow 0.15s ease-in-out;
 }
-.product-header {
-  transition: box-shadow 0.3s ease-in-out;
+a svg,
+button svg {
+  transition: transform 0.18s ease;
 }
-.product-header.is-scrolled {
-  box-shadow: 0 4px 14px rgba(0, 23, 46, 0.12);
+:is(a, .text-action):hover > svg:last-child {
+  transform: translateX(3px);
+}
+dialog,
+.source-dialog,
+.intake-dialog {
+  border-radius: 16px;
+  box-shadow:
+    0 30px 60px -20px rgba(60, 20, 5, 0.45),
+    0 4px 12px rgba(60, 20, 5, 0.12);
 }
 
-/* Cards lift on hover */
-.ledger-row,
-.stake-panel,
-.court-cards > article,
-.outcome-card,
-.source-record-row,
-.search-result {
+/* ---- Sidebar ---- */
+.sidebar {
+  background: var(--cream);
+  border-right-color: #ece3d9;
+  box-shadow:
+    1px 0 0 var(--soft-edge),
+    8px 0 24px -20px rgba(var(--shadow-color), 0.35);
+}
+.sidebar .side-label,
+.sidebar .eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: #7a6a62;
+}
+.sidebar nav a,
+.rail-toggle {
+  border-radius: 10px;
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background-color 0.2s ease;
+    color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
 }
-.stake-panel:hover,
-.court-cards > article:hover,
-.outcome-card:hover,
-.search-result:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--card-shadow-hover);
+.sidebar nav a {
+  font-weight: 400;
+  letter-spacing: 0;
+  color: #34404b;
+  border-left-color: transparent;
 }
-.ledger-row:hover,
-.source-record-row:hover {
-  background: var(--lavender);
+/* hovered items slide a little as a whole onto a soft card */
+.sidebar nav a:hover {
+  background: var(--soft-bg);
+  color: var(--deep);
+  box-shadow: var(--elev-sm);
+  transform: translateX(3px);
+}
+.sidebar nav a:hover svg:last-child {
+  transform: none;
+}
+.sidebar nav a[aria-current="page"] {
+  font-weight: 700;
+  color: var(--accent);
+  background: linear-gradient(180deg, #fff4ee, #fdebe2);
+  border-left-color: transparent;
+  box-shadow: var(--elev-sm);
+}
+.supporting-nav > summary {
+  font-weight: 400;
+  color: #34404b;
+}
+.nav-count {
+  border-radius: 999px;
+  padding: 1px 8px;
+  background: var(--warm);
+  color: var(--deep);
+  font-weight: 700;
+}
+/* the workspace status opens the About panel */
+.workspace-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  margin-top: 40px;
+  padding: 12px;
+  text-align: left;
+  border: 1px solid var(--soft-edge);
+  border-radius: 12px;
+  background: var(--soft-bg);
+  color: var(--text);
+  font-weight: 400;
+}
+.workspace-status:hover {
+  color: var(--text);
+  background: var(--soft-bg);
+  border-color: var(--soft-edge);
+}
+.workspace-status svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--green);
+}
+.workspace-status strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.workspace-status small {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--muted);
+}
+/* collapse control, flush with the links */
+.rail-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  min-height: 34px;
+  margin: -12px 0 14px;
+  padding: 6px 10px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 400;
+}
+.rail-toggle:hover {
+  background: var(--soft-bg);
+  color: var(--accent);
+  box-shadow: var(--elev-sm);
+}
+.rail-toggle svg {
+  transition: transform 0.25s ease;
+}
+.sidebar,
+main {
+  transition:
+    width 0.25s ease,
+    margin-left 0.25s ease,
+    padding 0.25s ease;
+}
+/* collapsed (desktop): the rail narrows to its icons; names stay as tooltips */
+@media (min-width: 801px) {
+  :root[data-rail="collapsed"] {
+    --rail-width: 68px;
+  }
+  :root[data-rail="collapsed"] .sidebar {
+    padding-left: 10px;
+    padding-right: 10px;
+    overflow: hidden;
+  }
+  :root[data-rail="collapsed"] .rail-toggle {
+    width: 100%;
+    justify-content: center;
+    padding: 6px 0;
+  }
+  :root[data-rail="collapsed"] .rail-toggle svg {
+    transform: rotate(180deg);
+  }
+  :root[data-rail="collapsed"]
+    :is(
+      .rail-toggle span,
+      .side-matter,
+      .side-label,
+      .sidebar .eyebrow,
+      .supporting-nav > summary,
+      .nav-count,
+      .workspace-status span
+    ) {
+    display: none;
+  }
+  :root[data-rail="collapsed"] .supporting-nav[open] > nav,
+  :root[data-rail="collapsed"] .sidebar nav {
+    margin-top: 6px;
+  }
+  :root[data-rail="collapsed"] .sidebar nav a {
+    justify-content: center;
+    padding: 11px 0;
+    font-size: 0;
+    gap: 0;
+  }
+  :root[data-rail="collapsed"] .sidebar nav a:hover {
+    transform: none;
+  }
+  :root[data-rail="collapsed"] .sidebar nav a svg {
+    width: 19px;
+    height: 19px;
+  }
+  :root[data-rail="collapsed"] .workspace-status {
+    justify-content: center;
+    padding: 10px 0;
+  }
 }
 
-/* Sections rise into view (the class is only added by JavaScript, see effects.mjs) */
+/* ---- Narrow screens ---- */
+@media (max-width: 800px) {
+  .rail-toggle {
+    display: none;
+  }
+}
+@media (max-width: 640px) {
+  :root[data-shell="compact"] {
+    --shell-height: 60px;
+  }
+  :root[data-shell="compact"] .mobile-menu {
+    margin-top: 60px;
+  }
+  .mobile-menu {
+    background: var(--cream);
+    border-bottom-color: var(--soft-edge);
+  }
+}
+
+/* ---- Motion ---- */
+/* sections rise into view (the class is only added by JavaScript, see effects.mjs) */
 .reveal {
   opacity: 0;
   transform: translateY(14px);
@@ -319,33 +973,12 @@ summary,
   opacity: 1;
   transform: none;
 }
-
-/* The page title types itself once */
-.collection-heading h1 {
-  display: inline-block;
-  padding-right: 4px;
-  border-right: 2px solid #fff;
-  animation:
-    type-title 1.1s steps(20, end) 0.15s both,
-    caret 0.8s step-end 0.15s 3 forwards;
-}
-@keyframes type-title {
+@keyframes rise-in {
   from {
-    clip-path: inset(0 100% 0 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
+    opacity: 0;
+    transform: translateY(10px);
   }
 }
-@keyframes caret {
-  50% {
-    border-color: transparent;
-  }
-  to {
-    border-color: transparent;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -356,8 +989,5 @@ summary,
   .reveal {
     opacity: 1;
     transform: none;
-  }
-  .collection-heading h1 {
-    border-right-color: transparent !important;
   }
 }

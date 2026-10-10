@@ -27,8 +27,8 @@ export function CourtJudgments({ navigate }) {
     return (
       <p className="court-library-empty">
         <strong>No court judgments installed.</strong> Full decisions appear
-        here once the court source collection is built (see “Court judgments
-        and local one-pagers” in the README).
+        here once the court source collection is built (see “Court judgments and
+        local one-pagers” in the README).
       </p>
     );
   return (
