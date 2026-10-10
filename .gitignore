@@ -14,6 +14,7 @@ dist/
 models/
 data/ratio.db
 data/ratio.db-*
+data/alias_decisions.yaml
 data/cache/
 data/uploads/
 # The precedent corpus: real public documents, built locally, never committed

@@ -209,8 +209,8 @@ except LoaderError as exc:
 kinds = _kinds(report)
 if not kinds:
     st.title("Judge profile")
-    st.info("No coded rulings are stored yet. Load the demo case on the Case page: it brings the synthetic history of its court.")
-    st.page_link("views/case.py", label="Go to the Case page")
+    st.info("No coded rulings are stored yet. Load the demo case on the Full analysis record page: it brings the synthetic history of its court.")
+    st.page_link("views/case.py", label="Go to the Full analysis record page")
     st.stop()
 if len(kinds) == 1:
     st.session_state.pop(KIND_KEY, None)  # no choice to remember: a later case of the other kind opens on its own view

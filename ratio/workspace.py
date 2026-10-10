@@ -4,13 +4,15 @@ from __future__ import annotations
 
 
 from ratio.extraction.build import load_case
+from ratio.extraction.loader import MANIFEST_NAME
 from ratio.library import LibraryStore
 from ratio.paths import DEMO_CASE_DIR, DEMO_DIR
 
 
 def seed_collection(library: LibraryStore):
     """Explicit demo action. Never overwrite a case that is already stored."""
-    folders = [DEMO_CASE_DIR, *sorted((DEMO_DIR / "focused").iterdir())]
+    focused = sorted(p for p in (DEMO_DIR / "focused").iterdir() if (p / MANIFEST_NAME).is_file())
+    folders = [DEMO_CASE_DIR, *focused]
     for folder in folders:
         base = load_case(folder)
         record = library.cases.load_case(base.case_id)

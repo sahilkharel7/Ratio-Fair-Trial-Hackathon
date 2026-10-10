@@ -18,7 +18,7 @@ result = loaded.analysis.steelman
 if result is None or not result.replies:
     st.info(
         "No finding in this case is one the State would contest. If the case was analysed with an earlier "
-        "version of Ratio, load it again on the Case page to add the State's reply."
+        "version of Ratio, load it again on the Full analysis record page to add the State's reply."
     )
     st.stop()
 flags = {flag.id: flag for flag in loaded.analysis.all_flags()}

@@ -1,6 +1,6 @@
 """Serve the built React case workspace with a persistent, loopback-only SQLite API.
 
-Build with npm --prefix web run build, then run this script. --demo adds the three
+Build with npm --prefix web ci && npm --prefix web run build, then run this script. --demo adds the three
 synthetic matters without overwriting existing cases. The default server remains
 offline. --groq-demo explicitly enables a separate online worker for selected
 public/synthetic source excerpts. Original runtime files never enter the public exporter.
@@ -379,7 +379,7 @@ def main():
     args = parser.parse_args()
     dist = ROOT / "web" / "dist"
     if not (dist / "index.html").is_file():
-        parser.error("Build the interface first: npm --prefix web run build")
+        parser.error("Build the interface first: npm --prefix web ci && npm --prefix web run build")
     netguard.install()
     library = LibraryStore(CaseStore(args.db))
     briefs = None

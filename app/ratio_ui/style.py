@@ -79,13 +79,6 @@ def metric(label: str, value: str | int, note: str, tone: str = "neutral") -> No
     )
 
 
-def masthead() -> None:
-    st.html(
-        '<div class="ratio-masthead"><span>TRIAL REVIEW WORKSPACE</span>'
-        '<span class="ratio-local"><i aria-hidden="true"></i> Offline · On this computer</span></div>'
-    )
-
-
 def brand() -> None:
     """The Ratio logo at the top of the sidebar, as in the React workspace: the "r." mark and the wordmark."""
     st.html(

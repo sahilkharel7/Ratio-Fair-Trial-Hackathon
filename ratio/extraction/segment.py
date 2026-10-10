@@ -105,10 +105,6 @@ def _next_letter(previous: str, title: str) -> bool:
     return len(previous) > 1 and len(title) > 1 and previous[1] == "." and title[1] == "." and ord(title[0]) == ord(previous[0]) + 1
 
 
-def _is_heading(block: str) -> bool:
-    return heading_style(block) is not None
-
-
 def _is_abbreviation(text: str, dot: int, sentence_start: int) -> bool:
     if text[dot] != ".":
         return False

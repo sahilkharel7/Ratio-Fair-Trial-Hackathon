@@ -67,8 +67,8 @@ def badge(status: str) -> None:
 def require_case() -> LoadedCase:
     loaded = session.current_case()
     if loaded is None or loaded.analysis is None:
-        st.info("No case is loaded yet. Load the demo case or upload a case folder on the Case page.")
-        st.page_link("views/case.py", label="Go to the Case page")
+        st.info("No case is loaded yet. Load the demo case or upload a case folder on the Full analysis record page.")
+        st.page_link("views/case.py", label="Go to the Full analysis record page")
         st.stop()
     return loaded
 

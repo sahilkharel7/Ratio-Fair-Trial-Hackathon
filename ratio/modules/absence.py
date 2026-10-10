@@ -42,10 +42,6 @@ _LINE_END_HYPHEN = re.compile(r"-[ \t]*\n\s*")  # "cross-" at the end of a line,
 HearingKey = dt.date | str  # a note's hearing date, or the note's document id when it has none
 
 
-def monitored_hearings(record: CaseRecord) -> tuple[dt.date, ...]:
-    return tuple(sorted({doc.date for doc in record.documents if doc.type == "monitoring_note" and doc.date}))
-
-
 def hearing_key(obs: Observation | LabeledObservation) -> HearingKey:
     return obs.hearing_date or obs.span.doc_id
 

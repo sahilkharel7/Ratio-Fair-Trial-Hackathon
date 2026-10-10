@@ -44,10 +44,6 @@ def precedent_doc_id(precedent_id: str) -> str:
     return f"{PRECEDENT_PREFIX}{precedent_id}/text"
 
 
-def is_precedent_span(span: SourceSpan) -> bool:
-    return span.case_id.startswith(PRECEDENT_PREFIX)
-
-
 class PrecedentDoc(Frozen):
     id: str = Field(pattern=r"^[a-z0-9][a-z0-9-]{1,80}$")  # e.g. "wgad-2023-1", "ccpr-1787-2008", "tw-abzas-media"
     kind: PrecedentKind

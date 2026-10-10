@@ -53,6 +53,22 @@ def test_collection_survives_restart_and_does_not_promote_reference_history(libr
     assert reopened.list("Another court") == []
 
 
+def test_demo_seeding_skips_entries_that_are_not_case_folders(library, tmp_path, monkeypatch):
+    import shutil
+
+    import ratio.workspace
+
+    demo = tmp_path / "demo"
+    shutil.copytree(DEMO_DIR / "focused", demo / "focused")
+    (demo / "focused" / ".DS_Store").write_bytes(b"\0\0\0\1Bud1")
+    (demo / "focused" / "notes").mkdir()
+    monkeypatch.setattr(ratio.workspace, "DEMO_DIR", demo)
+
+    seed_collection(library)
+
+    assert {c["case_id"] for c in library.list()} == {"venn-2025", "sorin-2025", "maren-2025"}
+
+
 def test_staged_files_are_assigned_once_and_open_from_sqlite(library):
     manifest, ids = stage_sorin(library)
     assert len(library.pending_files()) == 2
