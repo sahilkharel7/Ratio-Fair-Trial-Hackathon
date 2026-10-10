@@ -107,7 +107,7 @@ export function CaseCollection({
     );
   return (
     <>
-      <div className="collection-heading">
+      <div className="collection-heading page-hero">
         <div>
           <p className="eyebrow">{greeting()} · Court workspace</p>
           <TypedTitle text="Your case collection" />
@@ -321,7 +321,7 @@ export function InternationalDecisions({
     summary = outcomeSummary(records, pattern, country);
   return (
     <>
-      <div className="collection-heading">
+      <div className="collection-heading page-hero">
         <div>
           <p className="eyebrow">
             Research context · UN Human Rights Committee

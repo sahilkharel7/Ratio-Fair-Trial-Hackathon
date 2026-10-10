@@ -1,0 +1,224 @@
+/* The case chat: a launcher in the bottom-right corner that opens a floating panel.
+   Uses the theme tokens, so it matches the cards, buttons and depth elsewhere. */
+.chat-launcher {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #c8174f 0, #c42700 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow:
+    0 10px 24px -8px rgba(160, 20, 30, 0.55),
+    0 2px 6px rgba(90, 20, 10, 0.18);
+}
+.chat-launcher:hover {
+  background: linear-gradient(90deg, #a91343 0, #a32100 100%);
+  color: #fff;
+  box-shadow:
+    0 14px 30px -8px rgba(160, 20, 30, 0.6),
+    0 2px 6px rgba(90, 20, 10, 0.2);
+}
+.chat-launcher.is-open {
+  background: var(--soft-bg);
+  color: var(--deep);
+  box-shadow: var(--elev-sm);
+}
+.chat-launcher b {
+  display: grid;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--deep);
+  font-size: 12px;
+}
+
+.chat-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 88px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  width: min(420px, calc(100vw - 48px));
+  max-height: min(640px, calc(100vh - var(--shell-height, 64px) - 120px));
+  background: var(--soft-bg);
+  border: 1px solid var(--soft-edge);
+  border-radius: 18px;
+  box-shadow:
+    0 30px 60px -20px rgba(60, 20, 5, 0.45),
+    0 4px 12px rgba(60, 20, 5, 0.12);
+  animation: chat-in 0.2s ease-out;
+}
+.chat-panel[hidden] {
+  display: none;
+}
+@keyframes chat-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+.chat-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 16px 12px 20px;
+  border-bottom: 1px solid var(--soft-edge);
+  background: linear-gradient(180deg, #fbf3ea, #fdf8f3);
+  border-radius: 18px 18px 0 0;
+}
+.chat-panel-head h2 {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+.chat-panel .chat-banner {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+.chat-close {
+  flex: none;
+  width: 34px;
+  min-height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+  font-size: 22px;
+  line-height: 1;
+  box-shadow: none !important;
+}
+.chat-close:hover {
+  background: var(--warm);
+  color: var(--deep);
+}
+
+.chat-log {
+  flex: 1 1 auto;
+  min-height: 160px;
+  overflow-y: auto;
+  padding: 16px 20px 8px;
+  overscroll-behavior: contain;
+}
+.chat-empty p {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.chat-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.chat-suggestions button {
+  min-height: 32px;
+  padding: 6px 12px;
+  border: 1px solid #f3c9a5;
+  border-radius: 999px;
+  background: #fff6ee;
+  color: #8a3b0a;
+  font-size: 13px;
+}
+.chat-panel .chat-turn {
+  margin: 0 0 16px;
+}
+/* your question sits on the right, the answer below it on the left */
+.chat-question {
+  width: fit-content;
+  max-width: 85%;
+  margin: 0 0 8px auto;
+  padding: 8px 14px;
+  border-radius: 14px 14px 4px 14px;
+  background: var(--warm);
+  color: var(--ink);
+  font-size: 14px;
+}
+.chat-panel .chat-answer {
+  max-width: 92%;
+  border-radius: 14px 14px 14px 4px;
+  background: #fff;
+  box-shadow: var(--elev-sm);
+  font-size: 14px;
+}
+.chat-panel .chat-answer.unsupported {
+  background: var(--soft-bg);
+  box-shadow: none;
+}
+.chat-panel .chat-answer > p {
+  margin: 0 0 6px;
+}
+.chat-panel .chat-answer .caption {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+}
+.chat-panel .chat-citations {
+  font-size: 13px;
+}
+.chat-panel .chat-citations .text-action {
+  padding: 0;
+  min-height: 0;
+  text-align: left;
+}
+.chat-reading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.chat-reading span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--amber);
+  animation: pulse 1.4s ease-out infinite;
+}
+
+.chat-panel .chat-form {
+  flex-wrap: nowrap;
+  margin: 0;
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--soft-edge);
+}
+.chat-panel .chat-form input {
+  flex: 1 1 auto;
+}
+
+@media (max-width: 640px) {
+  .chat-launcher {
+    right: 16px;
+    bottom: 16px;
+  }
+  .chat-panel {
+    right: 8px;
+    left: 8px;
+    bottom: 76px;
+    width: auto;
+    max-height: calc(100vh - 160px);
+  }
+}
+
+/* keep the last lines of the page clear of the launcher */
+:root:has(.chat-launcher) main {
+  padding-bottom: 104px;
+}

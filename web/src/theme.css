@@ -208,7 +208,7 @@ mark {
 }
 
 /* ---- Hero on the collection page ---- */
-.collection-heading {
+.page-hero {
   position: relative;
   overflow: hidden;
   isolation: isolate;
@@ -226,22 +226,22 @@ mark {
     0 2px 6px rgba(90, 20, 10, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
-.collection-heading h1,
-.collection-heading .eyebrow,
-.collection-heading > div > p,
-.collection-heading > div > p:last-child {
+.page-hero h1,
+.page-hero .eyebrow,
+.page-hero > div > p,
+.page-hero > div > p:last-child {
   color: #fff;
 }
-.collection-heading h1 {
+.page-hero h1 {
   font-size: 40px;
 }
-.collection-heading > div > p:not(.eyebrow) {
+.page-hero > div > p:not(.eyebrow) {
   font-size: 18px;
   opacity: 0.92;
 }
 /* two slow drifting glows behind the banner */
-.collection-heading::before,
-.collection-heading::after {
+.page-hero::before,
+.page-hero::after {
   content: "";
   position: absolute;
   z-index: -1;
@@ -250,7 +250,7 @@ mark {
   opacity: 0.45;
   pointer-events: none;
 }
-.collection-heading::before {
+.page-hero::before {
   width: 360px;
   height: 360px;
   right: -80px;
@@ -258,7 +258,7 @@ mark {
   background: #e2622a;
   animation: drift-a 16s ease-in-out infinite alternate;
 }
-.collection-heading::after {
+.page-hero::after {
   width: 300px;
   height: 300px;
   left: 30%;
@@ -347,12 +347,12 @@ mark {
   opacity: 0.92;
 }
 /* the call to action on the banner is white and lifts by its shadow alone */
-.collection-heading .primary {
+.page-hero .primary {
   background: #fff;
   color: var(--deep);
   box-shadow: 0 4px 12px -4px rgba(60, 5, 5, 0.45);
 }
-.collection-heading .primary:hover {
+.page-hero .primary:hover {
   background: var(--warm);
   color: var(--deep);
   box-shadow: 0 12px 26px -8px rgba(60, 5, 5, 0.6);

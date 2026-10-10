@@ -46,7 +46,10 @@ concerns and unanswered review questions.
   (`src/effects.mjs`). All motion stops under `prefers-reduced-motion`.
 - **Layout.** On desktop the sidebar collapses to an icon rail (stored as
   `ratio-ui-rail-v1`); link names remain as tooltips. The workspace status card at
-  the foot of the sidebar opens the About panel. Primary actions look like
+  the foot of the sidebar opens the About panel. On a case page, the case chat
+  (`src/case-chat.jsx`) is a launcher in the bottom-right corner that opens a
+  floating panel; it keeps the local-only notice, the unverified-answer label and
+  the source citations, and the conversation stays in memory only. Primary actions look like
   buttons, and empty sections collapse to a one-line note that says how to fill
   them.
 
