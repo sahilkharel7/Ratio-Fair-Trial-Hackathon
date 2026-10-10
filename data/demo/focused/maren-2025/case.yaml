@@ -1,0 +1,9 @@
+case_id: maren-2025
+title: Republic of Calderra v. Luka Maren
+court: Mirevo District Court, Criminal Chamber
+charge_type: Dissemination of false information (Penal Code Art. 214)
+data_provenance: synthetic
+synthetic: true
+documents:
+  - {path: indictment.txt, type: indictment, title: Indictment · Luka Maren}
+  - {path: note.txt, type: monitoring_note, title: Monitoring note · Luka Maren}

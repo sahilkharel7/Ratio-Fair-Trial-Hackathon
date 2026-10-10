@@ -37,6 +37,7 @@ test("search results use original source text and Unicode character offsets", ()
   const document = {
     id: "example",
     title: "Judgment",
+    synthetic: true,
     text: "İ ⚖️ 😀\nThe DEFENCE requested time.",
   };
   const span = firstMatch(document, '"defence" time');

@@ -103,7 +103,7 @@ streamlit run app/main.py
 
 Open http://127.0.0.1:8501. The app only accepts connections from this computer.
 
-On the **Case** page you can:
+On the **Full analysis record** page you can:
 
 - **Load the demo case.** This replays the model's recorded answers, takes about 4 seconds, and works with Ollama stopped and Wi-Fi off.
 - **Upload your own case folder.** The local model reads it live, which takes a few minutes for a case of this size.

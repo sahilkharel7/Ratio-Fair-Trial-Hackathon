@@ -71,3 +71,24 @@ existing block list. Full authoritative review validation remains in the offline
 Python application. Judge prompts carry the case-selection caveat wherever their
 rates appear. Neither browser decisions nor model replies silently replace a
 recorded finding.
+
+## Court-level primary workflow
+
+`case-library.jsx`, `case-library.css` and `library-client.mjs` define the primary
+collection, one-case Article 14(2) worksheet, claim-specific outcome reading and
+document-intake UI. The primary shell has three navigation entries; the original
+analysis views remain in a collapsed supporting section. `scripts/serve_workspace.py`
+provides the actual loopback API against `LibraryStore` and the original `CaseStore`.
+The Vercel preview uses the committed synthetic collection export.
+
+Charges use recorded wording when it is found; requested, statutory and imposed
+penalties remain separate. Ambiguous specific terms require source review. No
+screening passage or missing passage is labelled as an automatic violation. Browser
+assessment snapshots are validated against the current source prompt before a
+local decision is saved. Historical rates are scoped to the coded Article 14(2)
+merits cohort and are never shown as an individual success prediction.
+
+Sahil's reference collection and paragraph-search code remains available in the
+local Streamlit Precedent library. The active matter catalogue is a separate
+collection: reference/private corpus documents are not exported to the public site
+or silently registered as active defendants' cases.

@@ -30,6 +30,7 @@ def app(tmp_path_factory):
         at = AppTest.from_file(str(APP), default_timeout=180)
         at.run()
         at.button(key="load_demo").click().run()
+        at.switch_page("views/case.py").run()
         assert not at.exception
         yield at
 
