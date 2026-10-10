@@ -1452,7 +1452,7 @@ function App() {
           </span>
           <span>
             Presumption of innocence ·{" "}
-            {route.startsWith("/judgments/")
+            {route.startsWith("/judgments/") || (route.startsWith("/cases/") && selectedMatter?.focus?.standard?.startsWith("ECHR"))
               ? "ECHR Article 6(2)"
               : "ICCPR Article 14(2)"}
           </span>

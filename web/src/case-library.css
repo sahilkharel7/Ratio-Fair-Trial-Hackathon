@@ -1426,3 +1426,20 @@
     padding: 16px;
   }
 }
+.ai-case-brief {
+  border: 1px solid var(--border, #d6dadd);
+  border-top: 2px solid #8e773e;
+  background: #fff;
+  padding: 24px;
+  margin: 24px 0;
+}
+.ai-case-brief .primary { white-space: nowrap; }
+.ai-case-brief a.primary { display: inline-flex; align-items: center; padding: 10px 16px; border: 1px solid #8b3343; border-radius: 2px; background: #8b3343; color: #fff; text-decoration: none; font: inherit; }
+.ai-brief-sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin: 20px 0; }
+.ai-brief-sections h3 { margin: 0 0 8px; font-family: Georgia, serif; font-size: 19px; }
+.ai-brief-sections p { line-height: 1.6; margin: 0 0 10px; }
+.ai-brief-sections small { display: block; color: #66717a; margin-top: 6px; }
+@media (max-width: 760px) {
+  .ai-case-brief { padding: 18px; }
+  .ai-brief-sections { grid-template-columns: 1fr; }
+}

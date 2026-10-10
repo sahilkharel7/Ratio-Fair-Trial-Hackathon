@@ -1,5 +1,7 @@
 # Ratio
 
+For the optional public-source AI demo, follow [the local Groq setup](docs/GROQ-DEMO.md). Start the React server with `--groq-demo` to draft source-linked case briefs using the configured Groq key; the default server remains offline.
+
 For a fresh upload demonstration, [the separate real-case PDF pack](docs/DEMO-UPLOAD-PACK.md) contains three original court judgments kept out of the installed collection. Run `.venv/bin/python scripts/fetch_demo_pack.py` to download the originals and create a ZIP locally.
 
 Ratio reads a trial's monitoring record and gives the reviewing lawyer findings to check line by line, each linked to the sentence it rests on. The legal evaluation stays with the lawyer. We built it for the FairTrial AI Hackathon (Track 2: Observation to Legal Evaluation), run by Columbia Law School's Human Rights Institute with the TrialWatch project.
