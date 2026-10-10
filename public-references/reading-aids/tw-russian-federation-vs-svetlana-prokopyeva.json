@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-russian-federation-vs-svetlana-prokopyeva",
+  "text_sha256": "70a65c2c56c2c3b585fe55ba065279886f07960dca0e713d1ee14f42e9226f4b",
+  "pdf_sha256": "818c215632cb937fd4bbb92fa631f9c317df6ca9f9d8495dd7bbea6f134ad260",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] CHR in 1998, subject to certain reservations.70\nB. VIOLATIONS AT TRIAL\nRight to Presumption of Innocence\nArticle 14(2) of the ICCPR guarantees that “everyone charged with a criminal offense\nshall have the right to be presumed innocent until proven guilty according to law.” As\ndescribed by the UN Human Rights Committee, “[t]he presumption of innocence, [...]",
+      "quote": "CHR in 1998, subject to certain reservations.70\nB. VIOLATIONS AT TRIAL\nRight to Presumption of Innocence\nArticle 14(2) of the ICCPR guarantees that “everyone charged with a criminal offense\nshall have the right to be presumed innocent until proven guilty according to law.” As\ndescribed by the UN Human Rights Committee, “[t]he presumption of innocence,",
+      "pinpoint": "Stored text line 535"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...]  sufficiently explain its judgment suggest\nthat Russian authorities brought the charges against Ms. Prokopyeva for political reasons\nand that those same authorities abused the criminal process in order to curtail speech\ncritical of the government.\nFollowing a one-sided criminal trial in which the court ignored extensive defense [...]",
+      "quote": " sufficiently explain its judgment suggest\nthat Russian authorities brought the charges against Ms. Prokopyeva for political reasons\nand that those same authorities abused the criminal process in order to curtail speech\ncritical of the government.\nFollowing a one-sided criminal trial in which the court ignored extensive defense",
+      "pinpoint": "Stored text line 41"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...]  equal to the annual\nincome of the convicted person for three to five years, or imprisonment from five to seven  years, with a\nprohibition from serving in certain positions or engaging in certain professional activities for up to five years.\nSee also Anna Smolchenko, Russia Seeks 6 Years Jail for Journalist in ‘Terror Case,’ Moscow Times [...]",
+      "quote": " equal to the annual\nincome of the convicted person for three to five years, or imprisonment from five to seven  years, with a\nprohibition from serving in certain positions or engaging in certain professional activities for up to five years.\nSee also Anna Smolchenko, Russia Seeks 6 Years Jail for Journalist in ‘Terror Case,’ Moscow Times",
+      "pinpoint": "Stored text line 279"
+    }
+  ]
+}

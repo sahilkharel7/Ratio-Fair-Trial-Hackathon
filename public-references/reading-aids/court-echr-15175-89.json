@@ -1,0 +1,38 @@
+{
+  "document_id": "court-echr-15175-89",
+  "text_sha256": "81551a074822db44b643988403458be2e4f51e6cefcc388da065f3fe87448c45",
+  "pdf_sha256": "9577fb189e2821eae0b0e5df62c26bd61b2cae1405d768e34f2fb6ff6668b0cf",
+  "method": "Editorial reading aid | source pinpoints checked locally",
+  "sections": [
+    {
+      "label": "Charge",
+      "summary": "Aiding and abetting intentional homicide. This was an allegation, not a conviction.",
+      "quote": "was charged with aiding",
+      "pinpoint": "Paragraph 12"
+    },
+    {
+      "label": "What was at stake",
+      "summary": "Taken into custody on 14 January 1977; released on 1 March 1977. A discharge order followed in 1980. The judgment does not record a prosecutor-requested prison term.",
+      "quote": "He was released",
+      "pinpoint": "Paragraph 12"
+    },
+    {
+      "label": "Presumption of innocence",
+      "summary": "Senior police officials publicly identified the applicant as a murder instigator before the competent court assessed the facts.",
+      "quote": "without\nany qualification or reservation",
+      "pinpoint": "Paragraphs 35-41"
+    },
+    {
+      "label": "Court's conclusion",
+      "summary": "The Court found an Article 6(2) breach. It also found excessive length of compensation proceedings under Article 6(1). The award was FRF 2 million for damage, plus costs; this is compensation, not a criminal penalty.",
+      "quote": "for damage;",
+      "pinpoint": "Paragraph 41; operative provisions 1-4"
+    },
+    {
+      "label": "For a lawyer reviewing a new matter",
+      "summary": "Compare the speaker's official role, exact words, timing and audience. Distinguish an unequivocal declaration of guilt from information about an investigation. This regional judgment is a comparison, not a prediction of UN review success.",
+      "quote": "clearly a declaration",
+      "pinpoint": "Paragraphs 38-41"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "document_id": "wgad-2024-11",
+  "text_sha256": "f7df7e601834f2ee0865838e30b690c06de2181efa86ee7926dd961acdf14893",
+  "pdf_sha256": "0379438d853a17f754d8a48ae4bb07a19eeaa25827cbd38b021f5fd0dc82901b",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] e Government of the Russian Federation  violated\nMr. Gershkovich’s right to the presumption of innocence. Article 11 of the Universal\nDeclaration of Human Rights provides that “everyone charged with a penal offence has the\nright to be presumed innocent until proved guilty according to law in a public trial at which\nhe has had all the guarantees [...]",
+      "quote": "e Government of the Russian Federation  violated\nMr. Gershkovich’s right to the presumption of innocence. Article 11 of the Universal\nDeclaration of Human Rights provides that “everyone charged with a penal offence has the\nright to be presumed innocent until proved guilty according to law in a public trial at which\nhe has had all the guarantees",
+      "pinpoint": "Stored text line 411"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] ct of the case, including\nthe detention, potential interrogations, allegations, charges and proceedings. Proceedings\nhave been conducted almost entirely behind closed doors, with restricted access to hear ings,\ncase files and other relevant information. State news agency TASS reported that the hearings,\nclosed to the public and media, [...]",
+      "quote": "ct of the case, including\nthe detention, potential interrogations, allegations, charges and proceedings. Proceedings\nhave been conducted almost entirely behind closed doors, with restricted access to hear ings,\ncase files and other relevant information. State news agency TASS reported that the hearings,\nclosed to the public and media,",
+      "pinpoint": "Stored text line 171"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] g him in Yekaterinburg.\nHe was transferred to Moscow swiftly, where he has been detained in Lefortovo Prison.\n14. Reportedly, prisoners in Lefortovo Prison are held in small concrete cells with very\nlittle if any natural light and with poor air circulation. They are afforded no common time or\ncommunication with others outside their [...]",
+      "quote": "g him in Yekaterinburg.\nHe was transferred to Moscow swiftly, where he has been detained in Lefortovo Prison.\n14. Reportedly, prisoners in Lefortovo Prison are held in small concrete cells with very\nlittle if any natural light and with poor air circulation. They are afforded no common time or\ncommunication with others outside their",
+      "pinpoint": "Stored text line 130"
+    }
+  ]
+}

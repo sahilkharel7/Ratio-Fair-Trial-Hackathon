@@ -1,0 +1,20 @@
+{
+  "document_id": "tw-thailand-vs-dr-chutima-sidasathian",
+  "text_sha256": "0331a9b871317265b745e6d1b6042eb47d4c355faa58106c75d61ff6b32369b6",
+  "pdf_sha256": "9d7ac02ea80da303d167dd9f910fad37ebe52b290e62b16a16e579f30d35d1dc",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] rt , assigned this\ntrial a grade of “D”:\nThis case concerns criminal defamation charges against Dr. Chutima Sidasathian, a\nhuman rights defender and journalist who uncovered allegations of corruption against\npublic officials, including a mayor in Thailand’s Nakhon Ratchasima Province. While Dr.\nSidasathian was ultimately acquitted, [...]",
+      "quote": "rt , assigned this\ntrial a grade of “D”:\nThis case concerns criminal defamation charges against Dr. Chutima Sidasathian, a\nhuman rights defender and journalist who uncovered allegations of corruption against\npublic officials, including a mayor in Thailand’s Nakhon Ratchasima Province. While Dr.\nSidasathian was ultimately acquitted,",
+      "pinpoint": "Stored text line 51"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] f free speech.  Its mission is to expose injustice, help to free those\nunjustly detained and promote the rule of law around the world.\n\nTABLE OF CONTENTS\nE X E C U T I V E   S U M M A R Y .......................................................................... 1\nB A C K G R O U N [...]",
+      "quote": "f free speech.  Its mission is to expose injustice, help to free those\nunjustly detained and promote the rule of law around the world.\n\nTABLE OF CONTENTS\nE X E C U T I V E   S U M M A R Y .......................................................................... 1\nB A C K G R O U N",
+      "pinpoint": "Stored text line 24"
+    }
+  ]
+}

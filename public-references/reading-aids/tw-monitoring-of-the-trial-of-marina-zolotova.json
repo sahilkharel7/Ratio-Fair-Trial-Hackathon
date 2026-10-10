@@ -1,0 +1,20 @@
+{
+  "document_id": "tw-monitoring-of-the-trial-of-marina-zolotova",
+  "text_sha256": "0ba5d646e46c61cd9ebdfe851c38b867ebfb075324fc8ccff2a482620028114f",
+  "pdf_sha256": "3197da6a39ab3dfbea3ee7a58318a9ed7bbb28b3b576df3a9c6c1e92e290b282",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] e articles for five to ten minutes, after\nwhich it granted public access. While charges against all other journalists were dropped\nand replaced with administrative fines, the authorities pushed forward with the\nprosecution of Ms. Zolotova. Ms. Zolotova was tried for “inaction of an official” - analogous\nto criminal negligence - on the [...]",
+      "quote": "e articles for five to ten minutes, after\nwhich it granted public access. While charges against all other journalists were dropped\nand replaced with administrative fines, the authorities pushed forward with the\nprosecution of Ms. Zolotova. Ms. Zolotova was tried for “inaction of an official” - analogous\nto criminal negligence - on the",
+      "pinpoint": "Stored text line 35"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] n August 2018, Ms. Zolotova and at least 17 other journalists were arrested and detained\non suspicion of sharing passwords to paywalled content from BeLTA, a state-run news\nagency: BeLTA imposed paywalls on its website articles for five to ten minutes, after\nwhich it granted public access. While charges against all other journalists [...]",
+      "quote": "n August 2018, Ms. Zolotova and at least 17 other journalists were arrested and detained\non suspicion of sharing passwords to paywalled content from BeLTA, a state-run news\nagency: BeLTA imposed paywalls on its website articles for five to ten minutes, after\nwhich it granted public access. While charges against all other journalists",
+      "pinpoint": "Stored text line 32"
+    }
+  ]
+}

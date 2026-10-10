@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-morocco-v-omar-radi",
+  "text_sha256": "950172b39a3512b646ef0735e3f260cc0b64b64ef12e00c00e096b1aedd93add",
+  "pdf_sha256": "2e924c6b41c4330e38d95de589e8e16f9868905dfaa733021aa56bf394b41e69",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...]  should be understood.\nSecond, Mr. Radi’s conviction vi olated his right to the presumption of innocence. Under\nArticle 263 of the Moroccan Penal Code, the prosecution was required to prove that Mr.\nRadi had acted with the intent of “harming the[] honor [or feelings of the judge]  or the\n\n2 INTERNATIONAL COVENANT ON CIVIL AND POLITICAL RIGHTS, Art. [...]",
+      "quote": " should be understood.\nSecond, Mr. Radi’s conviction vi olated his right to the presumption of innocence. Under\nArticle 263 of the Moroccan Penal Code, the prosecution was required to prove that Mr.\nRadi had acted with the intent of “harming the[] honor [or feelings of the judge]  or the\n\n2 INTERNATIONAL COVENANT ON CIVIL AND POLITICAL RIGHTS, Art.",
+      "pinpoint": "Stored text line 127"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] art of the Clooney\nFoundation for Justice’s TrialWatch initiative. Mr. Radi was charged with insul ting the\njudiciary after a tweet criticizing a decision by Judge Lahcen  Talfi upholding a verdict\nsentencing leaders of a protest movement in the impoverished northern Rif Region to the\nmaximum sentence of 20 years in prison. Mr. Radi [...]",
+      "quote": "art of the Clooney\nFoundation for Justice’s TrialWatch initiative. Mr. Radi was charged with insul ting the\njudiciary after a tweet criticizing a decision by Judge Lahcen  Talfi upholding a verdict\nsentencing leaders of a protest movement in the impoverished northern Rif Region to the\nmaximum sentence of 20 years in prison. Mr. Radi",
+      "pinpoint": "Stored text line 117"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] to have been targeted. For example, Abdessadeq E l\nBouchtaoui was convicted and sentenced to nearly two years in prison on charges related\nto his Facebook posts addressing the recent apprehension of activists, disproportionate\nsentencing of protesters, and violations of freedom of expression by the Moroc can\ngovernment.28\nWith respect [...]",
+      "quote": "to have been targeted. For example, Abdessadeq E l\nBouchtaoui was convicted and sentenced to nearly two years in prison on charges related\nto his Facebook posts addressing the recent apprehension of activists, disproportionate\nsentencing of protesters, and violations of freedom of expression by the Moroc can\ngovernment.28\nWith respect",
+      "pinpoint": "Stored text line 274"
+    }
+  ]
+}

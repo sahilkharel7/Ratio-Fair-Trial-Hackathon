@@ -1,0 +1,20 @@
+{
+  "document_id": "ccpr-2212-2012",
+  "text_sha256": "18c0e1ccfc344feec51900ebed41d7f886d89ab0ae68dc98a656875358a93e9e",
+  "pdf_sha256": "c8eb01467fa9cff0cc259664c3ecaa3c357cca559070d8e50f2774361b5adf9b",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] remand and he remained in detention until the trial. The author  was officially charged under\narticle 293, parts 1 and 2, of the Criminal Code on 29 December 2010. The charges against\nhim were formulated in a general manner and did not specify what acts he was accused of\ncommitting. The author maintains that his remand  in custody was [...]",
+      "quote": "remand and he remained in detention until the trial. The author  was officially charged under\narticle 293, parts 1 and 2, of the Criminal Code on 29 December 2010. The charges against\nhim were formulated in a general manner and did not specify what acts he was accused of\ncommitting. The author maintains that his remand  in custody was",
+      "pinpoint": "Stored text line 191"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] from them for a month after his arrest. He was told that his wife had also been detained and\nthat he would lose custody of his 3-year-old son and his family would be subjected to brutal\nmeasures unless he confessed. 13 In particular, on 31 December 2010, the author was visited\nby the Head of the State Security Agency, who openly [...]",
+      "quote": "from them for a month after his arrest. He was told that his wife had also been detained and\nthat he would lose custody of his 3-year-old son and his family would be subjected to brutal\nmeasures unless he confessed. 13 In particular, on 31 December 2010, the author was visited\nby the Head of the State Security Agency, who openly",
+      "pinpoint": "Stored text line 247"
+    }
+  ]
+}

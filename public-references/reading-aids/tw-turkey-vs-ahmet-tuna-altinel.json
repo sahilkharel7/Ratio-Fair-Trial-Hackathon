@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-turkey-vs-ahmet-tuna-altinel",
+  "text_sha256": "43f30d66720b7be233a7ebe2a9a3959e22a74564eb76345257e9ff1d69e82efc",
+  "pdf_sha256": "7a3fe4f7b4d9c19d24f012fb82ebfd91eb154c6c6f28685f7f54e0c699df25d8",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] ist\norganization, the Turkish authorities violated Article 5(3) of the ECHR.\nC. PRESUMPTION OF INNOCENCE\nThe presumption of innocence is one of the fundamental guarantees of a fair trial,\nprotected by Article 6(2) of the ECHR and Article 14(2) of the ICCPR as well as under\ncustomary international human rights law. The right to be presumed innocent [...]",
+      "quote": "ist\norganization, the Turkish authorities violated Article 5(3) of the ECHR.\nC. PRESUMPTION OF INNOCENCE\nThe presumption of innocence is one of the fundamental guarantees of a fair trial,\nprotected by Article 6(2) of the ECHR and Article 14(2) of the ICCPR as well as under\ncustomary international human rights law. The right to be presumed innocent",
+      "pinpoint": "Stored text line 729"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] ted on suspicion of “propaganda for a terrorist organization,”1 soon thereafter\ncharged with “membership in a terrorist organization,” and detained for nearly three\nmonths.  The predicate for this charge was social media posts inviting attendance at an\nevent in France entitled “Cizre —the Story of a Massacre” and interpre tation [...]",
+      "quote": "ted on suspicion of “propaganda for a terrorist organization,”1 soon thereafter\ncharged with “membership in a terrorist organization,” and detained for nearly three\nmonths.  The predicate for this charge was social media posts inviting attendance at an\nevent in France entitled “Cizre —the Story of a Massacre” and interpre tation",
+      "pinpoint": "Stored text line 48"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] n,”1 soon thereafter\ncharged with “membership in a terrorist organization,” and detained for nearly three\nmonths.  The predicate for this charge was social media posts inviting attendance at an\nevent in France entitled “Cizre —the Story of a Massacre” and interpre tation assistance\nMr. Altınel provided at the event.  After his eventual [...]",
+      "quote": "n,”1 soon thereafter\ncharged with “membership in a terrorist organization,” and detained for nearly three\nmonths.  The predicate for this charge was social media posts inviting attendance at an\nevent in France entitled “Cizre —the Story of a Massacre” and interpre tation assistance\nMr. Altınel provided at the event.  After his eventual",
+      "pinpoint": "Stored text line 48"
+    }
+  ]
+}

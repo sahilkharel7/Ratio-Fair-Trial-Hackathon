@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-turkey-v-veysel-ok",
+  "text_sha256": "d41bbc3def6d78ee03c4cab9a787593c103bfa52c87d658cfa65cb8b8b6c927f",
+  "pdf_sha256": "a38d9f4b84f1b9b28f5cc3f03bab767df2ec0c3b7bb2172b457e676888eaf469",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] his shift in roles breaches both the\nguarantee of an impartial tribunal and the presumption of innocence.\n\nAs noted above, Mr. Ok was tried and convicted for voicing concerns about the\njudiciary. The authorities’ decision to prosecute him on this basis is troubling given that\nspeech about the functioning of the judicial system generally merits [...]",
+      "quote": "his shift in roles breaches both the\nguarantee of an impartial tribunal and the presumption of innocence.\n\nAs noted above, Mr. Ok was tried and convicted for voicing concerns about the\njudiciary. The authorities’ decision to prosecute him on this basis is troubling given that\nspeech about the functioning of the judicial system generally merits",
+      "pinpoint": "Stored text line 55"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] free speech\nlawyer Veysel Ok, which concluded on September 12, 2019. Mr. Ok was charged with\ninsulting the judiciary for giving a newspaper interview in which he  commented on the\nerosion of judicial independence in Turkey. While Mr. Ok ultimately received a suspended\nsentence, the proceedings against him entailed several fair trial [...]",
+      "quote": "free speech\nlawyer Veysel Ok, which concluded on September 12, 2019. Mr. Ok was charged with\ninsulting the judiciary for giving a newspaper interview in which he  commented on the\nerosion of judicial independence in Turkey. While Mr. Ok ultimately received a suspended\nsentence, the proceedings against him entailed several fair trial",
+      "pinpoint": "Stored text line 42"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] key included “severe restriction of freedoms of expression and media,\nincluding imprisonment of scores of journalists, closing media outlets, and\ncriminalization of criticism of government policies or officials.”1\n\nAccording to free-speech organization Article 19, at least 132 journalist and media\nworkers were behind bars as of September [...]",
+      "quote": "key included “severe restriction of freedoms of expression and media,\nincluding imprisonment of scores of journalists, closing media outlets, and\ncriminalization of criticism of government policies or officials.”1\n\nAccording to free-speech organization Article 19, at least 132 journalist and media\nworkers were behind bars as of September",
+      "pinpoint": "Stored text line 105"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-kazakhstan-v-alnur-ilyashev",
+  "text_sha256": "53cb07dd06ad1ece8c1fb50d2dba997a3d3922697848ed11849bc8afd8f44b72",
+  "pdf_sha256": "d24d4fd72c339b24d2e8393c39ccc6edde41e39b17110d8daa6771ea73c8750e",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...]  elements of Article 274. The judgment convicting\nIlyashev thereby violated the presumption of innocence.\n\nBeyond fair trial rights, the proceedings violated Ilyashev’s right to freedom of\nexpression. The prosecution was based solely on Ilyashev’s criticism of Nur Otan,\nspeech that warranted heightened protection given its role in public debate. [...]",
+      "quote": " elements of Article 274. The judgment convicting\nIlyashev thereby violated the presumption of innocence.\n\nBeyond fair trial rights, the proceedings violated Ilyashev’s right to freedom of\nexpression. The prosecution was based solely on Ilyashev’s criticism of Nur Otan,\nspeech that warranted heightened protection given its role in public debate.",
+      "pinpoint": "Stored text line 111"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] is criminal prosecution was neither necessary nor\nproportional, the bringing of charges for the dissemination of false information\ncontravened his right to freedom of opinion and expression, a right that is\nquintessential in a democratic society and that merits heightened protection\nwith respect to commentary on holders of public [...]",
+      "quote": "is criminal prosecution was neither necessary nor\nproportional, the bringing of charges for the dissemination of false information\ncontravened his right to freedom of opinion and expression, a right that is\nquintessential in a democratic society and that merits heightened protection\nwith respect to commentary on holders of public",
+      "pinpoint": "Stored text line 59"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] nd exert[s] influence on\nmedia through a variety of means, including detention, imprisonment, criminal and\nadministrative charges, laws, harassment, licensing regulations, and internet\nrestrictions.”3 In particular, a number of prosecutions have been initiated under Article\n274 of the Kazakh Criminal Code. Article 274 proscribes [...]",
+      "quote": "nd exert[s] influence on\nmedia through a variety of means, including detention, imprisonment, criminal and\nadministrative charges, laws, harassment, licensing regulations, and internet\nrestrictions.”3 In particular, a number of prosecutions have been initiated under Article\n274 of the Kazakh Criminal Code. Article 274 proscribes",
+      "pinpoint": "Stored text line 152"
+    }
+  ]
+}

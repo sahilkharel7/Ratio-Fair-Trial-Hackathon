@@ -79,6 +79,9 @@ uv pip install -r requirements-lock.txt -e ".[dev]"
 # The embedding model (about 90 MB, saved in models/)
 python scripts/fetch_models.py
 
+# The 49 public reference documents, their reading aids and local search index (no network)
+python scripts/install_public_references.py
+
 # The court case workspace, the main interface (Node.js 20.19+ or 22.12+)
 brew install node
 npm --prefix web ci && npm --prefix web run build
@@ -208,7 +211,7 @@ For each shared pattern it shows this case's passage beside the past case's, and
 **The boundary**
 - `python -m corpus_builder` is a maintainer tool that runs online. It downloads public documents from the sources in `corpus_builder/sources.yaml`, obeying each site's `robots.txt` and rate limits. It then sends **only that public text** to Google Gemini (or to Groq with `--model groq`) to extract the fact patterns, at build time only.
 - The app never reads an API key, never calls a cloud model and never sends case data anywhere.
-- The built corpus lives in `data/corpus/` (git-ignored, never committed).
+- The built corpus lives in `data/corpus/` (git-ignored); only the public snapshot in `public-references/` is committed.
 - The app reads the corpus file, or the OpenSearch index built from it, on 127.0.0.1 only.
 
 **Set up**
@@ -328,7 +331,7 @@ On every judge page, above everything else: *TrialWatch monitors cases already s
 - **Jurisprudence** (`ratio/config/jurisprudence.yaml`): 26 entries, either General Comment paragraphs in their own words or Committee decisions cited only for what a General Comment footnote cites them for (the footnote's own text), so nothing describes a decision's facts. `scripts/check_jurisprudence.py` checked every quote and citation, and the 8 General Comment quotes behind the State's-reply grounds in `ratio/config/steelman.yaml`, against the official PDFs on 2026-10-09. Decisions on the bias of individual judges are left out, so a judge pattern indicator is never shown next to one.
 - **Your own cases:** a case folder has a `case.yaml` listing its documents (.txt, .md or .pdf), with the type, court and charge type, and whether the material is synthetic, public (with the source) or private. Private material stays on this computer and is read only by the local model. It can also have a `rulings.yaml` of coded rulings for the Judicial History Tracker. `data/demo/case` is a complete example.
 
-- **Similar cases corpus** (built locally into the git-ignored `data/corpus/`, never committed). Source list: `corpus_builder/sources.yaml`.
+- **Similar cases corpus.** Source list: `corpus_builder/sources.yaml`. A snapshot of the 49 documents that downloaded is versioned in [`public-references/`](public-references/README.md): the original PDFs, their normalized text, reading aids and the matching local search index, with every publication URL, attribution and checksum in `public-references/manifest.json`. `python scripts/install_public_references.py` installs it into `data/corpus/` (or `--destination`, read with `RATIO_CORPUS_DB`); a maintainer's own build goes to the git-ignored `data/corpus/`.
   - **What it builds:** `corpus_builder/sources.yaml` lists 50 public documents: three ECHR judgments reproduced by official UN libraries, 23 TrialWatch fairness reports (cfj.org and hri.law.columbia.edu), 11 opinions of the UN Working Group on Arbitrary Detention (ohchr.org), and 13 UN Human Rights Committee Views: 7 hosted by ccprcentre.org, and 6 on the presumption of innocence from their official UN document links.
   - **Attribution:** every card in the app names its source, and every quote links to the passage in its document.
   - **Terms:** source attribution and the recorded terms check accompany each source. The local reader provides the saved original, full text and short source-linked reading aids. Real documents and generated PDFs remain in ignored local storage.
@@ -338,7 +341,7 @@ On every judge page, above everything else: *TrialWatch monitors cases already s
 
 - **Collections you upload** stay in the git-ignored `data/corpus/collections/` and are never committed. Upload only material you may use; mark a collection private unless it is public.
 
-No real monitoring notes and no published TrialWatch reports are in this repository.
+No real monitoring notes and no confidential material are in this repository. `public-references/` holds published documents only, including 23 TrialWatch and Columbia Human Rights Institute fairness reports; they keep their authors' rights and terms (see [Third-party software](#third-party-software)).
 
 ## Limitations
 
@@ -394,7 +397,9 @@ eval/             evaluation script
 scripts/          serve_workspace.py (the workspace's loopback server) and groq_case_worker.py (its local Ollama worker,
                   despite the name); maintainer tools: fetch_models.py, build_history.py, check_jurisprudence.py,
                   export_web_demo.py, fetch_demo_pack.py, fetch_innocence_references.py, build_case_briefs.py,
-                  build_innocence_aids.py, import_real_demo.py (imports a real case into the git-ignored data/real-demo/)
+                  build_innocence_aids.py, import_real_demo.py (imports a real case into the git-ignored data/real-demo/),
+                  install_public_references.py (installs public-references/)
+public-references/  the versioned snapshot of the 49 public reference documents (see its README)
 tests/
 docs/             demo script and screenshots, interface notes, court workspace, corpus research, upload pack, model routing
 web/              the court case workspace, the main interface (React, built with npm; served by scripts/serve_workspace.py)
@@ -432,6 +437,7 @@ This repository contains no third-party code, except the Unidecode character tab
 - **Models.** [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) and [Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) (`qwen2.5:7b-instruct` in Ollama) are licensed under Apache 2.0, and Ollama under MIT. If you set `RATIO_MODEL` to another model, check its license: some models, including other sizes of Qwen2.5, are not open source.
 - **The court case workspace.** Its build in `web/dist/` bundles React, React DOM and scheduler (MIT, Copyright Meta Platforms, Inc. and affiliates) and the Lato font from `@fontsource/lato` (SIL Open Font License 1.1). Their license texts are in `web/public/THIRD-PARTY-NOTICES.txt`, which is copied into every build; Vite and its tools only build the workspace and are not shipped in it.
 - **Unidecode character table.** `web/public/demo.json` contains `review_transliteration`, 1,824 character-to-ASCII mappings that `scripts/export_web_demo.py` exports from Unidecode so the browser's wording guard matches the Python one. They come from Unidecode's tables (Copyright 2001 Sean M. Burke; later additions Copyright 2025 Tomaž Šolc) under the GNU GPL version 2 or later, not the Apache license. The notice and license text are in `web/public/THIRD-PARTY-NOTICES.txt`.
+- **Public reference documents.** `public-references/` contains 49 published documents (3 European Court of Human Rights judgments, 12 UN Human Rights Committee decisions, 11 opinions of the UN Working Group on Arbitrary Detention and 23 TrialWatch and Columbia Human Rights Institute fairness reports), with their publication URLs and attribution in `public-references/manifest.json`. They keep their authors' rights and source terms; the Apache license does not cover them and implies no endorsement by their publishers.
 - **Optional services.** `docker compose up -d opensearch` pulls the OpenSearch 3.6.0 image (Apache 2.0). Google Gemini and Groq are online services under their providers' terms, used only by the maintainer builders and only for public documents.
 
 This is a summary, not legal advice.

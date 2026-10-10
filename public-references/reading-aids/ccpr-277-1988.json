@@ -1,0 +1,20 @@
+{
+  "document_id": "ccpr-277-1988",
+  "text_sha256": "fe50e1af44baa7c71e8ff7171a5ca1f1306f16154048ffc73207c722e7462099",
+  "pdf_sha256": "c6154c4a1f198b50f9c3d634774c3a8a38edec596e6942a63380517fb49485c5",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...]  1986 records haematomas and skin lesions all over his body.\n1.4 The author was charged with participation in the crime of bank robbery, perpetrated on 7 March 1986\nagainst the Banco de Pichincha and the Caja de Credito Agricola of Sangolqui. He denies any\ninvolvement in the offence.\n1.5 On 27 January 1987 the Tribunal Segundo Penal [...]",
+      "quote": " 1986 records haematomas and skin lesions all over his body.\n1.4 The author was charged with participation in the crime of bank robbery, perpetrated on 7 March 1986\nagainst the Banco de Pichincha and the Caja de Credito Agricola of Sangolqui. He denies any\ninvolvement in the offence.\n1.5 On 27 January 1987 the Tribunal Segundo Penal",
+      "pinpoint": "Stored text line 44"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...]  born in 1966, at the time of submission of the communication (21 January 1988)\ndetained at the Penal Garcia Moreno in Quito, Ecuador.\n1.2 After two years of detention, Juan Fernando Terán Jijón was released; he left Ecuador in August 1988\nand currently resides in Mexico, where he pursues university studies. After his release, Mr. [...]",
+      "quote": " born in 1966, at the time of submission of the communication (21 January 1988)\ndetained at the Penal Garcia Moreno in Quito, Ecuador.\n1.2 After two years of detention, Juan Fernando Terán Jijón was released; he left Ecuador in August 1988\nand currently resides in Mexico, where he pursues university studies. After his release, Mr.",
+      "pinpoint": "Stored text line 33"
+    }
+  ]
+}

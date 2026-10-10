@@ -1,0 +1,20 @@
+{
+  "document_id": "wgad-2022-53",
+  "text_sha256": "c918200aae4cfd3c4f75bf51cd824faaf203c1061c6013758737dac3e195c676",
+  "pdf_sha256": "6b6d089b9f9a741e2f8f5f67dcca659076a98e12bf834b7eab3ccde2471e2774",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] nt. He was reportedly brought before the Supreme State Security Prosecution and\ncharged with calling for illegal protests and aiding a terrorist organization.\n8. He was allegedly released on 30 October 2018 under precaution ary measures\nrequiring him to present himself to Saff police station twice a week. On 5 January 2019, [...]",
+      "quote": "nt. He was reportedly brought before the Supreme State Security Prosecution and\ncharged with calling for illegal protests and aiding a terrorist organization.\n8. He was allegedly released on 30 October 2018 under precaution ary measures\nrequiring him to present himself to Saff police station twice a week. On 5 January 2019,",
+      "pinpoint": "Stored text line 69"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] llowed to see his family on 16 May 2019. Since\nthat day, he has reportedly been detained at the Giza Central Prison and allowed one family\nvisit a week.\n16. According to the source, on 27 May 2019, Mr. Mohamden was brought before the\nSupreme State Security Prosecution in the presence of his lawyer. The prosecution reportedly\nextended [...]",
+      "quote": "llowed to see his family on 16 May 2019. Since\nthat day, he has reportedly been detained at the Giza Central Prison and allowed one family\nvisit a week.\n16. According to the source, on 27 May 2019, Mr. Mohamden was brought before the\nSupreme State Security Prosecution in the presence of his lawyer. The prosecution reportedly\nextended",
+      "pinpoint": "Stored text line 113"
+    }
+  ]
+}

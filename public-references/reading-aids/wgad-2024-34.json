@@ -1,0 +1,20 @@
+{
+  "document_id": "wgad-2024-34",
+  "text_sha256": "5c025447bdf7ee9d2ade3d0a8893dde41919acb9e19258c378a6e5c04e7aff23",
+  "pdf_sha256": "7a38766a309ba891daab4ae12c263d1f0a42a3604d280172b41b67cdbe81d0d1",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] the bail was denied before the magistrate.\n13. On 11 December 2020, Mr. Lai was charged with the additional offence of collusion\nwith foreign forces under the new Law of the People’s Republic of China on Safeguarding\nNational Security in the Hong Kong Special Administrative Region (National Security Law).\nHe was also charged with [...]",
+      "quote": "the bail was denied before the magistrate.\n13. On 11 December 2020, Mr. Lai was charged with the additional offence of collusion\nwith foreign forces under the new Law of the People’s Republic of China on Safeguarding\nNational Security in the Hong Kong Special Administrative Region (National Security Law).\nHe was also charged with",
+      "pinpoint": "Stored text line 81"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] peal his house ar rest.\n15. At present, Mr. Lai has already served sentences of imprisonment in relation to four\nseparate criminal prosecutions arising from his attendance at and participation in various\nprotests between 2019 and 2020. Those sentences ended in September 2022. He is now\ndetained in solitary confinement at Stanley Prison, a [...]",
+      "quote": "peal his house ar rest.\n15. At present, Mr. Lai has already served sentences of imprisonment in relation to four\nseparate criminal prosecutions arising from his attendance at and participation in various\nprotests between 2019 and 2020. Those sentences ended in September 2022. He is now\ndetained in solitary confinement at Stanley Prison, a",
+      "pinpoint": "Stored text line 89"
+    }
+  ]
+}

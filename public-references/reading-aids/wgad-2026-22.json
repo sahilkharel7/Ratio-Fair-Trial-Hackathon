@@ -1,0 +1,20 @@
+{
+  "document_id": "wgad-2026-22",
+  "text_sha256": "bfcce5044c7fb3a5e7c0e76fd3bde39d238c1737157478ca434ee2872bcbd424",
+  "pdf_sha256": "3d05fda87eea8d36c7a3f1593757abe05a83a29d18683682dc7ebbece29d4058",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] City Prosecutor filed two separate\ncases against the Tacloban 5. The first case charged Ms . Cumpio and Ms. Domequil with\nillegal possession of firearms. The second case charged Mr. Abinguna and his two colleagues\nfor the same crime. The Office recommended that bail be set in the amount of ₧120,000\n(approximately $2,073) for Mr. [...]",
+      "quote": "City Prosecutor filed two separate\ncases against the Tacloban 5. The first case charged Ms . Cumpio and Ms. Domequil with\nillegal possession of firearms. The second case charged Mr. Abinguna and his two colleagues\nfor the same crime. The Office recommended that bail be set in the amount of ₧120,000\n(approximately $2,073) for Mr.",
+      "pinpoint": "Stored text line 137"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] nd floor. Elsewhere in the Karapatan\noffice building, the authorities found and detained other members of the organization. During\nthe raid, the officers claimed to have found and seized firearms and an improvised explosive\ndevice on or near the respective beds where Mr. Abinguna and his colleagues were resting.\n17. A search warrant [...]",
+      "quote": "nd floor. Elsewhere in the Karapatan\noffice building, the authorities found and detained other members of the organization. During\nthe raid, the officers claimed to have found and seized firearms and an improvised explosive\ndevice on or near the respective beds where Mr. Abinguna and his colleagues were resting.\n17. A search warrant",
+      "pinpoint": "Stored text line 125"
+    }
+  ]
+}

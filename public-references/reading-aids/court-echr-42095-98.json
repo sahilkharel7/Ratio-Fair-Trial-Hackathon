@@ -1,0 +1,38 @@
+{
+  "document_id": "court-echr-42095-98",
+  "text_sha256": "cef11a9c14b6beaa26311edb7d2e6dad7d1dab33cd7c959af1fe3fb493acb100",
+  "pdf_sha256": "46c07a16ae6e159ac7e186876922040231e69602ae54270b4cb1630d769ad34d",
+  "method": "Editorial reading aid | source pinpoints checked locally",
+  "sections": [
+    {
+      "label": "Charge",
+      "summary": "Four counts, including blackmail and inciting a victim to make false statements. The domestic court acquitted the applicant on two counts.",
+      "quote": "charged on four counts",
+      "pinpoint": "Paragraphs 10, 17"
+    },
+    {
+      "label": "What was at stake",
+      "summary": "Domestic sentence: seven years and six months' imprisonment, a 15,000 litai fine and confiscation of property. The appeal altered his role in the blackmail offence but left the sentence unchanged. A prosecutor-requested term is not recorded.",
+      "quote": "seven years\nand six months' imprisonment",
+      "pinpoint": "Paragraphs 17, 19"
+    },
+    {
+      "label": "Presumption of innocence",
+      "summary": "A prosecutor used language of proved guilt when refusing to discontinue a prosecution. The Court examined that language in its procedural context rather than treating the word alone as decisive.",
+      "quote": "While the use of the term",
+      "pinpoint": "Paragraphs 41-44"
+    },
+    {
+      "label": "Court's conclusion",
+      "summary": "No Article 6(2) breach: the decision concerned whether there was enough evidence to proceed to trial. Separately, the Court found an Article 6(1) violation concerning tribunal impartiality.",
+      "quote": "no breach of Article 6",
+      "pinpoint": "Paragraph 45; operative provisions 1-2"
+    },
+    {
+      "label": "For a lawyer reviewing a new matter",
+      "summary": "Read the whole decision, identify the procedural stage and compare it with public statements made outside the proceedings. A violation of another fair-trial guarantee is not a presumption-of-innocence success.",
+      "quote": "reasoned decision",
+      "pinpoint": "Paragraphs 43-45"
+    }
+  ]
+}
