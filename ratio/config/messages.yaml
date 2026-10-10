@@ -142,6 +142,8 @@ labels:
   module_judges: "Judge profile"
   # Similar cases: where a precedent comes from, and how its deciding body's words are labelled.
   precedent_ccpr_views: "Committee Views"
+  precedent_court_judgment: "Court judgment"
+  finding_violation_found_court_judgment: "Court found a violation"
   precedent_wgad_opinion: "WGAD opinion"
   precedent_trialwatch_report: "TrialWatch assessment"
   real_public_case: "Real public case"

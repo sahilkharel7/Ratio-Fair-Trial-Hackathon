@@ -19,17 +19,30 @@ import logging
 import re
 import sqlite3
 from collections import Counter
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from contextlib import closing
 from dataclasses import dataclass
 
 from pydantic import ValidationError
 
-from corpus_builder.extract import PROMPT_SHA, ExtractedFacet, Extraction, cache_key, merge_facets, schema_sha
+from corpus_builder.extract import (
+    PROMPT_SHA,
+    ExtractedFacet,
+    Extraction,
+    cache_key,
+    merge_facets,
+    schema_sha,
+)
 from corpus_builder.store import BuildStore
 from ratio.config import FactPatternTaxonomy
 from ratio.extraction.align import locate_quote, sentence_bounds
-from ratio.precedent_schema import FindingKind, PrecedentDoc, PrecedentFacet, PrecedentKind, PrecedentQuote
+from ratio.precedent_schema import (
+    ALLOWED_FINDINGS,
+    FindingKind,
+    PrecedentDoc,
+    PrecedentFacet,
+    PrecedentQuote,
+)
 from ratio.schema import Frozen, SourceSpan
 
 log = logging.getLogger(__name__)
@@ -38,13 +51,7 @@ NEVER_FUZZY = 10**9  # locate_quote tries fuzzy matching only for quotes at leas
 ACCEPTED_MATCHES = frozenset({"exact", "normalized"})
 MIN_QUOTE_WORDS = 8  # the prompt asks for 8 to 60 words; a shorter quote cannot stand on its own
 FINDING_CHARS = 600  # a finding is shown as its sentence; a longer one is cut to this many characters around the quote
-_RULED: frozenset[FindingKind] = frozenset({"violation_found", "no_violation", "not_examined"})
-FINDING_KINDS: Mapping[PrecedentKind, frozenset[FindingKind]] = {
-    "ccpr_views": _RULED,
-    "wgad_opinion": _RULED,
-    "trialwatch_report": frozenset({"monitor_assessment", "not_examined"}),
-    "collection_document": frozenset({"monitor_assessment", "not_examined"}),
-}
+FINDING_KINDS = ALLOWED_FINDINGS  # one contract for builder and runtime
 # The kind kept when the model's does not fit the document: valid for every kind, and never shown,
 # because the app labels a finding only next to its quote, and such a finding has none.
 UNSTATED: FindingKind = "not_examined"

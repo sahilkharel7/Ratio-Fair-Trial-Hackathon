@@ -1,0 +1,113 @@
+{
+  "court-echr-15175-89": {
+    "issue": "Official statements of guilt",
+    "outcome": "Article 6(2) violation found",
+    "sections": [
+      {
+        "label": "Charge",
+        "summary": "Aiding and abetting intentional homicide. This was an allegation, not a conviction.",
+        "quote": "was charged with aiding",
+        "pinpoint": "Paragraph 12"
+      },
+      {
+        "label": "What was at stake",
+        "summary": "Taken into custody on 14 January 1977; released on 1 March 1977. A discharge order followed in 1980. The judgment does not record a prosecutor-requested prison term.",
+        "quote": "He was released",
+        "pinpoint": "Paragraph 12"
+      },
+      {
+        "label": "Presumption of innocence",
+        "summary": "Senior police officials publicly identified the applicant as a murder instigator before the competent court assessed the facts.",
+        "quote": "without\nany qualification or reservation",
+        "pinpoint": "Paragraphs 35-41"
+      },
+      {
+        "label": "Court's conclusion",
+        "summary": "The Court found an Article 6(2) breach. It also found excessive length of compensation proceedings under Article 6(1). The award was FRF 2 million for damage, plus costs; this is compensation, not a criminal penalty.",
+        "quote": "for damage;",
+        "pinpoint": "Paragraph 41; operative provisions 1-4"
+      },
+      {
+        "label": "For a lawyer reviewing a new matter",
+        "summary": "Compare the speaker's official role, exact words, timing and audience. Distinguish an unequivocal declaration of guilt from information about an investigation. This regional judgment is a comparison, not a prediction of UN review success.",
+        "quote": "clearly a declaration",
+        "pinpoint": "Paragraphs 38-41"
+      }
+    ],
+    "text_sha256": "81551a074822db44b643988403458be2e4f51e6cefcc388da065f3fe87448c45"
+  },
+  "court-echr-42095-98": {
+    "issue": "Prosecutor's language in context",
+    "outcome": "No Article 6(2) violation found",
+    "sections": [
+      {
+        "label": "Charge",
+        "summary": "Four counts, including blackmail and inciting a victim to make false statements. The domestic court acquitted the applicant on two counts.",
+        "quote": "charged on four counts",
+        "pinpoint": "Paragraphs 10, 17"
+      },
+      {
+        "label": "What was at stake",
+        "summary": "Domestic sentence: seven years and six months' imprisonment, a 15,000 litai fine and confiscation of property. The appeal altered his role in the blackmail offence but left the sentence unchanged. A prosecutor-requested term is not recorded.",
+        "quote": "seven years\nand six months' imprisonment",
+        "pinpoint": "Paragraphs 17, 19"
+      },
+      {
+        "label": "Presumption of innocence",
+        "summary": "A prosecutor used language of proved guilt when refusing to discontinue a prosecution. The Court examined that language in its procedural context rather than treating the word alone as decisive.",
+        "quote": "While the use of the term",
+        "pinpoint": "Paragraphs 41-44"
+      },
+      {
+        "label": "Court's conclusion",
+        "summary": "No Article 6(2) breach: the decision concerned whether there was enough evidence to proceed to trial. Separately, the Court found an Article 6(1) violation concerning tribunal impartiality.",
+        "quote": "no breach of Article 6",
+        "pinpoint": "Paragraph 45; operative provisions 1-2"
+      },
+      {
+        "label": "For a lawyer reviewing a new matter",
+        "summary": "Read the whole decision, identify the procedural stage and compare it with public statements made outside the proceedings. A violation of another fair-trial guarantee is not a presumption-of-innocence success.",
+        "quote": "reasoned decision",
+        "pinpoint": "Paragraphs 43-45"
+      }
+    ],
+    "text_sha256": "cef11a9c14b6beaa26311edb7d2e6dad7d1dab33cd7c959af1fe3fb493acb100"
+  },
+  "court-echr-10519-83": {
+    "issue": "Statutory presumptions and defence rights",
+    "outcome": "No Article 6(2) violation found",
+    "sections": [
+      {
+        "label": "Charge",
+        "summary": "Illegal importation of narcotics and the customs offence of smuggling prohibited goods. The appeal acquitted the applicant on the narcotics charge but upheld the customs conviction.",
+        "quote": "smuggling prohibited goods",
+        "pinpoint": "Paragraphs 12-14"
+      },
+      {
+        "label": "What was at stake",
+        "summary": "First instance: two years' imprisonment, a ban on residing in France and a FRF 100,000 customs fine. The narcotics conviction was set aside on appeal. Do not present the initial prison term as a current or final exposure. A prosecutor-requested term is not recorded.",
+        "quote": "two years’ imprisonment",
+        "pinpoint": "Paragraphs 13-14"
+      },
+      {
+        "label": "Presumption of innocence",
+        "summary": "The complaint concerned a legal presumption attached to possession of prohibited goods. The Court examined reasonable limits, the importance of what was at stake, defence rights and the actual use of the presumption.",
+        "quote": "within reasonable limits",
+        "pinpoint": "Paragraphs 27-30"
+      },
+      {
+        "label": "Court's conclusion",
+        "summary": "No Article 6(2) breach in this case. The domestic courts assessed the evidence and avoided applying the customs presumption automatically. The Court also found no Article 6(1) breach.",
+        "quote": "careful to avoid resorting automatically",
+        "pinpoint": "Paragraphs 30-31; operative provision"
+      },
+      {
+        "label": "For a lawyer reviewing a new matter",
+        "summary": "Identify the exact presumption, whether the defendant could rebut it, and how the court assessed the evidence. A statutory presumption alone does not establish a violation.",
+        "quote": "power of assessment",
+        "pinpoint": "Paragraphs 28-30"
+      }
+    ],
+    "text_sha256": "629f087a852dc9868dcb7ca2b21e696cb39c9e68d0350bf545e2d7cc96902b68"
+  }
+}

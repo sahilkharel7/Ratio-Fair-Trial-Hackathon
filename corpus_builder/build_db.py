@@ -86,7 +86,9 @@ def _corpus(store: BuildStore, verified: Verified, taxonomy: FactPatternTaxonomy
         _check_facets(doc, facets, known)
         corpus.append((doc, facets))
     kept = {doc.id for doc, _ in corpus}
-    corpus.extend((doc, ()) for doc in store.documents() if doc.kind == "collection_document" and doc.id in searchable and doc.id not in kept)
+    # Wording search is useful before extraction, and when no pattern was found.
+    # Keep public reports as well as uploaded collections; never invent facets.
+    corpus.extend((doc, ()) for doc in store.documents() if doc.id in searchable and doc.id not in kept)
     if not corpus:
         raise BuildError("no document has a verified facet; run `python -m corpus_builder extract`, then `verify`")
     return tuple(sorted(corpus, key=lambda entry: entry[0].id))
@@ -188,7 +190,7 @@ def _fill(db: sqlite3.Connection, corpus: Corpus, vectors: Vectors, meta: Corpus
     documents = [tuple(getattr(doc, column) for column in _DOCUMENT_COLUMNS) for doc, _ in corpus]
     facets = [(doc.id, facet.facet_id, facet.finding_kind) for doc, doc_facets in corpus for facet in doc_facets]
     sources = [(s.kind, s.name, s.terms_url, s.terms_checked, s.attribution) for s in meta.sources]
-    db.executemany(f"INSERT INTO documents ({columns}) VALUES ({marks})", documents)  # noqa: S608 - the model's field names
+    db.executemany(f"INSERT INTO documents ({columns}) VALUES ({marks})", documents)
     db.executemany("INSERT INTO facets VALUES (?, ?, ?)", facets)
     db.executemany("INSERT INTO quotes VALUES (?, ?, ?, ?, ?, ?, ?)", _quote_rows(corpus, vectors))
     db.executemany("INSERT INTO sources VALUES (?, ?, ?, ?, ?)", sources)

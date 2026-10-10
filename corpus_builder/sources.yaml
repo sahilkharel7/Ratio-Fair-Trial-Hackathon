@@ -303,3 +303,30 @@ sources:
         title: "Lopez Mendoza and Tintori Parra v. Venezuela"
         state: Venezuela
         year: 2025
+
+  - id: echr_judgments
+    kind: court_judgment
+    name: "European Court of Human Rights judgments (official UN reproductions)"
+    body: "European Court of Human Rights"
+    attribution: "European Court of Human Rights judgment, English text reproduced by OHCHR Cambodia or UNODC; issuing court remains the ECHR."
+    terms_url: https://www.ohchr.org/en/copyright
+    terms_checked: 2026-10-10
+    terms_summary: "Court judgments reproduced in public UN legal resources. Preserve Court and hosting attribution; Ratio summaries are reading aids, not official Court summaries."
+    allowed_prefixes: ["https://cambodia.ohchr.org/", "https://sherloc.unodc.org/"]
+    min_interval_s: 3
+    seeds:
+      - url: https://cambodia.ohchr.org/en/download/file/fid/1120
+        symbol: ECHR-15175-89
+        title: "Allenet de Ribemont v. France"
+        state: France
+        year: 1995
+      - url: https://cambodia.ohchr.org/en/download/file/fid/1099
+        symbol: ECHR-42095-98
+        title: "Daktaras v. Lithuania"
+        state: Lithuania
+        year: 2000
+      - url: https://sherloc.unodc.org/cld/uploads/res/case-law-doc/drugcrimetype/_irb/salabiaku_v__france_html/SALABIAKU_v._FRANCE.pdf
+        symbol: ECHR-10519-83
+        title: "Salabiaku v. France"
+        state: France
+        year: 1988

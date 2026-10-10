@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Icon } from "./workspace.jsx";
 import { firstMatch } from "./research.mjs";
+import { CourtJudgments } from "./court-library.jsx";
+import { CorpusResearch } from "./corpus-research.jsx";
 import { downloadFile, markdownLiteral } from "./workflow.mjs";
 import {
   workspaceMode,
@@ -15,6 +17,7 @@ const patternNames = {
   burden_shift: "Burden of proof",
   official_guilt_statement: "Public statements of guilt",
   prejudicial_presentation: "Courtroom presentation",
+  presumption_discussion: "Discussion in the judgment",
   other: "Other / procedural stage",
 };
 const outcomeNames = {
@@ -105,6 +108,12 @@ export function CaseCollection({
         </span>
         <span>ICCPR Article 14(2)</span>
       </div>
+      {workspace.mode === "local_sqlite" && (
+        <CourtJudgments navigate={navigate} />
+      )}
+      {workspace.mode === "local_sqlite" && (
+        <h2 className="active-review-heading">Your active case reviews</h2>
+      )}
       <div className="collection-filters">
         <div>
           <label htmlFor="court-filter">Court</label>
@@ -273,6 +282,9 @@ export function CaseCollection({
 
 export function InternationalDecisions({
   registry,
+  local = false,
+  onImport,
+  refresh,
   pattern: initialPattern = "",
   navigate,
 }) {
@@ -378,6 +390,7 @@ export function InternationalDecisions({
       {!summary.records.length && (
         <p className="empty">No coded decision matches these filters.</p>
       )}
+      {local && <CorpusResearch onImport={onImport} refresh={refresh} />}
     </>
   );
 }
@@ -550,7 +563,7 @@ export function CaseReview({
     );
   const { record, focus } = payload,
     latest = latestAssessments(history),
-    patterns = [...new Set(focus.prompts.map((p) => p.pattern))];
+    patterns = [...new Set(focus.prompts.map((p) => p.pattern).filter((p) => p !== "presumption_discussion"))];
   const comparable = (
     workspace.outcomes?.records || bundle.outcomes.records
   ).filter((r) => !patterns.length || patterns.includes(r.pattern));

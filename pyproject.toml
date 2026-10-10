@@ -31,6 +31,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+pdf = ["reportlab==4.4.9"]  # maintainer-only case reading sheets; runtime serves verified saved PDFs
+
 dev = [
   "pytest==9.1.1",
   "pytest-cov==7.1.0",

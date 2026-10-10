@@ -20,7 +20,9 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from pydantic import ValidationError
+
 from ratio import netguard
+from ratio.corpus_research import CorpusResearch
 from ratio.extraction.loader import CaseManifest, LoaderError
 from ratio.library import LibraryStore
 from ratio.outcomes import registry
@@ -30,7 +32,9 @@ from ratio.workspace import case_payload, focus_report, seed_collection
 MAX_REQUEST = 70_000_000
 
 
-def handler_for(library: LibraryStore, dist: Path):
+def handler_for(library: LibraryStore, dist: Path, research=None):
+    research = research or CorpusResearch()
+
     class Handler(SimpleHTTPRequestHandler):
         def __init__(self, *args, **kwargs):
             super().__init__(*args, directory=str(dist), **kwargs)
@@ -90,6 +94,71 @@ def handler_for(library: LibraryStore, dist: Path):
                 return
             path = unquote(urlsplit(self.path).path)
             params = parse_qs(urlsplit(self.path).query)
+            if path == "/api/precedents":
+                return self.reply(research.catalogue())
+            if path == "/api/precedents/search":
+                try:
+                    return self.reply(
+                        research.search(
+                            params.get("q", [""])[0],
+                            kind=params.get("kind", [""])[0],
+                            state=params.get("state", [""])[0],
+                            mode=params.get("mode", ["phrase"])[0],
+                        )
+                    )
+                except ValueError as exc:
+                    return self.reply({"error": str(exc)}, 400)
+            if path.startswith("/api/precedents/"):
+                if path.endswith("/brief.pdf"):
+                    brief = research.brief(
+                        path.removeprefix("/api/precedents/").removesuffix("/brief.pdf")
+                    )
+                    if brief is None:
+                        return self.reply(
+                            {
+                                "error": "Verified one-pager is unavailable; read the original source."
+                            },
+                            404,
+                        )
+                    raw = brief[1]
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/pdf")
+                    self.send_header(
+                        "Content-Disposition",
+                        'attachment; filename="case-reading-sheet.pdf"',
+                    )
+                    self.send_header("Content-Length", str(len(raw)))
+                    self.send_header("Cache-Control", "no-store")
+                    self.end_headers()
+                    self.wfile.write(raw)
+                    return
+                if path.endswith("/original"):
+                    original = research.original_pdf(
+                        path.removeprefix("/api/precedents/").removesuffix("/original")
+                    )
+                    if original is None:
+                        return self.reply(
+                            {
+                                "error": "Verified original PDF is unavailable on this computer."
+                            },
+                            404,
+                        )
+                    doc, raw = original
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/pdf")
+                    self.send_header(
+                        "Content-Disposition", f'attachment; filename="{doc.id}.pdf"'
+                    )
+                    self.send_header("Content-Length", str(len(raw)))
+                    self.end_headers()
+                    self.wfile.write(raw)
+                    return
+                document = research.document(path.removeprefix("/api/precedents/"))
+                return (
+                    self.reply(document)
+                    if document
+                    else self.reply({"error": "Reference document not found."}, 404)
+                )
             if path == "/api/library":
                 return self.reply(
                     {
@@ -178,6 +247,27 @@ def handler_for(library: LibraryStore, dist: Path):
                     )
                 body = json.loads(self.rfile.read(length))
                 path = urlsplit(self.path).path
+                if path.startswith("/api/precedents/") and path.endswith("/stage"):
+                    original = research.original_pdf(
+                        unquote(
+                            path.removeprefix("/api/precedents/").removesuffix("/stage")
+                        )
+                    )
+                    if original is None:
+                        return self.reply(
+                            {
+                                "error": "Verified public PDF is unavailable on this computer."
+                            },
+                            404,
+                        )
+                    doc, raw = original
+                    batch = library.stage(
+                        {doc.id + ".pdf": raw}, provenance="public", source_note=doc.url
+                    )
+                    return self.reply(
+                        {"batch_id": batch, "pending_files": library.pending_files()},
+                        201,
+                    )
                 if path == "/api/intake":
                     files = body["files"]
                     if len(files) != len({f["name"] for f in files}):

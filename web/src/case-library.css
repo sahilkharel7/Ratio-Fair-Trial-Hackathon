@@ -116,10 +116,9 @@
 .ledger-heading,
 .ledger-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.8fr) minmax(120px, 0.75fr) minmax(
-      130px,
-      0.85fr
-    ) 82px;
+  grid-template-columns:
+    minmax(0, 1.8fr) minmax(120px, 0.75fr) minmax(130px, 0.85fr)
+    82px;
   column-gap: 22px;
   align-items: center;
 }
@@ -849,10 +848,9 @@
 @media (max-width: 1150px) {
   .ledger-heading,
   .ledger-row {
-    grid-template-columns: minmax(0, 1.6fr) minmax(100px, 0.8fr) minmax(
-        110px,
-        0.8fr
-      ) 70px;
+    grid-template-columns:
+      minmax(0, 1.6fr) minmax(100px, 0.8fr) minmax(110px, 0.8fr)
+      70px;
     gap: 15px;
   }
   .ledger-heading {
@@ -1243,5 +1241,188 @@
   }
   .source-record-row strong {
     font-size: 14px;
+  }
+}
+
+.corpus-research {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid var(--line, #d8d8d2);
+}
+.corpus-search {
+  display: grid;
+  grid-template-columns: 2fr repeat(3, minmax(0, 1fr)) auto;
+  align-items: end;
+  gap: 14px;
+  margin: 20px 0 12px;
+}
+.corpus-search label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.corpus-search input,
+.corpus-search select {
+  width: 100%;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #c8c9c5;
+  border-radius: 3px;
+  background: white;
+}
+.corpus-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.corpus-suggestions button {
+  font-size: 12px;
+  padding: 7px 10px;
+}
+.corpus-excerpt {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: Georgia, serif;
+  line-height: 1.65;
+}
+.corpus-research .outcome-card {
+  margin-bottom: 15px;
+}
+.corpus-research .outcome-card > a {
+  margin-left: 18px;
+}
+.corpus-reader {
+  padding: 22px;
+  border: 1px solid #c8c9c5;
+  background: #faf9f5;
+  margin: 20px 0;
+}
+.corpus-reader pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: Georgia, serif;
+  line-height: 1.65;
+  max-height: 520px;
+  overflow: auto;
+  padding: 18px;
+  background: white;
+  border: 1px solid #ddd;
+}
+.corpus-research h2,
+.corpus-research h3 {
+  font-family: Georgia, serif;
+}
+.corpus-research li {
+  margin-bottom: 10px;
+}
+@media (max-width: 900px) {
+  .corpus-search {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .corpus-search {
+    grid-template-columns: 1fr;
+  }
+  .corpus-reader {
+    padding: 12px;
+  }
+}
+.court-library {
+  margin: 30px 0 36px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+.court-library h2,
+.court-library h3,
+.judgment-review h1,
+.judgment-review h2,
+.judgment-review h3 {
+  font-family: Georgia, serif;
+}
+.court-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 18px 0;
+}
+.court-cards article {
+  background: #fff;
+  border: 1px solid #d9dcda;
+  border-top: 3px solid #9a8145;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+.court-cards h3 {
+  font-size: 21px;
+  line-height: 1.3;
+  margin: 8px 0;
+}
+.court-cards h3 a {
+  color: #173447;
+  text-decoration: none;
+}
+.court-cards button {
+  margin-top: auto;
+  text-align: left;
+}
+.active-review-heading {
+  margin: 24px 0 18px;
+}
+.judgment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  align-items: center;
+  margin: 24px 0;
+}
+.brief-sections {
+  background: #fff;
+  border: 1px solid #d9dcda;
+  padding: 24px;
+  margin: 24px 0;
+}
+.brief-sections section {
+  border-top: 1px solid #e1e3e0;
+  padding: 16px 0;
+}
+.brief-sections h3 {
+  margin: 0 0 8px;
+  font-size: 21px;
+}
+.brief-sections p {
+  max-width: 80ch;
+  line-height: 1.7;
+}
+.brief-sections summary {
+  font-size: 13px;
+  color: #49606d;
+  cursor: pointer;
+}
+.judgment-next {
+  margin: 30px 0;
+  padding-top: 20px;
+  border-top: 1px solid #d9dcda;
+}
+.judgment-next button {
+  margin-right: 12px;
+}
+@media (max-width: 1100px) {
+  .court-cards {
+    grid-template-columns: 1fr;
+  }
+  .corpus-search {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .corpus-search {
+    grid-template-columns: 1fr;
+  }
+  .brief-sections {
+    padding: 16px;
   }
 }

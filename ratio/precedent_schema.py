@@ -23,7 +23,7 @@ SCHEMA_VERSION = 2  # 2: uploaded collections (private flag) and paragraph passa
 EMBED_MODEL_TAG = "all-MiniLM-L6-v2/384"
 PRECEDENT_PREFIX = "precedent-"  # SourceSpan.case_id of every precedent span: never a real case id
 
-PrecedentKind = Literal["ccpr_views", "wgad_opinion", "trialwatch_report", "collection_document"]
+PrecedentKind = Literal["ccpr_views", "wgad_opinion", "court_judgment", "trialwatch_report", "collection_document"]
 COLLECTION_PREFIX = "collection:"  # the address of a document uploaded into a collection: collection:<slug>/<file>
 FindingKind = Literal["violation_found", "no_violation", "not_examined", "monitor_assessment"]
 QuoteMatch = Literal["exact", "normalized"]  # never fuzzy: a quote either is in the text or is dropped
@@ -33,6 +33,7 @@ QuoteMatch = Literal["exact", "normalized"]  # never fuzzy: a quote either is in
 ALLOWED_FINDINGS: dict[PrecedentKind, frozenset[FindingKind]] = {
     "ccpr_views": frozenset({"violation_found", "no_violation", "not_examined"}),
     "wgad_opinion": frozenset({"violation_found", "no_violation", "not_examined"}),
+    "court_judgment": frozenset({"violation_found", "no_violation", "not_examined"}),
     "trialwatch_report": frozenset({"monitor_assessment", "not_examined"}),
     "collection_document": frozenset({"monitor_assessment", "not_examined"}),  # an uploaded document assesses; it rules on no Covenant violation
 }
