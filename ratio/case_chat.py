@@ -14,7 +14,8 @@ import numpy as np
 from pydantic import Field, create_model
 
 from ratio.config import default_config
-from ratio.llm import LLMError, OllamaClient
+from ratio.llm import LLMError, LLMResponseError, OllamaClient
+from ratio.messages import filter_model_note
 from ratio.triangulation import QUERY_CHARS, case_passages, source_span
 
 REFUSAL = "The documents do not support an answer to this question."
@@ -86,9 +87,12 @@ def ask(library, research, case_id: str, question: str, *, llm=None) -> dict:
         answer = (llm or OllamaClient(default_config().settings.llm)).complete_json(
             system=SYSTEM, user=user, schema=schema, purpose="case_chat"
         )
+    except LLMResponseError:  # ids outside the passages, or a reply that fails the schema twice
+        return _reply(False, REFUSAL, [])
     except LLMError:
         return _reply(False, UNAVAILABLE, [])
     cited = list(dict.fromkeys(answer.citations))
-    if not answer.supported or not cited or not answer.answer.strip():
+    text = filter_model_note(answer.answer, default_config().messages.block_list)  # hard rule 3
+    if not answer.supported or not cited or text is None:
         return _reply(False, REFUSAL, [])
-    return _reply(True, answer.answer.strip(), [sources[key] for key in cited])
+    return _reply(True, text, [sources[key] for key in cited])

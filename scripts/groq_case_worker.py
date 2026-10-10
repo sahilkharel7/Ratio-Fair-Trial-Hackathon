@@ -227,6 +227,8 @@ def main():
             else "Draft failed source or format validation. Original documents are unchanged."
         )
         print(json.dumps({"error": message}))
+    except ImportError as exc:  # the one-page PDF needs reportlab, from the optional [pdf] extra
+        print(json.dumps({"error": f"The one-page PDF needs the pdf extra ({exc.name}): run uv pip install -e '.[pdf]' and retry."}))
 
 
 if __name__ == "__main__":

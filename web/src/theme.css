@@ -227,6 +227,7 @@ mark {
     inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 .page-hero h1,
+.page-hero h2,
 .page-hero .eyebrow,
 .page-hero > div > p,
 .page-hero > div > p:last-child {

@@ -18,7 +18,8 @@ Upload PDFs/TXT/MD, assign the originals to one case with confirmed roles, then 
 that stored case. Assessments retain their source snapshots and history; working
 notes and originals survive a restart. `--db PATH` selects a separate database.
 See [the court-workspace guide](../docs/COURT-WORKSPACE.md) for limits and the adapter
-contract used by future bulk grouping/OCR/classification work.
+contract used by future bulk grouping/classification work; scanned PDF pages are
+already read with on-device OCR (macOS Vision).
 
 ## Vercel synthetic preview
 

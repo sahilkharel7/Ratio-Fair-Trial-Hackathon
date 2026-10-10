@@ -17,7 +17,8 @@ from pydantic import Field, create_model
 
 from ratio.config import default_config
 from ratio.extraction.segment import sentence_spans
-from ratio.llm import LLMError, OllamaClient
+from ratio.llm import LLMError, LLMResponseError, OllamaClient
+from ratio.messages import filter_model_note
 
 POINTER_LABEL = (
     "Similarity is a pointer, not a finding: passages are ranked by local meaning search and by the indicators "
@@ -153,12 +154,19 @@ def _span(doc, start: int, end: int) -> dict:
     return {"doc_id": doc.id, "start": start, "end": end, "text": doc.text[start:end], "document": doc.title}
 
 
+def _bounded_spans(text: str, max_chars: int):
+    """Sentence spans, with any sentence longer than max_chars (an OCR page without full stops) cut into windows."""
+    for s, e in sentence_spans(text):
+        for window in range(s, e, max_chars):
+            yield window, min(e, window + max_chars)
+
+
 def case_passages(record, max_chars: int = PASSAGE_CHARS) -> list[dict]:
     """Whole sentences of every document, grouped into passages of at most max_chars, with exact offsets."""
     passages = []
     for doc in record.documents:
         start = end = None
-        for s, e in sentence_spans(doc.text):
+        for s, e in _bounded_spans(doc.text, max_chars):
             if start is not None and e - start > max_chars:
                 passages.append(_span(doc, start, end))
                 start = None
@@ -270,14 +278,15 @@ def _explain(right: Right, case_top: list[dict], cases: list[dict], llm) -> list
         ],
     })
     answer = llm.complete_json(system=SYSTEM, user=user, schema=schema, purpose="triangulation")
+    block = default_config().messages.block_list  # hard rule 3: no words that characterise a person
     facts: dict[int, list[dict]] = {}
     for item in answer.facts:
         ci, entry = reference_ids[item.reference_passage]
         facts.setdefault(ci, []).append({
-            "fact": item.fact,
-            "why_relevant": item.why_relevant,
+            "fact": filter_model_note(item.fact, block),
+            "why_relevant": filter_model_note(item.why_relevant, block),
             "comparison": item.comparison,
-            "explanation": item.explanation,
+            "explanation": filter_model_note(item.explanation, block),
             "case_span": case_ids[item.case_passage]["span"],
             "case_document": case_ids[item.case_passage]["document"],
             "reference_span": entry["reference_span"],
@@ -302,6 +311,8 @@ def triangulate(library, research, case_id: str, right_id: str = "14(2)", *, llm
     try:
         cases = _explain(right, case_top, cases, llm or OllamaClient(default_config().settings.llm))
         note = "The local model picked and explained the facts (model text, unverified); each fact opens its source on both sides."
+    except LLMResponseError:
+        note = "The local model's reply could not be checked against the passages, so no facts were picked: the closest passages are shown without explanation."
     except LLMError:
         note = "The local model is unavailable, so no facts were picked: the closest passages are shown without explanation."
     return {**result, "case_passages": shown, "similar_cases": cases, "note": note}

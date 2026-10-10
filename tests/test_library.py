@@ -53,6 +53,55 @@ def test_collection_survives_restart_and_does_not_promote_reference_history(libr
     assert reopened.list("Another court") == []
 
 
+NEW_NOTE = (
+    "SYNTHETIC: fictional case; all people, courts, country, language and laws are invented.\n"
+    "MONITORING NOTE\nHearing date: 5 August 2025\nThe defence asked the court for more time to prepare.\n"
+)
+
+
+def test_a_case_is_deleted_with_everything_stored_for_it(library):
+    manifest, ids = stage_sorin(library)
+    library.import_manifest(manifest, ids)
+    library.add_note("uploaded-sorin", "Check the monitor's second note.")
+
+    library.delete_case("uploaded-sorin")
+
+    assert library.cases.load_case("uploaded-sorin") is None
+    assert all(c["case_id"] != "uploaded-sorin" for c in library.list())
+    with library.connect() as conn:
+        for table in ("matter_files", "case_notes", "matter_catalogue", "cases"):
+            assert conn.execute(f"SELECT COUNT(*) FROM {table} WHERE case_id=?", ("uploaded-sorin",)).fetchone()[0] == 0
+        assert conn.execute("SELECT COUNT(*) FROM intake_files WHERE assigned_case_id=?", ("uploaded-sorin",)).fetchone()[0] == 0
+    with pytest.raises(KeyError):
+        library.delete_case("uploaded-sorin")
+
+
+def test_files_are_added_to_an_uploaded_case_without_moving_its_sources(library):
+    manifest, ids = stage_sorin(library)
+    library.import_manifest(manifest, ids)
+    before = {d.path: d.text for d in library.cases.load_case("uploaded-sorin").documents}
+    library.stage({"note-2.txt": NEW_NOTE.encode()}, provenance="synthetic")
+    new_id = next(f["id"] for f in library.pending_files() if f["name"] == "note-2.txt")
+
+    library.add_files("uploaded-sorin", [new_id], "monitoring_note")
+
+    stored = library.cases.load_case("uploaded-sorin")
+    assert {d.path for d in stored.documents} == {"indictment.txt", "judgment.txt", "note-2.txt"}
+    assert all(d.text == before[d.path] for d in stored.documents if d.path in before)
+    assert not any(f["id"] == new_id for f in library.pending_files())
+    with pytest.raises(LoaderError):  # each file is assigned once
+        library.add_files("uploaded-sorin", [new_id], "monitoring_note")
+
+
+def test_the_demo_cases_loaded_from_the_examples_are_read_only(library):
+    seed_collection(library)
+    library.stage({"note-2.txt": NEW_NOTE.encode()}, provenance="synthetic")
+    new_id = library.pending_files()[0]["id"]
+    with pytest.raises(LoaderError):
+        library.add_files("venn-2025", [new_id], "monitoring_note")
+    assert library.pending_files()[0]["id"] == new_id  # nothing was assigned
+
+
 def test_demo_seeding_skips_entries_that_are_not_case_folders(library, tmp_path, monkeypatch):
     import shutil
 

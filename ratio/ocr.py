@@ -7,6 +7,7 @@ Vision is unavailable, ocr_pages raises OCRUnavailable and the scanned page stay
 
 from __future__ import annotations
 
+import functools
 import hashlib
 import json
 import os
@@ -53,17 +54,27 @@ def ocr_pages(data: bytes) -> list[str]:
     """The recognised text of every page of a PDF, in page order."""
     if not enabled():
         raise OCRUnavailable("On-device OCR is turned off (RATIO_OCR=0).")
-    helper = _helper()
-    with tempfile.TemporaryDirectory(prefix="ratio-ocr-") as folder:
-        path = Path(folder) / "scan.pdf"
-        path.write_bytes(data)
-        try:
+    return list(_ocr_cached(data))
+
+
+@functools.lru_cache(maxsize=8)  # staging and case creation read the same scan: OCR it once (inputs are at most 5 MB)
+def _ocr_cached(data: bytes) -> tuple[str, ...]:
+    try:
+        helper = _helper()
+        with tempfile.TemporaryDirectory(prefix="ratio-ocr-") as folder:
+            path = Path(folder) / "scan.pdf"
+            path.write_bytes(data)
             result = subprocess.run([str(helper), str(path)], capture_output=True, timeout=TIMEOUT_SECONDS)
-        except subprocess.TimeoutExpired as exc:
-            raise OCRUnavailable("On-device OCR took too long for this document.") from exc
+    except subprocess.TimeoutExpired as exc:
+        raise OCRUnavailable("On-device OCR took too long for this document.") from exc
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise OCRUnavailable("On-device OCR could not run on this computer.") from exc
     if result.returncode != 0 or len(result.stdout) > MAX_OUTPUT_BYTES:
         raise OCRUnavailable("On-device OCR could not read this PDF.")
-    pages = json.loads(result.stdout).get("pages")
+    try:
+        pages = json.loads(result.stdout).get("pages")
+    except (ValueError, AttributeError) as exc:
+        raise OCRUnavailable("On-device OCR returned an unexpected reply.") from exc
     if not isinstance(pages, list) or not all(isinstance(p, str) for p in pages):
         raise OCRUnavailable("On-device OCR returned an unexpected reply.")
-    return pages
+    return tuple(pages)

@@ -1,4 +1,26 @@
 /* Triangulation and the case chat: side-by-side source pairs, the pointer label, the local-only banner. */
+.case-review-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+.case-file-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+.case-file-actions .caption {
+  flex-basis: 100%;
+  text-align: right;
+  margin: 0;
+}
+.case-delete {
+  color: #9f1c1c;
+  border-color: #e3b4b4;
+}
 .triangulation-controls {
   display: flex;
   flex-wrap: wrap;
