@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-fairness-report-abzas-media",
+  "text_sha256": "0e5214f9d63ae2ad128c95d4f335f215606951382119383619f759294ebd0d70",
+  "pdf_sha256": "f5e1bb13f0c1ae54e25a6a45a37b3e1ed6bc0b087de008f37771b8a9e7a512b3",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] ns of doubt in favor of the prosecution, violating the\nDefendants’ right to the presumption of innocence, and impairing their ability to\npresent a meaningful defense.4\n\n1 European Court of Human Rights, Rasul Jafarov v. Azerbaijan, App. No. 69981/14 (Mar. 17,\n2016); Mammadli v. Azerbaijan, App. No. 47145/14 (Apr. 19, 2018); Aliyev v. Azerbaijan, App. [...]",
+      "quote": "ns of doubt in favor of the prosecution, violating the\nDefendants’ right to the presumption of innocence, and impairing their ability to\npresent a meaningful defense.4\n\n1 European Court of Human Rights, Rasul Jafarov v. Azerbaijan, App. No. 69981/14 (Mar. 17,\n2016); Mammadli v. Azerbaijan, App. No. 47145/14 (Apr. 19, 2018); Aliyev v. Azerbaijan, App.",
+      "pinpoint": "Stored text line 170"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] PPLICABLE LAW 32\nB. ANALYSIS OF CHARGING DOCUMENT(S) 32\nRight to be Informed of Charges 32\nC. ANALYSIS OF TRIAL 33\nRight to Call and Examine Witnesses 33\nRight to be Presumed Innocent 36\nRight to a Public Trial 42\nRight to Adequate Time & Facilities to Prepare a Defense 43\nRight to be Tried by an Independent and Impartial Court [...]",
+      "quote": "PPLICABLE LAW 32\nB. ANALYSIS OF CHARGING DOCUMENT(S) 32\nRight to be Informed of Charges 32\nC. ANALYSIS OF TRIAL 33\nRight to Call and Examine Witnesses 33\nRight to be Presumed Innocent 36\nRight to a Public Trial 42\nRight to Adequate Time & Facilities to Prepare a Defense 43\nRight to be Tried by an Independent and Impartial Court",
+      "pinpoint": "Stored text line 79"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] of free speech. Its\nmission is to expose injustice, help to free those unjustly detained and promote the\nrule of law around the world.\n\nThis report is published for informational and advocacy purposes. It is based on\ninformation available from public sources, court proceedings, legal documents and\ninterviews believed to be accurate at [...]",
+      "quote": "of free speech. Its\nmission is to expose injustice, help to free those unjustly detained and promote the\nrule of law around the world.\n\nThis report is published for informational and advocacy purposes. It is based on\ninformation available from public sources, court proceedings, legal documents and\ninterviews believed to be accurate at",
+      "pinpoint": "Stored text line 49"
+    }
+  ]
+}

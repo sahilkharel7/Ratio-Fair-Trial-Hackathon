@@ -1,0 +1,20 @@
+{
+  "document_id": "wgad-2024-28",
+  "text_sha256": "40d0b6da01651556e5d0abed8a81352c1849067fd3ac817e910dcba6f215baca",
+  "pdf_sha256": "6931482d9fe4e396ab260231126c20d8a96a4ec3cb4f78d611433a558c5e5ffe",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] pa presented himself to\nSamranrat Police Station in Bangkok to acknowledge nine charges, including one charge\nunder section 112 ( lèse-majesté) of the Criminal Code, in connection with his participation\nin a peaceful protest on 14 October 2020 in Bangkok. After acknowledging the charges,\nMr. Nampa was not arrested and was free to [...]",
+      "quote": "pa presented himself to\nSamranrat Police Station in Bangkok to acknowledge nine charges, including one charge\nunder section 112 ( lèse-majesté) of the Criminal Code, in connection with his participation\nin a peaceful protest on 14 October 2020 in Bangkok. After acknowledging the charges,\nMr. Nampa was not arrested and was free to",
+      "pinpoint": "Stored text line 66"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...]  time he\nwas indicted for lèse-majesté in those two cases, he was already being detained at the\nBangkok Remand Prison in connection with other lèse-majesté cases. The present\ncommunication focuses on the two cases in which Mr. Nampa has been convicted and\nsentenced to prison terms (Black Case No. Aor. 2495/2564 and Black Case No. [...]",
+      "quote": " time he\nwas indicted for lèse-majesté in those two cases, he was already being detained at the\nBangkok Remand Prison in connection with other lèse-majesté cases. The present\ncommunication focuses on the two cases in which Mr. Nampa has been convicted and\nsentenced to prison terms (Black Case No. Aor. 2495/2564 and Black Case No.",
+      "pinpoint": "Stored text line 58"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-cambodia-v-ros-sokhet",
+  "text_sha256": "620fada31a211e8d84a6a26f58ae9e72e4047ca414852b9aea9848c08fa55f56",
+  "pdf_sha256": "946ef776bd93db43411d03e283171017a933762db88c02db176dfae997cbf5e6",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] m of expression in addition to violating other rights, such\nas his right to the presumption of innocence - detailed below.\n\nMr. Sokhet is a Cambodian journalist known for his criticism of the ruling party. He is the\nfounder of the independent news outlet, Khmer Nation. Between May and June 2020,\nMr. Sokhet made a series of posts for Khmer Nation on [...]",
+      "quote": "m of expression in addition to violating other rights, such\nas his right to the presumption of innocence - detailed below.\n\nMr. Sokhet is a Cambodian journalist known for his criticism of the ruling party. He is the\nfounder of the independent news outlet, Khmer Nation. Between May and June 2020,\nMr. Sokhet made a series of posts for Khmer Nation on",
+      "pinpoint": "Stored text line 51"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...]  the grading\nmethodology described in the Annex.\n\n3\n\nOn June 28, Mr. Sokhet was charged with “incitement to disrupt social order” under\nArticles 494 and 495 of Cambodia’s Criminal Code. The charges were based not only\non the Facebook posts about Hun Sen but also on the other posts mentioned above.\nArticle 494 and Article 495 (entitled [...]",
+      "quote": " the grading\nmethodology described in the Annex.\n\n3\n\nOn June 28, Mr. Sokhet was charged with “incitement to disrupt social order” under\nArticles 494 and 495 of Cambodia’s Criminal Code. The charges were based not only\non the Facebook posts about Hun Sen but also on the other posts mentioned above.\nArticle 494 and Article 495 (entitled",
+      "pinpoint": "Stored text line 81"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] proceedings a grade\nof D:\n\nMr. Sokhet was criminally prosecuted, convicted, and sentenced for non-violent\npolitical speech, violating his right to freedom of expression. His conviction and the\nsubsequent judgement also violated his right to be presumed innocent and right to a\nduly reasoned judicial decision. Because the violations of [...]",
+      "quote": "proceedings a grade\nof D:\n\nMr. Sokhet was criminally prosecuted, convicted, and sentenced for non-violent\npolitical speech, violating his right to freedom of expression. His conviction and the\nsubsequent judgement also violated his right to be presumed innocent and right to a\nduly reasoned judicial decision. Because the violations of",
+      "pinpoint": "Stored text line 70"
+    }
+  ]
+}

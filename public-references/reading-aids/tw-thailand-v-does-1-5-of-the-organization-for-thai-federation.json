@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-thailand-v-does-1-5-of-the-organization-for-thai-federation",
+  "text_sha256": "d0b1069298a198915e99e4cd4674a074891cd575e63f962e1d7c331dcfe23829",
+  "pdf_sha256": "da56d4737e041cdbd2be473d6cf1f6ec8c0fe9f2de4ea37914adfda7f4dd3961",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] onduct of the\nproceedings raises substantial concerns regarding respect for the presumption of\ninnocence and the right to be tried by an impartial court. Most notably, however, and\ninfecting the entirety of the trial and its outcome, the case constituted a severe violation\nof the principle of legality  and of the defendants’ right to freedom of [...]",
+      "quote": "onduct of the\nproceedings raises substantial concerns regarding respect for the presumption of\ninnocence and the right to be tried by an impartial court. Most notably, however, and\ninfecting the entirety of the trial and its outcome, the case constituted a severe violation\nof the principle of legality  and of the defendants’ right to freedom of",
+      "pinpoint": "Stored text line 92"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] Rights Clinic at Columbia Law School\nmonitored the trial of five individuals on charges of sedition and membership in a secret\nsociety, the latter predicated  on the defendants’ alleged affiliation with the Organization\nfor Thai Federation (OTF), an organization whose political platform includes changing the\nexisting political system [...]",
+      "quote": "Rights Clinic at Columbia Law School\nmonitored the trial of five individuals on charges of sedition and membership in a secret\nsociety, the latter predicated  on the defendants’ alleged affiliation with the Organization\nfor Thai Federation (OTF), an organization whose political platform includes changing the\nexisting political system",
+      "pinpoint": "Stored text line 41"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] Annex to this Report.\n\ndefendants were arrested in September 2018 and initially detained and interrogated in a\nmilitary camp for several days.\nOn January 21, 2020, t he Court convicted f our of the five defendants of the charge of\nmembership in a secret society, sentencing two defendants to three years in prison and\nthe others to two [...]",
+      "quote": "Annex to this Report.\n\ndefendants were arrested in September 2018 and initially detained and interrogated in a\nmilitary camp for several days.\nOn January 21, 2020, t he Court convicted f our of the five defendants of the charge of\nmembership in a secret society, sentencing two defendants to three years in prison and\nthe others to two",
+      "pinpoint": "Stored text line 80"
+    }
+  ]
+}

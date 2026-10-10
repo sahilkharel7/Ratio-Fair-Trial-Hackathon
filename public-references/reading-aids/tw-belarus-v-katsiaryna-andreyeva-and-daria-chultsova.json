@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-belarus-v-katsiaryna-andreyeva-and-daria-chultsova",
+  "text_sha256": "999f12d9892c5d20860376addd80114c4d19d283a837d42d4b49689a790482f1",
+  "pdf_sha256": "c99b960e919d0da34ca228cf00eea53d5c26689228384f1a65d43d26c80f902e",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] ted a severe abuse of their fair trial rights: among others, their\nright to the presumption of innocence, their right to call and examine witnesses,\nand their right to judicial impartiality.\n\nThe entirety of the case, as evinced by the absolute lack of evidence against Ms.\nAndreyeva and Ms. Chultsova, was geared towards suppressing [...]",
+      "quote": "ted a severe abuse of their fair trial rights: among others, their\nright to the presumption of innocence, their right to call and examine witnesses,\nand their right to judicial impartiality.\n\nThe entirety of the case, as evinced by the absolute lack of evidence against Ms.\nAndreyeva and Ms. Chultsova, was geared towards suppressing",
+      "pinpoint": "Stored text line 77"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] tion for Justice’s Trial Watch initiative. Ms.\nAndreyeva and Ms. Chultsova were charged with the “organization of group\nactions that grossly violated public order” on the basis of their live reporting on a\ndemonstration. They were convicted and sentenced to two years in prison. From\ntheir initial arrest in November 2020 to their [...]",
+      "quote": "tion for Justice’s Trial Watch initiative. Ms.\nAndreyeva and Ms. Chultsova were charged with the “organization of group\nactions that grossly violated public order” on the basis of their live reporting on a\ndemonstration. They were convicted and sentenced to two years in prison. From\ntheir initial arrest in November 2020 to their",
+      "pinpoint": "Stored text line 72"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] n for Justice.  Its mission is to expose injustice, help to\nfree those unjustly detained, and promote the rule of law around the world.\nTrialWatch monitors criminal trials globally against those who are most vulnerable\n– including journalists, protesters, women, LGBTQ+ persons and minorities – and\n\n 2\nadvocates for the rights of the [...]",
+      "quote": "n for Justice.  Its mission is to expose injustice, help to\nfree those unjustly detained, and promote the rule of law around the world.\nTrialWatch monitors criminal trials globally against those who are most vulnerable\n– including journalists, protesters, women, LGBTQ+ persons and minorities – and\n\n 2\nadvocates for the rights of the",
+      "pinpoint": "Stored text line 48"
+    }
+  ]
+}

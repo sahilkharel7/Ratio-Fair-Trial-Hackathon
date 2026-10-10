@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-fairness-report-kazakhstan-v-duman-mukhammedkarim",
+  "text_sha256": "b87997026bf02c95a869bef6a907dbcfde968951d4a2fdab197685d4f6e8c90a",
+  "pdf_sha256": "d732125c7981c3200abcb77846ae5a6548e97ae0beec10dc11b1f4238f3f04c5",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] e tried by an independent and impartial court, the right to a public trial, the\npresumption of innocence, and the right to a reasoned public judgment with an\nopportunity to appeal. These infringements collectively undermined the integrity of the\njudicial process. The lack of a reasoned justification for the judgment most certainly\nand significantly [...]",
+      "quote": "e tried by an independent and impartial court, the right to a public trial, the\npresumption of innocence, and the right to a reasoned public judgment with an\nopportunity to appeal. These infringements collectively undermined the integrity of the\njudicial process. The lack of a reasoned justification for the judgment most certainly\nand significantly",
+      "pinpoint": "Stored text line 92"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] tions that cumulatively undermine the fairness of the\nproceedings. Notably, the charges appear to be driven by an \"improper motive,\" as\nrecognized under Article 18 of the European Convention on Human Rights. This raises\nserious concerns about the legitimacy of the prosecution. Furthermore, the legal\nframework and procedures employed [...]",
+      "quote": "tions that cumulatively undermine the fairness of the\nproceedings. Notably, the charges appear to be driven by an \"improper motive,\" as\nrecognized under Article 18 of the European Convention on Human Rights. This raises\nserious concerns about the legitimacy of the prosecution. Furthermore, the legal\nframework and procedures employed",
+      "pinpoint": "Stored text line 79"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] n for Justice . Its mission is to\nexpose injustice, help to free those unjustly detained and promote the rule of law around\nthe world. TrialWatch monitors criminal trials globally against those who are most\nvulnerable — including journalists, protesters, women, LGBTQ+ p ersons and minorities\n— and advocates for the rights of the [...]",
+      "quote": "n for Justice . Its mission is to\nexpose injustice, help to free those unjustly detained and promote the rule of law around\nthe world. TrialWatch monitors criminal trials globally against those who are most\nvulnerable — including journalists, protesters, women, LGBTQ+ p ersons and minorities\n— and advocates for the rights of the",
+      "pinpoint": "Stored text line 31"
+    }
+  ]
+}

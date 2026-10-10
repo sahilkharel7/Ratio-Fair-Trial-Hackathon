@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-thailand-v-katanyu-muenkhamruang-pan",
+  "text_sha256": "8a8fe75480e794f4bacc1821b5136b34b6ac071aeffbe9da708c44191a31b01b",
+  "pdf_sha256": "1e101c8f169a350205dae20fdab57e9f62cb27dcc0e8a2aab261a35749f7afd2",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...]  The trial revealed numerous due process violations, including violation\nof the presumption of innocence, reliance on unsubstantiated cla ims, and a lack of\nreasoned judgment. Despite the absence of direct evidence linking Pan to the alleged\nposts, the court inferred guilt, and arbitrarily disregarded exculpatory evidence. Pan’s\nconviction also [...]",
+      "quote": " The trial revealed numerous due process violations, including violation\nof the presumption of innocence, reliance on unsubstantiated cla ims, and a lack of\nreasoned judgment. Despite the absence of direct evidence linking Pan to the alleged\nposts, the court inferred guilt, and arbitrarily disregarded exculpatory evidence. Pan’s\nconviction also",
+      "pinpoint": "Stored text line 55"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] wyers for Human Rights has\ndocumented at least 15 6 individuals facing sedition charges since July 18, 2020. 23\nNumerous U.N. special procedures have expressed serious concerns about these\nprosecutions, highlighting their connection to the suppression of fundamental rights, such\nas freedom of expression, peaceful assembly, and [...]",
+      "quote": "wyers for Human Rights has\ndocumented at least 15 6 individuals facing sedition charges since July 18, 2020. 23\nNumerous U.N. special procedures have expressed serious concerns about these\nprosecutions, highlighting their connection to the suppression of fundamental rights, such\nas freedom of expression, peaceful assembly, and",
+      "pinpoint": "Stored text line 239"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] of free speech. Its mission is to expose injustice, help to free those\nunjustly detained and promote the rule of law around the world.\n\n1 The views represented here are of the HRI and not Columbia Law School or University.\nThe legal assessment and conclusions expressed in this report are those of the authors\nand not necessarily those [...]",
+      "quote": "of free speech. Its mission is to expose injustice, help to free those\nunjustly detained and promote the rule of law around the world.\n\n1 The views represented here are of the HRI and not Columbia Law School or University.\nThe legal assessment and conclusions expressed in this report are those of the authors\nand not necessarily those",
+      "pinpoint": "Stored text line 25"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "document_id": "wgad-2021-40",
+  "text_sha256": "7f61a1109236d3b9669be0cbf24ab0bc1dca29c32f0070ce9d3152ba6280bad1",
+  "pdf_sha256": "13a76e44e55a832154d655e13a7284b80b2f7a6dc0c3c08c22c94cf63ae106d8",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] he right not to\nbe arrested without prior authorization (art. 20), the right to presumption of innocence (art.\n31 (1)), the right to a prompt, impartial and public trial for anyone charged with a criminal\noffence (art. 31 (2)), and the right to the assistance of a defence counsel (art. 31 (4)).\n34. The source submits that Ms. Trang’s right to habeas [...]",
+      "quote": "he right not to\nbe arrested without prior authorization (art. 20), the right to presumption of innocence (art.\n31 (1)), the right to a prompt, impartial and public trial for anyone charged with a criminal\noffence (art. 31 (2)), and the right to the assistance of a defence counsel (art. 31 (4)).\n34. The source submits that Ms. Trang’s right to habeas",
+      "pinpoint": "Stored text line 242"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] warrant or any other decision by a public authority.\nMs. Trang was subsequently charged with making, storing, distributing or disseminating\ninformation, documents and items against the State, under article 117 of the Criminal Code,\nwhich was adopted in 2015 and went into effect in 2018. The source notes that if convicted,\nMs. Trang [...]",
+      "quote": "warrant or any other decision by a public authority.\nMs. Trang was subsequently charged with making, storing, distributing or disseminating\ninformation, documents and items against the State, under article 117 of the Criminal Code,\nwhich was adopted in 2015 and went into effect in 2018. The source notes that if convicted,\nMs. Trang",
+      "pinpoint": "Stored text line 59"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] by the People’s Court of\nHo Chi Minh City. Since her arrest, Ms. Trang has been detained incommunicado and has\nhad no access to a lawyer.\n8. The source notes that prior to her current detention, Ms. Trang had been subjected to\narrests, violent physical attacks and other acts of harassment by the authorities on numerous\noccasions. She [...]",
+      "quote": "by the People’s Court of\nHo Chi Minh City. Since her arrest, Ms. Trang has been detained incommunicado and has\nhad no access to a lawyer.\n8. The source notes that prior to her current detention, Ms. Trang had been subjected to\narrests, violent physical attacks and other acts of harassment by the authorities on numerous\noccasions. She",
+      "pinpoint": "Stored text line 69"
+    }
+  ]
+}

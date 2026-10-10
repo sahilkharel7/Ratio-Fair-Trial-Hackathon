@@ -1,0 +1,20 @@
+{
+  "document_id": "tw-bangladesh-v-shahidul-alam",
+  "text_sha256": "f4afda124584d637b04968895759bf1a864cfb010ecde59dad010abc428affd7",
+  "pdf_sha256": "7d0b115bc30051846cc564149ead6272cbe5df5862f5be3c984e900ee200540d",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...]  his right not to be held guilty for an act that does not constitute\na criminal offense (principle of legality), his right to access a remedy, and his right to free\nspeech and expression. This conclusion is also supported by precedent from the Indian\nSupreme Court, which is persuasive because of the similarities between Part III of [...]",
+      "quote": " his right not to be held guilty for an act that does not constitute\na criminal offense (principle of legality), his right to access a remedy, and his right to free\nspeech and expression. This conclusion is also supported by precedent from the Indian\nSupreme Court, which is persuasive because of the similarities between Part III of",
+      "pinpoint": "Stored text line 114"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] on for Justice. Its mission is to\nexpose injustice, help to free those unjustly detained and promote the rule of law around\nthe world. TrialWatch monitors criminal trials globally against those who are most\nvulnerable — including journalists, protesters, women, LGBTQ+ persons and minorities\n— and advocates for the rights of the [...]",
+      "quote": "on for Justice. Its mission is to\nexpose injustice, help to free those unjustly detained and promote the rule of law around\nthe world. TrialWatch monitors criminal trials globally against those who are most\nvulnerable — including journalists, protesters, women, LGBTQ+ persons and minorities\n— and advocates for the rights of the",
+      "pinpoint": "Stored text line 9"
+    }
+  ]
+}

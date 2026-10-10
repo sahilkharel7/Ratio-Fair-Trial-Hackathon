@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-socialist-republic-of-vietnam-v-pham-thi-doan-trang",
+  "text_sha256": "0d514cf3362710e3c9d8af27eac19d31086f0d519f47e13a3f35508d33753a37",
+  "pdf_sha256": "a419713ad64c6a882fac6bb619ddb5741ff65c20e2713347d0a15453f13e7682",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] Criminal Procedure Code recognize several core fair trial\nrights, including the presumption of innocence,44 the right to a “timely”45 and public hearing,46\nthe right to present evidence and witnesses, 47 the right to an impartial and independent\ncourt,48 and the right to legal assistance.49\nIn practice, however, these rights are often not respected [...]",
+      "quote": "Criminal Procedure Code recognize several core fair trial\nrights, including the presumption of innocence,44 the right to a “timely”45 and public hearing,46\nthe right to present evidence and witnesses, 47 the right to an impartial and independent\ncourt,48 and the right to legal assistance.49\nIn practice, however, these rights are often not respected",
+      "pinpoint": "Stored text line 539"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] idence against her, and her right to an\nindependent and impartial tribunal.\nThe charges themselves —conducting “anti -state propaganda” by writing, storing, and\ndisseminating material “ against the Socialist Republic of Vietnam ”--and her nine -year\nsentence violate her substantive right to freedom of expression and the principle of [...]",
+      "quote": "idence against her, and her right to an\nindependent and impartial tribunal.\nThe charges themselves —conducting “anti -state propaganda” by writing, storing, and\ndisseminating material “ against the Socialist Republic of Vietnam ”--and her nine -year\nsentence violate her substantive right to freedom of expression and the principle of",
+      "pinpoint": "Stored text line 59"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] on for Justice. Its mission is to expose\ninjustice, help to free those unjustly detained and promote the rule of law around the world.\nTrialWatch monitors criminal trials globally against those who are most vulnerable —\nincluding journalists, protesters, women, LGBTQ+ persons and minorities — and advocates\nfor the rights of the [...]",
+      "quote": "on for Justice. Its mission is to expose\ninjustice, help to free those unjustly detained and promote the rule of law around the world.\nTrialWatch monitors criminal trials globally against those who are most vulnerable —\nincluding journalists, protesters, women, LGBTQ+ persons and minorities — and advocates\nfor the rights of the",
+      "pinpoint": "Stored text line 30"
+    }
+  ]
+}

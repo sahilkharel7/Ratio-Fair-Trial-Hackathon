@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-guatemala-v-jose-ruben-zamora",
+  "text_sha256": "ea0815090167c2b5fa178885128e0256847ca387c00f455edbf9f54006639ef8",
+  "pdf_sha256": "e3785573e73761c8b94a60a1bdd4c4e2c5c98cbb3bfbda30ba7f9e01444e2d52",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] ............................................................................ 78\nPresumption of Innocence/ Burden of Proof ....................................................... 82\nD. Other Violations ..................................................................................................... 84\nAbuse of Process [...]",
+      "quote": "............................................................................ 78\nPresumption of Innocence/ Burden of Proof ....................................................... 82\nD. Other Violations ..................................................................................................... 84\nAbuse of Process",
+      "pinpoint": "Stored text line 101"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] On July 29, 2022, authorities conducted a raid\non his house and arrested him on charges of money laundering, influence peddling, and\nblackmail based on a single complaint filed by a former banker who is under investigation\nfor financial crimes. He was prosecuted alongside Samari G ómez, a former anti -\ncorruption prosecutor.\n\nFrom the [...]",
+      "quote": "On July 29, 2022, authorities conducted a raid\non his house and arrested him on charges of money laundering, influence peddling, and\nblackmail based on a single complaint filed by a former banker who is under investigation\nfor financial crimes. He was prosecuted alongside Samari G ómez, a former anti -\ncorruption prosecutor.\n\nFrom the",
+      "pinpoint": "Stored text line 117"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] n for Justice.  Its mission is to expose injustice, help to free those unjustly\ndetained and promote the rule of law around the world. TrialWatch monitors criminal trials\nglobally against those who are most vulnerab le — including journalists, protesters,\nwomen, LGBTIQ+ persons and minorities — and advocates for the rights of the [...]",
+      "quote": "n for Justice.  Its mission is to expose injustice, help to free those unjustly\ndetained and promote the rule of law around the world. TrialWatch monitors criminal trials\nglobally against those who are most vulnerab le — including journalists, protesters,\nwomen, LGBTIQ+ persons and minorities — and advocates for the rights of the",
+      "pinpoint": "Stored text line 62"
+    }
+  ]
+}

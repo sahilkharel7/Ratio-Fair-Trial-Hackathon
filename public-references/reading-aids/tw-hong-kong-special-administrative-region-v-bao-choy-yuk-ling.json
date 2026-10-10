@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-hong-kong-special-administrative-region-v-bao-choy-yuk-ling",
+  "text_sha256": "53911a09cbf4e26721e4a5566b21234c97e205af5991db52fd6b6cfc833c2f4d",
+  "pdf_sha256": "00792f3581ccdefee64ebf0ecf4f1841c0eb7b260808263033a31e34b9c54f5c",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] demonstrate Bao Choy’s\nintent to commit an offense. Under human rights law, the presumption of innocence places\non the prosecution the  burden to prove the guilt of the accused person beyond  a\nreasonable doubt.130 In this case, the Prosecution’s argument was conclusory and did not\nprove the individual elements of the offense, in particular that Bao [...]",
+      "quote": "demonstrate Bao Choy’s\nintent to commit an offense. Under human rights law, the presumption of innocence places\non the prosecution the  burden to prove the guilt of the accused person beyond  a\nreasonable doubt.130 In this case, the Prosecution’s argument was conclusory and did not\nprove the individual elements of the offense, in particular that Bao",
+      "pinpoint": "Stored text line 1350"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] s released in July 2020; on November 3, 2020, authorities arrested Bao Choy and\ncharged her with two counts of “knowingly making a false statement” under the Road Traffic\nOrdinance in order to access the vehicle information. She was convicted after a one -day\ntrial and sentenced to pay a fine of HKD 6,000 (USD $775).\n\nRTHK, founded in [...]",
+      "quote": "s released in July 2020; on November 3, 2020, authorities arrested Bao Choy and\ncharged her with two counts of “knowingly making a false statement” under the Road Traffic\nOrdinance in order to access the vehicle information. She was convicted after a one -day\ntrial and sentenced to pay a fine of HKD 6,000 (USD $775).\n\nRTHK, founded in",
+      "pinpoint": "Stored text line 46"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] itiative with the mission\nof exposing injustice, helping to free those unjustly detained and promoting the rule of law\naround the world. TrialWatch monitors criminal trials glob ally against those who are most\nvulnerable — including journalists, protesters, women, LGBTQ+ persons and minorities —\nand advocates for the rights of the [...]",
+      "quote": "itiative with the mission\nof exposing injustice, helping to free those unjustly detained and promoting the rule of law\naround the world. TrialWatch monitors criminal trials glob ally against those who are most\nvulnerable — including journalists, protesters, women, LGBTQ+ persons and minorities —\nand advocates for the rights of the",
+      "pinpoint": "Stored text line 22"
+    }
+  ]
+}

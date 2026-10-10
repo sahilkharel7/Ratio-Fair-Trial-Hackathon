@@ -1,0 +1,20 @@
+{
+  "document_id": "wgad-2017-27",
+  "text_sha256": "cf2bb542418e0a89b0894691cccee11e2efc935fe4292f2475d9b4444104bb48",
+  "pdf_sha256": "e74042d7b634da067d8badeda1a2cfd80a2c3d513501e6ad8d8ecf84577f832c",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...]  on 12 October 2016. The\nnotification indicates that Ms. Quynh was arrested and charged with violating article 88 (1)\nof the Penal Code for “conducting propaganda agains t the Socialist Republic of Viet Nam”.\nThe source notes that article 88 falls under the “national security” chapter of the Penal Code\nand that individuals facing [...]",
+      "quote": " on 12 October 2016. The\nnotification indicates that Ms. Quynh was arrested and charged with violating article 88 (1)\nof the Penal Code for “conducting propaganda agains t the Socialist Republic of Viet Nam”.\nThe source notes that article 88 falls under the “national security” chapter of the Penal Code\nand that individuals facing",
+      "pinpoint": "Stored text line 127"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] es on a number of occasions:\n (a) In September 2009, Ms. Quynh was arrested and detained for 10 days in Nha\nTrang, under article 258 of the Penal Code for “abu sing democratic freedoms to infringe\nupon the interests of the State”. According to the source, she had to quit her job in a\ngovernment-run tourism company under pressure from [...]",
+      "quote": "es on a number of occasions:\n (a) In September 2009, Ms. Quynh was arrested and detained for 10 days in Nha\nTrang, under article 258 of the Penal Code for “abu sing democratic freedoms to infringe\nupon the interests of the State”. According to the source, she had to quit her job in a\ngovernment-run tourism company under pressure from",
+      "pinpoint": "Stored text line 63"
+    }
+  ]
+}

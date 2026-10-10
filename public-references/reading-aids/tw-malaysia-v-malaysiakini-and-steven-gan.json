@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-malaysia-v-malaysiakini-and-steven-gan",
+  "text_sha256": "0426b08cc7608e76a5d6be5fdce0c2cb31720872751694d5d144779c755503a7",
+  "pdf_sha256": "8e2ed5a6690ad2599f5d01e60a3d33c74c354c3affd0f8883e33a093e303686f",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] l\nand the right to freedom of expression.\nFirst, the proceedings undermined the presumption of innocence. Malaysiakini did not\ndispute that the impugned comments were insulting. Instead, the central issue in the case\nwas whether Malaysiakini had “published” the comments, raising the question of whether\nJoan Barata, who is a member of the TrialWatch  [...]",
+      "quote": "l\nand the right to freedom of expression.\nFirst, the proceedings undermined the presumption of innocence. Malaysiakini did not\ndispute that the impugned comments were insulting. Instead, the central issue in the case\nwas whether Malaysiakini had “published” the comments, raising the question of whether\nJoan Barata, who is a member of the TrialWatch ",
+      "pinpoint": "Stored text line 61"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] e rn warrants\nheightened protection. The United Nations Human Rights Committee, charged with\ninterpreting the ICCPR, has delineated requirements that States must fulfil to restrict\nprotected speech: restrictions must be provided by law – clear enough to ensu re that\nofficials are not afforded unbounded discretion and that individuals [...]",
+      "quote": "e rn warrants\nheightened protection. The United Nations Human Rights Committee, charged with\ninterpreting the ICCPR, has delineated requirements that States must fulfil to restrict\nprotected speech: restrictions must be provided by law – clear enough to ensu re that\nofficials are not afforded unbounded discretion and that individuals",
+      "pinpoint": "Stored text line 98"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] n for Justice.  Its mission is to expose injustice, help to free those unjustly\ndetained and promote the rule of law around the world. TrialWatch monitors criminal trials\nglobally against those who are most vulnerable – including journalists, protesters, women,\nLGBTQ+ persons and minorities – and advocates for the rights of the [...]",
+      "quote": "n for Justice.  Its mission is to expose injustice, help to free those unjustly\ndetained and promote the rule of law around the world. TrialWatch monitors criminal trials\nglobally against those who are most vulnerable – including journalists, protesters, women,\nLGBTQ+ persons and minorities – and advocates for the rights of the",
+      "pinpoint": "Stored text line 31"
+    }
+  ]
+}

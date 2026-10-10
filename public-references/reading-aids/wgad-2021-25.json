@@ -1,0 +1,20 @@
+{
+  "document_id": "wgad-2021-25",
+  "text_sha256": "9b7cb08933222e418bdf47a02d0509eb98271b6c8c4ce5c7e5c68c1e2d575466",
+  "pdf_sha256": "10db1eeac4b7af85907728e11e24aa06961a741ea62928351299fd10038d90f0",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...]  luggage to her family.\n13. On 19 June 2020, Ms. Zhang was formally arrested on charges of “picking quarrels\nand provoking trouble”. On that occasion, no detenti on notice was given to her family. On\n15 September 2020, Ms. Zhang was indicted and has been held at Shanghai Pudong New\nDistrict Detention Centre since then.\n14. On 6 [...]",
+      "quote": " luggage to her family.\n13. On 19 June 2020, Ms. Zhang was formally arrested on charges of “picking quarrels\nand provoking trouble”. On that occasion, no detenti on notice was given to her family. On\n15 September 2020, Ms. Zhang was indicted and has been held at Shanghai Pudong New\nDistrict Detention Centre since then.\n14. On 6",
+      "pinpoint": "Stored text line 91"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] eptember\n2019, she was summoned by the Shanghai police and was later criminally detained and\narrested on suspicion of “picking quarrels and provoking trouble ”. The police released her\non 26 November 2019. During her detention,  Ms. Zhang was reportedly forced to undergo\ntwo psychiatric examinations.\n6. Mei Chen, born in 1993, is a [...]",
+      "quote": "eptember\n2019, she was summoned by the Shanghai police and was later criminally detained and\narrested on suspicion of “picking quarrels and provoking trouble ”. The police released her\non 26 November 2019. During her detention,  Ms. Zhang was reportedly forced to undergo\ntwo psychiatric examinations.\n6. Mei Chen, born in 1993, is a",
+      "pinpoint": "Stored text line 57"
+    }
+  ]
+}

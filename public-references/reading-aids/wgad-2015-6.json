@@ -1,0 +1,20 @@
+{
+  "document_id": "wgad-2015-6",
+  "text_sha256": "b4cfb9c2986172c72b0f5a6388b0b6204e64e47b71c29ac66be050e0b3a62690",
+  "pdf_sha256": "1ac813015354426647e4545469cd71c213ef1b898412c0465d4f4206be485d10",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] 2014, Judge Simelane of the High Court found Mr. Maseko guilty of  the\ncriminal offense of contempt of court. On 25 July 2014, Judge Simelane issued a Judgment\nsentencing Mr. Maseko to two years’ imprisonment without the option of a fine or\nsupervised release. The prison term is counted from 17 March 2014, the date he wa s taken\ninto [...]",
+      "quote": "2014, Judge Simelane of the High Court found Mr. Maseko guilty of  the\ncriminal offense of contempt of court. On 25 July 2014, Judge Simelane issued a Judgment\nsentencing Mr. Maseko to two years’ imprisonment without the option of a fine or\nsupervised release. The prison term is counted from 17 March 2014, the date he wa s taken\ninto",
+      "pinpoint": "Stored text line 99"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] m the misuse of Government vehicles.\n5. Upon his initial arrest, Mr. Maseko was detained overnight at the Mbabane Police\nStation without access to his lawyer. Reportedly, Chief Justice Ramodibedi ordered the\npolice to deny Mr. Maseko access to his lawyer during this period.\n6. On 18 March 2014, Mr. Maseko was brought to Chief Justice [...]",
+      "quote": "m the misuse of Government vehicles.\n5. Upon his initial arrest, Mr. Maseko was detained overnight at the Mbabane Police\nStation without access to his lawyer. Reportedly, Chief Justice Ramodibedi ordered the\npolice to deny Mr. Maseko access to his lawyer during this period.\n6. On 18 March 2014, Mr. Maseko was brought to Chief Justice",
+      "pinpoint": "Stored text line 67"
+    }
+  ]
+}

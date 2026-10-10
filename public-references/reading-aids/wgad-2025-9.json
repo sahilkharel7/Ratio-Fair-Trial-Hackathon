@@ -1,0 +1,26 @@
+{
+  "document_id": "wgad-2025-9",
+  "text_sha256": "deb3094c2e7c39d532585ebbf62b3b25679f1bff767fa380a36ffb539f33e347",
+  "pdf_sha256": "f1f5dc3cb6bec179567830d491810790f3bfa0315c8bd8bfbd900b7f95247566",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] ndards, detention in\ncustody should be a last resort under the principle of the presumption of innocence.\n60. Furthermore, lawyers have reportedly not been allowed to copy the electronic data\nfrom Mr. Chen ’s mobile phone and his computer , which is being used as evidence against\nhim. This data includes text, audio, and the promotional video that he [...]",
+      "quote": "ndards, detention in\ncustody should be a last resort under the principle of the presumption of innocence.\n60. Furthermore, lawyers have reportedly not been allowed to copy the electronic data\nfrom Mr. Chen ’s mobile phone and his computer , which is being used as evidence against\nhim. This data includes text, audio, and the promotional video that he",
+      "pinpoint": "Stored text line 332"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] cy.\n9. Between 2018 and 2022, Mr. Ji spent three and a half  years in prison on charges of\n“picking quarrels and provoking trouble ” for his “toilet revolution ” campaign. The source\nstates that after the leader of China gave a speech in 2018 about improving public bathroom\nfacilities, Mr. Ji wrote slogans criticizing the country ’s [...]",
+      "quote": "cy.\n9. Between 2018 and 2022, Mr. Ji spent three and a half  years in prison on charges of\n“picking quarrels and provoking trouble ” for his “toilet revolution ” campaign. The source\nstates that after the leader of China gave a speech in 2018 about improving public bathroom\nfacilities, Mr. Ji wrote slogans criticizing the country ’s",
+      "pinpoint": "Stored text line 63"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] \nin various public sanitary facilities.\n10. According to the source, Mr. Ji was detained in July 2018 and held under “residential\nsurveillance in a designat ed location” – a form of de facto enforced disappearance. He was\ntried and convicted in January 2019. Mr. Ji served his sentence in Shanghai City ’s\nBaimaoling Prison, where the [...]",
+      "quote": "\nin various public sanitary facilities.\n10. According to the source, Mr. Ji was detained in July 2018 and held under “residential\nsurveillance in a designat ed location” – a form of de facto enforced disappearance. He was\ntried and convicted in January 2019. Mr. Ji served his sentence in Shanghai City ’s\nBaimaoling Prison, where the",
+      "pinpoint": "Stored text line 68"
+    }
+  ]
+}

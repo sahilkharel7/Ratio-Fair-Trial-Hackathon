@@ -2,6 +2,10 @@
 
 Prepared 10 October 2026. This document describes the actual implementation and local runtime snapshot, distinguishes completed work from prototypes, and gives a concrete integration order. It contains no credentials or confidential case passages.
 
+**Public-document transfer update:** at the user's subsequent explicit request, all 49 public corpus originals, normalized source text/metadata, 49 reading aids and the public-only runtime index are now versioned under `public-references/`. Run `python scripts/install_public_references.py` after cloning. This supersedes the earlier statement below that the public corpus assets are unavailable through Git. Case workspace data, Maseko inputs/cached aid, reviewer work, credentials and model weights are still excluded. The three live-upload demo PDFs remain held out.
+
+The installer restores runtime assets only and refuses to replace a different index or reading aid. It does not restore `build.db`. Do not run `build-db` with an empty build store over the restored snapshot; use the supplied normalized public JSON files for a deliberate maintainer restore first.
+
 ## 1. Read this first
 
 We are building a human-rights lawyer's case-review workspace for the hackathon, with **presumption of innocence as the single demo focus**. The primary flow is: choose a court/case, identify the defendant and charge, understand the recorded consequences, inspect original source passages, compare appropriately scoped legal references, record the lawyer's assessment, and export a reading aid/worksheet.
@@ -359,7 +363,7 @@ Current audits:
 - `data/real-demo/real-maseko-makhubu-2014-source-audit.json`
 - `data/real-demo/reference-download-audit.json`
 
-Arrange a separately authorized transfer of **public reference assets only**, or rebuild them from permitted official sources. Do not send the entire workspace database, notes, analyses, embeddings of confidential content or `.env` to another person/service as a shortcut. Case-specific data remains confidential even when some source documents originated in publication.
+The curated **public reference snapshot is now available through Git** in `public-references/`; install it with `python scripts/install_public_references.py`. Runtime `data/corpus/` remains ignored so later private collections/caches cannot enter Git accidentally. Do not send the entire workspace database, notes, analyses, embeddings of confidential content or `.env` as a shortcut. Case-specific data remains confidential even when some source documents originated in publication.
 
 If Sahil's agent is on this same machine, the supplied folder is already available. On another machine, code alone cannot reconstruct missing original files. The agent should check for approved inputs, handle missing files explicitly and avoid fabricating content; the user does not want to be asked to annotate or prepare a new dataset manually.
 

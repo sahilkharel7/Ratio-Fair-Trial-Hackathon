@@ -1,0 +1,26 @@
+{
+  "document_id": "tw-georgia-v-mzia-amaglobeli",
+  "text_sha256": "8aea98def9ae943f797c8b3951329268735ba11bd0cc566cf56716f9c0aa0fa4",
+  "pdf_sha256": "5be1a63c0018b4be486da8e800243256af3a006cab7063723895e81297d8cdc9",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Presumption of innocence wording",
+      "summary": "[...] s, which was\nhindered by her enclosure in a glass cabin or “aquarium”, and the  presumption of\ninnocence, which was breached by prejudicial statements of senior public officials made\nduring the course of the trial.\n\n2\nOn January 12, 2025, Mzia Amaglobeli, 4 a renowned and award -winning Georgian\njournalist, was arrested on charges of “attacking a [...]",
+      "quote": "s, which was\nhindered by her enclosure in a glass cabin or “aquarium”, and the  presumption of\ninnocence, which was breached by prejudicial statements of senior public officials made\nduring the course of the trial.\n\n2\nOn January 12, 2025, Mzia Amaglobeli, 4 a renowned and award -winning Georgian\njournalist, was arrested on charges of “attacking a",
+      "pinpoint": "Stored text line 93"
+    },
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] aglobeli, a leading and prize-winning Georgian journalist, was\nconvicted of the offence of resisting a police officer with the aim of obstructing the\nprotection of public order or interrupting or altering his lawful activities. She wa s\nsentenced to imprisonment for two years. The criminal proceedings against Mzia\nAmaglobeli gave rise [...]",
+      "quote": "aglobeli, a leading and prize-winning Georgian journalist, was\nconvicted of the offence of resisting a police officer with the aim of obstructing the\nprotection of public order or interrupting or altering his lawful activities. She wa s\nsentenced to imprisonment for two years. The criminal proceedings against Mzia\nAmaglobeli gave rise",
+      "pinpoint": "Stored text line 84"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] of free speech. Its mission\nis to expose injustice, help to free those unjustly detained and promote the rule of law\naround the world.\n\nThis report is published for informational and advocacy purposes. It is based on\ninformation available from public sources, court proceedings, legal documents and\ninterviews believed to be accurate at [...]",
+      "quote": "of free speech. Its mission\nis to expose injustice, help to free those unjustly detained and promote the rule of law\naround the world.\n\nThis report is published for informational and advocacy purposes. It is based on\ninformation available from public sources, court proceedings, legal documents and\ninterviews believed to be accurate at",
+      "pinpoint": "Stored text line 33"
+    }
+  ]
+}

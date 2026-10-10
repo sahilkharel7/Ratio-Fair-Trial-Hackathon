@@ -1,0 +1,20 @@
+{
+  "document_id": "tw-pakistan-v-mir-shakeel-ur-rehman",
+  "text_sha256": "ede6d6f52aaa8486c64a95809183c0b6776d33b4de8ce33fac2340d8d4df7681",
+  "pdf_sha256": "a9f0d6b56f0944d56015a89b8aefeabfcb563fdd6841d7bc5cd9309376d9ec06",
+  "method": "Extractive reading sheet | local source passages; no model conclusions",
+  "sections": [
+    {
+      "label": "Charge / offence wording",
+      "summary": "[...] ect of a land transaction that took place in 19 86 (i.e.\n34 years prior) for an offence that did not exist at the time. The relevant law came into effect\nin 1990, and did not have retrospective effect. This investigation was initiated on the same\nday that Mr. Rehman’s network televised a discussion accusing t he NAB of [...]",
+      "quote": "ect of a land transaction that took place in 19 86 (i.e.\n34 years prior) for an offence that did not exist at the time. The relevant law came into effect\nin 1990, and did not have retrospective effect. This investigation was initiated on the same\nday that Mr. Rehman’s network televised a discussion accusing t he NAB of",
+      "pinpoint": "Stored text line 45"
+    },
+    {
+      "label": "Sentencing / detention wording",
+      "summary": "[...] on for Justice. Its mission is to expose\ninjustice, help to free those unjustly detained and promote the rule of law around the world.\nTrialWatch monitors criminal trials globally against those who are most vulnerable —\nincluding journalists, protesters, women, LGBTQ+ per sons and minorities — and\nadvocates for the rights of the [...]",
+      "quote": "on for Justice. Its mission is to expose\ninjustice, help to free those unjustly detained and promote the rule of law around the world.\nTrialWatch monitors criminal trials globally against those who are most vulnerable —\nincluding journalists, protesters, women, LGBTQ+ per sons and minorities — and\nadvocates for the rights of the",
+      "pinpoint": "Stored text line 17"
+    }
+  ]
+}
