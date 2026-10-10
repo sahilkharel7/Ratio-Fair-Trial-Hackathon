@@ -191,7 +191,7 @@ class LibraryStore:
                 text = decode_document(name, content)
                 if not text.strip():
                     problem = (
-                        "No text extracted. Add an OCR text version before analysis."
+                        "No text extracted, even with on-device OCR. Add a text version before analysis."
                     )
             except LoaderError as exc:
                 problem = str(exc)

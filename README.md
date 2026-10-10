@@ -125,6 +125,17 @@ in that git-ignored database and are read only by the local model. Upload limits
 - **Compare with references locally:** on a case review with an Article 14(2) passage, the local model sets that
   passage beside the closest public references, each with its source. It uses `qwen2.5:1.5b` by default; starting
   the server with `RATIO_MODEL=qwen2.5:7b-instruct` gives clearer comparisons (about 11 seconds instead of 6).
+- **Triangulation:** on a case review, pick a right (any listed; the demo focus is the presumption of innocence,
+  ICCPR Art. 14(2) and General Comment 32, para. 30). Ratio ranks past public cases by the local MiniLM similarity
+  of the passages on that right and by the right's indicators both cases mention, and shows the score; the local
+  model then picks and explains 3 to 5 facts, each opening its source on both sides. Similarity is a pointer, not
+  a finding.
+- **Ask about this case:** the local model answers from the case's own passages first, then the public references.
+  Every answer cites clickable sources or says the documents do not support an answer; answers are labelled
+  "Model answer, unverified", and the conversation is never saved.
+- **Scanned PDFs:** pages without a text layer are read with on-device OCR (macOS Vision, compiled once from
+  `ratio/vision_ocr.swift` into the git-ignored `models/ocr/`; `RATIO_OCR=0` turns it off). Check recognised text
+  against the original.
 - **A fresh upload demonstration:** [the real-case PDF pack](docs/DEMO-UPLOAD-PACK.md) holds three public court
   judgments kept out of the installed collection. `python scripts/fetch_demo_pack.py` downloads them (online) and
   makes a ZIP to upload.
@@ -352,6 +363,7 @@ No real monitoring notes and no confidential material are in this repository. `p
 - **The evaluation is in-sample, on one synthetic case.** Ratio has not been tested on published TrialWatch reports yet.
 - **Legal review is pending.** The rubric indicators, the three unconfirmed benchmarks, the reuse standards and the ruling codes were drafted by the engineering team and need review by a lawyer. Until then they are marked "needs legal review", and only the 48-hour benchmark is applied.
 - **English only.** Sentence splitting, date parsing and the patterns that recognise statutes, charges and party positions are tuned for English. Multilingual input was cut from the hackathon scope.
+- **OCR can misread.** Scanned pages are read by on-device OCR (macOS only); handwriting, stamps and poor scans can be misread, so check quotes against the original PDF. Precedent library collections are still read from their text layer only.
 - **A small local model makes mistakes.**
   - Every model output is checked against the source text, and dates are parsed in code, but an event the model misses is simply absent.
   - Reading a whole case live takes minutes.
@@ -382,6 +394,8 @@ ratio/
   store.py        SQLite case store, with reviewers' decisions
   library.py      the court-scoped case collection and staged document intake, in the same SQLite file
   workspace.py    case payloads and demo seeding shared by the workspace's API and Streamlit
+  triangulation.py, case_chat.py   past cases compared on one right, and questions answered from cited passages (local model)
+  ocr.py, vision_ocr.swift   on-device OCR of scanned PDF pages (macOS Vision)
   focus.py        the Article 14(2) review worksheet: charge, requested, imposed and statutory penalties, screening prompts
   outcomes.py     source-coded historical outcomes (no individual success prediction)
   corpus_research.py, local_comparisons.py   wording search over the installed corpus, and local case comparisons

@@ -1183,8 +1183,9 @@ export function IntakeDialog({ open, onClose, workspace, refresh, navigate }) {
           <section>
             <h3>1. Add PDFs and source documents</h3>
             <p className="caption">
-              Originals are saved before case assignment. Textless PDFs remain
-              in the queue until an OCR version is supplied.
+              Originals are saved before case assignment. Scanned PDFs are read
+              with on-device OCR (macOS Vision): check the recognised text
+              against the original. A PDF with no readable text stays in the queue.
             </p>
             <form onSubmit={upload}>
               <label htmlFor="input-files">Documents · PDF, TXT or MD</label>

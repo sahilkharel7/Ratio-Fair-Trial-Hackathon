@@ -21,3 +21,5 @@ os.environ["RATIO_CORPUS_DB"] = str(_NOWHERE / "no-corpus" / "precedents.db")
 # Likewise the builder's work database and the uploaded collections: no test reads or writes the real ones.
 os.environ["RATIO_BUILD_DB"] = str(_NOWHERE / "no-build" / "build.db")
 os.environ["RATIO_COLLECTIONS_DIR"] = str(_NOWHERE / "no-collections")
+# On-device OCR is off unless a test opts in (tests/test_ocr.py), so PDFs read the same on every computer.
+os.environ["RATIO_OCR"] = "0"

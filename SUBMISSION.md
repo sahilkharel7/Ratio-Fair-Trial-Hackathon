@@ -10,10 +10,10 @@ Turning monitoring notes into a fairness report is slow. The notes are long and 
 
 ## How TrialWatch would use it
 
-1. **Add the case.** In the court case workspace (http://127.0.0.1:8503), upload the documents, record whether they are confidential (the default), public (with the source) or synthetic, and assign them to one case.
+1. **Add the case.** In the court case workspace (http://127.0.0.1:8503), upload the documents (scanned PDFs are read with on-device OCR), record whether they are confidential (the default), public (with the source) or synthetic, and assign them to one case.
 2. **Check the facts and Article 14(2).** The charge, requested penalty, sentence and quoted statutory penalty appear separately, each with its source passage when one is found. For each Article 14(2) passage Ratio surfaces, the lawyer records an assessment with a reason, compares international decisions and exports a worksheet. The local model can also set the case's passages beside public references.
 3. **Run the full analysis.** In the full analysis app (http://127.0.0.1:8501), upload the case folder; the local model reads a case the size of the demo in a few minutes.
-4. **Find context.** Similar cases lists past cases that share the case's fact patterns, from a library of public decisions and reports built on this computer; the Precedent library searches that library by facts. A team can add its own collections to it; a private one is read only by the local model.
+4. **Find context.** Similar cases lists past cases that share the case's fact patterns, from a library of public decisions and reports built on this computer; the Precedent library searches that library by facts. A team can add its own collections to it; a private one is read only by the local model. In the workspace, Triangulation sets the case beside the most similar past public cases on a chosen right, with the facts that matter linked to their sources on both sides, and a local chat answers questions about the case with cited passages.
 5. **Review and draft.** On the review page the lawyer accepts, rewords or rejects each finding (with a reason to reword or reject) and adds issues Ratio missed. The Markdown report draft shows each decision and quotes each finding's source text in an annex.
 
 ## What it checks
@@ -39,10 +39,10 @@ Ratio runs on one laptop (a Mac with Apple Silicon, 16 GB of memory, about 8 GB 
 
 ## Evidence and limitations
 
-On the synthetic demo case, the evaluation (run on 10 October 2026) found 18 of 18 expected outputs, 0 violations of 11 must-not-flag traps, all 8 events of the hand-checked timeline with correct dates, and exact source spans for all 13 findings. 1,657 automated tests pass.
+On the synthetic demo case, the evaluation (run on 10 October 2026) found 18 of 18 expected outputs, 0 violations of 11 must-not-flag traps, all 8 events of the hand-checked timeline with correct dates, and exact source spans for all 13 findings. 1,672 automated tests pass.
 
 - The evaluation is in-sample: the team wrote the case and its expected outputs. Recall on published TrialWatch reports is not yet measured. One local run on a real public trial exposed two bugs, since fixed.
-- English only; scanned PDFs need a text version.
+- English only; scanned pages are read with on-device OCR, which can misread poor scans.
 - The rubric, the unconfirmed benchmarks and the ruling codes await legal review.
 - The small local model makes mistakes; an event it misses is absent.
 - Judge statistics have run only on synthetic history.

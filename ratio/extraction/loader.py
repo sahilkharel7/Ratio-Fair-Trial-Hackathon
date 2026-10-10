@@ -167,7 +167,25 @@ def _pdf_text(name: str, data: bytes) -> str:
         raise LoaderError(f"{name}: unreadable PDF ({type(exc).__name__})") from exc
     if encrypted:
         raise LoaderError(f"{name}: encrypted PDFs are not supported")
+    if any(len(page) < MIN_PAGE_TEXT for page in pages):
+        pages = _with_ocr(pages, data)
     return join_pdf_pages(pages)
+
+
+MIN_PAGE_TEXT = 20  # characters: a page with less text than this is treated as a scan
+
+
+def _with_ocr(pages: list[str], data: bytes) -> list[str]:
+    """Pages without a text layer are read with on-device OCR (macOS Vision); others keep their own text."""
+    from ratio.ocr import OCRUnavailable, ocr_pages
+
+    try:
+        recognised = ocr_pages(data)
+    except OCRUnavailable:
+        return pages
+    if len(recognised) != len(pages):
+        return pages
+    return [page if len(page) >= MIN_PAGE_TEXT else text.strip() for page, text in zip(pages, recognised)]
 
 
 def join_pdf_pages(pages: list[str]) -> str:
