@@ -90,6 +90,7 @@ npm --prefix web ci && npm --prefix web run build
 brew install ollama
 brew services start ollama
 ollama pull qwen2.5:7b-instruct
+ollama pull qwen2.5:1.5b          # the workspace's default for local reading aids and comparisons (about 1 GB)
 
 # Stop the Ollama server from contacting ollama.com: this adds "disable_ollama_cloud": true to
 # ~/.ollama/server.json, creating the file if needed and keeping any other settings in it
@@ -121,6 +122,9 @@ in that git-ignored database and are read only by the local model. Upload limits
 - **Local reading aids:** `--local-ai` drafts source-linked reading aids for a case with local Ollama (a separate
   worker under the same network guard, with no cloud fallback); `--groq-demo` is a deprecated alias for it. The
   model routing is in [docs/GROQ-DEMO.md](docs/GROQ-DEMO.md).
+- **Compare with references locally:** on a case review with an Article 14(2) passage, the local model sets that
+  passage beside the closest public references, each with its source. It uses `qwen2.5:1.5b` by default; starting
+  the server with `RATIO_MODEL=qwen2.5:7b-instruct` gives clearer comparisons (about 11 seconds instead of 6).
 - **A fresh upload demonstration:** [the real-case PDF pack](docs/DEMO-UPLOAD-PACK.md) holds three public court
   judgments kept out of the installed collection. `python scripts/fetch_demo_pack.py` downloads them (online) and
   makes a ZIP to upload.
@@ -434,7 +438,7 @@ This repository contains no third-party code, except the Unidecode character tab
   - On x86-64 Linux and Windows, PyTorch contains Intel's closed-source MKL library, even in its CPU-only build.
   - Ratio does not need a GPU, so PyTorch's CPU-only build leaves out NVIDIA's libraries. On ARM Linux that build is entirely open source.
   - A GPL bundle for x86-64 Linux or Windows would need a PyTorch built without MKL.
-- **Models.** [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) and [Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) (`qwen2.5:7b-instruct` in Ollama) are licensed under Apache 2.0, and Ollama under MIT. If you set `RATIO_MODEL` to another model, check its license: some models, including other sizes of Qwen2.5, are not open source.
+- **Models.** [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) and [Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) (`qwen2.5:7b-instruct` in Ollama) and [Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct) (`qwen2.5:1.5b`) are licensed under Apache 2.0, and Ollama under MIT. If you set `RATIO_MODEL` to another model, check its license: some models, including other sizes of Qwen2.5, are not open source.
 - **The court case workspace.** Its build in `web/dist/` bundles React, React DOM and scheduler (MIT, Copyright Meta Platforms, Inc. and affiliates) and the Lato font from `@fontsource/lato` (SIL Open Font License 1.1). Their license texts are in `web/public/THIRD-PARTY-NOTICES.txt`, which is copied into every build; Vite and its tools only build the workspace and are not shipped in it.
 - **Unidecode character table.** `web/public/demo.json` contains `review_transliteration`, 1,824 character-to-ASCII mappings that `scripts/export_web_demo.py` exports from Unidecode so the browser's wording guard matches the Python one. They come from Unidecode's tables (Copyright 2001 Sean M. Burke; later additions Copyright 2025 Tomaž Šolc) under the GNU GPL version 2 or later, not the Apache license. The notice and license text are in `web/public/THIRD-PARTY-NOTICES.txt`.
 - **Public reference documents.** `public-references/` contains 49 published documents (3 European Court of Human Rights judgments, 12 UN Human Rights Committee decisions, 11 opinions of the UN Working Group on Arbitrary Detention and 23 TrialWatch and Columbia Human Rights Institute fairness reports), with their publication URLs and attribution in `public-references/manifest.json`. They keep their authors' rights and source terms; the Apache license does not cover them and implies no endorsement by their publishers.

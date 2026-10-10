@@ -16,6 +16,7 @@ llm:
     argument_check: 400
     steelman: 700
     steelman_check: 200
+    local_reference_comparison: 700  # up to 3 comparisons of two 320-character fields each, as JSON
 
 extraction:
   chunk_chars: 2500

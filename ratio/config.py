@@ -217,6 +217,7 @@ class NumPredict(Frozen):
     argument_check: int = Field(gt=0)
     steelman: int = Field(default=700, gt=0)
     steelman_check: int = Field(default=200, gt=0)
+    local_reference_comparison: int = Field(default=700, gt=0)
 
 
 class LLMSettings(Frozen):

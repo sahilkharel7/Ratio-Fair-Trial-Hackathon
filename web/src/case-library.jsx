@@ -1221,8 +1221,9 @@ export function IntakeDialog({ open, onClose, workspace, refresh, navigate }) {
                   checked={declared}
                   onChange={(e) => setDeclared(e.target.checked)}
                 />
-                These are public or synthetic documents and contain no
-                confidential monitoring material.
+                {provenance === "private"
+                  ? "I am authorised to review these documents. They stay on this computer and only the local model reads them."
+                  : "These are public or synthetic documents and contain no confidential monitoring material."}
               </label>
               <button
                 className="primary"

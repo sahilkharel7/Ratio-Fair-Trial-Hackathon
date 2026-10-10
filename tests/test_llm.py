@@ -73,6 +73,12 @@ def test_request_is_deterministic_structured_and_not_streamed():
     assert transport.shows == [{"model": "qwen2.5:7b-instruct"}]  # asked once whether the model is local
 
 
+def test_local_reference_comparison_has_its_own_reply_budget():
+    client, transport = client_with(chat_reply('{"label": "supports", "quote": "x"}'))
+    client.complete_json(system="sys", user="usr", schema=Label, purpose="local_reference_comparison")
+    assert transport.requests[0][1]["options"]["num_predict"] == SETTINGS.num_predict.local_reference_comparison
+
+
 def test_invalid_reply_is_retried_once_with_the_error_appended():
     client, transport = client_with(chat_reply('{"label": 1}'), chat_reply('{"label": "supports", "quote": "y"}'))
     assert client.complete_json(system="s", user="u", schema=Label, purpose="labels").quote == "y"
