@@ -1,7 +1,7 @@
-from pathlib import Path
 import pytest
+
 from ratio.extraction.build import load_case
-from ratio.focus import screen, penalty_summary
+from ratio.focus import penalty_summary, screen
 from ratio.paths import DEMO_CASE_DIR, DEMO_DIR
 from ratio.testing import make_record
 
@@ -119,3 +119,69 @@ def test_probation_is_not_fabricated_as_a_fine_and_negative_terms_are_not_positi
         )
     )
     assert len(focus.penalties) == 1 and focus.penalties[0].kind == "other"
+
+
+@pytest.mark.parametrize(
+    "term,label",
+    [
+        ("five years and six months", "5 years 6 months imprisonment"),
+        ("five and a half years", "5.5 years imprisonment"),
+    ],
+)
+def test_pdf_line_wrapping_preserves_a_complete_imposed_term(term, label):
+    record = make_record(
+        [
+            (
+                "judgment.txt",
+                "judgment",
+                f"The applicant was sentenced to {term}\n imprisonment.",
+            )
+        ]
+    )
+    focus = screen(record)
+    assert focus.penalties[0].label == label
+    assert focus.penalties[0].min_months == focus.penalties[0].max_months == 66
+    check_spans(record, focus)
+
+
+def test_review_judgment_discussion_is_a_reading_lead_even_when_no_breach_found():
+    record = make_record(
+        [
+            (
+                "judgment.txt",
+                "judgment",
+                "The Court examined the presumption of\ninnocence and found no violation.",
+            )
+        ]
+    )
+    focus = screen(record)
+    assert focus.prompts[0].pattern == "presumption_discussion"
+    assert focus.prompts[0].status == "needs_review"
+    assert "allegation" in focus.prompts[0].question
+    check_spans(record, focus)
+
+
+def test_statutory_liability_in_a_review_judgment_is_not_an_imposed_sentence():
+    record = make_record(
+        [
+            (
+                "judgment.txt",
+                "judgment",
+                "Simple defamation entails liability to a sentence of imprisonment for not more than six months.",
+            )
+        ]
+    )
+    focus = screen(record)
+    assert not [p for p in focus.penalties if p.stage == "imposed"]
+    assert penalty_summary(focus, "statutory")["label"] == "Up to 6 months imprisonment"
+    check_spans(record, focus)
+
+
+def test_wrapped_charge_keeps_exact_source_characters():
+    record = make_record(
+        [("indictment.txt", "indictment", "The accused is charged\nwith robbery.")]
+    )
+    focus = screen(record)
+    assert focus.charge == "robbery"
+    assert focus.charge_span is not None
+    check_spans(record, focus)

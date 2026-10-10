@@ -10,6 +10,7 @@ import "./styles.css";
 import "./workspace.css";
 import "./legal-workflows.css";
 import "./case-library.css";
+import { CourtJudgment } from "./court-library.jsx";
 import {
   CaseCollection,
   CaseReview,
@@ -1240,19 +1241,24 @@ function App() {
     params = new URLSearchParams(location.split("?")[1] || ""),
     query = params.get("q") || "";
   const primaryRoute =
-    route === "/" || route.startsWith("/cases/") || route === "/international";
+    route === "/" ||
+    route.startsWith("/cases/") ||
+    route.startsWith("/judgments/") ||
+    route === "/international";
   const pageName =
     route === "/"
       ? "Case collection"
-      : route.startsWith("/cases/")
-        ? "Case review"
-        : route === "/international"
-          ? "International decisions"
-          : [
-              ...navigation,
-              ["/research", "Matter research"],
-              ["/saved", "Saved research"],
-            ].find((n) => n[0] === route)?.[1] || "Trial review";
+      : route.startsWith("/judgments/")
+        ? "Court judgment"
+        : route.startsWith("/cases/")
+          ? "Case review"
+          : route === "/international"
+            ? "International decisions"
+            : [
+                ...navigation,
+                ["/research", "Matter research"],
+                ["/saved", "Saved research"],
+              ].find((n) => n[0] === route)?.[1] || "Trial review";
   useEffect(() => {
     document.title = `Ratio · ${pageName}`;
   }, [pageName]);
@@ -1444,7 +1450,12 @@ function App() {
             <Icon name="scale" />
             Court case workspace
           </span>
-          <span>Presumption of innocence · ICCPR Article 14(2)</span>
+          <span>
+            Presumption of innocence ·{" "}
+            {route.startsWith("/judgments/")
+              ? "ECHR Article 6(2)"
+              : "ICCPR Article 14(2)"}
+          </span>
         </div>
       ) : (
         <ResearchBar
@@ -1470,16 +1481,22 @@ function App() {
       )}
       <aside id="workspace-nav" className={`sidebar ${drawer ? "open" : ""}`}>
         <div className="side-matter">
-          <p className="eyebrow">Current matter</p>
+          <p className="eyebrow">
+            {primaryRoute ? "Current view" : "Current matter"}
+          </p>
           <strong>
-            {route === "/"
-              ? "Court case collection"
-              : selectedMatter?.record.meta.title ||
-                data?.record.meta.title ||
-                "Case workspace"}
+            {route.startsWith("/judgments/")
+              ? "Historical court judgment"
+              : route === "/international"
+                ? "International review library"
+                : route === "/"
+                  ? "Court case collection"
+                  : selectedMatter?.record.meta.title ||
+                    data?.record.meta.title ||
+                    "Case workspace"}
           </strong>
           <span>
-            {route === "/"
+            {primaryRoute
               ? "Presumption of innocence"
               : selectedMatter?.record.case_id || "VENN–2025"}
           </span>
@@ -1636,6 +1653,14 @@ function App() {
                 navigate={navigate}
                 onImport={() => setIntakeOpen(true)}
               />
+            ) : route.startsWith("/judgments/") ? (
+              <CourtJudgment
+                key={route}
+                id={decodeURIComponent(route.slice(11))}
+                navigate={navigate}
+                onImport={() => setIntakeOpen(true)}
+                refresh={refreshWorkspace}
+              />
             ) : route.startsWith("/cases/") ? (
               <CaseReview
                 caseId={decodeURIComponent(route.slice(7))}
@@ -1650,6 +1675,9 @@ function App() {
               <InternationalDecisions
                 key={params.get("pattern") || "all"}
                 registry={workspace?.outcomes || data.outcomes}
+                local={workspace?.mode === "local_sqlite"}
+                onImport={() => setIntakeOpen(true)}
+                refresh={refreshWorkspace}
                 pattern={params.get("pattern") || ""}
                 navigate={navigate}
               />

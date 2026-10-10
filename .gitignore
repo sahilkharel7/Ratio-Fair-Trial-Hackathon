@@ -34,3 +34,8 @@ brag-output/
 .mypy_cache/
 .idea/
 .vscode/
+
+# Local generated legal reading sheets and PDF rendering intermediates
+output/pdf/
+tmp/pdfs/
+output/demo-upload-pack/

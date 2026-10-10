@@ -106,7 +106,7 @@ def answer_schema(taxonomy: FactPatternTaxonomy) -> type[Extraction]:
 # --- the prompt ------------------------------------------------------------------------------
 
 SYSTEM_TEMPLATE = """\
-You read one public legal document: Views of the UN Human Rights Committee, an opinion of the UN \
+You read one public legal document: a court judgment, Views of the UN Human Rights Committee, an opinion of the UN \
 Working Group on Arbitrary Detention, or a trial-monitoring (TrialWatch) report. List the fact \
 patterns, from the fixed list below, that the document describes about the person concerned: the \
 author of the communication, the detained person or the defendant.
@@ -169,7 +169,7 @@ def schema_sha(taxonomy: FactPatternTaxonomy) -> str:
 
 
 def cache_key(*, text_sha256: str, prompt_sha: str, schema_sha: str, model: str) -> str:
-    return hashlib.sha256("|".join((text_sha256, prompt_sha, schema_sha, model)).encode()).hexdigest()
+    return hashlib.sha256(f"{text_sha256}|{prompt_sha}|{schema_sha}|{model}".encode()).hexdigest()
 
 
 # --- long documents --------------------------------------------------------------------------
@@ -258,7 +258,9 @@ def is_private(doc: PrecedentDoc) -> bool:
         return True
     if not doc.url.startswith(COLLECTION_PREFIX):
         return False
-    from corpus_builder.collections import load_collection  # collections imports this module
+    from corpus_builder.collections import (
+        load_collection,  # collections imports this module
+    )
 
     found = load_collection(doc.url.removeprefix(COLLECTION_PREFIX).split("/", 1)[0])
     return found is None or found.private

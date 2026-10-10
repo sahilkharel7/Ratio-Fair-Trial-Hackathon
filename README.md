@@ -1,5 +1,7 @@
 # Ratio
 
+For a fresh upload demonstration, [the separate real-case PDF pack](docs/DEMO-UPLOAD-PACK.md) contains three original court judgments kept out of the installed collection. Run `.venv/bin/python scripts/fetch_demo_pack.py` to download the originals and create a ZIP locally.
+
 Ratio reads a trial's monitoring record and gives the reviewing lawyer findings to check line by line, each linked to the sentence it rests on. The legal evaluation stays with the lawyer. We built it for the FairTrial AI Hackathon (Track 2: Observation to Legal Evaluation), run by Columbia Law School's Human Rights Institute with the TrialWatch project.
 
 It runs five checks against the international fair-trial standards (ICCPR Articles 9 and 14):
@@ -276,12 +278,12 @@ On every judge page, above everything else: *TrialWatch monitors cases already s
 - **Your own cases:** use public or synthetic material only. A case folder has a `case.yaml` listing its documents (.txt, .md or .pdf), with the type, court and charge type, and whether the material is synthetic or public (with the source). It can also have a `rulings.yaml` of coded rulings for the Judicial History Tracker. `data/demo/case` is a complete example.
 
 - **Similar cases corpus** (built locally into the git-ignored `data/corpus/`, never committed). Source list: `corpus_builder/sources.yaml`.
-  - **What it holds:** 40 public documents fetched on 2026-10-09: 23 TrialWatch fairness reports (cfj.org and hri.law.columbia.edu), 11 opinions of the UN Working Group on Arbitrary Detention (ohchr.org), and 6 UN Human Rights Committee Views (UN documents hosted by ccprcentre.org).
+  - **What it holds:** 43 public documents installed locally on 2026-10-10: three ECHR judgments reproduced by official UN libraries, 23 TrialWatch fairness reports (cfj.org and hri.law.columbia.edu), 11 opinions of the UN Working Group on Arbitrary Detention (ohchr.org), and 6 UN Human Rights Committee Views (UN documents hosted by ccprcentre.org).
   - **Attribution:** every card in the app names its source, and every quote links to the passage in its document.
-  - **Terms:** the reuse terms are unconfirmed for every source and marked TODO in `sources.yaml`. The TrialWatch reports are TrialWatch's own work, so confirm reuse with them before sharing a built corpus. The app shows only short checked excerpts, never a whole document.
+  - **Terms:** source attribution and the recorded terms check accompany each source. The local reader provides the saved original, full text and short source-linked reading aids. Real documents and generated PDFs remain in ignored local storage.
   - **How it was collected:** each site's `robots.txt` was obeyed. documents.un.org disallows crawlers, so no document was taken from it.
   - **Left out:** Pressing Charges, whose per-case data is not public and is "All Rights Reserved", and the TrialWatch India dataset, which is under NDA.
-  - **Extraction:** done with free-tier Gemini models on public text only. Google may use free-tier inputs to improve its products.
+  - **Extraction:** optional at build time, on public documents only. The installed corpus currently has paragraph vectors without model-extracted fact-pattern facets; phrase and meaning search work without a Gemini key. The runtime never loads the cloud SDK.
 
 - **Collections you upload** stay in the git-ignored `data/corpus/collections/` and are never committed. Upload only material you may use; mark a collection private unless it is public.
 
@@ -367,3 +369,20 @@ This repository contains no third-party code. The setup steps download Ratio's d
 - **Models.** [all-MiniLM-L6-v2](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2) and [Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) (`qwen2.5:7b-instruct` in Ollama) are licensed under Apache 2.0, and Ollama under MIT. If you set `RATIO_MODEL` to another model, check its license: some models, including other sizes of Qwen2.5, are not open source.
 
 This is a summary, not legal advice.
+
+### Court judgments and local one-pagers
+
+The React homepage leads with original court judgments. International review keeps Human Rights Committee Views, Working Group opinions and monitoring reports labelled separately. Charges, prosecutor requests and imposed sentences are distinct. See [the corpus research notes](docs/CORPUS-RESEARCH.md) for the focus, case directories and local build instructions.
+
+```bash
+python -m corpus_builder fetch --source echr_judgments
+python -m corpus_builder normalize
+python -m corpus_builder embed
+python -m corpus_builder build-db
+pip install -e ".[pdf]"
+python scripts/build_case_briefs.py
+npm --prefix web run build
+python scripts/serve_workspace.py --port 8503
+```
+
+The three editorial court summaries have checked source pinpoints and source hashes. Other references receive explicitly labelled extractive reading sheets until a model draft is generated and legally reviewed. Downloads refuse changed source text, invented supporting quotes and altered PDFs. No real corpus text is exported into the static preview.

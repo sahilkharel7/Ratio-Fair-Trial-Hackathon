@@ -213,6 +213,8 @@ def make_id(kind: PrecedentKind, url: str, symbol: str | None) -> str | None:
         match = _WGAD_SYMBOL.search(symbol or "")
         return f"wgad-{match[1]}-{int(match[2])}" if match else None
     slug = slugify(symbol or "") or url_slug(url)
+    if kind == "court_judgment":
+        return f"court-{slug}"[:MAX_ID_CHARS].rstrip("-") if slug else None
     prefix = "col" if kind == "collection_document" else "tw"  # col-<collection>-<file> for an uploaded document
     return f"{prefix}-{slug}"[:MAX_ID_CHARS].rstrip("-") if slug else None
 

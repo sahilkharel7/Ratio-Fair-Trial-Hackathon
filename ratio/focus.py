@@ -8,10 +8,10 @@ and reused prosecution wording are never turned into a presumption-of-innocence 
 
 from __future__ import annotations
 
-import re
 import math
+import re
+from itertools import pairwise
 from typing import Literal
-
 
 from ratio.schema import CaseRecord, Frozen, SourceSpan, stable_id
 
@@ -62,8 +62,8 @@ HUNDREDS = (
 )
 NUMBER = r"(?:\d+(?:\.\d+)?|" + HUNDREDS + "|" + COMPOUND + "|" + SMALL + r")"
 DURATION = re.compile(
-    rf"(?<![\w-])(?P<lo>{NUMBER})(?:\s*(?:to|[-–])\s*(?P<hi>{NUMBER}))?(?:\s+|-)(?P<unit>years?|months?|days?)\b",
-    re.I,
+    rf"(?<![\w-])(?P<lo>{NUMBER})(?:\s*(?:to|[-–])\s*(?P<hi>{NUMBER}))?(?P<half>\s+and\s+(?:a\s+)?half)?(?:\s+|-)(?P<unit>years?|months?|days?)\b",
+    re.IGNORECASE,
 )
 
 
@@ -79,7 +79,10 @@ class PenaltyStatement(Frozen):
 class InnocencePrompt(Frozen):
     id: str
     pattern: Literal[
-        "burden_shift", "official_guilt_statement", "prejudicial_presentation"
+        "burden_shift",
+        "official_guilt_statement",
+        "prejudicial_presentation",
+        "presumption_discussion",
     ]
     title: str
     question: str
@@ -104,7 +107,7 @@ def _passages(record: CaseRecord):
         # a statutory range to a separate prosecution request in the same paragraph.
         for paragraph in re.finditer(r"[^\n]+(?:\n(?!\n)[^\n]+)*", doc.text):
             text = paragraph.group()
-            for part in re.finditer(r".+?(?:[.!?](?=\s+[A-Z]|$)|$)", text, re.S):
+            for part in re.finditer(r".+?(?:[.!?](?=\s+[A-Z]|$)|$)", text, re.DOTALL):
                 start = paragraph.start() + part.start()
                 raw = part.group()
                 offset = len(raw) - len(raw.lstrip())
@@ -134,13 +137,13 @@ def _number(value: str) -> float:
 
 
 def _penalty(doc_type: str, span: SourceSpan) -> PenaltyStatement | None:
-    text, lower = span.text, span.text.lower()
+    text, lower = span.text, re.sub(r"\s+", " ", span.text).lower()
     if not re.search(r"imprison|prison|sentenc|death penalty|fine", lower):
         return None
     if re.search(r"\bprosecut\w*\b.{0,100}\b(request\w*|seek\w*|ask\w*)\b", lower):
         stage = "requested"
     elif re.search(
-        r"shall be punished|punishable|maximum penalty|maximum sentence|statutory|penalty of",
+        r"shall be punished|is to be punished|punishable|liability to a sentence|liable to|maximum penalty|maximum sentence|statutory|penalty of",
         lower,
     ):
         stage = "statutory"
@@ -170,7 +173,7 @@ def _penalty(doc_type: str, span: SourceSpan) -> PenaltyStatement | None:
         if re.search(r"\bfine[sd]?\b", lower):
             return PenaltyStatement(
                 stage=stage,
-                label="Fine — see the recorded request",
+                label="Fine — see the recorded statement",
                 kind="fine",
                 span=span,
             )
@@ -195,6 +198,8 @@ def _penalty(doc_type: str, span: SourceSpan) -> PenaltyStatement | None:
             span=span,
         )
     low, high = _number(duration["lo"]), _number(duration["hi"] or duration["lo"])
+    if duration["half"]:
+        low, high = low + (0 if duration["hi"] else 0.5), high + 0.5
     if (
         not (math.isfinite(low) and math.isfinite(high))
         or not 0 <= low <= high <= 10000
@@ -206,6 +211,28 @@ def _penalty(doc_type: str, span: SourceSpan) -> PenaltyStatement | None:
             span=span,
         )
     unit = duration["unit"].lower()
+    # A mixed years/months term is one sentence, not the nearby months alone.
+    for years, months in pairwise(durations):
+        if (
+            duration in (years, months)
+            and years["unit"].lower().startswith("year")
+            and months["unit"].lower().startswith("month")
+            and not years["hi"]
+            and not months["hi"]
+            and not years["half"]
+            and not months["half"]
+            and re.fullmatch(r"\s+and\s+", text[years.end() : months.start()])
+        ):
+            y, m = _number(years["lo"]), _number(months["lo"])
+            if 0 <= y <= 10000 and 0 <= m < 12:
+                return PenaltyStatement(
+                    stage=stage,
+                    label=f"{y:g} years {m:g} months imprisonment",
+                    kind="imprisonment",
+                    min_months=y * 12 + m,
+                    max_months=y * 12 + m,
+                    span=span,
+                )
     if unit.startswith("day"):
         # Day-level custody is shown literally, not converted using an invented month length.
         months_low = months_high = None
@@ -232,9 +259,15 @@ def _penalty(doc_type: str, span: SourceSpan) -> PenaltyStatement | None:
 
 
 def screen(record: CaseRecord, *, defendant: str | None = None) -> FocusRecord:
-    penalties, prompts, charge_span = [], [], None
+    penalties, prompts, discussions, charge_span = [], [], [], None
     for doc, span in _passages(record):
-        text = span.text.lower()
+        text = re.sub(r"\s+", " ", span.text).lower()
+        if (
+            doc.type == "judgment"
+            and "presumption of innocence" in text
+            and len(discussions) < 3
+        ):
+            discussions.append(span)
         if (
             charge_span is None
             and doc.type in {"indictment", "judgment"}
@@ -304,6 +337,26 @@ def screen(record: CaseRecord, *, defendant: str | None = None) -> FocusRecord:
                     span=span,
                 )
             )
+    # Court review decisions often discuss the rule without using the trial-note
+    # wording above. Surface their exact passages as discussion, never as evidence
+    # of a breach or a coded fact pattern for comparing outcomes.
+    if not prompts:
+        prompts = [
+            InnocencePrompt(
+                id=stable_id(
+                    record.case_id,
+                    "presumption_discussion",
+                    span.doc_id,
+                    span.start,
+                    span.text,
+                ),
+                pattern="presumption_discussion",
+                title="Presumption of innocence discussed in the judgment",
+                question="Is this passage an allegation, the legal rule, or the court's finding? Check the surrounding paragraphs before applying it to the case.",
+                span=span,
+            )
+            for span in discussions
+        ]
     name = defendant or (
         record.meta.title.rsplit(" v. ", 1)[-1]
         if " v. " in record.meta.title
@@ -312,7 +365,9 @@ def screen(record: CaseRecord, *, defendant: str | None = None) -> FocusRecord:
     charge = record.meta.charge_type
     if charge_span:
         charge = (
-            re.search(r"\bcharged with\s+(.+)", charge_span.text, re.I | re.S)
+            re.search(
+                r"\bcharged\s+with\s+(.+)", charge_span.text, re.IGNORECASE | re.DOTALL
+            )
             .group(1)
             .strip()
             .rstrip(".")
@@ -324,6 +379,11 @@ def screen(record: CaseRecord, *, defendant: str | None = None) -> FocusRecord:
         charge_span=charge_span,
         penalties=tuple(penalties),
         prompts=tuple(prompts),
+        standard=(
+            "ECHR Article 6(2) · presumption of innocence"
+            if "european court of human rights" in record.meta.court.lower()
+            else STANDARD
+        ),
     )
 
 
