@@ -10,7 +10,13 @@ import "./styles.css";
 import "./workspace.css";
 import "./legal-workflows.css";
 import "./case-library.css";
-import {CaseCollection, CaseReview, InternationalDecisions, IntakeDialog, useCaseWorkspace} from "./case-library.jsx";
+import {
+  CaseCollection,
+  CaseReview,
+  InternationalDecisions,
+  IntakeDialog,
+  useCaseWorkspace,
+} from "./case-library.jsx";
 import {
   Renewals,
   Jurisprudence,
@@ -1008,7 +1014,10 @@ function SourceDialog({ value, onClose, messages }) {
     >
       <div className="dialog-heading">
         <div>
-          <p className="eyebrow">Original source · {doc?.synthetic?'Synthetic example':'Public record'}</p>
+          <p className="eyebrow">
+            Original source ·{" "}
+            {doc?.synthetic ? "Synthetic example" : "Public record"}
+          </p>
           <h2>{doc?.title || "Source document"}</h2>
         </div>
         <button onClick={onClose} aria-label="Close source viewer">
@@ -1045,7 +1054,11 @@ function SourceDialog({ value, onClose, messages }) {
                       ? "Save passage"
                       : "Save document"}
                 </button>
-                {doc.download_url&&<a className="reader-download" href={doc.download_url}>Download original file</a>}
+                {doc.download_url && (
+                  <a className="reader-download" href={doc.download_url}>
+                    Download original file
+                  </a>
+                )}
                 <button onClick={copy}>
                   {copyStatus === "Citation copied."
                     ? "Copied"
@@ -1101,7 +1114,8 @@ function SourceDialog({ value, onClose, messages }) {
                   placeholder="Why does this source matter to your review?"
                 />
                 <p className="caption">
-                  Saved in this browser. Use only demo notes.
+                  Reading notes are saved in this browser. Save case assessments
+                  and next steps on the case page.
                 </p>
                 {span && (
                   <>
@@ -1130,7 +1144,7 @@ function SourceDialog({ value, onClose, messages }) {
   );
 }
 
-function AboutDialog({ open, onClose }) {
+function AboutDialog({ open, onClose, local = false }) {
   const ref = useRef(null);
   useEffect(() => {
     if (open) ref.current.showModal();
@@ -1139,32 +1153,32 @@ function AboutDialog({ open, onClose }) {
   return (
     <dialog className="about-dialog" ref={ref} onCancel={onClose}>
       <div className="dialog-heading">
-        <h2>About this preview</h2>
+        <h2>{local ? "About this local workspace" : "About this preview"}</h2>
         <button aria-label="Close preview information" onClick={onClose}>
           ×
         </button>
       </div>
       <p>
-        This is an interactive preview of Ratio's synthetic demo, exported from
-        the local Python analysis pipeline. All people, courts, country,
-        language, and laws in the record are fictional.
+        {local
+          ? "This local React workspace stores case records, original uploaded documents, assessments and working notes in SQLite on this computer. Its primary workflow focuses on presumption of innocence."
+          : "This preview contains three synthetic cases exported from the local pipeline. People, courts and laws in the case collection are fictional. International decision examples are separately sourced from official public UN material."}
       </p>
       <p>
-        Rights coverage, measured intervals, reasoning matches, and judicial
-        history use the real recorded demo results. Source buttons open the
-        original synthetic documents and verify exact text before highlighting
-        it.
+        Source buttons open the stored source text and check the passage before
+        highlighting it. Screening passages remain prompts for a lawyer to
+        assess. The international outcomes are selected research examples, not a
+        prediction of success.
       </p>
       <h3>New-case analysis runs locally</h3>
       <p>
-        This website does not accept uploads or run an AI model. To analyze
-        public or synthetic case records, run the Python application on your
-        computer:
+        {local
+          ? "Upload source documents from the case collection. Their originals, case records and focused assessments are saved on this computer. The full local-model analysis and Precedent library remain available in the Streamlit application:"
+          : "For actual document uploads and persistent case records, use the local workspace server. For full local-model analysis, use the Streamlit application:"}
       </p>
       <pre>streamlit run app/main.py</pre>
       <p>Legal conclusions remain with the reviewing lawyer.</p>
       <a
-        href="https://github.com/sahilkharel7/Ratio-Fair-Trial-Hackathon/tree/codex/combined-legal-workspace"
+        href="https://github.com/sahilkharel7/Ratio-Fair-Trial-Hackathon/tree/codex/court-case-workspace"
         target="_blank"
         rel="noreferrer"
       >
@@ -1204,8 +1218,8 @@ function App() {
       window.location.pathname + window.location.search,
     ),
     [source, setSource] = useState(null),
-    [selectedMatter,setSelectedMatter]=useState(null),
-    [intakeOpen,setIntakeOpen]=useState(false),
+    [selectedMatter, setSelectedMatter] = useState(null),
+    [intakeOpen, setIntakeOpen] = useState(false),
     [about, setAbout] = useState(false),
     [drawer, setDrawer] = useState(false),
     [toast, setToast] = useState("");
@@ -1217,17 +1231,28 @@ function App() {
       [],
     ),
     [missed, setMissed, missedFailed] = useStored("ratio-demo-missed-v1", []);
-  const {workspace,error:workspaceError,refresh:refreshWorkspace}=useCaseWorkspace(data);
+  const {
+    workspace,
+    error: workspaceError,
+    refresh: refreshWorkspace,
+  } = useCaseWorkspace(data);
   const route = location.split("?")[0],
     params = new URLSearchParams(location.split("?")[1] || ""),
     query = params.get("q") || "";
-  const primaryRoute=route==="/"||route.startsWith("/cases/")||route==="/international";
-  const pageName = route==="/"?"Case collection":route.startsWith("/cases/")?"Case review":route==="/international"?"International decisions":
-    [
-      ...navigation,
-      ["/research", "Matter research"],
-      ["/saved", "Saved research"],
-    ].find((n) => n[0] === route)?.[1] || "Trial review";
+  const primaryRoute =
+    route === "/" || route.startsWith("/cases/") || route === "/international";
+  const pageName =
+    route === "/"
+      ? "Case collection"
+      : route.startsWith("/cases/")
+        ? "Case review"
+        : route === "/international"
+          ? "International decisions"
+          : [
+              ...navigation,
+              ["/research", "Matter research"],
+              ["/saved", "Saved research"],
+            ].find((n) => n[0] === route)?.[1] || "Trial review";
   useEffect(() => {
     document.title = `Ratio · ${pageName}`;
   }, [pageName]);
@@ -1279,7 +1304,12 @@ function App() {
   }
   const documents = data
     ? Object.fromEntries(
-        [data.record, ...data.history, ...(data.collection?.records||[]).map(p=>p.record), ...(selectedMatter?[selectedMatter.record]:[])]
+        [
+          data.record,
+          ...data.history,
+          ...(data.collection?.records || []).map((p) => p.record),
+          ...(selectedMatter ? [selectedMatter.record] : []),
+        ]
           .flatMap((r) => r.documents)
           .map((d) => [d.id, d]),
       )
@@ -1402,15 +1432,27 @@ function App() {
             <span>History</span>
           </button>
           <button className="preview-chip" onClick={() => setAbout(true)}>
-            {workspace?.mode==='local_sqlite'?'On this computer':'Demo workspace'}
+            {workspace?.mode === "local_sqlite"
+              ? "On this computer"
+              : "Demo workspace"}
           </button>
         </div>
       </header>
-      {primaryRoute?<div className="collection-shell-band"><span><Icon name="scale"/>Court case workspace</span><span>Presumption of innocence · ICCPR Article 14(2)</span></div>:<ResearchBar
-        navigate={navigate}
-        query={query}
-        onSearch={(q) => navigate(`/research?q=${encodeURIComponent(q)}`)}
-      />}
+      {primaryRoute ? (
+        <div className="collection-shell-band">
+          <span>
+            <Icon name="scale" />
+            Court case workspace
+          </span>
+          <span>Presumption of innocence · ICCPR Article 14(2)</span>
+        </div>
+      ) : (
+        <ResearchBar
+          navigate={navigate}
+          query={query}
+          onSearch={(q) => navigate(`/research?q=${encodeURIComponent(q)}`)}
+        />
+      )}
       <button
         className="mobile-menu"
         aria-expanded={drawer}
@@ -1429,33 +1471,80 @@ function App() {
       <aside id="workspace-nav" className={`sidebar ${drawer ? "open" : ""}`}>
         <div className="side-matter">
           <p className="eyebrow">Current matter</p>
-          <strong>{route==="/"?"Court case collection":selectedMatter?.record.meta.title||data?.record.meta.title||"Case workspace"}</strong>
-          <span>{route==="/"?"Presumption of innocence":selectedMatter?.record.case_id||"VENN–2025"}</span>
+          <strong>
+            {route === "/"
+              ? "Court case collection"
+              : selectedMatter?.record.meta.title ||
+                data?.record.meta.title ||
+                "Case workspace"}
+          </strong>
+          <span>
+            {route === "/"
+              ? "Presumption of innocence"
+              : selectedMatter?.record.case_id || "VENN–2025"}
+          </span>
         </div>
         <p className="eyebrow side-label">Review workspace</p>
-        <nav aria-label="Primary workspace"><a href="/" aria-current={route==='/'?'page':undefined} onClick={e=>{e.preventDefault();navigate('/');}}><Icon name="folder" size={17}/>Case collection</a><a href={'/cases/'+(selectedMatter?.record.case_id||'venn-2025')} aria-current={route.startsWith('/cases/')?'page':undefined} onClick={e=>{e.preventDefault();navigate('/cases/'+(selectedMatter?.record.case_id||'venn-2025'));}}><Icon name="scale" size={17}/>Case review</a><a href="/international" aria-current={route==='/international'?'page':undefined} onClick={e=>{e.preventDefault();navigate('/international');}}><Icon name="bookmark" size={17}/>International decisions</a></nav>
-        <details className="supporting-nav"><summary>Supporting analysis</summary>
-        <nav aria-label="Matter pages">
-          {navigation.map(([path, label], i) => (
-            <a
-              key={path}
-              href={path}
-              aria-current={route === path ? "page" : undefined}
-              onClick={(e) => {
-                e.preventDefault();
-                navigate(path);
-              }}
-            >
-              <Icon name={navIcons[i]} size={17} />
-              {label}
-              {path === "/coverage" && data && (
-                <span className="nav-count">
-                  {data.analysis.absence.assessments.length}
-                </span>
-              )}
-            </a>
-          ))}
+        <nav aria-label="Primary workspace">
+          <a
+            href="/"
+            aria-current={route === "/" ? "page" : undefined}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/");
+            }}
+          >
+            <Icon name="folder" size={17} />
+            Case collection
+          </a>
+          <a
+            href={"/cases/" + (selectedMatter?.record.case_id || "venn-2025")}
+            aria-current={route.startsWith("/cases/") ? "page" : undefined}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate(
+                "/cases/" + (selectedMatter?.record.case_id || "venn-2025"),
+              );
+            }}
+          >
+            <Icon name="scale" size={17} />
+            Case review
+          </a>
+          <a
+            href="/international"
+            aria-current={route === "/international" ? "page" : undefined}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/international");
+            }}
+          >
+            <Icon name="bookmark" size={17} />
+            International decisions
+          </a>
         </nav>
+        <details className="supporting-nav">
+          <summary>Supporting analysis</summary>
+          <nav aria-label="Matter pages">
+            {navigation.map(([path, label], i) => (
+              <a
+                key={path}
+                href={path}
+                aria-current={route === path ? "page" : undefined}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(path);
+                }}
+              >
+                <Icon name={navIcons[i]} size={17} />
+                {label}
+                {path === "/coverage" && data && (
+                  <span className="nav-count">
+                    {data.analysis.absence.assessments.length}
+                  </span>
+                )}
+              </a>
+            ))}
+          </nav>
         </details>
         <p className="eyebrow side-label">Research tools</p>
         <nav aria-label="Research tools">
@@ -1495,7 +1584,9 @@ function App() {
           <small>
             ICCPR Articles 9 &amp; 14
             <br />
-            {workspace?.mode==='local_sqlite'?'Records stay on this computer':'Synthetic demonstration collection'}
+            {workspace?.mode === "local_sqlite"
+              ? "Records stay on this computer"
+              : "Synthetic demonstration collection"}
           </small>
         </div>
       </aside>
@@ -1537,10 +1628,63 @@ function App() {
           </div>
         ) : (
           <>
-            {route === "/" ? (<CaseCollection workspace={workspace} error={workspaceError} refresh={refreshWorkspace} navigate={navigate} onImport={()=>setIntakeOpen(true)}/>
-            ) : route.startsWith('/cases/') ? (<CaseReview caseId={decodeURIComponent(route.slice(7))} workspace={workspace} bundle={data} context={Source} navigate={navigate} onOpen={setSelectedMatter} refresh={refreshWorkspace}/>
-            ) : route === '/international' ? (<InternationalDecisions key={params.get('pattern')||'all'} registry={workspace?.outcomes||data.outcomes} pattern={params.get('pattern')||''} navigate={navigate}/>
-            ) : selectedMatter && (selectedMatter.record.case_id!==data.record.case_id || selectedMatter.record.documents.some(d=>d.sha256!==data.record.documents.find(original=>original.id===d.id)?.sha256)) ? (<div className="empty"><h1>Supporting analysis</h1><p>This case has the focused worksheet and its original record. The broader tools here contain the recorded Venn demonstration.</p><button onClick={()=>navigate('/cases/'+selectedMatter.record.case_id)}>Return to this case</button><button onClick={()=>{setSelectedMatter(null);navigate('/overview');}}>Open the recorded demonstration</button></div>
+            {route === "/" ? (
+              <CaseCollection
+                workspace={workspace}
+                error={workspaceError}
+                refresh={refreshWorkspace}
+                navigate={navigate}
+                onImport={() => setIntakeOpen(true)}
+              />
+            ) : route.startsWith("/cases/") ? (
+              <CaseReview
+                caseId={decodeURIComponent(route.slice(7))}
+                workspace={workspace}
+                bundle={data}
+                context={Source}
+                navigate={navigate}
+                onOpen={setSelectedMatter}
+                refresh={refreshWorkspace}
+              />
+            ) : route === "/international" ? (
+              <InternationalDecisions
+                key={params.get("pattern") || "all"}
+                registry={workspace?.outcomes || data.outcomes}
+                pattern={params.get("pattern") || ""}
+                navigate={navigate}
+              />
+            ) : selectedMatter &&
+              (selectedMatter.record.case_id !== data.record.case_id ||
+                selectedMatter.record.documents.some(
+                  (d) =>
+                    d.sha256 !==
+                    data.record.documents.find(
+                      (original) => original.id === d.id,
+                    )?.sha256,
+                )) ? (
+              <div className="empty">
+                <h1>Supporting analysis</h1>
+                <p>
+                  This case has the focused worksheet and its original record.
+                  The broader tools here contain the recorded Venn
+                  demonstration.
+                </p>
+                <button
+                  onClick={() =>
+                    navigate("/cases/" + selectedMatter.record.case_id)
+                  }
+                >
+                  Return to this case
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedMatter(null);
+                    navigate("/overview");
+                  }}
+                >
+                  Open the recorded demonstration
+                </button>
+              </div>
             ) : route === "/overview" ? (
               <Overview
                 data={data}
@@ -1626,7 +1770,11 @@ function App() {
             )}
             <footer>
               <span>Ratio · Evidence-led legal review</span>
-              <span>{workspace?.mode==='local_sqlite'?'Local case workspace · Records stored on this computer':'Synthetic demonstration · Recorded local analysis'}</span>
+              <span>
+                {workspace?.mode === "local_sqlite"
+                  ? "Local case workspace · Records stored on this computer"
+                  : "Synthetic demonstration · Recorded local analysis"}
+              </span>
             </footer>
           </>
         )}
@@ -1638,8 +1786,18 @@ function App() {
           messages={data.messages}
         />
       )}
-      <IntakeDialog open={intakeOpen} onClose={()=>setIntakeOpen(false)} workspace={workspace} refresh={refreshWorkspace} navigate={navigate}/>
-      <AboutDialog open={about} onClose={() => setAbout(false)} />
+      <IntakeDialog
+        open={intakeOpen}
+        onClose={() => setIntakeOpen(false)}
+        workspace={workspace}
+        refresh={refreshWorkspace}
+        navigate={navigate}
+      />
+      <AboutDialog
+        open={about}
+        onClose={() => setAbout(false)}
+        local={workspace?.mode === "local_sqlite"}
+      />
       <div className={`toast ${toast ? "visible" : ""}`} role="status">
         {toast}
       </div>

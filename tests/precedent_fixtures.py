@@ -288,9 +288,9 @@ def _write_document(db: sqlite3.Connection, precedent: FixturePrecedent) -> None
     row = (
         precedent.id, precedent.kind, None, precedent.title, precedent.body, precedent.state, precedent.year,
         f"https://example.invalid/precedents/{precedent.id}", BUILT_AT, _sha(verified + "raw"), _sha(verified), "en",
-        f"{precedent.body}: SYNTHETIC test data", stored,
+        f"{precedent.body}: SYNTHETIC test data", stored, 0,
     )  # fmt: skip
-    db.execute("INSERT INTO documents VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", row)
+    db.execute("INSERT INTO documents VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", row)
 
 
 def _write_facet(db: sqlite3.Connection, precedent: FixturePrecedent, facet: FixtureFacet, embedder: FakeEmbedder) -> None:
@@ -303,6 +303,17 @@ def _write_facet(db: sqlite3.Connection, precedent: FixturePrecedent, facet: Fix
     if facet.finding:
         start = _offset(text, facet.finding)
         db.execute("INSERT INTO quotes VALUES (?, ?, 'finding', ?, ?, 'exact', NULL)", (precedent.id, facet.facet_id, start, start + len(facet.finding)))
+
+
+def _write_passages(db: sqlite3.Connection, precedent: FixturePrecedent, embedder: FakeEmbedder) -> None:
+    """Each paragraph is one search passage, at its place in the verified text."""
+    text = precedent.text
+    vectors = embedder.encode(list(precedent.paragraphs)).astype(np.float32)
+    rows = []
+    for paragraph, vec in zip(precedent.paragraphs, vectors, strict=True):
+        start = _offset(text, paragraph)
+        rows.append((precedent.id, start, start + len(paragraph), vec.tobytes()))
+    db.executemany("INSERT INTO passages VALUES (?, ?, ?, ?)", rows)
 
 
 def build_fixture_corpus(
@@ -321,6 +332,7 @@ def build_fixture_corpus(
             _write_document(db, precedent)
             for facet in precedent.facets:
                 _write_facet(db, precedent, facet, embedder)
+            _write_passages(db, precedent, embedder)
     return path
 
 

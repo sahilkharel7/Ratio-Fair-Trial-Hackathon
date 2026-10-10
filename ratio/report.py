@@ -308,7 +308,7 @@ class _Report:
         self.add("")
 
     def similar(self, links: Sequence[PrecedentLink]) -> None:
-        """Public past cases sharing this case's fact patterns: what to read, never what they found."""
+        """Past cases sharing this case's fact patterns: what to read, never what they found."""
         self.add(f"## {md(self.note('report_similar'))}", "", f"*{md(self.note('similar_caveat'))}*", "")
         for found in links:
             patterns = "; ".join(shared.label for shared in found.shared)

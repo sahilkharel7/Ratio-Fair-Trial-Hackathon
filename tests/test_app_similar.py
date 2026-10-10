@@ -50,7 +50,7 @@ WAIT_SLACK_SECONDS = 2.0  # the Case page's own work, on top of its longest wait
 JOB_DEADLINE_SECONDS = 60.0  # how long a test waits for a released background computation to finish
 LONG_FINDING_CHARS = 574  # longer than the card's clip for facts, within the build's bound on a finding
 BROKEN = "the index broke"
-SHOWN_LINKS = "Similar cases: 3 public cases share at least 2 fact patterns"
+SHOWN_LINKS = "Similar cases: 3 past cases share at least 2 fact patterns"
 
 
 def needs_minilm(test):
@@ -484,7 +484,7 @@ def test_no_wording_on_the_page_characterises_a_person(page):
 def test_the_case_page_links_to_similar_cases(app):
     app.switch_page("views/case.py").run()
     assert not app.exception
-    assert "Similar cases: 3 public cases share at least 2 fact patterns" in page_links(app)
+    assert SHOWN_LINKS in page_links(app)
 
 
 @needs_minilm

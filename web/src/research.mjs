@@ -30,5 +30,5 @@ export function sourceKey(document, span) {
   return span ? `${document.id}:${span.start}:${span.end}` : document.id;
 }
 export function sourceCitation(document, span) {
-  return `${document.title}${span ? `, line ${Array.from(document.text).slice(0, span.start).join("").split("\n").length}` : ""} [${document.synthetic?'synthetic':'public'} record]`;
+  return `${document.title}${span ? `, line ${Array.from(document.text).slice(0, span.start).join("").split("\n").length}` : ""} [${document.synthetic ? "synthetic" : "public"} record]`;
 }

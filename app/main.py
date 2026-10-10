@@ -45,6 +45,7 @@ pages = [
     st.Page("views/judges.py", title="Judge profile"),
     st.Page("views/jurisprudence.py", title="Jurisprudence"),
     st.Page("views/similar.py", title="Similar cases"),
+    st.Page("views/library.py", title="Precedent library"),
     st.Page("views/steelman.py", title="State's reply"),
     st.Page("views/review.py", title="Review"),
 ]
@@ -53,7 +54,7 @@ with st.sidebar:
     st.page_link("views/case_collection.py",label="Case collection")
     st.page_link("views/focus.py",label="Case review · Presumption of innocence")
     with st.expander("Supporting analysis"):
-        for name,label in (("case","Full analysis record"),("coverage","Rights coverage"),("timeline","Timeline"),("renewal","Detention renewals"),("reuse","Reasoning comparison"),("judges","Judicial history"),("similar","Similar cases"),("jurisprudence","Jurisprudence"),("steelman","State’s reply"),("review","Full finding review")):
+        for name,label in (("case","Full analysis record"),("coverage","Rights coverage"),("timeline","Timeline"),("renewal","Detention renewals"),("reuse","Reasoning comparison"),("judges","Judicial history"),("similar","Similar cases"),("library","Precedent library"),("jurisprudence","Jurisprudence"),("steelman","State’s reply"),("review","Full finding review")):
             st.page_link(f"views/{name}.py",label=label)
     style.offline_note(session.config().messages.notes["offline_note"])
 page.run()

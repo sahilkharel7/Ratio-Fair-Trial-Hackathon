@@ -27,6 +27,7 @@ from corpus_builder.store import BuildStore, RawItem
 from ratio.precedent_schema import PrecedentDoc, PrecedentKind
 from ratio.schema import Frozen
 
+TEXT = "text/plain"  # a .txt or .md file uploaded into a collection
 MIN_TEXT_CHARS = 500
 MIN_ASCII_LETTER_SHARE = 0.5  # below this, the text is mostly not ASCII letters: not English
 MIN_ENGLISH_WORD_SHARE = 0.05  # English prose has far more of these words (about 20%)
@@ -109,6 +110,8 @@ def normalize_item(item: RawItem, source: Source) -> tuple[PrecedentDoc, tuple[s
         page = html_page(data.decode("utf-8-sig", errors="replace"))
         raw_text, page_title = page.text, page.title
         pdfs = report_pdfs(page.links, item.url, source) if source.kind == "trialwatch_report" else ()
+    elif item.content_type == TEXT:
+        raw_text = data.decode("utf-8-sig", errors="replace")
     else:
         raise Skip(f"unsupported content type {item.content_type}")
     text = clean_text(raw_text)
@@ -128,7 +131,7 @@ def _document(item: RawItem, source: Source, text: str, data: bytes, page_title:
             id=precedent_id, kind=source.kind, symbol=symbol, title=_title(item, page_title, symbol, text), body=source.body,
             state=item.state, year=item.year or _symbol_year(source.kind, symbol), url=item.url, retrieved_at=item.fetched_at,
             raw_sha256=hashlib.sha256(data).hexdigest(), text_sha256=hashlib.sha256(text.encode("utf-8")).hexdigest(),
-            language="en", attribution=source.attribution, text=text,
+            language="en", attribution=source.attribution, text=text, private=bool(getattr(source, "private", False)),
         )  # fmt: skip
     except ValidationError as exc:
         raise Skip(f"invalid document: {exc.errors()[0]['msg']}") from None
@@ -210,7 +213,8 @@ def make_id(kind: PrecedentKind, url: str, symbol: str | None) -> str | None:
         match = _WGAD_SYMBOL.search(symbol or "")
         return f"wgad-{match[1]}-{int(match[2])}" if match else None
     slug = slugify(symbol or "") or url_slug(url)
-    return f"tw-{slug}"[:MAX_ID_CHARS].rstrip("-") if slug else None
+    prefix = "col" if kind == "collection_document" else "tw"  # col-<collection>-<file> for an uploaded document
+    return f"{prefix}-{slug}"[:MAX_ID_CHARS].rstrip("-") if slug else None
 
 
 def url_slug(url: str) -> str:

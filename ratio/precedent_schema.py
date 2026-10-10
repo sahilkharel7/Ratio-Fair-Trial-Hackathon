@@ -19,11 +19,12 @@ from pydantic import Field, model_validator
 
 from ratio.schema import Evidence, Frozen, SourceSpan
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2  # 2: uploaded collections (private flag) and paragraph passages for search
 EMBED_MODEL_TAG = "all-MiniLM-L6-v2/384"
 PRECEDENT_PREFIX = "precedent-"  # SourceSpan.case_id of every precedent span: never a real case id
 
-PrecedentKind = Literal["ccpr_views", "wgad_opinion", "trialwatch_report"]
+PrecedentKind = Literal["ccpr_views", "wgad_opinion", "trialwatch_report", "collection_document"]
+COLLECTION_PREFIX = "collection:"  # the address of a document uploaded into a collection: collection:<slug>/<file>
 FindingKind = Literal["violation_found", "no_violation", "not_examined", "monitor_assessment"]
 QuoteMatch = Literal["exact", "normalized"]  # never fuzzy: a quote either is in the text or is dropped
 
@@ -33,6 +34,7 @@ ALLOWED_FINDINGS: dict[PrecedentKind, frozenset[FindingKind]] = {
     "ccpr_views": frozenset({"violation_found", "no_violation", "not_examined"}),
     "wgad_opinion": frozenset({"violation_found", "no_violation", "not_examined"}),
     "trialwatch_report": frozenset({"monitor_assessment", "not_examined"}),
+    "collection_document": frozenset({"monitor_assessment", "not_examined"}),  # an uploaded document assesses; it rules on no Covenant violation
 }
 
 
@@ -53,13 +55,14 @@ class PrecedentDoc(Frozen):
     body: str = Field(min_length=1)  # who decided or assessed: "UN Human Rights Committee", ...
     state: str | None = None
     year: int | None = Field(default=None, ge=1950, le=2100)
-    url: str = Field(pattern=r"^https://")
+    url: str = Field(pattern=r"^(?:https://|collection:)")  # a public address, or a document uploaded into a collection
     retrieved_at: str
     raw_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     text_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     language: str = "en"
     attribution: str = Field(min_length=1)
     text: str = Field(min_length=1)
+    private: bool = False  # from a collection marked private: read only by the local model, never sent anywhere
 
     @property
     def doc_id(self) -> str:
@@ -129,6 +132,24 @@ class PrecedentIndex(Protocol):
 
     def text(self, doc_id: str) -> str | None: ...  # resolver for provenance.span_is_valid
 
+    def documents(self) -> Sequence[PrecedentDoc]: ...
+
+    def search_passages(
+        self, query: np.ndarray, *, words: str = "", k: int = 10, precedent_ids: Collection[str] | None = None
+    ) -> Sequence[PassageHit]:
+        """The paragraphs closest to the query vector (and sharing its words), best first."""
+        ...
+
+
+class PassageHit(Frozen):
+    """A paragraph of a precedent that a search found: a span of its stored text, and how close it is."""
+
+    precedent_id: str
+    quote: PrecedentQuote
+    cosine: float
+    words: float = 0.0  # the share of the query's words the paragraph contains
+    score: float
+
 
 # --- runtime results (ratio/precedents.py) -------------------------------------------------
 
@@ -181,7 +202,8 @@ SQLITE_DDL: Sequence[str] = (
     """CREATE TABLE IF NOT EXISTS documents (
         id TEXT PRIMARY KEY, kind TEXT NOT NULL, symbol TEXT, title TEXT NOT NULL, body TEXT NOT NULL,
         state TEXT, year INTEGER, url TEXT NOT NULL, retrieved_at TEXT NOT NULL, raw_sha256 TEXT NOT NULL,
-        text_sha256 TEXT NOT NULL, language TEXT NOT NULL, attribution TEXT NOT NULL, text TEXT NOT NULL)""",
+        text_sha256 TEXT NOT NULL, language TEXT NOT NULL, attribution TEXT NOT NULL, text TEXT NOT NULL,
+        private INTEGER NOT NULL DEFAULT 0)""",
     """CREATE TABLE IF NOT EXISTS facets (
         precedent_id TEXT NOT NULL REFERENCES documents(id), facet_id TEXT NOT NULL, finding_kind TEXT NOT NULL,
         PRIMARY KEY (precedent_id, facet_id))""",
@@ -191,6 +213,10 @@ SQLITE_DDL: Sequence[str] = (
         vec BLOB,  -- float32[384] of the sentence around the quote, L2-normalised (facts only)
         PRIMARY KEY (precedent_id, facet_id, role, start, end),
         FOREIGN KEY (precedent_id, facet_id) REFERENCES facets(precedent_id, facet_id))""",
+    """CREATE TABLE IF NOT EXISTS passages (
+        precedent_id TEXT NOT NULL REFERENCES documents(id), start INTEGER NOT NULL, end INTEGER NOT NULL,
+        vec BLOB NOT NULL,  -- float32[384] of the paragraph, L2-normalised
+        PRIMARY KEY (precedent_id, start, end))""",
     """CREATE TABLE IF NOT EXISTS sources (
         kind TEXT PRIMARY KEY, name TEXT NOT NULL, terms_url TEXT NOT NULL, terms_checked TEXT NOT NULL,
         attribution TEXT NOT NULL)""",

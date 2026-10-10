@@ -21,7 +21,7 @@ fonts, images, scripts, or stylesheets are loaded by the app.
 
 ## Extending the offline interface
 
-Sahil's native nine-page navigation, light/dark palettes, bundled serif headings,
+Sahil's native page navigation, light/dark palettes, bundled serif headings,
 contrast settings, focus outlines, underlined links, print styles and distinct
 mark underlines remain in place. Both `.streamlit/config.toml` files must match.
 The offline app uses native controls, status badges and review forms.
@@ -49,3 +49,13 @@ pages, synthetic/public separation, evidence buttons, original-source validation
 document search, and the full document reader. It requires the local MiniLM model.
 Also inspect the running dashboard at desktop and narrow widths after modifying
 the native adapter; headless app tests do not validate browser layout.
+
+## Focused case-collection entry point
+
+The default page is now `app/views/case_collection.py`, with SQLite-backed matters
+and staged PDF assignment. `app/views/focus.py` opens the selected record, source-backed
+charge and penalty statements, Article 14(2) screening prompts and reviewer notes.
+Supporting analysis contains the original pages and Sahil's Precedent library
+(`app/views/library.py`); the two libraries are intentionally different workflows.
+See [COURT-WORKSPACE.md](COURT-WORKSPACE.md) for API, ingestion and outcome-coding
+contracts, and [web/DESIGN.md](../web/DESIGN.md) for the React components.

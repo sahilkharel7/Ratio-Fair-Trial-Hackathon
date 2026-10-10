@@ -44,7 +44,7 @@ from ratio.precedent_schema import (
 )
 from ratio.provenance import DocResolver, span_is_valid
 from ratio.results import CaseAnalysis
-from ratio.schema import PARAGRAPH_BREAK, CaseRecord, Document, Evidence, Flag, SourceSpan
+from ratio.schema import PARAGRAPH_BREAK, CaseRecord, Document, Evidence, Flag, Frozen, SourceSpan
 
 # The two backends compute a cosine in float32 and differ by about 1e-7. Kept to 4 decimals, they almost
 # always give the same value, so float noise does not reorder links and an exact tie falls to the
@@ -445,3 +445,81 @@ def _shared_facet(doc: PrecedentDoc, facet: PrecedentFacet, pick: tuple[Preceden
         precedent_finding=finding,
         pair_cosine=None if cosine is None else round(float(cosine), COSINE_DECIMALS),
     )
+
+
+
+# --- similar wording: the case's own paragraphs searched against the library's ------------------
+
+WORDING_K = 3  # library paragraphs fetched per paragraph of the case
+WORDING_MIN_COSINE = 0.6  # a weaker match is not shown: similar wording, not the same topic
+CASE_PASSAGE_CHARS = 800
+MIN_CASE_PASSAGE_CHARS = 80
+MAX_CASE_PASSAGES = 160
+_SENTENCE_BREAK = re.compile(r"(?<=[.!?;])\s+")
+
+
+class WordingMatch(Frozen):
+    """A precedent whose wording is close to this case's: the best pair of paragraphs, and how many of
+    the case's paragraphs found it. Similar wording only: no fact pattern is claimed."""
+
+    precedent: PrecedentDoc
+    case_passage: SourceSpan
+    precedent_passage: PrecedentQuote
+    cosine: float
+    support: int
+
+
+def _pieces(text: str, start: int, end: int) -> Iterator[tuple[int, int]]:
+    """[start, end) cut at sentence ends into pieces of at most CASE_PASSAGE_CHARS (a longer sentence stays whole)."""
+    piece_start = start
+    for match in _SENTENCE_BREAK.finditer(text, start, end):
+        if match.start() - piece_start > CASE_PASSAGE_CHARS:
+            yield piece_start, match.start()
+            piece_start = match.end()
+    yield piece_start, end
+
+
+def case_passages(record: CaseRecord) -> tuple[SourceSpan, ...]:
+    """The case's documents as paragraphs, each an exact, trimmed span, in document order (capped)."""
+    spans: list[SourceSpan] = []
+    for doc in record.documents:
+        text, start = doc.text, 0
+        for brk in [*re.finditer(r"\n\s*\n", text), None]:
+            end = brk.start() if brk else len(text)
+            for low, high in _pieces(text, start, end):
+                while low < high and text[low].isspace():
+                    low += 1
+                while high > low and text[high - 1].isspace():
+                    high -= 1
+                if high - low >= MIN_CASE_PASSAGE_CHARS:
+                    spans.append(SourceSpan(doc_id=doc.id, start=low, end=high, text=text[low:high]))
+            start = brk.end() if brk else len(text)
+    return tuple(spans[:MAX_CASE_PASSAGES])
+
+
+def similar_wording(record: CaseRecord, index: PrecedentIndex, embedder: Embedder, *, limit: int = 5) -> tuple[WordingMatch, ...]:
+    """The precedents whose paragraphs are closest to the case's own, best first. Every precedent
+    paragraph shown is re-checked against its text; no model runs."""
+    spans = case_passages(record)
+    if not spans:
+        return ()
+    index = _for_one_call(index)  # a stalled OpenSearch costs one timeout, not one per paragraph
+    vectors = embedder.encode([span.text for span in spans])
+    best: dict[str, tuple[float, SourceSpan, PrecedentQuote]] = {}
+    support: dict[str, int] = {}
+    for span, vector in zip(spans, vectors, strict=True):
+        found: set[str] = set()
+        for hit in index.search_passages(vector, k=WORDING_K):
+            if hit.cosine < WORDING_MIN_COSINE or not span_is_valid(hit.quote.span, index.text):
+                continue
+            found.add(hit.precedent_id)
+            if hit.precedent_id not in best or hit.cosine > best[hit.precedent_id][0]:
+                best[hit.precedent_id] = (hit.cosine, span, hit.quote)
+        for pid in found:  # each case paragraph counts once per precedent, however many of its paragraphs it found
+            support[pid] = support.get(pid, 0) + 1
+    docs = {doc.id: doc for doc in index.documents()}
+    matches = [
+        WordingMatch(precedent=docs[pid], case_passage=span, precedent_passage=quote, cosine=round(cosine, 4), support=support[pid])
+        for pid, (cosine, span, quote) in best.items() if pid in docs
+    ]  # fmt: skip
+    return tuple(sorted(matches, key=lambda m: (-(m.cosine + 0.01 * min(m.support, 10)), m.precedent.id))[:limit])

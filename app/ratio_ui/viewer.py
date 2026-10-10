@@ -65,7 +65,14 @@ def show_source(span: SourceSpan, record: CaseRecord | None = None, heading: str
 
 def precedent_origin(precedent: PrecedentDoc) -> str:
     """The label "Real public case", unless the document marks itself SYNTHETIC (a test fixture)."""
-    key = "synthetic_precedent" if precedent.text.startswith(SYNTHETIC_MARK) else "real_public_case"
+    if precedent.text.startswith(SYNTHETIC_MARK):
+        key = "synthetic_precedent"
+    elif precedent.private:
+        key = "private_document"
+    elif precedent.kind == "collection_document":
+        key = "uploaded_public_document"
+    else:
+        key = "real_public_case"
     return session.config().messages.label(key)
 
 

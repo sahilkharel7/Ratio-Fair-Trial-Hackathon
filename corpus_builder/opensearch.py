@@ -11,11 +11,14 @@ from __future__ import annotations
 
 import logging
 import re
+import sqlite3
+from contextlib import closing
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
 from ratio.config import FactPatternTaxonomy, default_config
+from ratio.paths import corpus_db_path
 from ratio.precedent_opensearch import connect, index_body
 from ratio.precedent_store import SqlitePrecedentIndex
 
@@ -47,12 +50,17 @@ def _move_alias(client: Any, alias: str, index: str) -> None:
 
 
 def _documents(corpus: SqlitePrecedentIndex, index: str) -> Iterator[dict[str, Any]]:
-    """The bulk request lines: one document per fact quote, with its vector."""
+    """The bulk request lines: one document per fact quote and per passage, with its vector. Only ids,
+    offsets and vectors: the text stays in the corpus file (a private collection's included)."""
     for doc, facet_id, quote, vec in corpus.fact_vectors():
         span = quote.span
         yield {"index": {"_index": index, "_id": f"{doc.id}/{facet_id}/{span.start}-{span.end}"}}
-        yield {"precedent_id": doc.id, "facet_id": facet_id, "kind": doc.kind, "start": span.start, "end": span.end,
-               "text": span.text, "vec": [float(x) for x in vec]}  # fmt: skip
+        yield {"precedent_id": doc.id, "facet_id": facet_id, "role": "fact", "kind": doc.kind, "start": span.start, "end": span.end,
+               "vec": [float(x) for x in vec]}  # fmt: skip
+    for doc, start, end, vec in corpus.passage_vectors():
+        yield {"index": {"_index": index, "_id": f"{doc.id}/passage/{start}-{end}"}}
+        yield {"precedent_id": doc.id, "role": "passage", "kind": doc.kind, "start": start, "end": end,
+               "vec": [float(x) for x in vec]}  # fmt: skip
 
 
 def _bulk_load(client: Any, corpus: SqlitePrecedentIndex, index: str) -> int:
@@ -81,7 +89,7 @@ def index_corpus(db_path: Path, url: str, alias: str, *, taxonomy: FactPatternTa
         raise
     for name in old.values():
         client.indices.delete(index=name)
-    _log.info("indexed %d fact quotes into %s (alias %s)", count, index, alias)
+    _log.info("indexed %d fact quotes and passages into %s (alias %s)", count, index, alias)
     return count
 
 
@@ -100,8 +108,24 @@ def _default_alias() -> str:
     return default_config().settings.precedents.opensearch_index
 
 
-def snapshot(url: str, name: str, *, alias: str | None = None) -> tuple[str, ...]:
-    """Save the index behind the alias (and the alias) as snapshot ``name``; returns the indices saved."""
+def private_documents(corpus_path: Path) -> int:
+    """How many documents of private collections the corpus file holds (0 when it has none or is missing)."""
+    if not Path(corpus_path).is_file():
+        return 0
+    with closing(sqlite3.connect(f"file:{corpus_path}?mode=ro", uri=True)) as db:
+        try:
+            return int(db.execute("SELECT COUNT(*) FROM documents WHERE private = 1").fetchone()[0])
+        except sqlite3.OperationalError:  # a corpus from before collections
+            return 0
+
+
+def snapshot(url: str, name: str, *, alias: str | None = None, corpus_path: Path | None = None, include_private: bool = False) -> tuple[str, ...]:
+    """Save the index behind the alias (and the alias) as snapshot ``name``; returns the indices saved. A
+    snapshot is meant to be copied to other computers, and the index holds the ids and vectors of every
+    document, so it is refused while the corpus holds a private collection, unless include_private."""
+    private = private_documents(corpus_path or corpus_db_path())
+    if private and not include_private:
+        raise ValueError(f"the corpus holds {private} documents of private collections; a snapshot would carry their ids and vectors off this computer")
     alias = alias or _default_alias()
     client = connect(url, timeout=LOAD_TIMEOUT_S)
     _repository(client)

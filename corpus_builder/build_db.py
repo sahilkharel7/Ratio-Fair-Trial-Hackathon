@@ -71,8 +71,9 @@ def _check_facets(doc: PrecedentDoc, facets: tuple[PrecedentFacet, ...], known: 
             check_span(doc, quote.span)
 
 
-def _corpus(store: BuildStore, verified: Verified, taxonomy: FactPatternTaxonomy) -> Corpus:
-    """The documents with at least one verified facet, each span re-checked against its text."""
+def _corpus(store: BuildStore, verified: Verified, taxonomy: FactPatternTaxonomy, searchable: Collection[str] = ()) -> Corpus:
+    """The documents with at least one verified facet, each span re-checked against its text, and the
+    uploaded documents with search passages but no facet (found by their wording only)."""
     known = {pattern.id for pattern in taxonomy.facets}
     corpus = []
     for precedent_id, (facets, _) in sorted(verified.items()):
@@ -84,9 +85,30 @@ def _corpus(store: BuildStore, verified: Verified, taxonomy: FactPatternTaxonomy
             continue
         _check_facets(doc, facets, known)
         corpus.append((doc, facets))
+    kept = {doc.id for doc, _ in corpus}
+    corpus.extend((doc, ()) for doc in store.documents() if doc.kind == "collection_document" and doc.id in searchable and doc.id not in kept)
     if not corpus:
         raise BuildError("no document has a verified facet; run `python -m corpus_builder extract`, then `verify`")
-    return tuple(corpus)
+    return tuple(sorted(corpus, key=lambda entry: entry[0].id))
+
+
+def _with_known_sources(corpus: Corpus, sources: Sequence[SourceInfo]) -> Corpus:
+    """The corpus without the uploaded documents no collection still holds (a file removed or replaced, or
+    its collection deleted). A crawled document with no source is still an error (see _source_of)."""
+    kept = []
+    for doc, facets in corpus:
+        if doc.kind == "collection_document" and not any(_holds(source, doc) for source in sources):
+            log.warning("%s: no collection holds this file any more; left out", doc.id)
+            continue
+        kept.append((doc, facets))
+    if not kept:
+        raise BuildError("no document has a verified facet; run `python -m corpus_builder extract`, then `verify`")
+    return tuple(kept)
+
+
+def _holds(source: SourceInfo, doc: PrecedentDoc) -> bool:
+    holds = getattr(source, "holds", None)
+    return source.kind == doc.kind and callable(holds) and bool(holds(doc))
 
 
 def _require_vectors(corpus: Corpus, vectors: Vectors) -> None:
@@ -151,7 +173,15 @@ def _quote_rows(corpus: Corpus, vectors: Vectors) -> Iterator[tuple]:
                 yield (doc.id, facet.facet_id, "finding", span.start, span.end, facet.finding.match, None)
 
 
-def _fill(db: sqlite3.Connection, corpus: Corpus, vectors: Vectors, meta: CorpusMeta) -> None:
+def _passage_rows(corpus: Corpus, passages: Mapping[str, list[tuple[int, int, bytes]]]) -> Iterator[tuple]:
+    """Every stored paragraph of the corpus's documents that is a non-blank span of its text."""
+    for doc, _ in corpus:
+        for start, end, blob in passages.get(doc.id, ()):
+            if 0 <= start < end <= len(doc.text) and doc.text[start:end].strip():
+                yield (doc.id, start, end, blob)
+
+
+def _fill(db: sqlite3.Connection, corpus: Corpus, vectors: Vectors, meta: CorpusMeta, passages: Mapping[str, list[tuple[int, int, bytes]]] | None = None) -> None:
     for statement in SQLITE_DDL:
         db.execute(statement)
     columns, marks = ", ".join(_DOCUMENT_COLUMNS), ", ".join("?" * len(_DOCUMENT_COLUMNS))
@@ -162,10 +192,11 @@ def _fill(db: sqlite3.Connection, corpus: Corpus, vectors: Vectors, meta: Corpus
     db.executemany("INSERT INTO facets VALUES (?, ?, ?)", facets)
     db.executemany("INSERT INTO quotes VALUES (?, ?, ?, ?, ?, ?, ?)", _quote_rows(corpus, vectors))
     db.executemany("INSERT INTO sources VALUES (?, ?, ?, ?, ?)", sources)
+    db.executemany("INSERT INTO passages VALUES (?, ?, ?, ?)", _passage_rows(corpus, passages or {}))
     db.executemany("INSERT INTO meta VALUES (?, ?)", _meta_rows(meta))
 
 
-def _write_atomically(out: Path, corpus: Corpus, vectors: Vectors, meta: CorpusMeta) -> None:
+def _write_atomically(out: Path, corpus: Corpus, vectors: Vectors, meta: CorpusMeta, passages: Mapping[str, list[tuple[int, int, bytes]]] | None = None) -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
     handle, name = tempfile.mkstemp(prefix=f".{out.name}.", suffix=".tmp", dir=out.parent)
     os.close(handle)
@@ -174,7 +205,7 @@ def _write_atomically(out: Path, corpus: Corpus, vectors: Vectors, meta: CorpusM
         with closing(sqlite3.connect(temporary)) as db:
             db.execute("PRAGMA foreign_keys = ON")
             with db:
-                _fill(db, corpus, vectors, meta)
+                _fill(db, corpus, vectors, meta, passages)
         os.replace(temporary, out)
     finally:
         temporary.unlink(missing_ok=True)
@@ -194,7 +225,8 @@ def build_db(
 ) -> CorpusMeta:
     """Write a fresh corpus file (default: corpus_db_path(), which RATIO_CORPUS_DB overrides)."""
     verified = store.verified()
-    corpus = _corpus(store, verified, taxonomy)
+    passages = store.passages()
+    corpus = _with_known_sources(_corpus(store, verified, taxonomy, searchable=passages.keys()), sources)
     vectors = store.vectors()
     _require_vectors(corpus, vectors)
     meta = CorpusMeta(
@@ -210,7 +242,7 @@ def build_db(
         sources=corpus_sources(sources, [doc for doc, _ in corpus]),
     )
     out = Path(out_path) if out_path is not None else corpus_db_path()
-    _write_atomically(out, corpus, vectors, meta)
+    _write_atomically(out, corpus, vectors, meta, passages)
     log.info("wrote %s: %d documents, %d facets", out, meta.documents, meta.facets)
     return meta
 

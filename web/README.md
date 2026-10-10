@@ -1,28 +1,36 @@
-# Vercel demonstration
+# React court case workspace
 
-A React/Vite legal workspace combined with Sahil’s latest `main`, using analysis
-exported from the committed synthetic case and judicial history. The original
-Python application remains the place to import cases and run the local model.
+The primary interface is a court-filtered case collection, followed by a focused
+Article 14(2) review. Charge, requested penalty, imposed sentence and quoted law
+remain separate, each with a checked source. The original broader analysis views
+remain under Supporting analysis.
 
-This preview includes all nine case/review views, a unified document/finding search,
-filtered research results, saved documents and exact passages, research history,
-browser-local working notes, source highlights, judgment/indictment comparison,
-coded judicial history, detention renewals, linked jurisprudence, possible State replies,
-and reviewer decisions with an append-only history.
-It does not accept uploaded cases or run a model in the cloud. The hosting status
-and About dialog explain that distinction to visitors.
+## Real local uploads and SQLite
 
-Saved research, notes, and the last 30 unique search/document activities persist
-in this browser's local storage. Review decisions and missed issues use separate
-versioned storage keys. They do not synchronize across devices or users.
+```sh
+npm --prefix web ci
+npm --prefix web run build
+.venv/bin/python scripts/serve_workspace.py --demo
+```
 
-**Report draft (.md)** contains the Python pipeline report followed by the browser
-review worksheet, with original wording, decisions, reasons and exact source quotes.
-The original pipeline report is preserved; browser decisions are clearly labelled
-separately. **Review worksheet (.json)** contains decision snapshots, missed issues,
-notes and saved sources. For authoritative reports with decisions applied directly
-to the findings, use the offline Python application.
-See [DESIGN.md](DESIGN.md) for interface references and reusable view patterns.
+Open http://127.0.0.1:8503. The loopback API uses the existing `data/ratio.db`.
+Upload PDFs/TXT/MD, assign the originals to one case with confirmed roles, then open
+that stored case. Assessments retain their source snapshots and history; working
+notes and originals survive a restart. `--db PATH` selects a separate database.
+See [the court-workspace guide](../docs/COURT-WORKSPACE.md) for limits and the adapter
+contract used by future bulk grouping/OCR/classification work.
+
+## Vercel synthetic preview
+
+The same interface detects the absence of the local API and opens three committed
+synthetic examples. Actual uploads use the local server. Focused demo assessments
+and notes stay in browser storage. Official UN decision examples are separately
+marked as research references; they are not synthetic case evidence.
+
+The international outcomes show a selected merits fraction, explicit denominator
+and source coding. Inadmissibility is separate; a narrow sample below five merits
+decisions shows counts without a percentage. A case-specific success probability
+is not estimated. These selected examples do not establish release or acquittal.
 
 ## Refresh the synthetic record
 

@@ -103,7 +103,7 @@ streamlit run app/main.py
 
 Open http://127.0.0.1:8501. The app only accepts connections from this computer.
 
-On the **Case** page you can:
+On the **Full analysis record** page you can:
 
 - **Load the demo case.** This replays the model's recorded answers, takes about 4 seconds, and works with Ollama stopped and Wi-Fi off.
 - **Upload your own case folder.** The local model reads it live, which takes a few minutes for a case of this size.
@@ -118,7 +118,8 @@ The other pages are:
 - **Judge profile**
 - **State's reply**: for each finding the State would contest, the strongest reply the State could make, argued by the local model from the record so the lawyer can test the finding. The model is shown the record passages most similar to the finding and a reviewed list of grounds for its standard (`ratio/config/steelman.yaml`); General Comment wording backs the grounds that the Comments themselves recognise. Each argument must use one of those grounds and quote one passage exactly. An argument is dropped if its ground was not offered, its passage was not shown, its quote is not in that passage, it rests on the finding's own evidence where the ground needs other evidence, or a second short model check finds the quote does not show what the ground requires. Grounds left without an argument are listed as not supported by the record. The wording is the model's, shown as unverified after the block list; it is never a finding, and judge patterns get no reply.
 - **Jurisprudence**: for each finding and each question for the monitor, the paragraphs of General Comments 32 and 35, and the Committee decisions they cite, linked by the standard it concerns. The same entries appear next to each finding on the other pages and in the report draft's annex. They are chosen by standard and status, never by the case's facts or by a model, and whether one applies is for the reviewing lawyer.
-- **Similar cases**: public past cases that share this case's fact patterns, with this case's passage beside the past case's and what the deciding body said, in its own words. See [Similar cases](#similar-cases-optional) below.
+- **Similar cases**: past cases that share this case's fact patterns, with this case's passage beside the past case's and what the deciding body said, in its own words. See [Similar cases](#similar-cases-optional) below.
+- **Precedent library**: search every paragraph of the library by the facts you type, and add your own collections of case documents; a private collection is read only by the local model. See [Your own collections](#your-own-collections-upload-a-regions-cases-no-crawling).
 - **Review**: the reviewing lawyer accepts, rewords or rejects each finding (a reason is required to reword or reject) and records issues Ratio did not flag. Decisions are saved on this computer, append-only, and survive a re-analysis of the case. They appear in the report draft, where a reworded finding shows the lawyer's wording with Ratio's kept in the annex.
 
 Any evidence button opens the source viewer. Once a case is loaded, the Case page's **Download report draft (.md)** button saves its findings as an editable Markdown draft: each finding is numbered, and its exact source text is quoted in an annex with the document and line it comes from.
@@ -157,7 +158,7 @@ Two maintainer tools go online, besides the one-time `scripts/fetch_models.py`. 
 
 ## Similar cases (optional)
 
-For the case under review, Ratio lists public past cases that share its fact patterns:
+For the case under review, Ratio lists past cases that share its fact patterns (any collections you uploaded are linked too; see below):
 - UN Human Rights Committee Views;
 - UN Working Group on Arbitrary Detention opinions;
 - TrialWatch fairness reports.
@@ -180,7 +181,7 @@ For each shared pattern it shows this case's passage beside the past case's, and
 
 ```bash
 docker compose up -d opensearch          # optional vector index on 127.0.0.1:9200; without it Ratio reads the corpus file
-pip install -e ".[corpus]"               # the builder's Gemini SDK (maintainers only; the app never imports it)
+uv pip install -e ".[corpus]"            # the builder's Gemini SDK (maintainers only; the app never imports it; without uv: pip install -e ".[corpus]")
 cp .env.example .env                     # then put GEMINI_API_KEY in .env (git-ignored)
 python -m corpus_builder fetch           # ONLINE: download the seeds (robots.txt and rate limits obeyed)
 python -m corpus_builder normalize       # text of each document
@@ -192,6 +193,25 @@ python -m corpus_builder index-opensearch   # load it into OpenSearch (optional)
 ```
 
 `python -m corpus_builder extract --model ollama` uses the local model instead of Gemini: slower, but fully offline. `python -m ratio preflight` reports whether a corpus is installed and whether OpenSearch answers. Without a corpus the page says how to build one, and the rest of Ratio is unchanged.
+
+### Your own collections: upload a region's cases, no crawling
+
+A collection is a folder of case documents you already have, for example court decisions, monitoring reports or news reports about trials in one country. Add them on the **Precedent library** page, or from the command line. Ratio reads them into the same library as the public corpus, so they are searched and linked like any other past case.
+
+- **Private by default.** A private collection is read only by the local model (Ollama on 127.0.0.1), and the build refuses any other model. Its files stay in the git-ignored `data/corpus/collections/<slug>/` on this computer (the name in lowercase with hyphens, e.g. `public-reports`). A collection's privacy cannot be changed after it is created.
+- **Checked like everything else.** The model quotes each fact pattern word for word, and every quote is checked against the document before it is kept. A document in which the model finds no pattern, or that it could not read, is still searchable by its wording.
+- **Searched by meaning and by words.** Every paragraph of every document is embedded with the local MiniLM model. A search ranks paragraphs by closeness in meaning (75%) and by the share of the query's words they contain (25%). Footnote and citation blocks are left out of the search.
+- **Similar wording.** The Similar cases page also lists past cases whose paragraphs read most like this case's own, beside the fact-pattern links. Each paragraph pair opens in the source viewer, and no fact pattern is claimed for it.
+- **Files:** PDF (with a text layer, not scans), `.txt`, `.md` or HTML, in English: up to 20 MB each on the page, 30 MB from the command line. Uploaded files are only read, never run.
+
+```bash
+python -m corpus_builder collection add ~/cases/indonesia --name Indonesia --region "South-East Asia"   # private
+python -m corpus_builder collection add ~/reports --name "Public reports" --public                     # public material
+python -m corpus_builder collection list
+python -m corpus_builder collection build --name Indonesia   # local model; rebuilds the corpus file and, if running, OpenSearch
+```
+
+A public collection may also be built with `--model gemini --model-id <id>`. A private one never is: every step that calls a model refuses to give a private document to anything but the local model, and refuses Ollama cloud models. Building a collection rebuilds the corpus file from `data/corpus/build.db`, so it needs that file next to `precedents.db` (it refuses rather than drop public documents). `--no-index` leaves OpenSearch alone, and `snapshot` refuses while the corpus holds a private collection, because a snapshot is meant to be copied to other computers.
 
 ## Evaluation
 
@@ -232,7 +252,7 @@ The code and its comments refer to these as hard rules 1 to 5.
 | **1. Runs offline, on this computer.** No cloud services, no third-party APIs, no telemetry. One exception, outside the app: the maintainer-only corpus builder sends public precedent documents, never case data, to Google Gemini at build time. | The model client only talks to Ollama on 127.0.0.1 and refuses cloud-hosted models. A network guard blocks every other connection in the app, the command line, the evaluation and the tests. Hugging Face runs in offline mode, and the embedding model loads from `models/`. Streamlit runs with usage statistics off, on 127.0.0.1 only, with no error-page links and no web fonts or remote themes. The app refuses to start if any of these settings is not in effect. | The full pipeline runs under the network guard. A global Streamlit config that tries to override the settings is ignored. The browser checks found every request going to 127.0.0.1. `python -m ratio preflight` checks these settings, any `STREAMLIT_*` environment variables that would override them, and whether the running Ollama server (or its settings file) has its cloud features disabled. |
 | **2. Provenance on everything.** | The model returns exact quotes, and Ratio locates each one in the source text; quotes it can't find are dropped. A finding must carry at least one source span (document id, start, end, exact text). Before anything is stored or shown, every span is re-read from its document, and a finding whose span does not match is dropped. | The evaluation reports provenance before and after this check and fails on any unsourced finding. App tests check that every piece of evidence on every page has a button that opens its source. |
 | **3. No verdicts about people.** | The messages of findings, and the short status and evidence labels shown next to them, come from fixed templates (`ratio/config/messages.yaml`). Model notes appear only under "Model note (unverified)", after words that characterise a person are removed. Judge indicators say "pattern that warrants review" only when the confidence interval for the difference from the baseline excludes zero, with the significance level divided across the indicators shown. Otherwise they say the judge is not distinguishable from the baseline at this sample size. Every rate shows n and a 95% Wilson interval. Indicators are hidden below 5 cases. The baseline is the same court and charge type only. Rulings are coded by people, never by the model. A name counts for a judge only at the same court, and doubtful names wait for a person to decide. | Known-value tests for the Wilson and Newcombe intervals. App tests check the judge page for blocked terms and for the fixed note, n and intervals. |
-| **4. Public or synthetic data only.** | Every synthetic text file starts with a `SYNTHETIC:` line, and every YAML and JSON file declares `synthetic: true`. Public material must cite where it was published. Uploading requires a declaration. A SYNTHETIC banner appears on every page and in the source viewer. | Every demo data file is checked for the marker. App tests check the banner on every page. |
+| **4. Public or synthetic data only.** | Every synthetic text file starts with a `SYNTHETIC:` line, and every YAML and JSON file declares `synthetic: true`. Public material must cite where it was published. Uploading a case requires a declaration; a Precedent library collection may hold private material, which is then read only by the local model and kept in the git-ignored `data/corpus/collections/`. A SYNTHETIC banner appears on every page and in the source viewer. | Every demo data file is checked for the marker. App tests check the banner on every page. |
 | **5. No invented legal thresholds.** | Only one benchmark is confirmed: General Comment 35's 48 hours to bring a detainee before a judge (para. 33). Every other benchmark has a citation and no threshold, is marked "needs legal review", and is measured but never coloured. Only confirmed benchmarks can be marked as exceeded. | Config tests check that only the 48-hour benchmark is confirmed and that an unconfirmed benchmark is never coloured. |
 
 On every judge page, above everything else: *TrialWatch monitors cases already suspected of unfairness, so these rates are not representative.*
@@ -262,6 +282,8 @@ On every judge page, above everything else: *TrialWatch monitors cases already s
   - **How it was collected:** each site's `robots.txt` was obeyed. documents.un.org disallows crawlers, so no document was taken from it.
   - **Left out:** Pressing Charges, whose per-case data is not public and is "All Rights Reserved", and the TrialWatch India dataset, which is under NDA.
   - **Extraction:** done with free-tier Gemini models on public text only. Google may use free-tier inputs to improve its products.
+
+- **Collections you upload** stay in the git-ignored `data/corpus/collections/` and are never committed. Upload only material you may use; mark a collection private unless it is public.
 
 No real monitoring notes and no published TrialWatch reports are in this repository.
 
@@ -302,13 +324,15 @@ ratio/
   report.py       the Markdown report draft export
   precedents.py   Similar cases: this case's fact patterns and the ranked links (no model at query time)
   precedent_store.py, precedent_opensearch.py   the corpus file (source of truth) and the optional OpenSearch index
-corpus_builder/   maintainer-only, online: fetch, normalize, extract (Gemini, public text only), verify, embed, build the corpus
+corpus_builder/   maintainer-only, online: fetch, normalize, extract (Gemini, public text only), verify, embed, build the corpus;
+                  collections.py (with store.py) reads uploaded collections with the local model: the only modules the app imports
 app/              Streamlit app: main.py, views/ (one file per page), ratio_ui/ (source viewer, widgets, privacy check)
 data/demo/        synthetic demo case, expected outputs, judicial history, recorded model answers
 eval/             evaluation script
-scripts/          one-time model download, the history generator, and the jurisprudence check
+scripts/          one-time model download, the history generator, the jurisprudence check, and the web preview's data export
 tests/
-docs/             demo script and screenshots
+docs/             demo script, screenshots, interface notes and the workspace merge notes
+web/              React preview of the recorded synthetic demo (static; see web/README.md)
 ```
 
 ## Team
