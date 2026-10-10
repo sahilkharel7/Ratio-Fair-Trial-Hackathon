@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 const data = JSON.parse(
   readFileSync(new URL("../public/demo.json", import.meta.url), "utf8"),
 );
-const records = [data.record, ...data.history];
+const records = [data.record, ...data.history, ...data.collection.records.map(p=>p.record)];
 const documents = new Map(
   records.flatMap((r) => r.documents).map((d) => [d.id, d]),
 );

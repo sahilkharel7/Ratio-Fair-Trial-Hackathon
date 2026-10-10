@@ -45,7 +45,7 @@ corpus = [
 include = ["ratio*", "corpus_builder*"]
 
 [tool.setuptools.package-data]
-ratio = ["config/*.yaml"]
+ratio = ["config/*.yaml", "config/*.json"]
 corpus_builder = ["sources.yaml"]
 
 [tool.pytest.ini_options]

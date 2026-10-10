@@ -97,7 +97,9 @@ def source_buttons(at: AppTest):
 
 
 def page_links(at: AppTest) -> list[str]:
-    return [element.proto.label for element in at.get("page_link")]
+    # The explicit sidebar navigation is always available; these checks concern
+    # the Case page's computed Similar cases summary, not the navigation entry.
+    return [element.proto.label for element in at.main.get("page_link")]
 
 
 def similar_lines(at: AppTest) -> list[str]:

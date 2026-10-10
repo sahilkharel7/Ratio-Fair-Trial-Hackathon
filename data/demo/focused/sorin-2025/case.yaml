@@ -1,0 +1,9 @@
+case_id: sorin-2025
+title: Republic of Calderra v. Nadia Sorin
+court: Mirevo District Court, Criminal Chamber
+charge_type: Organising an unauthorised public assembly (Penal Code Art. 88)
+data_provenance: synthetic
+synthetic: true
+documents:
+  - {path: indictment.txt, type: indictment, title: Indictment · Nadia Sorin}
+  - {path: judgment.txt, type: judgment, title: Judgment · Nadia Sorin}

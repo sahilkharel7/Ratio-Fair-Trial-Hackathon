@@ -75,6 +75,8 @@ def _save(record: CaseRecord, analysis: CaseAnalysis) -> str:
     cases = store()
     cases.save_case(record)
     cases.save_analysis(analysis)
+    from ratio.library import LibraryStore
+    LibraryStore(cases).register(record)
     cases.set_last_case(record.case_id)
     st.session_state[CASE_KEY] = record.case_id
     return record.case_id

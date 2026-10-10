@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -19,6 +20,10 @@ from ratio.display import Mark, marked_html, reuse_marks
 from ratio.extraction.build import load_case
 from ratio.history import load_history, load_alias_decisions
 from ratio.modules.reuse import by_passage
+from ratio.library import LibraryStore
+from ratio.store import CaseStore
+from ratio.workspace import seed_collection, case_payload
+from ratio.outcomes import registry
 from ratio.feedback import case_findings
 from ratio.jurisprudence import Reference, for_finding, for_follow_up
 from ratio.report import draft_report
@@ -93,6 +98,16 @@ def main() -> None:
             'whole': marked_html(doc.text, marks),
             'reasoning': marked_html(doc.text[start:end], marks, offset=start),
         }
+    # Build the catalogue from committed synthetic inputs in a disposable SQLite
+    # file. Never export the user's actual matter database or staged documents.
+    with tempfile.TemporaryDirectory(prefix='ratio-demo-export-') as folder:
+        library=LibraryStore(CaseStore(Path(folder)/'cases.db'))
+        library.cases.save_case(record)
+        library.cases.save_analysis(analysis)
+        library.register(record)
+        seed_collection(library)
+        collection={'cases':library.list(),'records':[case_payload(library,c['case_id']) for c in library.list()]}
+    assert all(c['record']['meta']['synthetic'] for c in collection['records'])
     payload = {
         'synthetic': True,
         'preview': {'mode': 'recorded-demo', 'source_branch': 'codex/combined-legal-workspace', 'analysis_base': 'a4bc765', 'legal_analysis': 'local-only'},
@@ -103,6 +118,8 @@ def main() -> None:
         'messages': cfg.messages.model_dump(mode='json'),
         'benchmarks': cfg.benchmarks.model_dump(mode='json'),
         'comparison': comparison,
+        'collection': collection,
+        'outcomes': registry(),
         'review_findings': [flag.model_dump(mode='json') for flag in case_findings(analysis, judges)],
         'jurisprudence': {
             'checked': cfg.jurisprudence.checked,

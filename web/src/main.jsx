@@ -9,6 +9,8 @@ import { createRoot } from "react-dom/client";
 import "./styles.css";
 import "./workspace.css";
 import "./legal-workflows.css";
+import "./case-library.css";
+import {CaseCollection, CaseReview, InternationalDecisions, IntakeDialog, useCaseWorkspace} from "./case-library.jsx";
 import {
   Renewals,
   Jurisprudence,
@@ -32,7 +34,7 @@ import { sourceKey, sourceCitation } from "./research.mjs";
 
 const Source = createContext(null);
 const navigation = [
-  ["/", "Case overview"],
+  ["/overview", "Full analysis record"],
   ["/coverage", "Rights coverage"],
   ["/timeline", "Procedural timeline"],
   ["/renewals", "Detention renewals"],
@@ -1006,7 +1008,7 @@ function SourceDialog({ value, onClose, messages }) {
     >
       <div className="dialog-heading">
         <div>
-          <p className="eyebrow">Original source · Synthetic record</p>
+          <p className="eyebrow">Original source · {doc?.synthetic?'Synthetic example':'Public record'}</p>
           <h2>{doc?.title || "Source document"}</h2>
         </div>
         <button onClick={onClose} aria-label="Close source viewer">
@@ -1043,6 +1045,7 @@ function SourceDialog({ value, onClose, messages }) {
                       ? "Save passage"
                       : "Save document"}
                 </button>
+                {doc.download_url&&<a className="reader-download" href={doc.download_url}>Download original file</a>}
                 <button onClick={copy}>
                   {copyStatus === "Citation copied."
                     ? "Copied"
@@ -1201,6 +1204,8 @@ function App() {
       window.location.pathname + window.location.search,
     ),
     [source, setSource] = useState(null),
+    [selectedMatter,setSelectedMatter]=useState(null),
+    [intakeOpen,setIntakeOpen]=useState(false),
     [about, setAbout] = useState(false),
     [drawer, setDrawer] = useState(false),
     [toast, setToast] = useState("");
@@ -1212,10 +1217,12 @@ function App() {
       [],
     ),
     [missed, setMissed, missedFailed] = useStored("ratio-demo-missed-v1", []);
+  const {workspace,error:workspaceError,refresh:refreshWorkspace}=useCaseWorkspace(data);
   const route = location.split("?")[0],
     params = new URLSearchParams(location.split("?")[1] || ""),
     query = params.get("q") || "";
-  const pageName =
+  const primaryRoute=route==="/"||route.startsWith("/cases/")||route==="/international";
+  const pageName = route==="/"?"Case collection":route.startsWith("/cases/")?"Case review":route==="/international"?"International decisions":
     [
       ...navigation,
       ["/research", "Matter research"],
@@ -1272,7 +1279,7 @@ function App() {
   }
   const documents = data
     ? Object.fromEntries(
-        [data.record, ...data.history]
+        [data.record, ...data.history, ...(data.collection?.records||[]).map(p=>p.record), ...(selectedMatter?[selectedMatter.record]:[])]
           .flatMap((r) => r.documents)
           .map((d) => [d.id, d]),
       )
@@ -1348,7 +1355,7 @@ function App() {
             e.preventDefault();
             navigate("/");
           }}
-          aria-label="Ratio case overview"
+          aria-label="Ratio case collection"
         >
           <span className="brand-mark">r.</span>
           <span>
@@ -1395,15 +1402,15 @@ function App() {
             <span>History</span>
           </button>
           <button className="preview-chip" onClick={() => setAbout(true)}>
-            Demo workspace
+            {workspace?.mode==='local_sqlite'?'On this computer':'Demo workspace'}
           </button>
         </div>
       </header>
-      <ResearchBar
+      {primaryRoute?<div className="collection-shell-band"><span><Icon name="scale"/>Court case workspace</span><span>Presumption of innocence · ICCPR Article 14(2)</span></div>:<ResearchBar
         navigate={navigate}
         query={query}
         onSearch={(q) => navigate(`/research?q=${encodeURIComponent(q)}`)}
-      />
+      />}
       <button
         className="mobile-menu"
         aria-expanded={drawer}
@@ -1422,14 +1429,12 @@ function App() {
       <aside id="workspace-nav" className={`sidebar ${drawer ? "open" : ""}`}>
         <div className="side-matter">
           <p className="eyebrow">Current matter</p>
-          <strong>
-            Republic of Calderra
-            <br />
-            v. Daro Venn
-          </strong>
-          <span>VENN–2025</span>
+          <strong>{route==="/"?"Court case collection":selectedMatter?.record.meta.title||data?.record.meta.title||"Case workspace"}</strong>
+          <span>{route==="/"?"Presumption of innocence":selectedMatter?.record.case_id||"VENN–2025"}</span>
         </div>
-        <p className="eyebrow side-label">Analyze the record</p>
+        <p className="eyebrow side-label">Review workspace</p>
+        <nav aria-label="Primary workspace"><a href="/" aria-current={route==='/'?'page':undefined} onClick={e=>{e.preventDefault();navigate('/');}}><Icon name="folder" size={17}/>Case collection</a><a href={'/cases/'+(selectedMatter?.record.case_id||'venn-2025')} aria-current={route.startsWith('/cases/')?'page':undefined} onClick={e=>{e.preventDefault();navigate('/cases/'+(selectedMatter?.record.case_id||'venn-2025'));}}><Icon name="scale" size={17}/>Case review</a><a href="/international" aria-current={route==='/international'?'page':undefined} onClick={e=>{e.preventDefault();navigate('/international');}}><Icon name="bookmark" size={17}/>International decisions</a></nav>
+        <details className="supporting-nav"><summary>Supporting analysis</summary>
         <nav aria-label="Matter pages">
           {navigation.map(([path, label], i) => (
             <a
@@ -1451,6 +1456,7 @@ function App() {
             </a>
           ))}
         </nav>
+        </details>
         <p className="eyebrow side-label">Research tools</p>
         <nav aria-label="Research tools">
           <a
@@ -1489,7 +1495,7 @@ function App() {
           <small>
             ICCPR Articles 9 &amp; 14
             <br />
-            Recorded synthetic analysis
+            {workspace?.mode==='local_sqlite'?'Records stay on this computer':'Synthetic demonstration collection'}
           </small>
         </div>
       </aside>
@@ -1504,7 +1510,7 @@ function App() {
               navigate("/");
             }}
           >
-            VENN–2025
+            Case collection
           </a>
           <span aria-hidden="true">/</span>
           <strong>{pageName}</strong>
@@ -1531,7 +1537,11 @@ function App() {
           </div>
         ) : (
           <>
-            {route === "/" ? (
+            {route === "/" ? (<CaseCollection workspace={workspace} error={workspaceError} refresh={refreshWorkspace} navigate={navigate} onImport={()=>setIntakeOpen(true)}/>
+            ) : route.startsWith('/cases/') ? (<CaseReview caseId={decodeURIComponent(route.slice(7))} workspace={workspace} bundle={data} context={Source} navigate={navigate} onOpen={setSelectedMatter} refresh={refreshWorkspace}/>
+            ) : route === '/international' ? (<InternationalDecisions key={params.get('pattern')||'all'} registry={workspace?.outcomes||data.outcomes} pattern={params.get('pattern')||''} navigate={navigate}/>
+            ) : selectedMatter && (selectedMatter.record.case_id!==data.record.case_id || selectedMatter.record.documents.some(d=>d.sha256!==data.record.documents.find(original=>original.id===d.id)?.sha256)) ? (<div className="empty"><h1>Supporting analysis</h1><p>This case has the focused worksheet and its original record. The broader tools here contain the recorded Venn demonstration.</p><button onClick={()=>navigate('/cases/'+selectedMatter.record.case_id)}>Return to this case</button><button onClick={()=>{setSelectedMatter(null);navigate('/overview');}}>Open the recorded demonstration</button></div>
+            ) : route === "/overview" ? (
               <Overview
                 data={data}
                 navigate={navigate}
@@ -1616,7 +1626,7 @@ function App() {
             )}
             <footer>
               <span>Ratio · Evidence-led legal review</span>
-              <span>Synthetic demonstration · Recorded local analysis</span>
+              <span>{workspace?.mode==='local_sqlite'?'Local case workspace · Records stored on this computer':'Synthetic demonstration · Recorded local analysis'}</span>
             </footer>
           </>
         )}
@@ -1628,6 +1638,7 @@ function App() {
           messages={data.messages}
         />
       )}
+      <IntakeDialog open={intakeOpen} onClose={()=>setIntakeOpen(false)} workspace={workspace} refresh={refreshWorkspace} navigate={navigate}/>
       <AboutDialog open={about} onClose={() => setAbout(false)} />
       <div className={`toast ${toast ? "visible" : ""}`} role="status">
         {toast}
