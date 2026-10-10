@@ -17,8 +17,7 @@ from pydantic import BaseModel, Field, create_model
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from corpus_builder.extract import ExtractionFailed
-from corpus_builder.groq import GroqLLM, GroqSetupError
+from corpus_builder.extract import CloudModelRefused, ExtractionFailed, OllamaLLM
 from ratio.demo_briefs import CaseBriefDraft, source_pinpoint
 from scripts.build_case_briefs import render
 
@@ -97,13 +96,17 @@ def excerpts(sources, budget=9_000):
 
 
 def generate(payload, *, llm=None):
-    if payload.get("provenance") not in {"public", "synthetic"}:
-        raise ValueError("Private records cannot be sent to Groq.")
-    sources = payload["sources"]
-    if not 1 <= len(sources) <= 20 or sum(len(s["text"]) for s in sources) > 1_000_000:
+    if payload.get("source_role") != "case_workspace":
+        raise ValueError("This worker accepts local case workspace requests only.")
+    if llm is None:
+        from ratio import netguard
+
+        netguard.install()
+        llm = OllamaLLM(payload.get("model", "qwen2.5:1.5b"), timeout_s=120)
+    sources = sorted(payload["sources"], key=lambda d: {"judgment":0,"indictment":1}.get(d["type"],2))
+    if not 1 <= len(sources) <= 100 or sum(len(s["text"]) for s in sources) > 1_000_000:
         raise ValueError("Demo source set exceeds its input bound.")
     selected = excerpts(sources)
-    llm = llm or GroqLLM(payload.get("model"))
     candidates = {}
     for source in selected:
         for excerpt in source["excerpts"]:
@@ -129,7 +132,7 @@ def generate(payload, *, llm=None):
     section_schema = create_model(
         "CitationSection",
         label=(str, Field(min_length=1, max_length=90)),
-        summary=(str, Field(min_length=1, max_length=650)),
+        summary=(str, Field(min_length=1, max_length=280)),
         quote_id=(Literal[tuple(candidates)], ...),
     )
     schema = create_model(
@@ -163,8 +166,8 @@ def generate(payload, *, llm=None):
             raise ValueError("Source passage changed during selection.")
         sections.append(
             {
-                "label": section.label,
-                "summary": section.summary,
+                "label": "Selected source passage",
+                "summary": "Source excerpt: " + chosen["text"][:240] + (" [...]" if len(chosen["text"]) > 240 else ""),
                 "doc_id": chosen["doc_id"],
                 "quote": chosen["text"],
                 "source_start": chosen["source_start"],
@@ -184,13 +187,17 @@ def generate(payload, *, llm=None):
         id="Local case review",
         state=None,
         year=None,
-        url=payload.get("source_note", "Public case record"),
+        url=(
+            re.search(r"https://[^\s;)]+", payload.get("source_note", "")).group(0)
+            if re.search(r"https://[^\s;)]+", payload.get("source_note", ""))
+            else "Full source provenance retained in the local case workspace"
+        ),
         text_sha256=hashlib.sha256(text.encode()).hexdigest(),
     )
     raw = render(
         doc,
         fixed,
-        "Groq draft from selected source excerpts | exact quotes checked; legal review required",
+        "Local Ollama draft from selected source excerpts | exact quotes checked; legal review required",
     )
     return {
         "sections": [s.model_dump() for s in fixed.sections],
@@ -203,10 +210,15 @@ def main():
         raw = sys.stdin.read(1_100_000)
         payload = json.loads(raw)
         print(json.dumps(generate(payload)))
-    except (ValueError, KeyError, GroqSetupError, ExtractionFailed) as exc:
+    except (
+        ValueError,
+        KeyError,
+        ExtractionFailed,
+        CloudModelRefused,
+    ) as exc:
         message = (
             str(exc)
-            if isinstance(exc, (GroqSetupError, ExtractionFailed))
+            if isinstance(exc, (ExtractionFailed, CloudModelRefused))
             else "Draft failed source or format validation. Original documents are unchanged."
         )
         print(json.dumps({"error": message}))

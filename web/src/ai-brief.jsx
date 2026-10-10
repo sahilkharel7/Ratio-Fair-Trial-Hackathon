@@ -34,8 +34,8 @@ export function AICaseBrief({ caseId, openSource }) {
         {brief?.status === "ready" ? <a className="primary" href={`/api/cases/${encodeURIComponent(caseId)}/brief.pdf`}>Download one-pager</a>
           : <button className="primary" disabled={pending} onClick={() => generate()}>{pending ? "Drafting the brief…" : "Draft case brief"}</button>}
       </div>
-      <p className="caption">Selected public or synthetic source excerpts are sent to Groq. The draft covers the charge, recorded consequences and presumption of innocence, with supporting passages. Check the full originals before relying on it.</p>
-      {pending && <p role="status">{brief.status === "queued" ? "Queued on this computer." : "Reading selected source passages and checking citations."} Free-tier limits can delay a draft; you can continue reviewing the case.</p>}
+      <p className="caption">Case documents are processed locally with Ollama. The draft covers the charge, recorded consequences and presumption of innocence, with supporting passages. Check the full originals before relying on it.</p>
+      {pending && <p role="status">{brief.status === "queued" ? "Queued on this computer." : "Reading local source passages and checking citations."} You can continue reviewing the case while the local model works.</p>}
       {(error || brief?.error) && <p className="warning" role="alert">{error || brief.error}</p>}
       {brief?.status === "ready" && <>
         <p className="caption">{brief.method}</p>

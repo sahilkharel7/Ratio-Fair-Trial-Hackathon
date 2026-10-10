@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { AICaseBrief } from "./ai-brief.jsx";
+import { LocalComparisons } from "./local-comparisons.jsx";
 import { Icon } from "./workspace.jsx";
 import { firstMatch } from "./research.mjs";
 import { CourtJudgments } from "./court-library.jsx";
@@ -191,7 +192,7 @@ export function CaseCollection({
                     <span>{c.case_id}</span>
                     <span>{c.document_count} documents</span>
                     <span>
-                      {c.synthetic ? "Synthetic example" : "Public record"}
+                      {c.synthetic ? "Synthetic example" : c.data_provenance === "private" ? "Confidential case" : "Public real case"}
                     </span>
                   </div>
                   <small>{c.court}</small>
@@ -638,7 +639,7 @@ export function CaseReview({
           <p>
             {record.meta.title} · {caseId}{" "}
             <span className="synthetic-pill">
-              {record.meta.synthetic ? "Synthetic example" : "Public record"}
+              {record.meta.synthetic ? "Synthetic example" : record.meta.data_provenance === "private" ? "Confidential case" : "Public real case"}
             </span>
           </p>
         </div>
@@ -716,6 +717,7 @@ export function CaseReview({
       {workspace.mode === "local_sqlite" && workspace.ai_briefs?.enabled && (
         <AICaseBrief key={caseId} caseId={caseId} openSource={openSource} />
       )}
+      {workspace.mode === "local_sqlite" && <LocalComparisons key={caseId + "-references"} caseId={caseId} openSource={openSource} />}
       <div className="focus-case-grid">
         <div>
           <section className="innocence-section">
@@ -1023,7 +1025,7 @@ function FocusPrompt({
 export function IntakeDialog({ open, onClose, workspace, refresh, navigate }) {
   const ref = useRef(null);
   const [files, setFiles] = useState([]),
-    [provenance, setProvenance] = useState("public"),
+    [provenance, setProvenance] = useState("private"),
     [source, setSource] = useState(""),
     [declared, setDeclared] = useState(false),
     [pending, setPending] = useState([]),
@@ -1174,7 +1176,8 @@ export function IntakeDialog({ open, onClose, workspace, refresh, navigate }) {
                     value={provenance}
                     onChange={(e) => setProvenance(e.target.value)}
                   >
-                    <option value="public">Public records</option>
+                    <option value="private">Confidential case documents (default)</option>
+                    <option value="public">Published records · case processing stays local</option>
                     <option value="synthetic">Synthetic examples</option>
                   </select>
                 </div>

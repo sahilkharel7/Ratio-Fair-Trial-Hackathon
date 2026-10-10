@@ -16,6 +16,7 @@ data/ratio.db
 data/ratio.db-*
 data/cache/
 data/uploads/
+data/real-demo/
 # The precedent corpus: real public documents, built locally, never committed
 data/corpus/
 

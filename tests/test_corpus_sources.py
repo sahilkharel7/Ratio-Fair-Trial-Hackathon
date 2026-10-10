@@ -15,6 +15,7 @@ SEED_COUNTS = {
     "wgad_opinions": 11,
     "ccpr_views": 7,
     "echr_judgments": 3,
+    "ccpr_innocence": 0,
 }
 CCPR_FULLTEXT = "https://ccprcentre.org/files/decisions/"
 
@@ -30,7 +31,7 @@ def test_each_source_has_its_verified_seeds(sources):
     } == SEED_COUNTS
     assert all(
         source.terms_checked
-        == ("2026-10-10" if source.id == "echr_judgments" else "2026-10-09")
+        == ("2026-10-10" if source.id in {"echr_judgments", "ccpr_innocence"} else "2026-10-09")
         for source in sources.values()
     )
 

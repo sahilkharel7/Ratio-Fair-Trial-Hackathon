@@ -1,6 +1,6 @@
 # Ratio
 
-For the optional public-source AI demo, follow [the local Groq setup](docs/GROQ-DEMO.md). Start the React server with `--groq-demo` to draft source-linked case briefs using the configured Groq key; the default server remains offline.
+For the optional public-source AI demo, follow [the local Groq setup](docs/GROQ-DEMO.md). Start the React server with `--local-ai`. Cases always use local Ollama; configured cloud models are restricted to explicitly public legal references.
 
 For a fresh upload demonstration, [the separate real-case PDF pack](docs/DEMO-UPLOAD-PACK.md) contains three original court judgments kept out of the installed collection. Run `.venv/bin/python scripts/fetch_demo_pack.py` to download the originals and create a ZIP locally.
 
