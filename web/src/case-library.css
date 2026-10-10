@@ -12,7 +12,7 @@
   background: #f3f4f6;
   border-bottom: 1px solid var(--border);
   color: #637285;
-  font-size: 11px;
+  font-size: 13px;
 }
 .collection-shell-band > span:first-child {
   display: flex;
@@ -26,11 +26,17 @@
 }
 .supporting-nav > summary {
   padding: 8px 12px;
-  font-size: 11px;
-  color: #637386;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 0;
+}
+.supporting-nav > summary:hover {
+  color: var(--ink);
+  background: #eef1f4;
 }
 .supporting-nav > summary::marker {
-  font-size: 9px;
+  font-size: 12px;
 }
 .supporting-nav[open] > summary {
   margin-bottom: 8px;
@@ -47,12 +53,12 @@
   margin-bottom: 10px;
 }
 .collection-heading p:last-child {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted);
   margin: 0;
 }
 .collection-heading > button {
-  font-size: 12px;
+  font-size: 14px;
   white-space: nowrap;
 }
 .focus-ribbon {
@@ -63,8 +69,8 @@
   padding: 12px 16px;
   background: #f4f0f2;
   border: 1px solid #e5dce1;
-  border-radius: 3px;
-  font-size: 11px;
+  border-radius: 0;
+  font-size: 13px;
   color: #5c4550;
   margin-bottom: 24px;
 }
@@ -77,7 +83,7 @@
   font-weight: 600;
 }
 .focus-ribbon > span:last-child {
-  font-size: 10px;
+  font-size: 12px;
   color: #796672;
 }
 .collection-filters {
@@ -88,28 +94,28 @@
   margin-bottom: 18px;
 }
 .collection-filters label {
-  font-size: 11px;
+  font-size: 13px;
   margin-top: 0;
 }
 .collection-filters select {
   margin: 0;
-  font-size: 12px;
+  font-size: 14px;
 }
 .collection-filters input {
-  font-size: 12px;
+  font-size: 14px;
 }
 .collection-summary {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  font-size: 10px;
-  color: #798490;
+  font-size: 12px;
+  color: var(--muted);
   margin-bottom: 13px;
   line-height: 1.6;
 }
 .matter-ledger {
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 0;
   background: #fff;
   overflow: hidden;
 }
@@ -125,7 +131,7 @@
 .ledger-heading {
   background: #f3f5f7;
   padding: 13px 22px;
-  font-size: 10px;
+  font-size: 12px;
   color: #697687;
   border-bottom: 1px solid var(--border);
 }
@@ -148,7 +154,7 @@
   text-decoration: underline;
 }
 .ledger-matter > p {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.7;
   color: #4f5e70;
   margin: 9px 0 10px;
@@ -157,9 +163,9 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.6;
-  color: #8c96a1;
+  color: var(--muted);
 }
 .ledger-meta > span + span:before {
   content: "·";
@@ -167,7 +173,7 @@
 }
 .ledger-matter > small {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.7;
   margin-top: 5px;
 }
@@ -179,21 +185,21 @@
 .ledger-stakes > small,
 .ledger-status > small {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.7;
   margin-top: 7px;
-  color: #8a94a0;
+  color: var(--muted);
 }
 .ledger-row > .text-action {
-  font-size: 10px;
+  font-size: 12px;
 }
 .case-status {
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.6;
   color: #5d7080;
   background: #eff3f6;
   border: 1px solid #e0e6ec;
-  border-radius: 3px;
+  border-radius: 0;
   padding: 4px 7px;
   display: inline-block;
 }
@@ -210,22 +216,22 @@
   background: #f2f6f9;
   padding: 17px 20px;
   margin-top: 22px;
-  border-radius: 3px;
+  border-radius: 0;
   color: #587086;
 }
 .intake-notice > div {
   flex: 1;
 }
 .intake-notice strong {
-  font-size: 12px;
+  font-size: 14px;
   color: #40556b;
 }
 .intake-notice p {
-  font-size: 11px;
+  font-size: 13px;
   margin: 5px 0 0;
 }
 .intake-notice button {
-  font-size: 11px;
+  font-size: 13px;
 }
 .collection-research-link {
   display: flex;
@@ -241,7 +247,7 @@
   margin-bottom: 8px;
 }
 .collection-research-link p:not(.eyebrow) {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
   margin: 0;
 }
@@ -250,7 +256,7 @@
 }
 .back-to-cases {
   margin-bottom: 20px;
-  font-size: 11px;
+  font-size: 13px;
 }
 .back-to-cases svg {
   transform: rotate(180deg);
@@ -269,19 +275,19 @@
   margin-bottom: 8px;
 }
 .case-review-heading p:last-child {
-  font-size: 11px;
-  color: #7a8592;
+  font-size: 13px;
+  color: var(--muted);
   margin: 0;
   line-height: 1.8;
 }
 .case-review-heading .eyebrow {
-  font-size: 9px;
+  font-size: 12px;
 }
 .case-review-heading .synthetic-pill {
   margin-left: 8px;
 }
 .case-review-heading > button {
-  font-size: 11px;
+  font-size: 13px;
   white-space: nowrap;
 }
 .charge-panel {
@@ -291,7 +297,7 @@
   border-top: 1px solid var(--border);
   border-right: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 0;
   margin-bottom: 16px;
 }
 .charge-panel .eyebrow {
@@ -303,7 +309,7 @@
   margin-bottom: 10px;
 }
 .charge-panel .text-action {
-  font-size: 10px;
+  font-size: 12px;
 }
 .stake-panels {
   display: grid;
@@ -314,13 +320,13 @@
   background: #fff;
   border: 1px solid var(--border);
   padding: 20px;
-  border-radius: 3px;
+  border-radius: 0;
 }
 .stake-panel.requested {
   border-top: 2px solid var(--accent);
 }
 .stake-panel > span {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
 }
 .stake-panel > strong {
@@ -330,20 +336,20 @@
   margin: 12px 0 10px;
 }
 .stake-panel > .text-action {
-  font-size: 10px;
+  font-size: 12px;
 }
 .stake-panel > small {
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.7;
   color: var(--muted);
 }
 .penalty-history {
-  font-size: 11px;
+  font-size: 13px;
   margin: 16px 0 28px;
 }
 .penalty-history summary {
-  font-size: 10px;
-  color: #718093;
+  font-size: 12px;
+  color: var(--muted);
 }
 .penalty-history > div {
   padding: 15px;
@@ -352,7 +358,7 @@
   margin: 12px 0;
 }
 .penalty-history strong {
-  font-size: 11px;
+  font-size: 13px;
 }
 .penalty-history p {
   font: 14px/1.7 var(--serif);
@@ -371,23 +377,23 @@
   font: 23px/1.4 var(--serif);
 }
 .innocence-section .section-head .eyebrow {
-  font-size: 9px;
+  font-size: 12px;
   margin-bottom: 5px;
 }
 .focus-standard {
-  font-size: 10px;
-  color: #708194;
+  font-size: 12px;
+  color: var(--muted);
   margin-bottom: 10px;
 }
 .innocence-section > .caption {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
   margin-bottom: 22px;
 }
 .record-gap {
   border: 1px solid var(--border);
   background: #fff;
-  border-radius: 3px;
+  border-radius: 0;
   padding: 22px;
 }
 .record-gap h3 {
@@ -395,7 +401,7 @@
 }
 .record-gap p,
 .record-gap li {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.9;
   color: #607186;
 }
@@ -406,7 +412,7 @@
 .focus-prompt {
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 0;
   padding: 22px;
   margin-bottom: 18px;
 }
@@ -415,7 +421,7 @@
   margin-bottom: 10px;
 }
 .focus-prompt > p {
-  font-size: 12px;
+  font-size: 14px;
   color: #657587;
   line-height: 1.8;
 }
@@ -428,7 +434,7 @@
   overflow-wrap: anywhere;
 }
 .focus-prompt > .text-action {
-  font-size: 11px;
+  font-size: 13px;
 }
 .focus-assessment {
   border-top: 1px solid var(--border);
@@ -436,30 +442,57 @@
   padding-top: 15px;
 }
 .focus-assessment summary {
-  font-size: 12px;
-  color: #415a73;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 8px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 0;
+  font-size: 14px;
+  color: var(--accent);
   font-weight: 600;
+  cursor: pointer;
+}
+.focus-assessment summary:hover {
+  background: var(--accent-soft);
+}
+.focus-assessment[open] summary {
+  border-color: transparent;
+  padding-left: 0;
+  color: var(--ink);
+  background: none;
+}
+.court-library-empty {
+  margin: 28px 0 0;
+  padding: 12px 16px;
+  border-left: 3px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 14px;
+}
+.court-library-empty strong {
+  color: var(--ink);
 }
 .focus-assessment label {
-  font-size: 11px;
+  font-size: 13px;
 }
 .focus-assessment select {
-  font-size: 12px;
+  font-size: 14px;
   margin-bottom: 0;
 }
 .focus-assessment textarea {
-  font-size: 12px;
+  font-size: 14px;
   background: #fafbfd;
 }
 .focus-history {
   margin-top: 18px;
-  font-size: 10px;
+  font-size: 12px;
 }
 .focus-history summary {
-  font-size: 10px;
+  font-size: 12px;
 }
 .focus-history p {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
   line-height: 1.8;
 }
@@ -476,12 +509,12 @@
 }
 .compact-precedent small {
   display: block;
-  font-size: 9px;
+  font-size: 12px;
   line-height: 1.6;
   margin-bottom: 6px;
 }
 .compact-precedent a {
-  font-size: 9px;
+  font-size: 12px;
 }
 .case-working-rail > .rail-panel > .text-action {
   margin-top: 18px;
@@ -490,12 +523,12 @@
   margin-top: 0;
 }
 .next-step-panel form > button {
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 10px;
   width: 100%;
 }
 .saved-case-note {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
   color: #63758a;
   border-top: 1px solid var(--border);
@@ -510,9 +543,9 @@
   background: #2b4053;
   color: #fff;
   padding: 11px 17px;
-  border-radius: 3px;
+  border-radius: 0;
   box-shadow: 0 4px 18px #152a3a25;
-  font-size: 11px;
+  font-size: 13px;
   z-index: 35;
   max-width: calc(100vw - 32px);
   width: max-content;
@@ -521,15 +554,15 @@
   margin-top: 30px;
 }
 .source-record-section .section-head h2 {
-  font-size: 16px;
+  font-size: 17px;
 }
 .source-record-section .section-head p {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
   margin: 5px 0 0;
 }
 .source-record-section input {
-  font-size: 12px;
+  font-size: 14px;
 }
 .source-record-row {
   display: flex;
@@ -552,12 +585,12 @@
   overflow-wrap: anywhere;
 }
 .source-record-row small {
-  font-size: 9px;
+  font-size: 12px;
   display: block;
   margin-top: 4px;
 }
 .source-record-row button {
-  font-size: 10px;
+  font-size: 12px;
   white-space: nowrap;
 }
 .outcome-filters {
@@ -567,11 +600,11 @@
   margin-bottom: 22px;
 }
 .outcome-filters label {
-  font-size: 11px;
+  font-size: 13px;
   margin-top: 0;
 }
 .outcome-filters select {
-  font-size: 12px;
+  font-size: 14px;
   margin: 0;
 }
 .outcome-summary {
@@ -580,7 +613,7 @@
   gap: 0;
   border: 1px solid var(--border);
   background: #fff;
-  border-radius: 3px;
+  border-radius: 0;
   margin-bottom: 18px;
 }
 .outcome-summary > div {
@@ -590,7 +623,7 @@
   border-left: 1px solid var(--border);
 }
 .outcome-summary span {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--muted);
 }
 .outcome-summary strong {
@@ -601,31 +634,31 @@
 }
 .outcome-summary strong small {
   font: 17px var(--serif);
-  color: #768492;
+  color: var(--muted);
 }
 .outcome-summary p {
-  font-size: 10px;
-  color: #7b8796;
+  font-size: 12px;
+  color: var(--muted);
   line-height: 1.7;
   margin: 0;
 }
 .outcome-method-note {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.85;
-  color: #6c7887;
+  color: var(--muted);
 }
 .outcome-method {
-  font-size: 11px;
+  font-size: 13px;
   margin-bottom: 25px;
 }
 .outcome-method summary {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--link);
 }
 .outcome-method p {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.9;
-  color: #697b8e;
+  color: var(--muted);
 }
 .outcome-cards {
   display: flex;
@@ -635,7 +668,7 @@
 .outcome-card {
   padding: 23px;
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 0;
   background: #fff;
 }
 .outcome-card-heading {
@@ -651,16 +684,16 @@
   margin: 0;
 }
 .outcome-card .eyebrow {
-  font-size: 9px;
+  font-size: 12px;
   margin-bottom: 8px;
 }
 .outcome-status {
-  font-size: 9px;
+  font-size: 12px;
   border: 1px solid #dce5ed;
   background: #f0f4f8;
   color: #57748d;
   padding: 4px 7px;
-  border-radius: 3px;
+  border-radius: 0;
   line-height: 1.6;
   max-width: 230px;
 }
@@ -675,13 +708,13 @@
   border-color: #e8dfcd;
 }
 .outcome-card > p {
-  font-size: 12px;
+  font-size: 14px;
   color: #627385;
   line-height: 1.85;
 }
 .outcome-card details summary {
-  font-size: 10px;
-  color: #657e94;
+  font-size: 12px;
+  color: var(--muted);
 }
 .outcome-card blockquote {
   font: 15px/1.8 var(--serif);
@@ -690,13 +723,13 @@
   padding: 8px 16px;
 }
 .outcome-card .caption {
-  font-size: 10px;
+  font-size: 12px;
 }
 .outcome-card > a {
   display: inline-flex;
   gap: 6px;
   align-items: center;
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 17px;
   text-decoration: none;
 }
@@ -717,7 +750,7 @@
   font: 24px/1.4 var(--serif);
 }
 .intake-dialog .dialog-heading .eyebrow {
-  font-size: 9px;
+  font-size: 12px;
   margin-bottom: 6px;
 }
 .intake-body,
@@ -729,16 +762,16 @@
 }
 .local-upload-guide p,
 .local-upload-guide li {
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.9;
   color: #617286;
 }
 .local-upload-guide pre {
   background: #f4f6f8;
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 0;
   padding: 18px;
-  font-size: 12px;
+  font-size: 14px;
   overflow: auto;
   line-height: 1.8;
 }
@@ -746,12 +779,12 @@
   font: 22px/1.4 var(--serif);
 }
 .intake-body section > .caption {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
 }
 .intake-body input,
 .intake-body select {
-  font-size: 12px;
+  font-size: 14px;
 }
 .intake-body input[type="file"] {
   padding: 14px;
@@ -759,7 +792,7 @@
   background: #f7f9fb;
 }
 .intake-body label {
-  font-size: 11px;
+  font-size: 13px;
 }
 .intake-metadata {
   display: grid;
@@ -773,7 +806,7 @@
   display: flex;
   align-items: start;
   gap: 8px;
-  font-size: 11px !important;
+  font-size: 13px !important;
   line-height: 1.8;
   font-weight: 400;
   margin: 18px 0;
@@ -789,7 +822,7 @@
   flex-shrink: 0;
 }
 .intake-body .primary {
-  font-size: 11px;
+  font-size: 13px;
 }
 .assign-case-section {
   border-top: 1px solid var(--border);
@@ -798,7 +831,7 @@
 }
 .intake-file-list {
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 0;
   max-height: 280px;
   overflow: auto;
 }
@@ -817,19 +850,19 @@
   gap: 10px;
   align-items: start;
   margin: 4px 0 0;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.7;
   overflow-wrap: anywhere;
 }
 .intake-file small {
   display: block;
   color: #926c35;
-  font-size: 10px;
+  font-size: 12px;
   margin-top: 6px;
   font-weight: 400;
 }
 .intake-file select {
-  font-size: 11px;
+  font-size: 13px;
   margin: 0;
   min-height: 33px;
   padding: 7px;
@@ -840,7 +873,7 @@
   gap: 0 20px;
 }
 .reader-toolbar .reader-download {
-  font-size: 10px;
+  font-size: 12px;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -864,10 +897,10 @@
     font-size: 20px;
   }
   .ledger-matter > p {
-    font-size: 11px;
+    font-size: 13px;
   }
   .ledger-stakes > strong {
-    font-size: 16px;
+    font-size: 17px;
   }
   .collection-filters {
     grid-template-columns: 1fr 1fr 130px;
@@ -917,7 +950,7 @@
     font-size: 19px;
   }
   .ledger-stakes > strong {
-    font-size: 17px;
+    font-size: 18px;
   }
   .focus-case-grid {
     grid-template-columns: 1fr;
@@ -1003,7 +1036,7 @@
     font-size: 28px;
   }
   .outcome-summary p {
-    font-size: 10px;
+    font-size: 12px;
   }
   .outcome-filters {
     grid-template-columns: 1fr;
@@ -1033,7 +1066,7 @@
     top: 60px;
     height: 68px;
     padding: 0 16px;
-    font-size: 10px;
+    font-size: 12px;
   }
   .collection-shell-band > span:last-child {
     display: none;
@@ -1042,13 +1075,13 @@
     font-size: 28px;
   }
   .collection-heading > div > p:last-child {
-    font-size: 11px;
+    font-size: 13px;
   }
   .collection-heading > button {
-    font-size: 11px;
+    font-size: 13px;
   }
   .focus-ribbon {
-    font-size: 10px;
+    font-size: 12px;
     padding: 12px;
   }
   .focus-ribbon > span:first-child {
@@ -1066,7 +1099,7 @@
   .collection-summary {
     flex-direction: column;
     gap: 5px;
-    font-size: 9px;
+    font-size: 12px;
   }
   .ledger-heading {
     display: none;
@@ -1083,10 +1116,10 @@
     font-size: 22px;
   }
   .ledger-matter > p {
-    font-size: 12px;
+    font-size: 14px;
   }
   .ledger-meta {
-    font-size: 9px;
+    font-size: 12px;
   }
   .ledger-stakes {
     grid-column: 1;
@@ -1098,7 +1131,7 @@
   .ledger-row > .text-action {
     grid-column: 2;
     grid-row: 2;
-    font-size: 10px;
+    font-size: 12px;
   }
   .ledger-status {
     grid-row: 3;
@@ -1106,16 +1139,16 @@
     gap: 6px;
   }
   .ledger-status small {
-    font-size: 9px;
+    font-size: 12px;
   }
   .case-review-heading h1 {
     font-size: 30px;
   }
   .case-review-heading .eyebrow {
-    font-size: 8px;
+    font-size: 11px;
   }
   .case-review-heading p:last-child {
-    font-size: 10px;
+    font-size: 12px;
   }
   .charge-panel {
     padding: 17px;
@@ -1133,26 +1166,26 @@
     font-size: 19px;
   }
   .focus-prompt > p {
-    font-size: 11px;
+    font-size: 13px;
   }
   .focus-prompt > blockquote {
-    font-size: 14px;
+    font-size: 15px;
     padding: 13px 15px;
   }
   .focus-prompt .row-heading {
     gap: 10px;
   }
   .focus-prompt .case-status {
-    font-size: 8px;
+    font-size: 11px;
   }
   .focus-prompt > .text-action {
-    font-size: 10px;
+    font-size: 12px;
   }
   .innocence-section h2 {
     font-size: 22px;
   }
   .focus-standard {
-    font-size: 9px;
+    font-size: 12px;
     line-height: 1.8;
   }
   .record-gap {
@@ -1160,7 +1193,7 @@
   }
   .record-gap li,
   .record-gap p {
-    font-size: 11px;
+    font-size: 13px;
   }
   .source-record-row {
     padding: 15px 12px;
@@ -1183,20 +1216,20 @@
     font-size: 20px;
   }
   .outcome-card .eyebrow {
-    font-size: 8px;
+    font-size: 11px;
     line-height: 1.8;
   }
   .outcome-card > p {
-    font-size: 11px;
+    font-size: 13px;
   }
   .outcome-method-note {
-    font-size: 10px;
+    font-size: 12px;
   }
   .collection-research-link h2 {
     font-size: 21px;
   }
   .collection-research-link p:not(.eyebrow) {
-    font-size: 10px;
+    font-size: 12px;
   }
   .intake-notice {
     padding: 15px;
@@ -1224,23 +1257,23 @@
   }
   .local-upload-guide p,
   .local-upload-guide li {
-    font-size: 12px;
+    font-size: 14px;
   }
   .local-upload-guide pre {
-    font-size: 10px;
+    font-size: 12px;
     padding: 14px;
   }
   .intake-case-fields {
     grid-template-columns: 1fr;
   }
   .intake-body .primary {
-    font-size: 10px;
+    font-size: 12px;
   }
   .source-record-row > div {
     min-width: 0;
   }
   .source-record-row strong {
-    font-size: 14px;
+    font-size: 15px;
   }
 }
 
@@ -1259,7 +1292,7 @@
 .corpus-search label {
   display: block;
   margin-bottom: 8px;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
 }
 .corpus-search input,
@@ -1268,7 +1301,7 @@
   min-width: 0;
   padding: 10px;
   border: 1px solid #c8c9c5;
-  border-radius: 3px;
+  border-radius: 0;
   background: white;
 }
 .corpus-suggestions {
@@ -1278,7 +1311,7 @@
   margin-bottom: 20px;
 }
 .corpus-suggestions button {
-  font-size: 12px;
+  font-size: 14px;
   padding: 7px 10px;
 }
 .corpus-excerpt {
@@ -1398,7 +1431,7 @@
   line-height: 1.7;
 }
 .brief-sections summary {
-  font-size: 13px;
+  font-size: 15px;
   color: #49606d;
   cursor: pointer;
 }

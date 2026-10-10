@@ -13,10 +13,23 @@ Official resources consulted:
 - [Lexis search history and folders](https://www.lexisnexis.com/en-us/support/lexis/faqs/default.page)
 - [Westlaw Precision folders and search within folders](https://www.thomsonreuters.com/en-us/help/westlaw-precision/setup/folders-in-westlaw)
 
-The application retains the Ratio identity: charcoal chrome, burgundy actions,
-blue research links, serif matter titles and source text, and compact sans-serif
-controls. Status colors distinguish compliance, concerns, and unanswered review
-questions. Fonts are system fonts, with no remote assets required.
+The visual theme (`src/theme.css`, loaded last) is modelled on lexisnexis.com:
+Lato (bundled from `@fontsource/lato`, so nothing is fetched remotely), a white
+header with uppercase navigation, dark-navy headings in sentence case, a purple
+hero on the collection page, white cards with 8px corners and soft shadows, 4px
+buttons outlined in navy, and a pink-to-red gradient call to action. Quoted source
+text keeps a Georgia reading serif. `src/effects.mjs` adds the header shadow on
+scroll and sections that rise into view; with `theme.css` it supplies hover lifts
+and a typed page title, all disabled under `prefers-reduced-motion`. Ratio keeps
+its own name and mark. Status colors distinguish compliance, concerns, and unanswered review
+questions. No remote assets are required.
+
+Readability floor: body text is 15px, and labels, metadata and badges are at
+least 12px (11px only for small counters). Text on light surfaces meets WCAG AA
+(4.5:1); use `var(--muted)` for secondary text rather than a lighter grey.
+Primary per-item actions (such as recording an assessment) look like buttons,
+not small disclosure text. Empty sections collapse to a one-line note that says
+how to fill them, so they never push the active work below the fold.
 
 ## Extend the preview
 

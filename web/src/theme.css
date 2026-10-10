@@ -1,0 +1,363 @@
+/* Visual theme modelled on lexisnexis.com/en-us: a white header with uppercase
+   navigation, dark-navy Lato headings in sentence case, a purple hero, pale grey and
+   lavender surfaces, white cards with 8px corners and soft shadows, 4px buttons with a
+   pink-to-red gradient call to action, and quick motion. Ratio keeps its own name and
+   mark. Lato is bundled from @fontsource, so no remote fonts are loaded. Loaded last,
+   after the component stylesheets. */
+@import "@fontsource/lato/400.css";
+@import "@fontsource/lato/700.css";
+@import "@fontsource/lato/900.css";
+
+:root {
+  --ink: #00172e;
+  --text: #455a64;
+  --muted: #56666e;
+  --navy: #00172e;
+  --accent: #d0151c;
+  --accent-soft: #fdeeee;
+  --purple: #4b1590;
+  --lavender: #f5f4fb;
+  --link: #006ebb;
+  --border: #dfe3e8;
+  --canvas: #f0f3f5;
+  --sans: Lato, "Helvetica Neue", Arial, Helvetica, sans-serif;
+  /* titles move to Lato; quoted source text keeps a reading serif */
+  --serif: Lato, "Helvetica Neue", Arial, Helvetica, sans-serif;
+  --reading: Georgia, "Times New Roman", serif;
+  --card-radius: 8px;
+  --card-shadow:
+    0 1px 2px rgba(0, 23, 46, 0.12), 0 2px 6px 2px rgba(0, 23, 46, 0.06);
+  --card-shadow-hover:
+    0 2px 6px 2px rgba(0, 23, 46, 0.12), 0 1px 3px rgba(0, 23, 46, 0.24);
+  --radius: 4px;
+  color: var(--text);
+}
+
+/* Headings: dark navy, heavy, sentence case */
+h1,
+h2,
+h3 {
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+h1 {
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+.eyebrow {
+  letter-spacing: 0.8px;
+  font-weight: 700;
+}
+
+/* Source passages and documents stay in a serif for long reading */
+blockquote,
+.result-excerpt,
+.saved-quote,
+.ground-quote,
+.focus-prompt > blockquote,
+.outcome-card blockquote,
+.authority-card blockquote,
+.authority-quote blockquote,
+.reader-document,
+.reader-text,
+.source-dialog pre,
+.source-dialog article {
+  font-family: var(--reading);
+  color: var(--ink);
+}
+
+/* Header: white, uppercase navigation, red underline on the current page */
+.product-header {
+  background: #fff;
+  color: var(--ink);
+  border-bottom: 1px solid var(--border);
+}
+.product-brand,
+.brand-mark {
+  font-family: var(--sans);
+  font-weight: 700;
+}
+.product-brand {
+  color: var(--ink);
+}
+.product-brand small {
+  color: var(--muted);
+}
+.brand-mark {
+  color: #fff;
+  border-radius: var(--radius);
+}
+.product-nav a {
+  color: #333;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 14px;
+}
+.product-nav a:hover,
+.product-nav a[aria-current="page"] {
+  color: var(--ink);
+}
+.product-nav a[aria-current="page"] {
+  border-color: var(--accent);
+}
+.header-tools button {
+  color: var(--ink);
+  font-weight: 700;
+}
+.header-tools button:hover {
+  background: var(--lavender);
+  color: var(--purple);
+}
+.header-tools button:last-child {
+  background: var(--navy);
+  color: #fafbfc;
+  border-radius: var(--radius);
+}
+.collection-shell-band {
+  background: #fff;
+}
+
+/* Buttons: 4px corners, bold; secondary buttons outlined in navy */
+button {
+  border-radius: var(--radius);
+  font-weight: 700;
+}
+button:not(.primary):not(.text-action):not(.header-tools button) {
+  border: 2px solid var(--navy);
+  color: var(--navy);
+  background: #fff;
+}
+button:not(.primary):not(.text-action):hover {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+.text-action,
+.text-action:hover {
+  border: 0 !important;
+  background: none !important;
+  color: var(--link) !important;
+  font-weight: 700;
+}
+.primary,
+button.primary,
+.case-save-notice,
+.focus-assessment form button[type="submit"] {
+  background: linear-gradient(90deg, #c8174f 0, #c42700 100%);
+  border: 0;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+.primary:hover,
+button.primary:hover,
+.focus-assessment form button[type="submit"]:hover {
+  background: linear-gradient(90deg, #a91343 0, #a32100 100%);
+  color: #fff;
+}
+.focus-assessment summary {
+  border: 2px solid var(--navy);
+  color: var(--navy);
+  border-radius: var(--radius);
+  font-weight: 700;
+}
+.focus-assessment summary:hover {
+  background: var(--navy);
+  color: #fff;
+}
+.focus-assessment[open] summary {
+  border-color: transparent;
+}
+input,
+select,
+textarea {
+  border-radius: var(--radius);
+}
+a {
+  font-weight: 700;
+}
+p a,
+li a {
+  font-weight: inherit;
+}
+
+/* Purple hero on the collection page */
+.collection-heading {
+  background:
+    radial-gradient(circle at 85% 120%, rgba(190, 170, 255, 0.55), transparent 45%),
+    linear-gradient(115deg, #2c0a5e 0%, var(--purple) 45%, #6c2bc4 100%);
+  color: #fff;
+  padding: 36px 40px;
+  border-radius: var(--card-radius);
+}
+.collection-heading h1,
+.collection-heading .eyebrow,
+.collection-heading > div > p,
+.collection-heading > div > p:last-child {
+  color: #fff;
+}
+.collection-heading > div > p:not(.eyebrow) {
+  font-size: 18px;
+  opacity: 0.92;
+}
+.collection-heading h1 {
+  font-size: 40px;
+  border-right-color: #fff !important;
+}
+
+/* Cards: white, rounded, soft shadow */
+.ledger,
+.charge-panel,
+.stake-panel,
+.focus-prompt,
+.rail-panel,
+.court-cards > article,
+.outcome-card,
+.source-record,
+.court-library-empty,
+.focus-ribbon,
+.search-result,
+.panel {
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  border-color: transparent;
+}
+.focus-ribbon {
+  background: var(--lavender);
+  color: var(--purple);
+  box-shadow: none;
+}
+.court-library-empty {
+  border-left: 0;
+}
+.charge-panel {
+  border-left: 4px solid var(--purple);
+}
+.stake-panel:first-child {
+  border-top-color: var(--purple);
+}
+
+/* Sidebar: white, lavender highlight with a purple bar on the current page */
+.sidebar {
+  background: #fff;
+}
+.sidebar nav a {
+  border-radius: var(--radius);
+  font-weight: 700;
+}
+.sidebar nav a[aria-current="page"] {
+  background: var(--lavender);
+  color: var(--purple);
+  box-shadow: inset 3px 0 0 var(--purple);
+}
+.sidebar nav a:hover {
+  background: var(--lavender);
+  color: var(--purple);
+}
+.status,
+.badge,
+[class*="pill"] {
+  border-radius: 999px;
+}
+
+/* ---- Motion, also modelled on lexisnexis.com/en-us: quick colour transitions,
+   cards that lift on hover, sections that rise into view and a typed page title.
+   Everything is switched off under prefers-reduced-motion. ---- */
+a,
+button,
+summary,
+.product-nav a,
+.sidebar nav a {
+  transition:
+    color 0.15s ease-in-out,
+    background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out,
+    box-shadow 0.15s ease-in-out;
+}
+.product-header {
+  transition: box-shadow 0.3s ease-in-out;
+}
+.product-header.is-scrolled {
+  box-shadow: 0 4px 14px rgba(0, 23, 46, 0.12);
+}
+
+/* Cards lift on hover */
+.ledger-row,
+.stake-panel,
+.court-cards > article,
+.outcome-card,
+.source-record-row,
+.search-result {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+.stake-panel:hover,
+.court-cards > article:hover,
+.outcome-card:hover,
+.search-result:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover);
+}
+.ledger-row:hover,
+.source-record-row:hover {
+  background: var(--lavender);
+}
+
+/* Sections rise into view (the class is only added by JavaScript, see effects.mjs) */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.5s ease-out,
+    transform 0.5s ease-out;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* The page title types itself once */
+.collection-heading h1 {
+  display: inline-block;
+  padding-right: 4px;
+  border-right: 2px solid #fff;
+  animation:
+    type-title 1.1s steps(20, end) 0.15s both,
+    caret 0.8s step-end 0.15s 3 forwards;
+}
+@keyframes type-title {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes caret {
+  50% {
+    border-color: transparent;
+  }
+  to {
+    border-color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .collection-heading h1 {
+    border-right-color: transparent !important;
+  }
+}

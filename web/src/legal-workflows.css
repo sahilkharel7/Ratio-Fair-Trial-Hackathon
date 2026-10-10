@@ -13,7 +13,7 @@
   max-width: 850px;
 }
 .legal-page-header p:not(.eyebrow) {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.8;
   color: var(--muted);
 }
@@ -24,12 +24,12 @@
   flex-shrink: 0;
 }
 .report-actions button {
-  font-size: 11px;
+  font-size: 13px;
   white-space: nowrap;
 }
 .authority-disclaimer,
 .browser-review-note {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
   padding: 14px 17px;
   border-left: 2px solid #8ba1b5;
@@ -43,18 +43,18 @@
   margin-top: 20px;
 }
 .authority-context summary {
-  font-size: 12px;
+  font-size: 14px;
   color: #4d6378;
   font-weight: 600;
 }
 .authority-context summary > span {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 400;
   margin-left: 8px;
   color: var(--muted);
 }
 .authority-context .caption {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
 }
 .authority-quote {
@@ -64,7 +64,7 @@
   margin: 12px 0;
 }
 .authority-quote h4 {
-  font-size: 11px;
+  font-size: 13px;
   margin: 0 0 10px;
 }
 .authority-quote blockquote,
@@ -79,10 +79,10 @@
 }
 .authority-card .caption {
   margin-top: 14px;
-  font-size: 11px;
+  font-size: 13px;
 }
 .authority-card .eyebrow {
-  font-size: 9px;
+  font-size: 12px;
 }
 .authority-toolbar {
   display: grid;
@@ -95,10 +95,10 @@
 }
 .authority-toolbar select {
   margin-bottom: 0;
-  font-size: 12px;
+  font-size: 14px;
 }
 .authority-toolbar input {
-  font-size: 12px;
+  font-size: 14px;
 }
 .selected-finding {
   margin: 0 0 25px;
@@ -114,7 +114,7 @@
   border: 1px solid #e8d9b7;
   color: #805f2f;
   padding: 9px 12px;
-  font-size: 10px;
+  font-size: 12px;
   margin: 14px 0;
   line-height: 1.7;
 }
@@ -127,10 +127,10 @@
 }
 .state-argument h4 {
   margin: 0 0 12px;
-  font-size: 13px;
+  font-size: 15px;
 }
 .state-argument > p {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.8;
 }
 .ground-quote {
@@ -155,13 +155,13 @@
   margin-top: 20px;
 }
 .finding-actions .text-action {
-  font-size: 11px;
+  font-size: 13px;
 }
 .renewal-order .row-heading h3 {
   font: 20px/1.4 var(--serif);
 }
 .renewal-order > p {
-  font-size: 12px;
+  font-size: 14px;
 }
 .renewal-document {
   height: 400px;
@@ -173,19 +173,19 @@
   margin: 10px 0 12px;
   border: 0;
   background: #e7ebf0;
-  border-radius: 3px;
+  border-radius: 0;
 }
 .review-progress progress::-webkit-progress-bar {
   background: #e7ebf0;
-  border-radius: 3px;
+  border-radius: 0;
 }
 .review-progress progress::-webkit-progress-value {
   background: var(--accent);
-  border-radius: 3px;
+  border-radius: 0;
 }
 .review-progress progress::-moz-progress-bar {
   background: var(--accent);
-  border-radius: 3px;
+  border-radius: 0;
 }
 .saved-summary strong small {
   display: inline;
@@ -240,7 +240,7 @@
 .review-finding-list {
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 0;
   padding: 15px;
   max-height: calc(100vh - 155px);
   overflow: auto;
@@ -249,10 +249,10 @@
 }
 .review-finding-list > label {
   margin: 0 0 8px;
-  font-size: 11px;
+  font-size: 13px;
 }
 .review-finding-list > select {
-  font-size: 11px;
+  font-size: 13px;
   min-height: 34px;
   padding: 7px;
   margin-bottom: 15px;
@@ -266,13 +266,13 @@
   padding: 15px 12px;
   border: 1px solid var(--border);
   border-left: 2px solid transparent;
-  border-radius: 3px;
+  border-radius: 0;
   gap: 7px;
   width: 100%;
   margin-bottom: 10px;
 }
 .review-finding .eyebrow {
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.6px;
   margin: 0;
 }
@@ -280,7 +280,7 @@
   font: 14px/1.6 var(--serif);
 }
 .review-finding .caption {
-  font-size: 10px;
+  font-size: 12px;
   text-align: left;
 }
 .review-finding.selected {
@@ -294,7 +294,7 @@
   font: 22px/1.4 var(--serif);
 }
 .review-detail > p {
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.8;
 }
 .decision-panel {
@@ -302,7 +302,7 @@
   margin-top: 24px;
   background: #f7f8fa;
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 0;
 }
 .decision-panel fieldset {
   padding: 0;
@@ -313,7 +313,7 @@
   flex-wrap: wrap;
 }
 .decision-panel legend {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   margin-bottom: 13px;
 }
@@ -322,7 +322,7 @@
   align-items: center;
   gap: 7px;
   margin: 0;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 400;
 }
 .radio-choice input {
@@ -334,14 +334,14 @@
   padding: 0;
 }
 .decision-panel label {
-  font-size: 11px;
+  font-size: 13px;
   margin-top: 15px;
 }
 .decision-panel input:not([type="radio"]) {
-  font-size: 12px;
+  font-size: 14px;
 }
 .decision-panel textarea {
-  font-size: 12px;
+  font-size: 14px;
   background: #fff;
 }
 .decision-actions {
@@ -351,22 +351,22 @@
   margin-top: 18px;
 }
 .decision-actions button {
-  font-size: 11px;
+  font-size: 13px;
 }
 .form-error {
   color: #9d343c;
-  font-size: 12px;
+  font-size: 14px;
   margin: 13px 0;
 }
 .review-history {
   padding-left: 20px;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.8;
   color: #52667b;
 }
 .review-history p {
   margin: 5px 0;
-  font-size: 11px;
+  font-size: 13px;
   overflow-wrap: anywhere;
 }
 .missed-issues > .panel {
@@ -402,7 +402,7 @@
     padding: 13px 10px;
   }
   .review-finding strong {
-    font-size: 13px;
+    font-size: 15px;
   }
   .review-detail h2 {
     font-size: 20px;
@@ -435,10 +435,10 @@
     max-height: 310px;
   }
   .review-finding {
-    font-size: 12px;
+    font-size: 14px;
   }
   .review-finding strong {
-    font-size: 14px;
+    font-size: 15px;
   }
   .decision-panel {
     padding: 17px;
@@ -446,22 +446,22 @@
 }
 @media (max-width: 640px) {
   .legal-page-header p:not(.eyebrow) {
-    font-size: 11px;
+    font-size: 13px;
   }
   .legal-page-header h1 {
     font-size: 26px;
   }
   .authority-disclaimer,
   .browser-review-note {
-    font-size: 10px;
+    font-size: 12px;
     line-height: 1.8;
     padding: 12px;
   }
   .authority-context summary {
-    font-size: 11px;
+    font-size: 13px;
   }
   .authority-context summary > span {
-    font-size: 9px;
+    font-size: 12px;
     display: block;
     margin: 5px 0;
   }
@@ -470,22 +470,22 @@
   }
   .authority-quote blockquote,
   .authority-card blockquote {
-    font-size: 14px;
+    font-size: 15px;
   }
   .authority-card h2 {
     font-size: 18px;
   }
   .authority-card .eyebrow {
-    font-size: 8px;
+    font-size: 11px;
   }
   .authority-toolbar label {
-    font-size: 11px;
+    font-size: 13px;
   }
   .finding-actions {
     gap: 12px;
   }
   .finding-actions .text-action {
-    font-size: 10px;
+    font-size: 12px;
   }
   .review-finding-list {
     max-height: 270px;
@@ -497,7 +497,7 @@
     font-size: 20px;
   }
   .review-detail > p {
-    font-size: 12px;
+    font-size: 14px;
   }
   .decision-panel {
     padding: 14px;
@@ -506,20 +506,20 @@
     gap: 13px;
   }
   .decision-panel .radio-choice {
-    font-size: 11px;
+    font-size: 13px;
   }
   .report-actions button {
-    font-size: 10px;
+    font-size: 12px;
   }
   .renewal-order .row-heading h3 {
     font-size: 18px;
   }
   .queue-tabs button {
-    font-size: 9px;
+    font-size: 12px;
     padding: 10px 9px;
   }
   .queue-item > .queue-review {
-    font-size: 9px;
+    font-size: 12px;
     margin-top: -28px;
   }
   .renewal-document {
@@ -539,7 +539,7 @@
   margin-bottom: 8px;
 }
 .side-matter strong {
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1.4;
 }
 .side-matter > span {
@@ -564,16 +564,16 @@
   margin-top: 0;
 }
 .queue-actions .text-action {
-  font-size: 10px;
+  font-size: 12px;
 }
 .issue-content .selection-note {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.7;
   margin: 12px 0;
 }
 @media (max-width: 640px) {
   .queue-actions .text-action {
-    font-size: 9px;
+    font-size: 12px;
   }
 }

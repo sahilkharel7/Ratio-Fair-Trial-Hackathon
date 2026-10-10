@@ -23,6 +23,14 @@ export function CourtJudgments({ navigate }) {
   const judgments = catalogue.documents.filter(
     (d) => d.kind === "court_judgment",
   );
+  if (!judgments.length)
+    return (
+      <p className="court-library-empty">
+        <strong>No court judgments installed.</strong> Full decisions appear
+        here once the court source collection is built (see “Court judgments
+        and local one-pagers” in the README).
+      </p>
+    );
   return (
     <section className="court-library" aria-labelledby="court-library-heading">
       <div className="collection-heading">
