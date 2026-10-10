@@ -54,7 +54,7 @@ def test_the_sidebar_shows_the_ratio_logo_and_the_tab_uses_the_mark(app):
     assert any('class="ratio-brand"' in body and "ratio<small>LEGAL RESEARCH &amp; REVIEW</small>" in body for body in sidebar)
     from ratio_ui import style
 
-    assert style.LOGO.is_file() and style.LOGO.read_text(encoding="utf-8").lstrip().startswith("<svg")
+    assert style.ICON.read_bytes().startswith(b"\x89PNG")  # a PNG, which every browser shows as the tab icon
 
 
 def test_case_page_summarises_the_demo_without_errors(app):

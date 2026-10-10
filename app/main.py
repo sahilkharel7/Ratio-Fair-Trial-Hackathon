@@ -18,7 +18,7 @@ import streamlit as st  # noqa: E402
 from ratio import netguard  # noqa: E402
 from ratio_ui import privacy, session, style  # noqa: E402
 
-st.set_page_config(page_title="Ratio", page_icon=str(style.LOGO), layout="wide")  # the SVG is inlined; a Material icon would be fetched online
+st.set_page_config(page_title="Ratio", page_icon=str(style.ICON), layout="wide")  # the PNG is served by this app on 127.0.0.1; a Material icon would be fetched online
 netguard.install()  # any connection that is not to this computer now fails loudly
 
 problems = privacy.problems()

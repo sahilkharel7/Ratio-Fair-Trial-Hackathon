@@ -41,7 +41,7 @@ sup.ratio-label { font-family: "Source Sans", system-ui, sans-serif; font-size: 
 # A single stylesheet owns the application tokens and the Streamlit adapter.
 # System fonts keep the research workspace fully usable offline.
 CSS = Path(__file__).with_name("theme.css").read_text(encoding="utf-8") + DOCUMENT_CSS
-LOGO = Path(__file__).with_name("logo.svg")  # the "r." mark, also the browser tab icon (inlined, never fetched)
+ICON = Path(__file__).with_name("logo.png")  # the "r." mark as the browser tab icon (PNG: every browser shows it; served by this app, never fetched online)
 
 
 def inject() -> None:
