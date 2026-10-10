@@ -101,11 +101,28 @@ To use a different local model, set `RATIO_MODEL` (for example `RATIO_MODEL=mist
 
 ## Run
 
+### Start here: the court case workspace (the main interface)
+
+```bash
+npm --prefix web ci && npm --prefix web run build   # once, and after pulling changes to web/
+python scripts/serve_workspace.py --demo            # adds the three synthetic example cases
+```
+
+Open http://127.0.0.1:8503. This is the interface we present: a court-filtered case collection, a focused
+presumption-of-innocence review (charge, requested penalty, sentence and quoted law, each with its checked source),
+international decisions and source research. It serves the built app with a loopback-only API on this computer and
+uses `data/ratio.db` (`--db PATH` picks another database). `--groq-demo` is off by default; it enables online drafts
+for public or synthetic sources only. Upload limits and the adapter contract are in
+[docs/COURT-WORKSPACE.md](docs/COURT-WORKSPACE.md).
+
+### The full analysis app
+
 ```bash
 streamlit run app/main.py
 ```
 
-Open http://127.0.0.1:8501. The app only accepts connections from this computer.
+Open http://127.0.0.1:8501. It holds every analysis page described below, the Precedent library and the lawyer's
+review. Both interfaces use the same engine (the `ratio` package) and only accept connections from this computer.
 
 On the **Full analysis record** page you can:
 

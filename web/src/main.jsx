@@ -1181,11 +1181,11 @@ function AboutDialog({ open, onClose, local = false }) {
       <pre>streamlit run app/main.py</pre>
       <p>Legal conclusions remain with the reviewing lawyer.</p>
       <a
-        href="https://github.com/sahilkharel7/Ratio-Fair-Trial-Hackathon/tree/codex/court-case-workspace"
+        href="https://github.com/sahilkharel7/Ratio-Fair-Trial-Hackathon"
         target="_blank"
         rel="noreferrer"
       >
-        View the deployment branch →
+        View the source on GitHub →
       </a>
     </dialog>
   );
