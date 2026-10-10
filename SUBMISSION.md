@@ -39,7 +39,7 @@ Ratio runs on one laptop (a Mac with Apple Silicon, 16 GB of memory, about 8 GB 
 
 ## Evidence and limitations
 
-On the synthetic demo case, the evaluation (run on 10 October 2026) found 18 of 18 expected outputs, 0 violations of 11 must-not-flag traps, all 8 events of the hand-checked timeline with correct dates, and exact source spans for all 13 findings. 1,676 automated tests pass.
+On the synthetic demo case, the evaluation (run on 10 October 2026) found 18 of 18 expected outputs, 0 violations of 11 must-not-flag traps, all 8 events of the hand-checked timeline with correct dates, and exact source spans for all 13 findings. 1,691 automated tests pass.
 
 - The evaluation is in-sample: the team wrote the case and its expected outputs. Recall on published TrialWatch reports is not yet measured. One local run on a real public trial exposed two bugs, since fixed.
 - English only; scanned pages are read with on-device OCR, which can misread poor scans.

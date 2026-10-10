@@ -118,6 +118,20 @@ def test_a_saved_public_judgment_opens_as_an_active_case(library):
     assert sum(c["case_id"] == case_id for c in library.list()) == 1
 
 
+def test_stored_charge_panels_are_recomputed_with_the_current_rules(library):
+    manifest, ids = stage_sorin(library)
+    library.import_manifest(manifest, ids)
+    fresh = library.focus("uploaded-sorin")
+    with library.connect() as conn:  # a panel saved by an earlier version of the rules
+        stale = fresh.model_copy(update={"charge": "Not recorded", "charge_span": None})
+        conn.execute("UPDATE matter_catalogue SET charge=?, focus_json=? WHERE case_id=?",
+                     ("Not recorded", stale.model_dump_json(), "uploaded-sorin"))
+
+    assert library.refresh_focus() >= 1
+
+    assert library.focus("uploaded-sorin").charge == fresh.charge != "Not recorded"
+
+
 def test_demo_seeding_skips_entries_that_are_not_case_folders(library, tmp_path, monkeypatch):
     import shutil
 

@@ -451,6 +451,7 @@ def main():
         parser.error("Build the interface first: npm --prefix web ci && npm --prefix web run build")
     netguard.install()
     library = LibraryStore(CaseStore(args.db))
+    library.refresh_focus()  # review panels saved by earlier rules (e.g. a charge "Not recorded") are recomputed
     briefs = None
     if args.local_ai or args.groq_demo:
         from ratio.demo_briefs import DemoBriefService

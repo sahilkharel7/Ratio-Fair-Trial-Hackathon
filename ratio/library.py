@@ -310,6 +310,19 @@ class LibraryStore:
             )
         return record
 
+    def refresh_focus(self) -> int:
+        """Recompute every stored matter's review panel with the current rules: it is derived from the record,
+        and reviewers' assessments are stored separately. Returns the number of matters refreshed."""
+        with self.connect() as conn:
+            rows = conn.execute("SELECT case_id, defendant FROM matter_catalogue").fetchall()
+        refreshed = 0
+        for row in rows:
+            record = self.cases.load_case(row["case_id"])
+            if record is not None:
+                self.register(record, defendant=row["defendant"])
+                refreshed += 1
+        return refreshed
+
     def open_reference_case(
         self, *, doc_id: str, title: str, court: str, source_url: str, filename: str, content: bytes,
         doc_type: str = "judgment",
