@@ -4,6 +4,7 @@ import { firstMatch } from "./research.mjs";
 import { CourtJudgments } from "./court-library.jsx";
 import { CorpusResearch } from "./corpus-research.jsx";
 import { downloadFile, markdownLiteral } from "./workflow.mjs";
+import { TypedTitle, CountUp, greeting } from "./motion.jsx";
 import {
   workspaceMode,
   requestJSON,
@@ -88,13 +89,35 @@ export function CaseCollection({
       : (a, b) => b.updated_at.localeCompare(a.updated_at),
   );
   const waiting = cases.filter((c) => c.pending_prompts > 0).length;
+  const all = workspace.cases,
+    stats = [
+      [all.length, all.length === 1 ? "case" : "cases"],
+      [all.reduce((n, c) => n + (c.pending_prompts || 0), 0), "passage"],
+      [all.reduce((n, c) => n + (c.document_count || 0), 0), "document"],
+    ].map(([n, label]) =>
+      label === "passage"
+        ? [n, n === 1 ? "passage to check" : "passages to check"]
+        : label === "document"
+          ? [n, n === 1 ? "document" : "documents"]
+          : [n, label],
+    );
   return (
     <>
       <div className="collection-heading">
         <div>
-          <p className="eyebrow">Court workspace</p>
-          <h1>Your case collection</h1>
+          <p className="eyebrow">{greeting()} · Court workspace</p>
+          <TypedTitle text="Your case collection" />
           <p>Start with the person, the charge, and what is at stake.</p>
+          <ul className="hero-stats" aria-label="Collection summary">
+            {stats.map(([n, label]) => (
+              <li key={label}>
+                <strong>
+                  <CountUp value={n} />
+                </strong>
+                <span>{label}</span>
+              </li>
+            ))}
+          </ul>
         </div>
         <button className="primary" onClick={onImport}>
           <Icon name="file" />
@@ -859,7 +882,7 @@ export function CaseReview({
             </form>
             <small>
               {workspace.mode === "local_sqlite"
-                ? "Saved in this case’s SQLite record."
+                ? "Saved with this case on this computer."
                 : "Synthetic demo notes saved in this browser."}
             </small>
             {(payload.notes || []).map((n, i) => (

@@ -5,8 +5,19 @@ const REVEAL =
   ".charge-panel, .stake-panel, .innocence-section, .ledger-row, .court-library, " +
   ".collection-research-link, .rail-panel, .source-record-row, .outcome-card, .court-cards > article";
 
+// Sidebar links show their name as a tooltip, which matters when the rail is collapsed.
+const labelRailLinks = () =>
+  document.querySelectorAll(".sidebar nav a").forEach((a) => {
+    if (!a.title) a.title = a.textContent.replace(/\d+$/, "").trim();
+  });
+
 export function startEffects() {
   if (typeof window === "undefined") return;
+  new MutationObserver(labelRailLinks).observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+  labelRailLinks();
   const header = () => document.querySelector(".product-header");
   const onScroll = () =>
     header()?.classList.toggle("is-scrolled", window.scrollY > 8);

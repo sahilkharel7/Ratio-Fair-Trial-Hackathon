@@ -1229,6 +1229,7 @@ function App() {
   const [saved, setSaved, saveFailed] = useStored("ratio-demo-saved-v1", []),
     [recent, setRecent, historyFailed] = useStored("ratio-demo-history-v1", []),
     [notes, setNotes, noteFailed] = useStored("ratio-demo-notes-v1", {}),
+    [rail, setRail] = useStored("ratio-ui-rail-v1", { collapsed: false }),
     [reviews, setReviews, reviewFailed] = useStored(
       "ratio-demo-reviews-v1",
       [],
@@ -1261,6 +1262,15 @@ function App() {
                 ["/research", "Matter research"],
                 ["/saved", "Saved research"],
               ].find((n) => n[0] === route)?.[1] || "Trial review";
+  useEffect(() => {
+    // pages without the research bar use a shorter fixed header
+    document.documentElement.dataset.shell = primaryRoute ? "compact" : "full";
+  }, [primaryRoute]);
+  useEffect(() => {
+    document.documentElement.dataset.rail = rail.collapsed
+      ? "collapsed"
+      : "open";
+  }, [rail.collapsed]);
   useEffect(() => {
     document.title = `Ratio · ${pageName}`;
   }, [pageName]);
@@ -1439,27 +1449,9 @@ function App() {
             <Icon name="clock" />
             <span>History</span>
           </button>
-          <button className="preview-chip" onClick={() => setAbout(true)}>
-            {workspace?.mode === "local_sqlite"
-              ? "On this computer"
-              : "Demo workspace"}
-          </button>
         </div>
       </header>
-      {primaryRoute ? (
-        <div className="collection-shell-band">
-          <span>
-            <Icon name="scale" />
-            Court case workspace
-          </span>
-          <span>
-            Presumption of innocence ·{" "}
-            {route.startsWith("/judgments/")
-              ? "ECHR Article 6(2)"
-              : "ICCPR Article 14(2)"}
-          </span>
-        </div>
-      ) : (
+      {!primaryRoute && (
         <ResearchBar
           navigate={navigate}
           query={query}
@@ -1482,6 +1474,25 @@ function App() {
         />
       )}
       <aside id="workspace-nav" className={`sidebar ${drawer ? "open" : ""}`}>
+        <button
+          className="rail-toggle"
+          aria-expanded={!rail.collapsed}
+          aria-label={rail.collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={rail.collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          onClick={() => setRail({ collapsed: !rail.collapsed })}
+        >
+          <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true">
+            <path
+              d="M12.5 4.5 7 10l5.5 5.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span>Collapse</span>
+        </button>
         {!primaryRoute && (
           <div className="side-matter">
             <p className="eyebrow">Current matter</p>
@@ -1541,7 +1552,10 @@ function App() {
             International decisions
           </a>
         </nav>
-        <details className="supporting-nav">
+        <details
+          className="supporting-nav"
+          open={navigation.some(([path]) => path === route) || undefined}
+        >
           <summary>Supporting analysis</summary>
           <nav aria-label="Matter pages">
             {navigation.map(([path, label], i) => (
@@ -1590,24 +1604,21 @@ function App() {
             Working file<span className="nav-count">{saved.length}</span>
           </a>
         </nav>
-        <div className="sidebar-note">
-          <div className="provenance-seal">
-            <Icon name="check" />
-            <span>Built for the record</span>
-          </div>
-          <p>
-            Every finding leads back
-            <br />
-            to its original source.
-          </p>
-          <small>
-            ICCPR Articles 9 &amp; 14
-            <br />
-            {workspace?.mode === "local_sqlite"
-              ? "Records stay on this computer"
-              : "Synthetic demonstration collection"}
-          </small>
-        </div>
+        <button
+          className="workspace-status"
+          onClick={() => setAbout(true)}
+          title="About this workspace"
+        >
+          <Icon name="check" />
+          <span>
+            <strong>
+              {workspace?.mode === "local_sqlite"
+                ? "On this computer"
+                : "Demo workspace"}
+            </strong>
+            <small>Every finding links to its source</small>
+          </span>
+        </button>
       </aside>
       <main id="main" tabIndex={-1}>
         <div className="workspace-breadcrumb">
