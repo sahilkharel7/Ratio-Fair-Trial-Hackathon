@@ -10,6 +10,8 @@ import "./styles.css";
 import "./workspace.css";
 import "./legal-workflows.css";
 import "./case-library.css";
+import "./theme.css";
+import { startEffects } from "./effects.mjs";
 import { CourtJudgment } from "./court-library.jsx";
 import {
   CaseCollection,
@@ -1480,27 +1482,27 @@ function App() {
         />
       )}
       <aside id="workspace-nav" className={`sidebar ${drawer ? "open" : ""}`}>
-        <div className="side-matter">
-          <p className="eyebrow">
-            {primaryRoute ? "Current view" : "Current matter"}
-          </p>
-          <strong>
-            {route.startsWith("/judgments/")
-              ? "Historical court judgment"
-              : route === "/international"
-                ? "International review library"
-                : route === "/"
-                  ? "Court case collection"
-                  : selectedMatter?.record.meta.title ||
-                    data?.record.meta.title ||
-                    "Case workspace"}
-          </strong>
-          <span>
-            {primaryRoute
-              ? "Presumption of innocence"
-              : selectedMatter?.record.case_id || "VENN–2025"}
-          </span>
-        </div>
+        {!primaryRoute && (
+          <div className="side-matter">
+            <p className="eyebrow">Current matter</p>
+            <strong>
+              {route.startsWith("/judgments/")
+                ? "Historical court judgment"
+                : route === "/international"
+                  ? "International review library"
+                  : route === "/"
+                    ? "Court case collection"
+                    : selectedMatter?.record.meta.title ||
+                      data?.record.meta.title ||
+                      "Case workspace"}
+            </strong>
+            <span>
+              {primaryRoute
+                ? "Presumption of innocence"
+                : selectedMatter?.record.case_id || "VENN–2025"}
+            </span>
+          </div>
+        )}
         <p className="eyebrow side-label">Review workspace</p>
         <nav aria-label="Primary workspace">
           <a
@@ -1611,16 +1613,20 @@ function App() {
         <div className="workspace-breadcrumb">
           <span>Workspace</span>
           <span aria-hidden="true">/</span>
-          <a
-            href="/"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate("/");
-            }}
-          >
-            Case collection
-          </a>
-          <span aria-hidden="true">/</span>
+          {pageName !== "Case collection" && (
+            <>
+              <a
+                href="/"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/");
+                }}
+              >
+                Case collection
+              </a>
+              <span aria-hidden="true">/</span>
+            </>
+          )}
           <strong>{pageName}</strong>
         </div>
         {(saveFailed ||
@@ -1834,3 +1840,4 @@ function App() {
 }
 
 createRoot(document.getElementById("root")).render(<App />);
+startEffects();

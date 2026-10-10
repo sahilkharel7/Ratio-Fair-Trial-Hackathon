@@ -1,6 +1,6 @@
 :root {
   --ink: #1f2c3d;
-  --muted: #5e6875;
+  --muted: #566170;
   --navy: #18293c;
   --accent: #9b283e;
   --accent-soft: #f7edf0;
@@ -16,7 +16,7 @@
   color: var(--ink);
   background: var(--canvas);
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: 15px;
   font-synthesis: none;
 }
 * {
@@ -44,7 +44,7 @@ button {
   background: white;
   border: 1px solid #c8cfd7;
   color: var(--ink);
-  border-radius: 3px;
+  border-radius: 0;
 }
 button:hover {
   border-color: var(--link);
@@ -81,16 +81,16 @@ h1 {
   color: var(--navy);
 }
 h2 {
-  font: 600 17px/1.4 var(--sans);
+  font: 600 18px/1.4 var(--sans);
   letter-spacing: -0.2px;
   margin-bottom: 6px;
 }
 h3 {
-  font: 600 15px/1.5 var(--sans);
+  font: 600 16px/1.5 var(--sans);
   margin-bottom: 12px;
 }
 h4 {
-  font: 600 13px/1.5 var(--sans);
+  font: 600 15px/1.5 var(--sans);
   margin: 20px 0 10px;
 }
 p {
@@ -104,16 +104,16 @@ small,
   color: var(--muted);
 }
 .caption {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.6;
 }
 .intro {
-  font-size: 14px;
+  font-size: 15px;
   margin: 20px 0 24px;
   max-width: 1000px;
 }
 .eyebrow {
-  font: 600 10px/1.5 var(--sans);
+  font: 600 12px/1.5 var(--sans);
   letter-spacing: 1.35px;
   text-transform: uppercase;
   color: var(--muted);
@@ -186,8 +186,8 @@ small,
   border-left: 3px solid transparent;
   color: #435063;
   text-decoration: none;
-  font-size: 13px;
-  border-radius: 3px;
+  font-size: 15px;
+  border-radius: 0;
   white-space: nowrap;
 }
 .sidebar nav a:hover {
@@ -203,7 +203,7 @@ small,
   margin-top: 85px;
   padding-top: 25px;
   border-top: 1px solid var(--border);
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted);
 }
 .sidebar-note p {
@@ -216,7 +216,7 @@ small,
   margin: 0 0 20px;
 }
 .sidebar-note small {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.7;
 }
 .mobile-menu,
@@ -236,7 +236,7 @@ main {
   padding-bottom: 20px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 28px;
-  font: 600 10px var(--sans);
+  font: 600 12px var(--sans);
   letter-spacing: 1.4px;
   text-transform: uppercase;
   color: var(--muted);
@@ -246,7 +246,7 @@ main {
   background: none;
   padding: 0;
   min-height: 20px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 400;
   letter-spacing: 0;
   text-transform: none;
@@ -268,9 +268,9 @@ main {
   background: #faf7ed;
   border: 1px solid #e6ddbd;
   border-left: 3px solid #ae9351;
-  border-radius: 3px;
+  border-radius: 0;
   color: #6c5b2b;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.6;
   padding: 8px 12px;
   margin-bottom: 16px;
@@ -294,7 +294,7 @@ main {
   flex-wrap: wrap;
   gap: 12px 20px;
   margin: 0;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.6;
 }
 .matter dl > div {
@@ -327,7 +327,7 @@ main {
   border-radius: var(--radius);
 }
 .metric > div {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted);
 }
 .metric strong {
@@ -339,7 +339,7 @@ main {
 }
 .metric small {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.6;
 }
 .metric.review {
@@ -352,7 +352,7 @@ main {
   margin-top: 24px;
 }
 .section-caption {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.6;
   margin-bottom: 18px;
 }
@@ -390,14 +390,14 @@ main {
   color: var(--navy);
 }
 .workstream p {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted);
   margin: 15px 0;
   min-height: 38px;
 }
 .workstream a {
   text-decoration: none;
-  font-size: 13px;
+  font-size: 15px;
 }
 .workstream a:hover {
   text-decoration: underline;
@@ -407,7 +407,7 @@ details.panel {
 }
 summary {
   cursor: pointer;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 500;
   line-height: 1.6;
 }
@@ -415,7 +415,7 @@ details[open] > summary {
   margin-bottom: 18px;
 }
 details p {
-  font-size: 13px;
+  font-size: 15px;
 }
 details summary::marker {
   color: var(--muted);
@@ -423,7 +423,7 @@ details summary::marker {
 label,
 .search-label {
   display: block;
-  font-size: 12px;
+  font-size: 14px;
   margin: 18px 0 8px;
   font-weight: 600;
 }
@@ -432,13 +432,13 @@ select {
   width: 100%;
   background: white;
   border: 1px solid #cbd2da;
-  border-radius: 3px;
+  border-radius: 0;
   min-height: 42px;
   padding: 10px 12px;
   color: var(--ink);
 }
 input::placeholder {
-  color: #7f8995;
+  color: #687382;
 }
 select {
   margin-bottom: 20px;
@@ -446,14 +446,14 @@ select {
 .table-wrap {
   overflow-x: auto;
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 0;
   margin: 16px 0;
   background: white;
 }
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: 14px;
   text-align: left;
 }
 th {
@@ -473,7 +473,7 @@ tbody tr:last-child td {
 td button {
   min-height: 31px;
   padding: 5px 10px;
-  font-size: 12px;
+  font-size: 14px;
 }
 tbody tr:hover {
   background: #fafbfd;
@@ -492,7 +492,7 @@ tbody tr:hover {
 }
 .preview-explanation p {
   margin: 0;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted);
 }
 footer {
@@ -500,7 +500,7 @@ footer {
   padding: 22px 0 0;
   margin-top: 36px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.7;
 }
 .split {
@@ -527,14 +527,14 @@ footer {
   flex-direction: column;
   align-items: start;
   gap: 9px;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.6;
 }
 .guarantee:hover {
   background: #fafbfd;
 }
 .guarantee strong {
-  font-size: 13px;
+  font-size: 15px;
 }
 .guarantee.selected {
   border-left-color: var(--accent);
@@ -546,9 +546,9 @@ footer {
 }
 .badge {
   display: inline-block;
-  border-radius: 3px;
+  border-radius: 0;
   padding: 3px 6px;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.5;
   font-weight: 500;
   background: #eef1f4;
@@ -576,9 +576,9 @@ footer {
 .info,
 .warning {
   padding: 14px 16px;
-  border-radius: 3px;
+  border-radius: 0;
   line-height: 1.65;
-  font-size: 13px;
+  font-size: 15px;
   margin: 18px 0;
 }
 .info {
@@ -622,12 +622,12 @@ footer {
   margin-bottom: 7px;
 }
 .evidence > button {
-  font-size: 12px;
+  font-size: 14px;
   flex-shrink: 0;
 }
 .required {
   display: block;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.6;
   margin-top: 4px;
 }
@@ -656,7 +656,7 @@ footer {
 .segmented {
   display: inline-flex;
   border: 1px solid var(--border);
-  border-radius: 3px;
+  border-radius: 0;
   overflow: hidden;
   margin: 0 0 14px;
 }
@@ -664,7 +664,7 @@ footer {
   border: 0;
   border-radius: 0;
   background: white;
-  font-size: 12px;
+  font-size: 14px;
 }
 .segmented button + button {
   border-left: 1px solid var(--border);
@@ -678,7 +678,7 @@ footer {
   flex-wrap: wrap;
   gap: 12px;
   align-items: center;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--muted);
   margin-bottom: 16px;
 }
@@ -697,7 +697,7 @@ footer {
 .ratio-doc mark {
   color: inherit;
   padding: 0 1px;
-  border-radius: 2px;
+  border-radius: 0;
 }
 .ratio-verbatim {
   background: #f9e5ab;
@@ -717,14 +717,14 @@ footer {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   border: 1px solid currentColor;
-  border-radius: 3px;
+  border-radius: 0;
   padding: 0 4px;
   margin: 0 4px;
   opacity: 0.75;
   white-space: nowrap;
 }
 .ratio-label {
-  font: 700 10px var(--sans);
+  font: 700 12px var(--sans);
   margin-left: 1px;
 }
 .rate-comparison {
@@ -737,7 +737,7 @@ footer {
   padding: 16px;
   background: #f8f9fb;
   border: 1px solid #e6ebef;
-  border-radius: 3px;
+  border-radius: 0;
 }
 .rate-comparison h4 {
   margin: 0 0 10px;
@@ -747,7 +747,7 @@ footer {
   color: var(--navy);
 }
 .rate-comparison p {
-  font-size: 12px;
+  font-size: 14px;
   color: var(--muted);
   margin: 10px 0 0;
 }
@@ -755,7 +755,7 @@ dialog {
   color: var(--ink);
   background: white;
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: 0;
   padding: 24px;
   box-shadow: 0 12px 45px #18293c25;
   max-height: 90vh;
@@ -774,7 +774,7 @@ dialog::backdrop {
   margin-bottom: 20px;
 }
 .dialog-heading h2 {
-  font-size: 17px;
+  font-size: 18px;
   margin: 0;
 }
 .dialog-heading button {
@@ -810,7 +810,7 @@ dialog::backdrop {
   border: 1px solid var(--border);
   padding: 15px;
   overflow-x: auto;
-  font-size: 12px;
+  font-size: 14px;
 }
 .empty {
   padding: 40px 20px;
@@ -862,7 +862,7 @@ dialog::backdrop {
     padding: 65px 18px 25px;
   }
   .sidebar nav a {
-    font-size: 12px;
+    font-size: 14px;
   }
   .brand strong {
     font-size: 31px;
@@ -912,7 +912,7 @@ dialog::backdrop {
     z-index: 17;
     top: 15px;
     left: 16px;
-    font-size: 12px;
+    font-size: 14px;
     background: white;
   }
   .drawer-scrim {
@@ -981,10 +981,10 @@ dialog::backdrop {
     padding: 18px;
   }
   .source-text {
-    font-size: 14px;
+    font-size: 15px;
   }
   .dialog-heading h2 {
-    font-size: 16px;
+    font-size: 17px;
   }
   .legend {
     gap: 8px;
