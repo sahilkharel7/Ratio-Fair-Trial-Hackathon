@@ -341,7 +341,9 @@ class LibraryStore:
             synthetic=False, source_note=source_url,
             documents=[{"path": filename, "type": doc_type, "title": title}],
         )
-        self.import_manifest(manifest, {filename: staged["id"]})
+        # International decisions are titled "Applicant v. State": the person is the first party, not the last.
+        applicant = title.split(" v. ", 1)[0].strip() if " v. " in title else None
+        self.import_manifest(manifest, {filename: staged["id"]}, defendant=applicant)
         return case_id
 
     def delete_case(self, case_id: str) -> None:

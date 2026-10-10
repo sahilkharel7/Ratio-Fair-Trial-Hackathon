@@ -114,6 +114,7 @@ def test_a_saved_public_judgment_opens_as_an_active_case(library):
     assert case_id == "court-testland-1-99" and record.meta.data_provenance == "public"
     assert [d.type for d in record.documents] == ["judgment"]
     assert library.focus(case_id).charge == "an invented offence"
+    assert library.focus(case_id).defendant == "Applicant"  # "Applicant v. State": the person is named first
     assert library.open_reference_case(**kwargs) == case_id  # opening it again reuses the case
     assert sum(c["case_id"] == case_id for c in library.list()) == 1
 
