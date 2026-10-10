@@ -12,6 +12,15 @@
   align-items: center;
   gap: 8px;
 }
+.stake-panel.stake-empty {
+  margin: 16px 0 8px;
+}
+.stake-panel.stake-empty strong {
+  display: block;
+  font-size: 18px;
+  line-height: 1.4;
+  margin: 4px 0;
+}
 .case-file-type {
   display: inline-flex;
   align-items: center;

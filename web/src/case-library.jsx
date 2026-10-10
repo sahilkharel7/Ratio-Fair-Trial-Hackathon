@@ -697,6 +697,20 @@ export function CaseReview({
           </p>
         )}
       </section>
+      {focus.penalties.length === 0 ? (
+        <section className="stake-panel stake-empty">
+          <span>Penalties</span>
+          <strong>
+            No prosecution request, sentence or statutory penalty is stated in
+            these documents.
+          </strong>
+          <small>
+            These panels fill in when a document states one, such as the
+            prosecutor's request or the sentence in a judgment.
+          </small>
+        </section>
+      ) : (
+      <>
       <div className="stake-panels">
         {[
           ["requested", "Prosecution seeks"],
@@ -745,6 +759,8 @@ export function CaseReview({
           </div>
         ))}
       </details>
+      </>
+      )}
       {workspace.mode === "local_sqlite" && workspace.ai_briefs?.enabled && (
         <AICaseBrief key={caseId} caseId={caseId} openSource={openSource} />
       )}
