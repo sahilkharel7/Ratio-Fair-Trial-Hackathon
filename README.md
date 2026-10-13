@@ -179,7 +179,7 @@ term is found in its text, the reader opens that exact passage. Imports and live
 model checks are available below the record. The shared interface components,
 design tokens, and design references are documented in [docs/INTERFACE.md](docs/INTERFACE.md).
 
-The **[hosted preview](https://ratio-trial-review-preview.vercel.app)** is the same React workspace without
+The **[hosted preview](https://ratio-fair-trial.vercel.app)** is the same React workspace without
 the local server: it opens the three committed synthetic examples and their recorded pipeline outputs (unified
 search, source reading, saved passages, detention-order comparisons, jurisprudence, possible State replies and a
 browser review worksheet). It does not accept uploads or run a model, and demo decisions stay in browser storage;

@@ -56,9 +56,10 @@ npm run preview
 
 ## Deploy on Vercel
 
-Use a separate project (for example `ratio-trial-review-preview`) with root
+The hosted preview is the Vercel project `ratio-fair-trial`
+(https://ratio-fair-trial.vercel.app). Use a separate project with root
 directory **web**, framework **Vite**, build command **npm run build**, and output
-directory **dist**. Use the branch **main** after the integration is merged. No environment
+directory **dist**. Use the branch **main**. No environment
 variables, database, Python runtime, analytics, or model downloads are needed.
 
 The `vercel.json` SPA rewrite supports direct links to review pages. The committed
